@@ -32,8 +32,8 @@ export default defineNuxtModule<ModuleOptions>({
       handler
     })
 
-    // add composable
-    const composables = resolve(runtimeDir, 'composables')
-    addImportsDir(composables)
+    // // add composable
+    // const composables = resolve(runtimeDir, 'composables')
+    // addImportsDir(composables)
   }
 })

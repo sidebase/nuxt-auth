@@ -1,30 +1,31 @@
 <template>
   <div>
-    Nuxt module playground!
-    <p>Providers:</p>
-    <pre>
-      {{ providers }}
-    </pre>
-    <p>Session:</p>
+    <h3>Session:</h3>
     <pre>
       {{ session }}
     </pre>
     <button @click="signIn">
       sign in with github
     </button>
+    <button @click="signOut">
+      sign out
+    </button>
+    <h3>CSRF Token</h3>
+    <pre>
+      {{ csrfToken }}
+    </pre>
+    <h3>Providers</h3>
+    <pre>
+      {{ providers }}
+    </pre>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useNuxtSession } from '#imports'
-await useNuxtSession()
+import useSession from './composables/useSession'
 
-// const { data: providers } = await useFetch('/api/auth/providers')
-// const signIn = async () => {
-//   console.log('triggering sign in')
-//   const r = await useFetch('/api/auth/signin/github')
-//   console.log('r', r)
-//   return navigateTo('http://localhost:3000/api/auth/signin/github', { external: true })
-// }
+const { session, signIn, signOut, getCsrfToken, getProviders } = await useSession()
 
+const providers = await getProviders()
+const csrfToken = await getCsrfToken()
 </script>

@@ -16,12 +16,12 @@ export default eventHandler(async (event) => {
   console.log('in handler')
   const { req, res } = event
 
-  let body = null
+  let body
   try {
     const stringBody = await readBody(event)
     body = Object.fromEntries(new URLSearchParams(stringBody))
   } catch (error) {
-    console.log('no body data')
+    body = null
   }
 
   const nextauth = req.url.split('/')
@@ -61,7 +61,7 @@ export default eventHandler(async (event) => {
       ]
     }
   })
-  console.log('after next auth', status, headers, cookies, body)
+  console.log('after next auth', status, body)
 
   res.statusCode = status
 
