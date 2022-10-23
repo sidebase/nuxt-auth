@@ -12,18 +12,46 @@
 ## Wrapper status
 
 Supported from https://next-auth.js.org/getting-started/client:
+```ts
+const {
+  status,
+  data,
+  getCsrfToken,
+  getProviders,
+  getSession,
+  signIn,
+  signOut,
+} = await useSession({
+  // Whether a session is required. If it is, a redirect to the signin page will happen if no active session exists    
+  required: true
+})
 
-- `useSession`:
-    - client: ❌
-    - server: N/A
-- SessionProvider
-    - client: not needed (hypothesis, TBD!)
-    - servier: N/A
+// Session status, either `unauthenticated`, `loading`, `authenticated`, see https://next-auth.js.org/getting-started/client#signout 
+status.value
+
+// Session data, either `undefined` (= authentication not attempted), `null` (= user unauthenticated), `loading` (= session loading in progress), see https://next-auth.js.org/getting-started/client#signout
+data.value
+
+// Get / Reload the current session from the server, pass `{ required: true }` to force a login if no session exists, see https://next-auth.js.org/getting-started/client#getsession
+await getSession()
+
+// Get the current CSRF token, usually you do not need this function, see https://next-auth.js.org/getting-started/client#signout
+await getCsrfToken()
+
+// Get the supported providers, e.g., to build your own login page, see https://next-auth.js.org/getting-started/client#getproviders
+await getProviders()
+
+// Trigger a sign in, see https://next-auth.js.org/getting-started/client#signin
+signIn()
+
+// Trigger a sign out, see https://next-auth.js.org/getting-started/client#signout
+await signOut()
+```
 
 ## Prior Work
 
 This implementation is (as probably all implementations are) based on prior work:
-- nextauth apps/
+- nextauth apps
 - nextauth faqs
 - nextauth making framework agnostic
 

@@ -121,12 +121,12 @@ export default async ({ required, onUnauthenticated }: UseSessionOptions = { req
   }
 
   return {
-    data,
     status,
-    signIn,
+    data,
+    getSession,
     getCsrfToken,
     getProviders,
-    signOut,
-    getSession
+    signIn,
+    signOut
   }
 }
