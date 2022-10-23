@@ -1,0 +1,37 @@
+{
+  "name": "nuxt-user",
+  "version": "0.0.1",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/module.mjs",
+      "require": "./dist/module.cjs"
+    }
+  },
+  "main": "./dist/module.cjs",
+  "types": "./dist/types.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepack": "nuxt-module-build",
+    "dev": "nuxi dev playground",
+    "dev:build": "nuxi build playground",
+    "dev:prepare": "nuxt-module-build --stub && nuxi prepare playground",
+    "lint": "eslint . --max-warnings=0",
+    "types": "tsc --noEmit",
+    "build": "nuxi build"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^3.0.0-rc.12",
+    "next-auth": "^4.14.0"
+  },
+  "devDependencies": {
+    "@nuxt/module-builder": "^0.2.0",
+    "@nuxt/schema": "^3.0.0-rc.12",
+    "@nuxtjs/eslint-config-typescript": "^11.0.0",
+    "eslint": "^8.25.0",
+    "nuxt": "^3.0.0-rc.12"
+  }
+}
