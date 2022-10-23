@@ -1,5 +1,5 @@
 import type { Session } from 'next-auth'
-import { ref } from 'vue'
+import { Ref, ref } from 'vue'
 import { useFetch, createError } from '#app'
 import { nanoid } from 'nanoid'
 
@@ -8,112 +8,125 @@ interface UseSessionOptions {
   onUnauthenticated?: () => void
 }
 
-interface SessionContextNoSession {
-  data: null
-  status: 'unauthenticated' | 'loading'
-}
-interface SessionContextSession {
-  data: Session
-  status: 'authenticated'
-}
-type SessionContext = SessionContextNoSession | SessionContextSession
-
 // TODO: Use better type /' config for path, and ofr everything
 interface FetchOptions {
   params?: Record<string, string>
   method?: string
-  controls?: boolean
   headers?: Record<string, string>
   body?: any
+  onResponse?: ({ response }: { response?: any }) => void
 }
 
-const _fetch = (path: string, { body, params, controls, method, headers }: FetchOptions = { body: undefined, params: {}, controls: false, headers: {}, method: 'GET' }) => {
+type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
+type SessionData = Session | undefined | null
+
+const _fetch = async (path: string, { body, params, method, headers, onResponse }: FetchOptions = { params: {}, headers: {}, method: 'GET' }) => {
   // TODO: Use nextAuthClientConfig
-  const result = useFetch(`/api/auth/${path}`, {
+  const result = await useFetch(`/api/auth/${path}`, {
     method,
     params,
     headers,
     body,
+    onResponse,
     server: false,
     // todo: see if there's an alternative to this
     key: nanoid()
   })
 
-  if (controls) {
-    return result
-  }
-
   return result.data
 }
 
-const defaultOnUnauthenticated = () => {
-  if (process?.server) {
-    return
-  }
-  const url = '/api/auth/signin'
-  window.location.href = url
-}
+export default async ({ required, onUnauthenticated }: UseSessionOptions = { required: true }) => {
+  const data: Ref<SessionData> = ref(undefined)
+  const status: Ref<SessionStatus> = ref('unauthenticated')
 
-export default async ({ required, onUnauthenticated }: UseSessionOptions = { required: true, onUnauthenticated: defaultOnUnauthenticated }) => {
-  const session = ref(null)
-  const signIn = () => defaultOnUnauthenticated()
+  const signIn = () => {
+    if (process?.server) {
+      return
+    }
+    status.value = 'loading'
+
+    const url = '/api/auth/signin'
+    window.location.href = url
+  }
+
   // TODO: add callback url https://github.com/nextauthjs/next-auth/blob/main/packages/next-auth/src/react/index.tsx#L284
   const signOut = async () => {
-    const csrfToken = await getCsrfToken({ controls: true })
-    console.log('in signout', csrfToken.data.value.csrfToken)
+    const csrfTokenResult = await getCsrfToken()
+
+    // @ts-ignore TODO: Better type result or find better method sign.
+    const csrfToken = csrfTokenResult?.value?.csrfToken
     if (!csrfToken) {
       throw createError({ statusCode: 400, statusMessage: 'Could not fetch CSRF Token for signing out' })
     }
 
     const body = new URLSearchParams({
     // @ts-ignore TODO Better type the return of `_fetch`
-      csrfToken: csrfToken.data.value.csrfToken as string,
+      csrfToken: csrfToken as string,
       callbackUrl: window.location.href,
       json: 'true'
     })
 
-    // @ts-ignore TODO Better type the return of `_fetch`
-    const { data } = await _fetch('signout', {
+    const signoutData = await _fetch('signout', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body
     })
-    console.log(data.value)
 
     // TODO: Redirect if necesseray, see https://github.com/nextauthjs/next-auth/blob/4dbbe5b2d9806353b30a868f7e728b018afeb90b/packages/next-auth/src/react/index.tsx#L303-L310
 
-    session.value = null
+    status.value = 'unauthenticated'
+    data.value = undefined
 
-    return data
+    return signoutData
   }
 
-  const getCsrfToken = ({ controls }: { controls: boolean} = { controls: false }) => _fetch('csrf', { controls })
-  const getProviders = ({ controls }: { controls: boolean} = { controls: false }) => _fetch('providers', { controls })
+  const getCsrfToken = () => _fetch('csrf')
+  const getProviders = () => _fetch('providers')
+  const getSession = async ({ required } : { required?: boolean} = { required: false }) => {
+    if (process.server) {
+      return
+    }
 
-  if (required && process.client) {
-    await useFetch('/api/auth/session', {
-      server: false,
-      onResponse ({ response }) {
-        const data = response._data
+    status.value = 'loading'
 
-        session.value = response._data
-        // TODO: This check should probably be different and use value
-        if (!session.value) {
+    const onResponse = ({ response }) => {
+      const sessionData = response._data
+
+      // TODO: This check should probably be different and use value
+      if (!sessionData || Object.keys(sessionData).length === 0) {
+        status.value = 'unauthenticated'
+        data.value = null
+
+        if (required) {
           onUnauthenticated ? onUnauthenticated() : signIn()
         }
-
-        return data
+      } else {
+        status.value = 'authenticated'
+        data.value = sessionData
       }
+
+      return sessionData
+    }
+
+    return _fetch('session', {
+      onResponse
     })
   }
 
+  if (required && process.client) {
+    await getSession({ required: true })
+  }
+
   return {
-    session,
+    data,
+    status,
     signIn,
     getCsrfToken,
     getProviders,
-    signOut
+    signOut,
+    getSession
   }
 }

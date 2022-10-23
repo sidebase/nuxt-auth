@@ -74,7 +74,7 @@ export default eventHandler(async (event) => {
   })
 
   if (redirect) {
-    console.log('in redirect', redirect)
+    console.log('in redirect', redirect, body?.json !== 'true')
     if (body?.json !== 'true') {
       return sendRedirect(event, redirect)
     }
