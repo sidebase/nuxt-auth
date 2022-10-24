@@ -1,0 +1,29 @@
+name: nodejs CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+
+      # Install locked dependencies and prepare types
+      - run: npm ci
+      - run: npm run dev:prepare
+
+      # Check if build and package artifacts can still be generated
+      - run: npm run prepack
+
+      # Check linting and typing
+      - run: npm run lint
+      - run: npm run types

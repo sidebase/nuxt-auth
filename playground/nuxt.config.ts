@@ -9,7 +9,7 @@ export default defineNuxtConfig({
   user: {
     isEnabled: true,
     nextAuth: {
-      providers: [GithubProvider.default({
+      providers: [GithubProvider({
         clientId: '6d8a47f9ebd9f1edd1db',
         clientSecret: 'ae712565e3b2be5eb26bfba8e4cfc8025dd64bd8'
       })]

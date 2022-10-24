@@ -86,8 +86,8 @@ export default eventHandler(async (event) => {
       logger: undefined,
       providers: [
         // TODO: **IMPORTANT** remove this before release + delete oauth app (this is also documented in the alpha issue)
-        // @ts-expect-error: Add .default because of vite bug
-        GithubProvider.default({
+        GithubProvider({
+          
           clientId: '6d8a47f9ebd9f1edd1db',
           clientSecret: 'ae712565e3b2be5eb26bfba8e4cfc8025dd64bd8'
         })
