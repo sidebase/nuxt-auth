@@ -15,12 +15,15 @@ interface FetchOptions {
   headers?: Record<string, string>
   body?: any
   onResponse?: ({ response }: { response?: any }) => void
+  onResponseError?: ({ request, response, options }: { request?: any, response?: any, options?: any }) => void
+  onRequest?: ({ request, options }: { request?: any, options?: any }) => void
+  onRequestError?: ({ request, options, error }: { request?: any, options?: any, error?: any }) => void
 }
 
 type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 type SessionData = Session | undefined | null
 
-const _fetch = async (path: string, { body, params, method, headers, onResponse }: FetchOptions = { params: {}, headers: {}, method: 'GET' }) => {
+const _fetch = async (path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: FetchOptions = { params: {}, headers: {}, method: 'GET' }) => {
   // TODO: Use nextAuthClientConfig
   const result = await useFetch(`/api/auth/${path}`, {
     method,
@@ -28,6 +31,9 @@ const _fetch = async (path: string, { body, params, method, headers, onResponse 
     headers,
     body,
     onResponse,
+    onRequest,
+    onRequestError,
+    onResponseError,
     server: false,
     // todo: see if there's an alternative to this
     key: nanoid()
@@ -41,11 +47,6 @@ export default async ({ required, onUnauthenticated }: UseSessionOptions = { req
   const status: Ref<SessionStatus> = ref('unauthenticated')
 
   const signIn = () => {
-    if (process?.server) {
-      return
-    }
-    status.value = 'loading'
-
     const url = '/api/auth/signin'
     window.location.href = url
   }
@@ -85,12 +86,10 @@ export default async ({ required, onUnauthenticated }: UseSessionOptions = { req
 
   const getCsrfToken = () => _fetch('csrf')
   const getProviders = () => _fetch('providers')
-  const getSession = async ({ required } : { required?: boolean} = { required: false }) => {
-    if (process.server) {
-      return
+  const getSession = ({ required } : { required?: boolean } = { required: false }) => {
+    const onRequest = () => {
+      status.value = 'loading'
     }
-
-    status.value = 'loading'
 
     const onResponse = ({ response }) => {
       const sessionData = response._data
@@ -111,8 +110,15 @@ export default async ({ required, onUnauthenticated }: UseSessionOptions = { req
       return sessionData
     }
 
+    const onError = () => {
+      status.value = 'unauthenticated'
+    }
+
     return _fetch('session', {
-      onResponse
+      onResponse,
+      onRequest,
+      onRequestError: onError,
+      onResponseError: onError
     })
   }
 

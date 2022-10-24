@@ -4,7 +4,8 @@ import {
   getQuery,
   setCookie,
   appendHeader,
-  sendRedirect
+  sendRedirect,
+  eventHandler
 } from 'h3'
 // import type { NextAuthOptions } from 'next-auth'
 // import type { NextAuthAction } from 'next-auth/lib/types'
