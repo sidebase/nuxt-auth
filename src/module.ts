@@ -1,9 +1,13 @@
 import { resolve } from 'path'
 import { fileURLToPath } from 'url'
-import { defineNuxtModule, useLogger, addServerHandler, addImportsDir } from '@nuxt/kit'
+import { defineNuxtModule, useLogger, addServerHandler } from '@nuxt/kit'
+import nextAuth from 'next-auth'
 
 export interface ModuleOptions {
   isEnabled: boolean
+  nextAuth: {
+    providers: any
+  }
 }
 
 const PACKAGE_NAME = 'nuxt-user'
@@ -14,7 +18,10 @@ export default defineNuxtModule<ModuleOptions>({
     configKey: 'user'
   },
   defaults: {
-    isEnabled: true
+    isEnabled: true,
+    nextAuth: {
+      providers: []
+    }
   },
   setup (moduleOptions) {
     const logger = useLogger(PACKAGE_NAME)
@@ -25,15 +32,11 @@ export default defineNuxtModule<ModuleOptions>({
     }
     const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
 
-    // add next middleware
-    const handler = resolve(runtimeDir, 'handler')
+    // 1. Add NextAuth.js API endpoints
+    const handler = resolve(runtimeDir, 'server/api/auth')
     addServerHandler({
-      middleware: true,
-      handler
+      handler,
+      middleware: true
     })
-
-    // // add composable
-    // const composables = resolve(runtimeDir, 'composables')
-    // addImportsDir(composables)
   }
 })
