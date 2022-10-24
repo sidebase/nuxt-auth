@@ -91,7 +91,6 @@ See the playground to interactively use this:
 > npm run dev
 
 # TODO: Add instructions to add example provider
-
 # -> open http://localhost:3000
 ```
 
@@ -102,7 +101,6 @@ First of all: Try out the [playground](#playground) and look at it's code if you
 <!-- TODO -->
 
 Below we describe:
-<!-- TODO -->
 1. TODO
 
 

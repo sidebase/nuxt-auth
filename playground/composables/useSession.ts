@@ -23,6 +23,7 @@ interface FetchOptions {
 type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 type SessionData = Session | undefined | null
 
+// TODO: Better type this so that TS can narrow whether the full `result` or just `result.data` is returned
 const _fetch = async (path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: FetchOptions = { params: {}, headers: {}, method: 'GET' }) => {
   // TODO: Use nextAuthClientConfig
   const result = await useFetch(`/api/auth/${path}`, {
@@ -51,7 +52,7 @@ export default async ({ required, onUnauthenticated }: UseSessionOptions = { req
     window.location.href = url
   }
 
-  // TODO: add callback url https://github.com/nextauthjs/next-auth/blob/main/packages/next-auth/src/react/index.tsx#L284
+  // TODO: add callback url support https://github.com/nextauthjs/next-auth/blob/main/packages/next-auth/src/react/index.tsx#L284
   const signOut = async () => {
     const csrfTokenResult = await getCsrfToken()
 
@@ -62,7 +63,7 @@ export default async ({ required, onUnauthenticated }: UseSessionOptions = { req
     }
 
     const body = new URLSearchParams({
-    // @ts-ignore TODO Better type the return of `_fetch`
+    // @ts-ignore TODO Better type the return of `_fetch` (see above)
       csrfToken: csrfToken as string,
       callbackUrl: window.location.href,
       json: 'true'
