@@ -12,7 +12,7 @@
 ## Quick Start
 
 1. Install the package:
-    ```ts
+    ```sh
     npm i -D @sidebase/nuxt-user
     ```
 2. Add the package to your `nuxt.config.ts`:
