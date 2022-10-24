@@ -108,6 +108,10 @@ Below we describe:
 
 ### Wrapper status
 
+Unsupported:
+- custom basepath / NEXTAUTH_URL
+- TODO
+
 Supported from https://next-auth.js.org/getting-started/client:
 ```ts
 const {
@@ -147,10 +151,9 @@ await signOut()
 
 ## Prior Work
 
-This implementation is (as probably all implementations are) based on prior work:
-- nextauth apps
-- nextauth faqs
-- nextauth making framework agnostic
+This implementation is (as probably all implementations are) based on prior work. The main part of the work was done by going through the NextAuth.js code and transcribing where required. Big pushes in the right direction came from:
+- [NextAuth.js app examples](https://github.com/nextauthjs/next-auth/tree/main/apps)
+- [Various comments, proposals, ... of this thread](https://github.com/nextauthjs/next-auth/discussions/3942), special thanks to @brillout for starting the discussion, @balazsorban44 for NextAuth.js and encouraging the discussion, @wobsoriano for adding PoCs for multiple languages
 
 ## Development
 
@@ -158,7 +161,6 @@ This implementation is (as probably all implementations are) based on prior work
 - Use `npm run dev` to start [the module playground](./playground) in development mode.
 - Run `npm run lint` to run eslint
 - Run `npm run type` to run typescheck via tsc
-
 
 <!-- Badges -->
 [npm-version-src]: https://img.shields.io/npm/v/@sidebase/nuxt-user/latest.svg
