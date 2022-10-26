@@ -328,7 +328,7 @@ The main part of the work was to piece everything together, resolve some outstan
 Roughly, the roadmap of `nuxt-user` is:
 1. Reach client-side feature parity: There's still a lot of options, configuration and behvaior from the client-side NextAuth.js module that we do not support yet. We first want to reach feature parity on this front,
 2. Reach configuration & server-side parity: Extending the user data model, ensuring full typescript support in doing that, allowing correct configuration of all supported backends and session storage mediums
-3. Fill in missing gaps, add some of our own: There's many ideas we have to support extended user management, maybe discuss whether we want to better support the `local` / `credentials` flow than NextAuth.js does out of the box (they don't do it for good reasons, so, there really is an honest discussion to be had), ...
+3. Fill in missing gaps, add some of our own: There's many ideas we have to support extended user management, maybe discuss whether we want to better support the `local` / `credentials` flow than NextAuth.js does out of the box (they don't do it for good reasons, so, there really is an honest discussion to be had), adding more UI focused components that automatically and easily wrap your app in a nice auth page, ...
 
 We also want to listen to all suggestions, feature requests, bug reports, ... from you. So if you have any ideas, please open an issue or reach out to us on Twitter or via E-Mail.
 
