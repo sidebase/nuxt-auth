@@ -123,8 +123,8 @@ export default async ({ required, onUnauthenticated }: UseSessionOptions = { req
     })
   }
 
-  if (required && process.client) {
-    await getSession({ required: true })
+  if (process.client) {
+    await getSession({ required })
   }
 
   return {

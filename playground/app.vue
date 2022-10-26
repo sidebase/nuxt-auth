@@ -1,38 +1,45 @@
 <template>
   <div>
-    <button @click="signIn">
-      sign in with github
-    </button>
-    <button @click="signOut">
-      sign out
-    </button>
-    <button @click="getSession()">
-      refresh session
-    </button>
-    <h3>
-      Status:
-    </h3>
-    <pre>{{ status }}</pre>
-    <h3>Data:</h3>
-    <pre>
-      {{ data }}
-    </pre>
-    <h3>CSRF Token</h3>
-    <pre>
-      {{ csrfToken }}
-    </pre>
-    <h3>Providers</h3>
-    <pre>
-      {{ providers }}
-    </pre>
+    <h3>Authentication Overview</h3>
+    <p>See all available authentication & session information below. Navigate to different sub-pages to test out the app.</p>
+    <pre>Status: {{ status }}</pre>
+    <pre>Data: {{ data }}</pre>
+    <pre>CSRF Token: {{ csrfToken }}</pre>
+    <pre>Providers: {{ providers }}</pre>
+    <hr>
+    <h2>Navigation</h2>
+    <p>Navigate to different pages below to test out different things:</p>
+    <div>
+      <nuxt-link to="/">
+        -> manual login, logout, refresh button
+      </nuxt-link>
+      <br>
+      <nuxt-link to="/protected/globally">
+        -> globally protected page
+      </nuxt-link>
+      <br>
+      <nuxt-link to="/protected/inline">
+        -> inline protected page
+      </nuxt-link>
+      <br>
+      <nuxt-link to="/protected/named">
+        -> named protected page
+      </nuxt-link>
+    </div>
+    <hr>
+    <p>The page content of "{{ route.path }}"</p>
+    <NuxtPage />
   </div>
 </template>
 
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
 import useSession from './composables/useSession'
 
-const { data, getSession, status, signIn, signOut, getCsrfToken, getProviders } = await useSession()
+const { data, status, getCsrfToken, getProviders } = await useSession({ required: false })
 
 const providers = await getProviders()
 const csrfToken = await getCsrfToken()
+
+const route = useRoute()
 </script>
