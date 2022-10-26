@@ -115,10 +115,11 @@ Below we describe:
         - [Named middlewares](#named-middlewares)
         - [Inline middlewares](#inline-middlewares)
 2. [Server-side usage](#server-side-usage)
-3. [Configuration](#configuration)
-4. [Prior Work and Module Concept](#prior-work-and-module-concept)
+3. [REST API](#rest-api)
+4. [Configuration](#configuration)
+5. [Prior Work and Module Concept](#prior-work-and-module-concept)
     - [Project Roadmap](#project-roadmap)
-5. [Development](#development)
+6. [Development](#development)
 
 ### Client-side usage
 
@@ -285,6 +286,20 @@ Note: `definePageMeta` can only be used inside the `pages/` directory!
 #### Server-side usage
 
 <!-- TODO -->
+
+#### REST API
+
+All endpoints that NextAuth.js supports are also supported by `nuxt-user`:
+- `GET /signin`,
+- `POST /signin/:provider`,
+- `GET/POST /callback/:provider`,
+- `GET /signout`,
+- `POST /signout`,
+- `GET /session`,
+- `GET /csrf`,
+- `GET /providers`
+
+You can directly interact with them if you wish to, it's probably a better idea to use `useSession` where possible though. [See the full rest API documentation of NextAuth.js here](https://next-auth.js.org/getting-started/rest-api).
 
 #### Configuration
 

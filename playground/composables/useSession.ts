@@ -1,5 +1,4 @@
 import type { Session } from 'next-auth'
-import { Ref, ref } from 'vue'
 import { useFetch, createError, useState } from '#app'
 import { nanoid } from 'nanoid'
 
@@ -8,7 +7,6 @@ interface UseSessionOptions {
   onUnauthenticated?: () => void
 }
 
-// TODO: Use better type /' config for path, and ofr everything
 interface FetchOptions {
   params?: Record<string, string>
   method?: string
@@ -25,7 +23,6 @@ type SessionData = Session | undefined | null
 
 // TODO: Better type this so that TS can narrow whether the full `result` or just `result.data` is returned
 const _fetch = async (path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: FetchOptions = { params: {}, headers: {}, method: 'GET' }) => {
-  // TODO: Use nextAuthClientConfig
   const result = await useFetch(`/api/auth/${path}`, {
     method,
     params,
@@ -36,7 +33,6 @@ const _fetch = async (path: string, { body, params, method, headers, onResponse,
     onRequestError,
     onResponseError,
     server: false,
-    // todo: see if there's an alternative to this
     key: nanoid()
   })
 
@@ -56,14 +52,13 @@ export default async ({ required, onUnauthenticated }: UseSessionOptions = { req
   const signOut = async () => {
     const csrfTokenResult = await getCsrfToken()
 
-    // @ts-ignore TODO: Better type result or find better method sign.
+    // @ts-ignore The underlying `_fetch` method should be better typed to avoid this
     const csrfToken = csrfTokenResult?.value?.csrfToken
     if (!csrfToken) {
       throw createError({ statusCode: 400, statusMessage: 'Could not fetch CSRF Token for signing out' })
     }
 
     const body = new URLSearchParams({
-    // @ts-ignore TODO Better type the return of `_fetch` (see above)
       csrfToken: csrfToken as string,
       callbackUrl: window.location.href,
       json: 'true'
@@ -77,7 +72,7 @@ export default async ({ required, onUnauthenticated }: UseSessionOptions = { req
       body
     })
 
-    // TODO: Redirect if necesseray, see https://github.com/nextauthjs/next-auth/blob/4dbbe5b2d9806353b30a868f7e728b018afeb90b/packages/next-auth/src/react/index.tsx#L303-L310
+    // TODO: Support redirect if necesseray, see https://github.com/nextauthjs/next-auth/blob/4dbbe5b2d9806353b30a868f7e728b018afeb90b/packages/next-auth/src/react/index.tsx#L303-L310
 
     status.value = 'unauthenticated'
     data.value = undefined
@@ -95,7 +90,6 @@ export default async ({ required, onUnauthenticated }: UseSessionOptions = { req
     const onResponse = ({ response }) => {
       const sessionData = response._data
 
-      // TODO: This check should probably be different and use value
       if (!sessionData || Object.keys(sessionData).length === 0) {
         status.value = 'unauthenticated'
         data.value = null
