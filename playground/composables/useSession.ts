@@ -1,6 +1,6 @@
 import type { Session } from 'next-auth'
 import { Ref, ref } from 'vue'
-import { useFetch, createError } from '#app'
+import { useFetch, createError, useState } from '#app'
 import { nanoid } from 'nanoid'
 
 interface UseSessionOptions {
@@ -44,8 +44,8 @@ const _fetch = async (path: string, { body, params, method, headers, onResponse,
 }
 
 export default async ({ required, onUnauthenticated }: UseSessionOptions = { required: true }) => {
-  const data: Ref<SessionData> = ref(undefined)
-  const status: Ref<SessionStatus> = ref('unauthenticated')
+  const data = useState<SessionData>('session:data', () => undefined)
+  const status = useState<SessionStatus>('session:status', () => 'unauthenticated')
 
   const signIn = () => {
     const url = '/api/auth/signin'
