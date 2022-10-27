@@ -11,10 +11,18 @@ import GithubProvider from 'next-auth/providers/github'
 const NEXTAUTH_URL = new URL('http://localhost:3000/api/auth/')
 const NEXTAUTH_BASE_PATH = NEXTAUTH_URL.pathname
 
+const normalizedBasePath = () => {
+  if (NEXTAUTH_BASE_PATH.endsWith('/')) {
+    return NEXTAUTH_BASE_PATH
+  }
+
+  return `${NEXTAUTH_BASE_PATH}/`
+}
+
 const SUPPORTED_ACTIONS: NextAuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
 
 // TODO: Make this code less brittle
-const parseActionAndAttachedInfo = ({ req }: H3Event, nextAuthBasePath: string) => {
+const parseActionAndAttachedInfo = ({ req }: H3Event) => {
   // 0. `req.url` looks like: `${NEXTAUTH_BASE_PATH}signin/github?callbackUrl=http://localhost:3000/`
 
   // 1. Split off query (only first questionmark has significance: https://stackoverflow.com/a/2924187)
@@ -23,7 +31,7 @@ const parseActionAndAttachedInfo = ({ req }: H3Event, nextAuthBasePath: string) 
 
   // 2. Split off auth base path
   //    -> result: `signin/github`
-  const normalizedBase = nextAuthBasePath.endsWith('/') ? nextAuthBasePath : `${nextAuthBasePath}/`
+  const normalizedBase = normalizedBasePath()
   const [, actionInfo] = urlWithoutQuery.split(normalizedBase)
   if (!actionInfo) {
     throw createError({ statusCode: 400, statusMessage: 'Auth request URL does not have expected format: Not enough segments' })
@@ -56,6 +64,11 @@ const parseActionAndAttachedInfo = ({ req }: H3Event, nextAuthBasePath: string) 
   return { action, providerId }
 }
 
+/**
+ * Parse a body if the request method is supported, return `undefined` otherwise.
+
+* @param event H3Event event to read body of
+ */
 const readBodyForNext = async (event: H3Event) => {
   let body: any
   if (['PATCH', 'POST', 'PUT', 'DELETE'].includes(event.req.method)) {
@@ -64,48 +77,86 @@ const readBodyForNext = async (event: H3Event) => {
   return body
 }
 
-export default eventHandler(async (event) => {
-  const { req, res } = event
+/**
+ * Generate a NextAuth.js internal request object that we can pass into the NextAuth.js
+ * handler. This method will either try to fill all fields for a request that targets
+ * the auth-REST API (determined by NEXTAUTH_BASE_PATH) or return a minimal internal
+ * request to support server-side session fetching for requests with arbitrary, non
+ * auth-REST API targets (set via: `event.context.checkSessionOnNonAuthRequest = true`)
+ *
+ * @param event H3Event event to transform into `RequestInternal`
+ */
+const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
+  const nextRequest: RequestInternal = {
+    // TODO: Set this correctly
+    host: undefined,
+    body: undefined,
+    cookies: parseCookies(event),
+    query: undefined,
+    headers: event.req.headers,
+    method: event.req.method,
+    action: undefined,
+    providerId: undefined,
+    error: undefined
+  }
 
-  // 1. Skip middleware if this request is not meant for an auth-endpoint
-  const url = req.url
-  if (!url.startsWith(NEXTAUTH_BASE_PATH)) {
-    return
+  // Setting `event.context.checkSessionOnNonAuthRequest = true` allows callers of `authHandler`
+  // to check the session on arbitrary requests, not just requests starting with `NEXTAUTH_BASE_PATH`. We
+  // can use this to check session status on the server-side.
+  //
+  // When doing this, most other data is not required, e.g., we do not need to parse the body. For this reason,
+  // we return the minimum required data for session checking.
+  if (event.context.checkSessionOnNonAuthRequest === true) {
+    return {
+      ...nextRequest,
+      action: 'session'
+    }
   }
 
   // 2. Figure out what action, providerId (optional) and error (optional) of the NextAuth.js lib is targeted
   const query = getQuery(event)
-  const { action, providerId } = parseActionAndAttachedInfo(event, NEXTAUTH_BASE_PATH)
+  const { action, providerId } = parseActionAndAttachedInfo(event)
   const error = query.error
   if (Array.isArray(error)) {
     throw createError({ statusCode: 400, statusMessage: 'Error query parameter can only appear once' })
   }
 
-  // 3. Read body if request has a supported method
-  const bodyForNextCall = await readBodyForNext(event)
+  const body = await readBodyForNext(event)
 
-  // 4. Assemble and perform request to the NextAuth.js auth handler
-  const nextRequest: RequestInternal = {
-    host: undefined,
-    body: bodyForNextCall,
-    cookies: parseCookies(event),
+  return {
+    ...nextRequest,
+    body,
     query,
-    headers: req.headers,
-    method: req.method,
     action,
     providerId,
     error
   }
+}
+
+/**
+ * The auth handler can perform all methods that the NextAuth.js library supports. It has two modes:
+ * 1. handle auth-requests: Handling of login, logout, get session, ... requests that target the auth-REST-API
+ * 2. server-side session fetching: Get the session (if any) that is attached to a request. To do this, set `event.context.checkSessionOnNonAuthRequest = true` and then call this handler. The handler will process less data and only perform a `session` action via NextAuth.js
+ *
+ * @param event H3Event H3Event to check authentication on.
+ */
+const authHandler = async (event: H3Event) => {
+  const { req, res } = event
+
+  // 1. Skip handler if both:
+  //    a) request is not meant for the auth-handler,
+  //    b) AND server-side flag that forces a check for arbitrary requests is not set to `true`
+  const url = req.url
+  if (!url.startsWith(NEXTAUTH_BASE_PATH) && event.context.checkSessionOnNonAuthRequest !== true) {
+    return
+  }
+
+  // 2. Assemble and perform request to the NextAuth.js auth handler
+  const nextRequest = await getInternalNextAuthRequestData(event)
 
   // @ts-expect-error import is exported on .default during SSR
   const github = GithubProvider?.default || GithubProvider
-  const {
-    status,
-    headers,
-    cookies,
-    body: bodyFromNextResult,
-    redirect
-  } = await NextAuthHandler({
+  const nextResult = await NextAuthHandler({
     req: nextRequest,
     options: {
       logger: undefined,
@@ -120,16 +171,16 @@ export default eventHandler(async (event) => {
   })
 
   // 5. Set response status, headers, cookies
-  if (status) {
-    res.statusCode = status
+  if (nextResult.status) {
+    res.statusCode = nextResult.status
   }
-  cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value, cookie.options))
-  headers?.forEach(header => appendHeader(event, header.key, header.value))
+  nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value, cookie.options))
+  nextResult.headers?.forEach(header => appendHeader(event, header.key, header.value))
 
   // 6. Return either:
   // 6.1 the body directly if no redirect is set:
-  if (!redirect) {
-    return bodyFromNextResult
+  if (!nextResult.redirect) {
+    return nextResult.body
   }
   // 6.2 a json-object with a redirect url if `json: true` is set by client:
   //      ```
@@ -140,9 +191,24 @@ export default eventHandler(async (event) => {
   //      to return the response as a JSON object (the end point still defaults to
   //      returning an HTTP response with a redirect for non-JavaScript clients).
   //      ```
-  if (bodyForNextCall?.json) {
-    return { url: redirect }
+  if (nextRequest.body?.json) {
+    return { url: nextResult.redirect }
   }
   // 6.3 via a redirect:
-  return sendRedirect(event, redirect)
-})
+  return sendRedirect(event, nextResult.redirect)
+}
+
+export const getServerSession = async (event: H3Event) => {
+  // Run a session check on the event with an arbitrary target endpoint
+  event.context.checkSessionOnNonAuthRequest = true
+  const session = await authHandler(event)
+  delete event.context.checkSessionOnNonAuthRequest
+
+  // TODO: This check also happens in the `useSession` composable, refactor it into a small util instead to ensure consistency
+  if (!session || Object.keys(session).length === 0) {
+    return null
+  }
+
+  return session
+}
+export default eventHandler(authHandler)

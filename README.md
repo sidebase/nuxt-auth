@@ -115,6 +115,7 @@ Below we describe:
         - [Named middlewares](#named-middlewares)
         - [Inline middlewares](#inline-middlewares)
 2. [Server-side usage](#server-side-usage)
+    - [Server-side protection and middlewares](#server-side-protection-and-middlewares)
 3. [REST API](#rest-api)
 4. [Configuration](#configuration)
 5. [Prior Work and Module Concept](#prior-work-and-module-concept)
@@ -285,7 +286,46 @@ Note: `definePageMeta` can only be used inside the `pages/` directory!
 
 #### Server-side usage
 
-<!-- TODO -->
+On the server side you can get access to the current session like this:
+```ts
+import { getServerSession } from '#sidebase/nuxt-user'
+
+export default eventHandler(async (event) => {
+  const session = await getServerSession(event)
+})
+```
+
+This is inspired by [the getServerSession](https://next-auth.js.org/tutorials/securing-pages-and-api-routes#securing-api-routes) of NextAuth.js. It also avoids an external, internet call to the `GET /api/auth/sessions` endpoint, instead directly calling a pure JS-method.
+
+##### Server-side protection and middlewares
+
+To protect an endpoint with, check the session after fetching it:
+```ts
+// file: ~/server/api/protected.get.ts
+import { getServerSession } from '#sidebase/nuxt-user'
+
+export default eventHandler(async (event) => {
+  const session = await getServerSession(event)
+  if (!session) {
+    return 'unauthenticated!'
+  }
+
+  return 'authenticated!'
+})
+```
+
+You can also use this in a [nuxt server middleware](https://v3.nuxtjs.org/guide/directory-structure/server#server-middleware) to protect multiple pages at once and keep the authentication logic out of your endpoints:
+```ts
+// file: ~/server/middleware/auth.ts
+import { getServerSession } from '#sidebase/nuxt-user'
+
+export default eventHandler(async (event) => {
+  const session = await getServerSession(event)
+  if (!session) {
+    throw createError({ statusMessage: 'Unauthenticated', statusCode: 403 })
+  }
+})
+```
 
 #### REST API
 
