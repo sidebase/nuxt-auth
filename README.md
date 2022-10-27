@@ -110,6 +110,7 @@ In addition, you can use `nuxt-user` to build authorization on top of the suppor
 Below we describe:
 1. [Client-side usage](#client-side-usage)
     - [Session access and manipulation](#session-access-and-manipulation)
+        - [Redirects](#redirects)
     - [Middlewares](#middlewares)
         - [Global middlewares](#global-middlewares)
         - [Named middlewares](#named-middlewares)
@@ -179,6 +180,24 @@ interface DefaultSession {
 ```
 
 Note that this is only set when the use is logged-in and when the provider used to login the user provides the fields.
+
+##### Redirects
+
+You can also pass the `callbackUrl` option to both the `signIn` and the `signOut` method. This allows you to redirect a user to a certain pages, after they've completed the action. This can be useful when a user attempts to open a page (`/protected`) but has to go through external authentication (e.g., via their google account) first.
+
+You can use it like:
+```ts
+signIn({ callbackUrl: '/protected' })
+```
+
+to redirect the user to the protected page they wanted to access _after_ they've been authenticated.
+
+You can do the same for signing out the user:
+```ts
+signOut({ callbackUrl: '/protected' })
+```
+
+E.g., here to redirect the user away from the already loaded, protected, page after signout (else, you will have to handle the redirect yourself).
 
 #### Middlewares
 
