@@ -116,7 +116,8 @@ Below we describe:
         - [Named middlewares](#named-middlewares)
         - [Inline middlewares](#inline-middlewares)
 2. [Server-side usage](#server-side-usage)
-    - [Server-side protection and middlewares](#server-side-protection-and-middlewares)
+    - [Server-side endpoint protection](#server-side-endpoint-protection)
+    - [Server-side middlewares](#server-side-middlewares)
 3. [REST API](#rest-api)
 4. [Configuration](#configuration)
 5. [Prior Work and Module Concept](#prior-work-and-module-concept)
@@ -316,7 +317,7 @@ export default eventHandler(async (event) => {
 
 This is inspired by [the getServerSession](https://next-auth.js.org/tutorials/securing-pages-and-api-routes#securing-api-routes) of NextAuth.js. It also avoids an external, internet call to the `GET /api/auth/sessions` endpoint, instead directly calling a pure JS-method.
 
-##### Server-side usage
+##### Server-side endpoint protection
 
 To protect an endpoint with, check the session after fetching it:
 ```ts
