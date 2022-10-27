@@ -13,29 +13,47 @@ const NEXTAUTH_BASE_PATH = NEXTAUTH_URL.pathname
 
 const SUPPORTED_ACTIONS: NextAuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
 
-const parseActionAndAttachedInfo = (url: string, nextAuthBasePath: string) => {
-  const nextAuthSegments = url.split(nextAuthBasePath)[1].split('/')
-  let unvalidatedAction: string, providerId: string, error: string
-  if (nextAuthSegments.length === 1) {
-    unvalidatedAction = nextAuthSegments[0]
-  } else if (nextAuthSegments.length === 2) {
-    const segmentTwoWithoutQuery = nextAuthSegments[1]?.split('?')[0]
+// TODO: Make this code less brittle
+const parseActionAndAttachedInfo = ({ req }: H3Event, nextAuthBasePath: string) => {
+  // 0. `req.url` looks like: `${NEXTAUTH_BASE_PATH}signin/github?callbackUrl=http://localhost:3000/`
 
-    unvalidatedAction = nextAuthSegments[0]
-    providerId = segmentTwoWithoutQuery
-    error = segmentTwoWithoutQuery
+  // 1. Split off query (only first questionmark has significance: https://stackoverflow.com/a/2924187)
+  //    -> result: `${NEXTAUTH_BASE_PATH}signin/github`
+  const urlWithoutQuery = req.url.split('?')[0]
+
+  // 2. Split off auth base path
+  //    -> result: `signin/github`
+  const normalizedBase = nextAuthBasePath.endsWith('/') ? nextAuthBasePath : `${nextAuthBasePath}/`
+  const [, actionInfo] = urlWithoutQuery.split(normalizedBase)
+  if (!actionInfo) {
+    throw createError({ statusCode: 400, statusMessage: 'Auth request URL does not have expected format: Not enough segments' })
   }
 
+  // 3. Split apart remaining path
+  // -> result: ['signin', 'github']
+  const actionSegments = actionInfo.split('/')
+  if (![1, 2].includes(actionSegments.length)) {
+    // see https://next-auth.js.org/getting-started/rest-api for available endpoints
+    throw createError({ statusCode: 400, statusMessage: 'Auth request must either contain one or two actions segments (e.g.: `/providers` or `/siginIn/github`' })
+  }
+
+  // 4. Now, process desired action
+  let unvalidatedAction: string
+  let providerId: string
+  if (actionSegments.length === 1) {
+    unvalidatedAction = actionSegments[0]
+  } else if (actionSegments.length === 2) {
+    unvalidatedAction = actionSegments[0]
+    providerId = actionSegments[1]
+  }
+
+  // Get TS to correctly infer the type of `unvalidatedAction`
   const action = SUPPORTED_ACTIONS.find(action => action === unvalidatedAction)
   if (!action) {
     throw createError({ statusCode: 400, statusMessage: `Called endpoint with unsupported action ${unvalidatedAction}. Only the following actions are supported: ${SUPPORTED_ACTIONS.join(', ')}` })
   }
 
-  return {
-    action,
-    providerId,
-    error
-  }
+  return { action, providerId }
 }
 
 const readBodyForNext = async (event: H3Event) => {
@@ -56,7 +74,12 @@ export default eventHandler(async (event) => {
   }
 
   // 2. Figure out what action, providerId (optional) and error (optional) of the NextAuth.js lib is targeted
-  const { action, providerId, error } = parseActionAndAttachedInfo(url, NEXTAUTH_BASE_PATH)
+  const query = getQuery(event)
+  const { action, providerId } = parseActionAndAttachedInfo(event, NEXTAUTH_BASE_PATH)
+  const error = query.error
+  if (Array.isArray(error)) {
+    throw createError({ statusCode: 400, statusMessage: 'Error query parameter can only appear once' })
+  }
 
   // 3. Read body if request has a supported method
   const bodyForNextCall = await readBodyForNext(event)
@@ -66,7 +89,7 @@ export default eventHandler(async (event) => {
     host: undefined,
     body: bodyForNextCall,
     cookies: parseCookies(event),
-    query: getQuery(event),
+    query,
     headers: req.headers,
     method: req.method,
     action,
