@@ -338,6 +338,7 @@ We also want to listen to all suggestions, feature requests, bug reports, ... fr
 - Use `npm run dev` to start [the module playground](./playground) in development mode.
 - Run `npm run lint` to run eslint
 - Run `npm run type` to run typescheck via tsc
+- Run `npm publish --access public` to publish (bump version before)
 
 <!-- Badges -->
 [npm-version-src]: https://img.shields.io/npm/v/@sidebase/nuxt-user/latest.svg
