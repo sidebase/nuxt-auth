@@ -140,7 +140,7 @@ const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestIn
  *
  * @param event H3Event H3Event to check authentication on.
  */
-const authHandler = async (event: H3Event) => {
+export const authHandler = async (event: H3Event) => {
   const { req, res } = event
 
   // 1. Skip handler if both:
@@ -198,17 +198,4 @@ const authHandler = async (event: H3Event) => {
   return sendRedirect(event, nextResult.redirect)
 }
 
-export const getServerSession = async (event: H3Event) => {
-  // Run a session check on the event with an arbitrary target endpoint
-  event.context.checkSessionOnNonAuthRequest = true
-  const session = await authHandler(event)
-  delete event.context.checkSessionOnNonAuthRequest
-
-  // TODO: This check also happens in the `useSession` composable, refactor it into a small util instead to ensure consistency
-  if (!session || Object.keys(session).length === 0) {
-    return null
-  }
-
-  return session
-}
 export default eventHandler(authHandler)

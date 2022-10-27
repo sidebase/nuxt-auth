@@ -68,7 +68,7 @@ There's more supported methods in the `useSession` composable, you can create au
     - `GET /providers`
 - ✔️ Persistent sessions across requests
 - ✔️ Client-side middleware protection
-- ✔️ TODO: Backend endpoint protection
+- ✔️ Server-side middleware and endpoint protection
 
 ## Demo Page
 
@@ -307,7 +307,7 @@ Note: `definePageMeta` can only be used inside the `pages/` directory!
 
 On the server side you can get access to the current session like this:
 ```ts
-import { getServerSession } from '#sidebase/nuxt-user'
+import { getServerSession } from '#sidebase/server'
 
 export default eventHandler(async (event) => {
   const session = await getServerSession(event)
@@ -316,27 +316,29 @@ export default eventHandler(async (event) => {
 
 This is inspired by [the getServerSession](https://next-auth.js.org/tutorials/securing-pages-and-api-routes#securing-api-routes) of NextAuth.js. It also avoids an external, internet call to the `GET /api/auth/sessions` endpoint, instead directly calling a pure JS-method.
 
-##### Server-side protection and middlewares
+##### Server-side usage
 
 To protect an endpoint with, check the session after fetching it:
 ```ts
 // file: ~/server/api/protected.get.ts
-import { getServerSession } from '#sidebase/nuxt-user'
+import { getServerSession } from '#sidebase/server'
 
 export default eventHandler(async (event) => {
   const session = await getServerSession(event)
   if (!session) {
-    return 'unauthenticated!'
+    return { status: 'unauthenticated!' }
   }
-
-  return 'authenticated!'
+  return { status: 'authenticated!' }
 })
+
 ```
+
+##### Server-side middlewares
 
 You can also use this in a [nuxt server middleware](https://v3.nuxtjs.org/guide/directory-structure/server#server-middleware) to protect multiple pages at once and keep the authentication logic out of your endpoints:
 ```ts
 // file: ~/server/middleware/auth.ts
-import { getServerSession } from '#sidebase/nuxt-user'
+import { getServerSession } from '#sidebase/server'
 
 export default eventHandler(async (event) => {
   const session = await getServerSession(event)

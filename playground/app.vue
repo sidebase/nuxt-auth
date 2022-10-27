@@ -25,6 +25,14 @@
       <nuxt-link to="/protected/named">
         -> named protected page
       </nuxt-link>
+      <br>
+      <nuxt-link to="/api/protected/inline" external>
+        -> API endpoint protected inline
+      </nuxt-link>
+      <br>
+      <nuxt-link to="/api/protected/middleware" external>
+        -> API endpoint protected middleware
+      </nuxt-link>
     </div>
     <hr>
     <p>The page content of "{{ route.path }}"</p>

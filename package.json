@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@nuxt/kit": "^3.0.0-rc.12",
+    "defu": "^6.1.0",
     "nanoid": "^4.0.0",
     "next-auth": "^4.14.0"
   },
