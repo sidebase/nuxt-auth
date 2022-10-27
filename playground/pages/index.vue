@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import useSession from '../composables/useSession'
+import { useSession } from '#imports'
 
 const { getSession, signIn, signOut } = await useSession({ required: false })
 </script>

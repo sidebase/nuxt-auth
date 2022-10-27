@@ -1,6 +1,6 @@
 import { resolve } from 'path'
 import { fileURLToPath } from 'url'
-import { defineNuxtModule, useLogger, addServerHandler } from '@nuxt/kit'
+import { defineNuxtModule, useLogger, addServerHandler, addImportsDir } from '@nuxt/kit'
 import nextAuth from 'next-auth'
 
 export interface ModuleOptions {
@@ -38,5 +38,9 @@ export default defineNuxtModule<ModuleOptions>({
       handler,
       middleware: true
     })
+
+    // 2. Add nuxt-user composables
+    const composables = resolve(runtimeDir, 'composables')
+    addImportsDir(composables)
   }
 })

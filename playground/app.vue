@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import useSession from './composables/useSession'
+import { useSession } from '#imports'
 
 const { data, status, getCsrfToken, getProviders } = await useSession({ required: false })
 
