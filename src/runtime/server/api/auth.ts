@@ -7,6 +7,8 @@ import type { NextAuthAction } from 'next-auth'
 
 import GithubProvider from 'next-auth/providers/github'
 
+import { useRuntimeConfig } from '#imports'
+
 // TODO: Make `NEXTAUTH_URL` configurable
 const NEXTAUTH_URL = new URL('http://localhost:3000/api/auth/')
 const NEXTAUTH_BASE_PATH = NEXTAUTH_URL.pathname
@@ -89,7 +91,7 @@ const readBodyForNext = async (event: H3Event) => {
 const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
   const nextRequest: RequestInternal = {
     // TODO: Set this correctly
-    host: undefined,
+    host: useRuntimeConfig().user.nextAuth.url,
     body: undefined,
     cookies: parseCookies(event),
     query: undefined,
@@ -156,6 +158,9 @@ export const authHandler = async (event: H3Event) => {
 
   // @ts-expect-error import is exported on .default during SSR
   const github = GithubProvider?.default || GithubProvider
+  process.env.NEXTAUTH_URL = 'http://localhost:3000/api/auth'
+  process.env.NEXTAUTH_SECRET = 'secret'
+  console.log(process.env)
   const nextResult = await NextAuthHandler({
     req: nextRequest,
     options: {

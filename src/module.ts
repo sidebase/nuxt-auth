@@ -4,23 +4,28 @@ import defu from 'defu'
 export interface ModuleOptions {
   isEnabled: boolean
   nextAuth: {
+    url?: string
+    secret?: string
     providers: any
   }
 }
 
 const PACKAGE_NAME = 'nuxt-user'
+const defaults = {
+  isEnabled: true,
+  nextAuth: {
+    url: 'http://localhost:3000/api/auth/',
+    secret: undefined,
+    providers: []
+  }
 
+}
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: PACKAGE_NAME,
     configKey: 'user'
   },
-  defaults: {
-    isEnabled: true,
-    nextAuth: {
-      providers: []
-    }
-  },
+  defaults,
   setup (moduleOptions, nuxt) {
     const logger = useLogger(PACKAGE_NAME)
 
@@ -28,6 +33,10 @@ export default defineNuxtModule<ModuleOptions>({
       logger.info(`Skipping ${PACKAGE_NAME} setup, as module is disabled`)
       return
     }
+
+    // -1. Set up runtime configuration
+    const options = defu(moduleOptions, defaults)
+    nuxt.options.runtimeConfig.user = defu(nuxt.options.runtimeConfig.user, options)
 
     // 0. Locate runtime directory
     const { resolve } = createResolver(import.meta.url)
