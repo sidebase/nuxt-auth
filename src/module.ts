@@ -10,7 +10,7 @@ export interface ModuleOptions {
   }
 }
 
-const PACKAGE_NAME = 'nuxt-user'
+const PACKAGE_NAME = 'nuxt-auth'
 const defaults = {
   isEnabled: true,
   nextAuth: {
@@ -23,7 +23,7 @@ const defaults = {
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: PACKAGE_NAME,
-    configKey: 'user'
+    configKey: 'auth'
   },
   defaults,
   setup (moduleOptions, nuxt) {
@@ -34,26 +34,26 @@ export default defineNuxtModule<ModuleOptions>({
       return
     }
 
-    // -1. Set up runtime configuration
+    // 1. Set up runtime configuration
     const options = defu(moduleOptions, defaults)
-    nuxt.options.runtimeConfig.user = defu(nuxt.options.runtimeConfig.user, options)
+    nuxt.options.runtimeConfig.auth = defu(nuxt.options.runtimeConfig.auth, options)
 
-    // 0. Locate runtime directory
+    // 2. Locate runtime directory
     const { resolve } = createResolver(import.meta.url)
     const resolveRuntimeModule = (path: string) => resolveModule(path, { paths: resolve('./runtime') })
 
-    // 1. Add NextAuth.js API endpoints
+    // 3. Add NextAuth.js API endpoints
     const handler = resolve('./runtime/server/api/auth')
     addServerHandler({
       handler,
       middleware: true
     })
 
-    // 2. Add nuxt-user composables
+    // 4. Add nuxt-auth composables
     const composables = resolve('./runtime/composables')
     addImportsDir(composables)
 
-    // 3. Create virtual imports of server-side `getServerSession`
+    // 5. Create virtual imports of server-side `getServerSession`
     nuxt.hook('nitro:config', (nitroConfig) => {
       nitroConfig.alias = nitroConfig.alias || {}
 

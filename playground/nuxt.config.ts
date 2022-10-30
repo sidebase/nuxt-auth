@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   modules: [
     MyModule
   ],
-  user: {
+  auth: {
     isEnabled: true,
     protected: [],
     nextAuth: {

@@ -91,7 +91,7 @@ const readBodyForNext = async (event: H3Event) => {
 const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
   const nextRequest: RequestInternal = {
     // TODO: Set this correctly
-    host: useRuntimeConfig().user.nextAuth.url,
+    host: undefined,
     body: undefined,
     cookies: parseCookies(event),
     query: undefined,
@@ -158,9 +158,6 @@ export const authHandler = async (event: H3Event) => {
 
   // @ts-expect-error import is exported on .default during SSR
   const github = GithubProvider?.default || GithubProvider
-  process.env.NEXTAUTH_URL = 'http://localhost:3000/api/auth'
-  process.env.NEXTAUTH_SECRET = 'secret'
-  console.log(process.env)
   const nextResult = await NextAuthHandler({
     req: nextRequest,
     options: {

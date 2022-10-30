@@ -1,25 +1,25 @@
-# 🔐 nuxt-user
+# 🔐 nuxt-auth
 
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![GitHub stars](https://badgen.net/github/stars/sidebase/nuxt-user)](https://GitHub.com/sidebase/nuxt-user/)
+[![GitHub stars](https://badgen.net/github/stars/sidebase/nuxt-auth)](https://GitHub.com/sidebase/nuxt-auth/)
 [![License][license-src]][license-href]
 [![Follow us on Twitter](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/sidebase_io)
 [![Join our Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/9MUHR8WT9B)
 
 
-> Nuxt user authentication and sessions via [NextAuth.js](https://github.com/nextauthjs/next-auth). `nuxt-user` wraps [NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 12k star library to the nuxt 3 ecosystem with a native developer experience (DX).
+> Nuxt user authentication and sessions via [NextAuth.js](https://github.com/nextauthjs/next-auth). `nuxt-auth` wraps [NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 12k star library to the nuxt 3 ecosystem with a native developer experience (DX).
 
 ## Quick Start
 
 1. Install the package:
     ```sh
-    npm i -D @sidebase/nuxt-user
+    npm i -D @sidebase/nuxt-auth
     ```
 2. Add the package to your `nuxt.config.ts`:
     ```ts
     export default defineNuxtConfig({
-      modules: ['@sidebase/nuxt-user'],
+      modules: ['@sidebase/nuxt-auth'],
     })
     ```
 3. Done! You can now use all user-related functionality, for example:
@@ -52,7 +52,7 @@ There's more supported methods in the `useSession` composable, you can create au
 
 ## Features
 
-`nuxt-user` is still under active development. The goal of this library is to reach feature-parity with `NextAuth.js`. Currently, the library supports:
+`nuxt-auth` is still under active development. The goal of this library is to reach feature-parity with `NextAuth.js`. Currently, the library supports:
 
 - ✔️ Client Library:
     - `useSession` composable to: `signIn`, `signOut`, `getCsrfToken`, `getProviders`, `getSession`
@@ -72,18 +72,18 @@ There's more supported methods in the `useSession` composable, you can create au
 
 ## Demo Page
 
-Visit the [`nuxt-user` demo page here](https://nuxt-user-example.sidebase.io/):
-[![nuxt-user demo page](./.github/nuxt-user-demo.png)](https://nuxt-user-example.sidebase.io/)
+Visit the [`nuxt-auth` demo page here](https://nuxt-auth-example.sidebase.io/):
+[![nuxt-auth demo page](./.github/nuxt-auth-demo.png)](https://nuxt-auth-example.sidebase.io/)
 
-You can find the [full source code here](https://github.com/sidebase/nuxt-user-example).
+You can find the [full source code here](https://github.com/sidebase/nuxt-auth-example).
 
 ### Module Playground
 
 This module also has it's own playground, you can also use that to get familiar with it and play around a bit:
 ```sh
-> git clone https://github.com/sidebase/nuxt-user
+> git clone https://github.com/sidebase/nuxt-auth
 
-> cd nuxt-user
+> cd nuxt-auth
 
 > npm i
 
@@ -101,11 +101,11 @@ Note: The playground has considerably less polishing than the example page.
 
 First of all: If you want to have an interactive look, either check-out the [demo page](#demo-page) or the [module playground](#module-playground) in the sections above.
 
-The `nuxt-user` module takes care of authentication and sessions:
+The `nuxt-auth` module takes care of authentication and sessions:
     - authentication: The process of ensuring that somebody is who they claims to be. This is like a passport check at the border: You present some sort of proof that 100% tells the checking entity that you are who you claim to be (typically, this is your passport). The border agents checks the passport and let's you through.
     - sessions: Persist the information that you have been authenticated for some duration across different requests. Additional data can be attached to a session, e.g., via the `mail` or `username` that may be part of data attached to the session. Note: If you need only sessions but no authentication, you can check-out [nuxt-session](https://github.com/sidebase/nuxt-session).
 
-In addition, you can use `nuxt-user` to build authorization on top of the supported authentication + session mechanisms: As soon as you know "whos who", you can use this information to let somebody with the right email adress (for example) into a specific area. Right now, this is not supported out of the box.
+In addition, you can use `nuxt-auth` to build authorization on top of the supported authentication + session mechanisms: As soon as you know "whos who", you can use this information to let somebody with the right email adress (for example) into a specific area. Right now, this is not supported out of the box.
 
 Below we describe:
 1. [Client-side usage](#client-side-usage)
@@ -351,7 +351,7 @@ export default eventHandler(async (event) => {
 
 #### REST API
 
-All endpoints that NextAuth.js supports are also supported by `nuxt-user`:
+All endpoints that NextAuth.js supports are also supported by `nuxt-auth`:
 - `GET /signin`,
 - `POST /signin/:provider`,
 - `GET/POST /callback/:provider`,
@@ -387,7 +387,7 @@ The main part of the work was to piece everything together, resolve some outstan
 
 ##### Project Roadmap
 
-Roughly, the roadmap of `nuxt-user` is:
+Roughly, the roadmap of `nuxt-auth` is:
 1. Reach client-side feature parity: There's still a lot of options, configuration and behvaior from the client-side NextAuth.js module that we do not support yet. We first want to reach feature parity on this front,
 2. Reach configuration & server-side parity: Extending the user data model, ensuring full typescript support in doing that, allowing correct configuration of all supported backends and session storage mediums
 3. Fill in missing gaps, add some of our own: There's many ideas we have to support extended user management, maybe discuss whether we want to better support the `local` / `credentials` flow than NextAuth.js does out of the box (they don't do it for good reasons, so, there really is an honest discussion to be had), adding more UI focused components that automatically and easily wrap your app in a nice auth page, ...
@@ -403,11 +403,11 @@ We also want to listen to all suggestions, feature requests, bug reports, ... fr
 - Run `npm publish --access public` to publish (bump version before)
 
 <!-- Badges -->
-[npm-version-src]: https://img.shields.io/npm/v/@sidebase/nuxt-user/latest.svg
-[npm-version-href]: https://npmjs.com/package/@sidebase/nuxt-user
+[npm-version-src]: https://img.shields.io/npm/v/@sidebase/nuxt-auth/latest.svg
+[npm-version-href]: https://npmjs.com/package/@sidebase/nuxt-auth
 
-[npm-downloads-src]: https://img.shields.io/npm/dt/@sidebase/nuxt-user.svg
-[npm-downloads-href]: https://npmjs.com/package/@sidebase/nuxt-user
+[npm-downloads-src]: https://img.shields.io/npm/dt/@sidebase/nuxt-auth.svg
+[npm-downloads-href]: https://npmjs.com/package/@sidebase/nuxt-auth
 
-[license-src]: https://img.shields.io/npm/l/@sidebase/nuxt-user.svg
-[license-href]: https://npmjs.com/package/@sidebase/nuxt-user
+[license-src]: https://img.shields.io/npm/l/@sidebase/nuxt-auth.svg
+[license-href]: https://npmjs.com/package/@sidebase/nuxt-auth
