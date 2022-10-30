@@ -1,13 +1,40 @@
 import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError } from 'h3'
 import type { H3Event } from 'h3'
-
-import { NextAuthHandler } from 'next-auth/core'
 import type { RequestInternal } from 'next-auth/core'
 import type { NextAuthAction } from 'next-auth'
 
-import GithubProvider from 'next-auth/providers/github'
+import type { NextAuthConfig } from '../../../module'
+import nextConfig from '#sidebase/auth'
 
-import { useRuntimeConfig } from '#imports'
+// TODO: Add function call result caching OR top-level await this
+let loadedNextConfig: NextAuthConfig | undefined
+
+/**
+ * Generate the next auth config that can be used for handling requests
+ */
+const getNextConfig = async (): Promise<NextAuthConfig> => {
+  if (loadedNextConfig) {
+    return loadedNextConfig
+  }
+
+  const providers = await Promise.all(nextConfig.options.providers.map(async (providerConfig) => {
+    const provider = await import(`next-auth/providers/${providerConfig.id}`)
+
+    // Import is exported on .default during SSR, so we need to call `.default.default` here
+    return provider.default.default(providerConfig.options)
+  }))
+
+  const finalConfig = {
+    ...nextConfig,
+    options: {
+      ...nextConfig.options,
+      providers
+    }
+  }
+
+  loadedNextConfig = finalConfig
+  return finalConfig
+}
 
 // TODO: Make `NEXTAUTH_URL` configurable
 const NEXTAUTH_URL = new URL('http://localhost:3000/api/auth/')
@@ -89,9 +116,9 @@ const readBodyForNext = async (event: H3Event) => {
  * @param event H3Event event to transform into `RequestInternal`
  */
 const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
+  const { url } = await getNextConfig()
   const nextRequest: RequestInternal = {
-    // TODO: Set this correctly
-    host: undefined,
+    host: url,
     body: undefined,
     cookies: parseCookies(event),
     query: undefined,
@@ -154,22 +181,13 @@ export const authHandler = async (event: H3Event) => {
   }
 
   // 2. Assemble and perform request to the NextAuth.js auth handler
+  const nextConfig = await getNextConfig()
   const nextRequest = await getInternalNextAuthRequestData(event)
+  const { NextAuthHandler } = await import('next-auth/core')
 
-  // @ts-expect-error import is exported on .default during SSR
-  const github = GithubProvider?.default || GithubProvider
   const nextResult = await NextAuthHandler({
     req: nextRequest,
-    options: {
-      logger: undefined,
-      providers: [
-        // TODO: **IMPORTANT** remove this before release + delete oauth app (this is also documented in the alpha issue)
-        github({
-          clientId: '6d8a47f9ebd9f1edd1db',
-          clientSecret: 'ae712565e3b2be5eb26bfba8e4cfc8025dd64bd8'
-        })
-      ]
-    }
+    options: nextConfig.options
   })
 
   // 5. Set response status, headers, cookies

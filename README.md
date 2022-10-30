@@ -85,13 +85,14 @@ This module also has it's own playground, you can also use that to get familiar 
 
 > cd nuxt-auth
 
+# **OPEN THE `nuxt.config.ts` and configure your authentication provider (e.g., google, github)**
+
 > npm i
 
 > npm run dev:prepare
 
 > npm run dev
 
-# TODO: Add instructions to add example provider
 # -> open http://localhost:3000
 ```
 
@@ -365,7 +366,31 @@ You can directly interact with them if you wish to, it's probably a better idea 
 
 #### Configuration
 
-<!-- TODO -->
+Here's what a full config can look like. Here we use a github-oauth provider to authenticate the user:
+```ts
+import GithubProvider from 'next-auth/providers/github'
+
+{
+    // Module is enabled
+    isEnabled: true,
+    // Configure underlying next auht, use same structure as defined by NextAuth.js config: https://next-auth.js.org/configuration/options#options
+    nextAuth: {
+        // URL that the auth endpoints are reachable at
+        url: 'http://localhost:3000/api/auth/',
+        options: {
+            // Secret to use to encode JWT tokens, if `undefined` a default one is generated. Must be set in production!
+            secret: undefined,
+            // Configure providers that the application supports
+            providers: [GithubProvider({
+                clientId: 'enter-your-client-id-here',
+                clientSecret: 'enter-your-client-secret-here'
+            })],
+        }
+    }
+}
+```
+
+Note that there's way more options inside the `nextAuth.options` object, see [here](https://next-auth.js.org/configuration/options#options) for all available options.
 
 #### Prior Work and Module Concept
 
