@@ -3,6 +3,9 @@ import { useFetch, createError, useState, useRuntimeConfig } from '#app'
 import { nanoid } from 'nanoid'
 import defu from 'defu'
 import { joinURL, parseURL } from 'ufo'
+import { Ref } from 'vue'
+
+import type { AppProvider } from 'next-auth/providers'
 
 interface UseSessionOptions {
   required?: boolean
@@ -33,7 +36,7 @@ const _getBasePath = () => parseURL(useRuntimeConfig().public.auth.url).pathname
 const joinPathToBase = (path: string) => joinURL(_getBasePath(), path)
 
 // TODO: Better type this so that TS can narrow whether the full `result` or just `result.data` is returned
-const _fetch = async (path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: FetchOptions = { params: {}, headers: {}, method: 'GET' }) => {
+const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: FetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<Ref<T>> => {
   const result = await useFetch(joinPathToBase(path), {
     method,
     params,
@@ -47,7 +50,7 @@ const _fetch = async (path: string, { body, params, method, headers, onResponse,
     key: nanoid()
   })
 
-  return result.data
+  return result.data as Ref<T>
 }
 
 export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
@@ -63,8 +66,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
   const signOut = async ({ callbackUrl }: SignOutOptions) => {
     const csrfTokenResult = await getCsrfToken()
 
-    // @ts-ignore The underlying `_fetch` method should be better typed to avoid this
-    const csrfToken = csrfTokenResult?.value?.csrfToken
+    const csrfToken = csrfTokenResult.value.csrfToken
     if (!csrfToken) {
       throw createError({ statusCode: 400, statusMessage: 'Could not fetch CSRF Token for signing out' })
     }
@@ -78,7 +80,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       })
     }
 
-    const signoutData = await _fetch('signout', {
+    const signoutData = await _fetch<{ url: string }>('signout', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -94,14 +96,15 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     return signoutData
   }
 
-  const getCsrfToken = () => _fetch('csrf')
-  const getProviders = () => _fetch('providers')
-  const getSession = (getSessionOptions: SignInOptions) => {
-    const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions, {
+  const getCsrfToken = () => _fetch<{ csrfToken: string }>('csrf')
+  const getProviders = () => _fetch<AppProvider[]>('providers')
+  const getSession = (getSessionOptions?: SignInOptions) => {
+    const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions || {}, {
       required: true,
       callbackUrl: undefined,
       onUnauthenticated: signIn
     })
+
     const onRequest = ({ options }) => {
       status.value = 'loading'
 
@@ -134,7 +137,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       status.value = 'unauthenticated'
     }
 
-    return _fetch('session', {
+    return _fetch<SessionData>('session', {
       onResponse,
       onRequest,
       onRequestError: onError,
