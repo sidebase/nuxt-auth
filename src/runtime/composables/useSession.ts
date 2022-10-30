@@ -1,7 +1,8 @@
 import type { Session } from 'next-auth'
-import { useFetch, createError, useState } from '#app'
+import { useFetch, createError, useState, useRuntimeConfig } from '#app'
 import { nanoid } from 'nanoid'
 import defu from 'defu'
+import { joinURL, parseURL } from 'ufo'
 
 interface UseSessionOptions {
   required?: boolean
@@ -25,13 +26,15 @@ interface FetchOptions {
   onRequest?: ({ request, options }: { request?: any, options?: any }) => void
   onRequestError?: ({ request, options, error }: { request?: any, options?: any, error?: any }) => void
 }
-
 type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 type SessionData = Session | undefined | null
 
+const _getBasePath = () => parseURL(useRuntimeConfig().public.auth.url).pathname
+const joinPathToBase = (path: string) => joinURL(_getBasePath(), path)
+
 // TODO: Better type this so that TS can narrow whether the full `result` or just `result.data` is returned
 const _fetch = async (path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: FetchOptions = { params: {}, headers: {}, method: 'GET' }) => {
-  const result = await useFetch(`/api/auth/${path}`, {
+  const result = await useFetch(joinPathToBase(path), {
     method,
     params,
     headers,
@@ -52,7 +55,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
   const status = useState<SessionStatus>('session:status', () => 'unauthenticated')
 
   const signIn = () => {
-    const url = '/api/auth/signin'
+    const url = joinPathToBase('signin')
     window.location.href = url
   }
 

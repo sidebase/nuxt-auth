@@ -3,8 +3,15 @@ import type { H3Event } from 'h3'
 import type { RequestInternal } from 'next-auth/core'
 import type { NextAuthAction } from 'next-auth'
 
+import { parseURL } from 'ufo'
 import type { NextAuthConfig } from '../../../module'
+
+// @ts-ignore Virtual import declared in `module.ts` - TODO: make the import discoverable
 import nextConfig from '#sidebase/auth'
+
+// TODO: Make `NEXTAUTH_URL` configurable
+const NEXTAUTH_URL = nextConfig.url ? parseURL(nextConfig.url) : parseURL('http://localhost:3000/api/auth/')
+const NEXTAUTH_BASE_PATH = NEXTAUTH_URL.pathname
 
 // TODO: Add function call result caching OR top-level await this
 let loadedNextConfig: NextAuthConfig | undefined
@@ -35,10 +42,6 @@ const getNextConfig = async (): Promise<NextAuthConfig> => {
   loadedNextConfig = finalConfig
   return finalConfig
 }
-
-// TODO: Make `NEXTAUTH_URL` configurable
-const NEXTAUTH_URL = new URL('http://localhost:3000/api/auth/')
-const NEXTAUTH_BASE_PATH = NEXTAUTH_URL.pathname
 
 const normalizedBasePath = () => {
   if (NEXTAUTH_BASE_PATH.endsWith('/')) {
@@ -190,19 +193,19 @@ export const authHandler = async (event: H3Event) => {
     options: nextConfig.options
   })
 
-  // 5. Set response status, headers, cookies
+  // 3. Set response status, headers, cookies
   if (nextResult.status) {
     res.statusCode = nextResult.status
   }
   nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value, cookie.options))
   nextResult.headers?.forEach(header => appendHeader(event, header.key, header.value))
 
-  // 6. Return either:
-  // 6.1 the body directly if no redirect is set:
+  // 4. Return either:
+  // 4.1 the body directly if no redirect is set:
   if (!nextResult.redirect) {
     return nextResult.body
   }
-  // 6.2 a json-object with a redirect url if `json: true` is set by client:
+  // 4.2 a json-object with a redirect url if `json: true` is set by client:
   //      ```
   //      // quote from https://github.com/nextauthjs/next-auth/blob/261968b9bbf8f57dd34651f60580d078f0c8a2ef/packages/next-auth/src/react/index.tsx#L3-L7
   //      On signIn() and signOut() we pass 'json: true' to request a response in JSON
@@ -214,7 +217,7 @@ export const authHandler = async (event: H3Event) => {
   if (nextRequest.body?.json) {
     return { url: nextResult.redirect }
   }
-  // 6.3 via a redirect:
+  // 4.3 via a redirect:
   return sendRedirect(event, nextResult.redirect)
 }
 

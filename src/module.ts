@@ -1,6 +1,7 @@
 import { defineNuxtModule, useLogger, addServerHandler, addImportsDir, createResolver, resolveModule, addTemplate } from '@nuxt/kit'
 import defu from 'defu'
 import { NextAuthOptions } from 'next-auth'
+import { parseURL } from 'ufo'
 
 export interface NextAuthConfig {
   /**
@@ -53,6 +54,9 @@ export default defineNuxtModule<ModuleOptions>({
     // 1. Set up runtime configuration
     const options = defu(moduleOptions, defaults)
     nuxt.options.runtimeConfig.auth = defu(nuxt.options.runtimeConfig.auth, options)
+    nuxt.options.runtimeConfig.public.auth = defu(nuxt.options.runtimeConfig.public.auth, {
+      url: options.nextAuth.url
+    })
 
     // 2. Setup NextAuth.js options
     const nextAuthOptions = options.nextAuth
