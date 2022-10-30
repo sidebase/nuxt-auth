@@ -9,10 +9,12 @@ export default defineNuxtConfig({
   auth: {
     nextAuth: {
       options: {
-        providers: [GithubProvider({
-          clientId: 'enter-your-client-id-here',
-          clientSecret: 'enter-your-client-secret-here'
-        })]
+        providers: [
+          GithubProvider({
+            clientId: 'enter-your-client-id-here',
+            clientSecret: 'enter-your-client-secret-here'
+          })
+        ]
       }
     }
   }

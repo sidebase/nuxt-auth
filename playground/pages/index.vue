@@ -1,7 +1,10 @@
 <template>
   <div>
-    <button @click="signIn">
+    <button @click="signIn({ callbackUrl: '/'})">
       sign in with github
+    </button>
+    <button @click="signIn({ callbackUrl: '/protected/inline' })">
+      sign in with redirect
     </button>
     <button @click="signOut">
       sign out

@@ -13,7 +13,18 @@ interface UseSessionOptions {
   onUnauthenticated?: () => void
 }
 
-type SignInOptions = Partial<UseSessionOptions>
+type GetSessionOptions = Partial<UseSessionOptions>
+
+interface SignInOptions {
+  /**
+   * Specify to which URL the user will be redirected after signing in. Defaults to the page URL the sign-in is initiated from.
+   *
+   * [Documentation](https://next-auth.js.org/getting-started/client#specifying-a-callbackurl)
+   */
+  callbackUrl?: string
+  /** [Documentation](https://next-auth.js.org/getting-started/client#using-the-redirect-false-option) */
+  redirect?: boolean
+}
 
 interface SignOutOptions {
   callbackUrl?: string
@@ -57,12 +68,23 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
   const data = useState<SessionData>('session:data', () => undefined)
   const status = useState<SessionStatus>('session:status', () => 'unauthenticated')
 
-  const signIn = () => {
-    const url = joinPathToBase('signin')
-    window.location.href = url
+  // TODO: Improve typing, make `provider` a literal union instead
+  const signIn = async (options?: Pick<SignInOptions, 'callbackUrl'>) => {
+    const providers = await getProviders()
+
+    if (!providers) {
+      window.location.href = joinPathToBase('error')
+      return
+    }
+
+    const { callbackUrl = window.location.href } = options ?? {}
+    window.location.href = `${joinPathToBase('signin')}?${new URLSearchParams({
+        callbackUrl
+      })}`
+
+    // TODO: Add support for credential and mail flows, see https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/index.tsx#L226-L228
   }
 
-  // TODO: add callback url support https://github.com/nextauthjs/next-auth/blob/main/packages/next-auth/src/react/index.tsx#L284
   const signOut = async ({ callbackUrl }: SignOutOptions) => {
     const csrfTokenResult = await getCsrfToken()
 
@@ -98,7 +120,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
 
   const getCsrfToken = () => _fetch<{ csrfToken: string }>('csrf')
   const getProviders = () => _fetch<AppProvider[]>('providers')
-  const getSession = (getSessionOptions?: SignInOptions) => {
+  const getSession = (getSessionOptions?: GetSessionOptions) => {
     const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions || {}, {
       required: true,
       callbackUrl: undefined,
