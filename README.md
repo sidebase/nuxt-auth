@@ -42,7 +42,7 @@
         data.value
 
         // Start the unbranded sign-in flow
-        signIn()
+        await signIn()
 
         // Logout the user
         await signOut()
@@ -163,7 +163,7 @@ await getCsrfToken()
 await getProviders()
 
 // Trigger a sign in, see https://next-auth.js.org/getting-started/client#signin
-signIn()
+await signIn()
 
 // Trigger a sign out, see https://next-auth.js.org/getting-started/client#signout
 await signOut()
@@ -189,14 +189,14 @@ You can also pass the `callbackUrl` option to both the `signIn` and the `signOut
 
 You can use it like:
 ```ts
-signIn({ callbackUrl: '/protected' })
+await signIn({ callbackUrl: '/protected' })
 ```
 
 to redirect the user to the protected page they wanted to access _after_ they've been authenticated.
 
 You can do the same for signing out the user:
 ```ts
-signOut({ callbackUrl: '/protected' })
+await signOut({ callbackUrl: '/protected' })
 ```
 
 E.g., here to redirect the user away from the already loaded, protected, page after signout (else, you will have to handle the redirect yourself).
