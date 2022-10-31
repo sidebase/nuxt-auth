@@ -1,7 +1,6 @@
 import { defineNuxtModule, useLogger, addServerHandler, addImportsDir, createResolver, resolveModule, addTemplate } from '@nuxt/kit'
 import defu from 'defu'
 import { NextAuthOptions } from 'next-auth'
-import { parseURL } from 'ufo'
 
 export interface NextAuthConfig {
   /**
@@ -62,13 +61,23 @@ export default defineNuxtModule<ModuleOptions>({
     // 2.1. Get options
     const nextAuthOptions = options.nextAuth
 
-    // 2.2. Reduce the providers to id, name, type and options:
-    //      - `options` are what was used to instantiate the provider by the user in the `nuxt.config.ts`, we can use them for later re-instantiation in the auth-middleware
-    //      - this allows us to serialize this correctly in step 2.3., as additional non-serializable properties (that we can get back by re-instatiating) are filtered out
+    // 2.2. Reduce the providers to id, name, type and options. This allows us to do two things:
+    //      - the `options` are what was used to instantiate the provider by the user in the `nuxt.config.ts`, we can use them for later re-instantiation in the auth-middleware
+    //      - serialize the whole config correctly in step 2.3., as additional non-serializable properties (that we can get back by re-instatiating) are filtered out
     const providerOptions = nextAuthOptions.options.providers.map(({ id, name, type, options }) => ({ id, name, type, options }))
 
     // 2.3. Create virtual imports
     //      - TODO: add imports for all providers
+    const providerImports = providerOptions.map(({ id }) => `import ${id} from next-auth/providers/${id}`)
+    const preamble = `
+        ${providerImports.concat('\n')}
+
+        const providers = ${JSON.stringify(providerOptions.map(({ id }) => id))}
+    `
+    console.log('hiiii', preamble)
+    nuxt.options.nitro.virtual = defu(nuxt.options.nitro.virtual, {
+      '#sidebase/providers': preamble
+    })
     nuxt.options.nitro.virtual = defu(nuxt.options.nitro.virtual,
       {
         '#sidebase/auth': `export default ${JSON.stringify({
