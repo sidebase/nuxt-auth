@@ -9,6 +9,7 @@ import type { NextAuthConfig } from '../../../module'
 
 // @ts-ignore Virtual import declared in `module.ts` - TODO: make the import discoverable
 import nextConfig from '#sidebase/auth'
+import bundlesProviders from '#sidebase/providers'
 
 // TODO: Make `NEXTAUTH_URL` configurable
 const NEXTAUTH_URL = nextConfig.url ? parseURL(nextConfig.url) : parseURL('http://localhost:3000/api/auth/')
@@ -20,17 +21,17 @@ let loadedNextConfig: NextAuthConfig | undefined
 /**
  * Generate the next auth config that can be used for handling requests
  */
-const getNextConfig = async (): Promise<NextAuthConfig> => {
+const getNextConfig = (): NextAuthConfig => {
   if (loadedNextConfig) {
     return loadedNextConfig
   }
 
-  const providers = await Promise.all(nextConfig.options.providers.map(async (providerConfig) => {
-    const provider = await import(`next-auth/providers/${providerConfig.id}`)
+  const providers = nextConfig.options.providers.map((providerConfig) => {
+    const provider = bundlesProviders[providerConfig.id]
 
     // Import is exported on .default during SSR, so we need to call `.default.default` here
-    return provider.default.default(providerConfig.options)
-  }))
+    return provider.default(providerConfig.options)
+  })
 
   const finalConfig = {
     ...nextConfig,
@@ -120,7 +121,7 @@ const readBodyForNext = async (event: H3Event) => {
  * @param event H3Event event to transform into `RequestInternal`
  */
 const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
-  const { url } = await getNextConfig()
+  const { url } = getNextConfig()
   const nextRequest: RequestInternal = {
     host: url,
     body: undefined,
@@ -185,7 +186,7 @@ export const authHandler = async (event: H3Event) => {
   }
 
   // 2. Assemble and perform request to the NextAuth.js auth handler
-  const nextConfig = await getNextConfig()
+  const nextConfig = getNextConfig()
   const nextRequest = await getInternalNextAuthRequestData(event)
 
   const nextResult = await NextAuthHandler({

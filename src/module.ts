@@ -68,15 +68,21 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 2.3. Create virtual imports
     //      - TODO: add imports for all providers
-    const providerImports = providerOptions.map(({ id }) => `import ${id} from next-auth/providers/${id}`)
-    const preamble = `
-        ${providerImports.concat('\n')}
 
-        const providers = ${JSON.stringify(providerOptions.map(({ id }) => id))}
+    // TODO: deduplicate providers
+    const providerImports = providerOptions.map(({ id }) => `import ${id} from "next-auth/providers/${id}"`)
+    const providerExports = providerOptions.map(({ id }) => `"${id}": ${id}`)
+
+    // TODO: make `\n` OS-independent
+    const providerModule = `
+        ${providerImports.join('\n')}
+
+        export default {
+          ${providerExports.join(', ')}
+        }
     `
-    console.log('hiiii', preamble)
     nuxt.options.nitro.virtual = defu(nuxt.options.nitro.virtual, {
-      '#sidebase/providers': preamble
+      '#sidebase/providers': providerModule
     })
     nuxt.options.nitro.virtual = defu(nuxt.options.nitro.virtual,
       {
