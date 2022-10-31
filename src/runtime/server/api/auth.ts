@@ -9,6 +9,7 @@ import type { NextAuthConfig } from '../../../module'
 
 // @ts-ignore Virtual import declared in `module.ts` - TODO: make the import discoverable
 import nextConfig from '#sidebase/auth'
+// @ts-ignore Virtual import declared in `module.ts` - TODO: make the import discoverable
 import bundlesProviders from '#sidebase/providers'
 
 // TODO: Make `NEXTAUTH_URL` configurable
