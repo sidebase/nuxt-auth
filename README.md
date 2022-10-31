@@ -22,7 +22,22 @@
       modules: ['@sidebase/nuxt-auth'],
     })
     ```
-3. Done! You can now use all user-related functionality, for example:
+3. Configure the module with at least one [authentication provider](https://next-auth.js.org/providers/):
+    ```ts
+    import GithubProvider from 'next-auth/providers/github'
+
+    export default defineNuxtConfig({
+      modules: ['@sidebase/nuxt-auth'],
+      auth: {
+        nextAuth: {
+          options: {
+            providers: [GithubProvider({ clientId: 'enter-your-client-id-here', clientSecret: 'enter-your-client-secret-here' })]
+          }
+        }
+      }
+    })
+    ```
+4. Done! You can now use all user-related functionality, for example:
     - client-side (e.g., from `.vue` files):
         ```ts
         const {
@@ -412,8 +427,10 @@ The main part of the work was to piece everything together, resolve some outstan
 
 ##### Project Roadmap
 
+🚧 This project is in beta-status: we test things, a lot of features are not complete (but already useful!) - e.g., we have implemented and tested oauth, so all dozens of oauth flows should already work.
+
 Roughly, the roadmap of `nuxt-auth` is:
-1. Reach client-side feature parity: There's still a lot of options, configuration and behavior from the client-side NextAuth.js module that we do not support yet. We first want to reach feature parity on this front + support the credential and email flow,
+1. Reach feature parity: There's still a lot of options, configuration and behavior from the client-side NextAuth.js module that we do not support yet. We first want to reach feature parity on this front + support the credential and email flow - so far only the oauth flows have been properly tested
 2. Reach configuration & server-side parity: Extending the user data model, ensuring full typescript support in doing that, allowing correct configuration of all supported backends and session storage mediums
 3. Fill in missing gaps, add some of our own: There's many ideas we have to support extended user management, maybe discuss whether we want to better support the `local` / `credentials` flow than NextAuth.js does out of the box (they don't do it for good reasons, so, there really is an honest discussion to be had), adding more UI focused components that automatically and easily wrap your app in a nice auth page, ...
 
