@@ -103,8 +103,8 @@ Note: The playground has considerably less polishing than the example page.
 First of all: If you want to have an interactive look, either check-out the [demo page](#demo-page) or the [module playground](#module-playground) in the sections above.
 
 The `nuxt-auth` module takes care of authentication and sessions:
-    - authentication: The process of ensuring that somebody is who they claims to be. This is like a passport check at the border: You present some sort of proof that 100% tells the checking entity that you are who you claim to be (typically, this is your passport). The border agents checks the passport and let's you through.
-    - sessions: Persist the information that you have been authenticated for some duration across different requests. Additional data can be attached to a session, e.g., via the `mail` or `username` that may be part of data attached to the session. Note: If you need only sessions but no authentication, you can check-out [nuxt-session](https://github.com/sidebase/nuxt-session).
+- authentication: The process of ensuring that somebody is who they claims to be. This is like a passport check at the border: You present some sort of proof that 100% tells the checking entity that you are who you claim to be (typically, this is your passport). The border agents checks the passport and let's you through.
+- sessions: Persist the information that you have been authenticated for some duration across different requests. Additional data can be attached to a session, e.g., via the `mail` or `username` that may be part of data attached to the session. Note: If you need only sessions but no authentication, you can check-out [nuxt-session](https://github.com/sidebase/nuxt-session).
 
 In addition, you can use `nuxt-auth` to build authorization on top of the supported authentication + session mechanisms: As soon as you know "whos who", you can use this information to let somebody with the right email adress (for example) into a specific area. Right now, this is not supported out of the box.
 
