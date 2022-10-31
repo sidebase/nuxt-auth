@@ -59,8 +59,16 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     // 2. Setup NextAuth.js options
+    // 2.1. Get options
     const nextAuthOptions = options.nextAuth
+
+    // 2.2. Reduce the providers to id, name, type and options:
+    //      - `options` are what was used to instantiate the provider by the user in the `nuxt.config.ts`, we can use them for later re-instantiation in the auth-middleware
+    //      - this allows us to serialize this correctly in step 2.3., as additional non-serializable properties (that we can get back by re-instatiating) are filtered out
     const providerOptions = nextAuthOptions.options.providers.map(({ id, name, type, options }) => ({ id, name, type, options }))
+
+    // 2.3. Create virtual imports
+    //      - TODO: add imports for all providers
     nuxt.options.nitro.virtual = defu(nuxt.options.nitro.virtual,
       {
         '#sidebase/auth': `export default ${JSON.stringify({

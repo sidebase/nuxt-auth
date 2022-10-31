@@ -2,6 +2,7 @@ import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler
 import type { H3Event } from 'h3'
 import type { RequestInternal } from 'next-auth/core'
 import type { NextAuthAction } from 'next-auth'
+import { NextAuthHandler } from 'next-auth/core'
 
 import { parseURL } from 'ufo'
 import type { NextAuthConfig } from '../../../module'
@@ -186,7 +187,6 @@ export const authHandler = async (event: H3Event) => {
   // 2. Assemble and perform request to the NextAuth.js auth handler
   const nextConfig = await getNextConfig()
   const nextRequest = await getInternalNextAuthRequestData(event)
-  const { NextAuthHandler } = await import('next-auth/core')
 
   const nextResult = await NextAuthHandler({
     req: nextRequest,
