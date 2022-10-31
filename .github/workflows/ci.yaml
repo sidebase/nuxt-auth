@@ -27,3 +27,7 @@ jobs:
       # Check linting and typing
       - run: npm run lint
       - run: npm run types
+
+      # Check building
+      - run: npm run build
+      - run: npm run build:playground

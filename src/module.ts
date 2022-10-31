@@ -67,11 +67,9 @@ export default defineNuxtModule<ModuleOptions>({
     const providerOptions = nextAuthOptions.options.providers.map(({ id, name, type, options }) => ({ id, name, type, options }))
 
     // 2.3. Create virtual imports
-    //      - TODO: add imports for all providers
-
-    // TODO: deduplicate providers
-    const providerImports = providerOptions.map(({ id }) => `import ${id} from "next-auth/providers/${id}"`)
-    const providerExports = providerOptions.map(({ id }) => `"${id}": ${id}`)
+    const deduplicatedProviderIds = Array.from(new Set(providerOptions.map(({ id }) => id)))
+    const providerImports = deduplicatedProviderIds.map(id => `import ${id} from "next-auth/providers/${id}"`)
+    const providerExports = deduplicatedProviderIds.map(id => `"${id}": ${id}`)
 
     // TODO: make `\n` OS-independent
     const providerModule = `
