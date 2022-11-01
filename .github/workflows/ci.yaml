@@ -29,5 +29,5 @@ jobs:
       - run: npm run types
 
       # Check building
-      - run: npm run build
+      - run: npm run build:module
       - run: npm run build:playground
