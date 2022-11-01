@@ -71,7 +71,6 @@ export default defineNuxtModule<ModuleOptions>({
     const providerImports = deduplicatedProviderIds.map(id => `import ${id} from "next-auth/providers/${id}"`)
     const providerExports = deduplicatedProviderIds.map(id => `"${id}": ${id}`)
 
-    // TODO: make `\n` OS-independent
     const providerModule = `
         ${providerImports.join('\n')}
 
