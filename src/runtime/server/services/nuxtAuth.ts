@@ -1,15 +1,13 @@
 import { NextAuthHandler } from 'next-auth/core'
-import { parseURL } from 'ufo'
 import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError } from 'h3'
 import type { H3Event } from 'h3'
 import type { RequestInternal } from 'next-auth/core'
-import type { NextAuthAction } from 'next-auth'
+import type { NextAuthAction, NextAuthOptions, Session } from 'next-auth'
 import defu from 'defu'
-import type { NextAuthConfig } from '../../../module'
+import { useRuntimeConfig } from '#imports'
 
+let preparedAuthHandler: ReturnType<typeof defineEventHandler> | undefined
 const SUPPORTED_ACTIONS: NextAuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
-
-const parseBaseUrl = (url?: string) => url ? parseURL(url) : parseURL('http://localhost:3000/api/auth/')
 
 /**
  * Parse a body if the request method is supported, return `undefined` otherwise.
@@ -27,30 +25,34 @@ const readBodyForNext = async (event: H3Event) => {
 }
 
 /**
- * Ensure that the base-path of the nextauth endpoint ends with a `/`
+ * Get action and optional provider from a request.
  *
- * @returns normalizedBasePath string
+ * E.g., with a request like `/api/signin/github` get the action `signin` with the provider `github`
  */
-const normalizeBasePath = (path: string) => {
-  if (path.endsWith('/')) {
-    return path
+const parseActionAndProvider = ({ context }: H3Event): { action: NextAuthAction, providerId: string | undefined } => {
+  const params: string | undefined = context.params._?.split('/')
+
+  if (![1, 2].includes(params.length)) {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid path used for auth-endpoint. Supply either one path parameter (e.g., `/api/auth/session`) or two (e.g., `/api/auth/signin/github` after the base path (in previous examples base path was: `/api/auth/`' })
   }
 
-  return `${path}/`
+  const [unvalidatedAction, providerId] = params
+
+  // Get TS to correctly infer the type of `unvalidatedAction`
+  const action = SUPPORTED_ACTIONS.find(action => action === unvalidatedAction)
+  if (!action) {
+    throw createError({ statusCode: 400, statusMessage: `Called endpoint with unsupported action ${unvalidatedAction!}. Only the following actions are supported: ${SUPPORTED_ACTIONS.join(', ')}` })
+  }
+
+  return { action, providerId }
 }
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
-export const NuxtAuthHandler = (nextAuthOption?: NextAuthConfig) => {
-  const { url, options } = defu(nextAuthOption, {
-    url: 'http://localhost:3000/api/auth/',
-    options: {
-      logger: undefined,
-      providers: []
-    }
+export const NuxtAuthHandler = (nextAuthOptions?: NextAuthOptions) => {
+  const options = defu(nextAuthOptions, {
+    logger: undefined,
+    providers: []
   })
-
-  const parsedUrl = parseBaseUrl(url)
-  const NEXTAUTH_BASE_PATH = normalizeBasePath(parsedUrl.pathname)
 
   /**
    * Generate a NextAuth.js internal request object that we can pass into the NextAuth.js
@@ -63,7 +65,7 @@ export const NuxtAuthHandler = (nextAuthOption?: NextAuthConfig) => {
    */
   const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
     const nextRequest: Omit<RequestInternal, 'action'> = {
-      host: url,
+      host: useRuntimeConfig().auth.url,
       body: undefined,
       cookies: parseCookies(event),
       query: undefined,
@@ -88,7 +90,7 @@ export const NuxtAuthHandler = (nextAuthOption?: NextAuthConfig) => {
 
     // 2. Figure out what action, providerId (optional) and error (optional) of the NextAuth.js lib is targeted
     const query = getQuery(event)
-    const { action, providerId } = parseActionAndAttachedInfo(event)
+    const { action, providerId } = parseActionAndProvider(event)
     const error = query.error
     if (Array.isArray(error)) {
       throw createError({ statusCode: 400, statusMessage: 'Error query parameter can only appear once' })
@@ -106,60 +108,10 @@ export const NuxtAuthHandler = (nextAuthOption?: NextAuthConfig) => {
     }
   }
 
-  // TODO: Make this code less brittle, checkout if implementation exists withing nextauth itself
-  const parseActionAndAttachedInfo = ({ req }: H3Event) => {
-  // 0. `req.url` looks like: `${NEXTAUTH_BASE_PATH}signin/github?callbackUrl=http://localhost:3000/`
-    const requestUrl = req.url
-    if (!requestUrl) {
-      throw createError({ statusCode: 400, statusMessage: 'Auth request URL must exist at this point' })
-    }
-
-    // 1. Split off query (only first questionmark has significance: https://stackoverflow.com/a/2924187)
-    //    -> result: `${NEXTAUTH_BASE_PATH}signin/github`
-    const urlWithoutQuery = requestUrl.split('?')[0]
-
-    // 2. Split off auth base path
-    //    -> result: `signin/github`
-    const [, actionInfo] = urlWithoutQuery.split(NEXTAUTH_BASE_PATH)
-    if (!actionInfo) {
-      throw createError({ statusCode: 400, statusMessage: 'Auth request URL does not have expected format: Not enough segments' })
-    }
-
-    // 3. Split apart remaining path
-    // -> result: ['signin', 'github']
-    const actionSegments = actionInfo.split('/')
-    if (![1, 2].includes(actionSegments.length)) {
-    // see https://next-auth.js.org/getting-started/rest-api for available endpoints
-      throw createError({ statusCode: 400, statusMessage: 'Auth request must either contain one or two actions segments (e.g.: `/providers` or `/siginIn/github`' })
-    }
-
-    // 4. Now, process desired action
-    let unvalidatedAction: string
-    let providerId: string | undefined
-    if (actionSegments.length === 1) {
-      unvalidatedAction = actionSegments[0]
-    } else if (actionSegments.length === 2) {
-      unvalidatedAction = actionSegments[0]
-      providerId = actionSegments[1]
-    } else {
-      throw createError({ statusCode: 500, statusMessage: 'Reached unreachable branch - there must be either 1 or 2 segments as we validates this above' })
-    }
-
-    // Get TS to correctly infer the type of `unvalidatedAction`
-    const action = SUPPORTED_ACTIONS.find(action => action === unvalidatedAction)
-    if (!action) {
-      throw createError({ statusCode: 400, statusMessage: `Called endpoint with unsupported action ${unvalidatedAction!}. Only the following actions are supported: ${SUPPORTED_ACTIONS.join(', ')}` })
-    }
-
-    return { action, providerId }
-  }
-
-  return eventHandler(async (event: H3Event) => {
+  const handler = eventHandler(async (event: H3Event) => {
     const { res } = event
 
-    // TODO: Do we have to check a path match?
-
-    // 2. Assemble and perform request to the NextAuth.js auth handler
+    // 1. Assemble and perform request to the NextAuth.js auth handler
     const nextRequest = await getInternalNextAuthRequestData(event)
 
     const nextResult = await NextAuthHandler({
@@ -167,19 +119,19 @@ export const NuxtAuthHandler = (nextAuthOption?: NextAuthConfig) => {
       options
     })
 
-    // 3. Set response status, headers, cookies
+    // 2. Set response status, headers, cookies
     if (nextResult.status) {
       res.statusCode = nextResult.status
     }
     nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value, cookie.options))
     nextResult.headers?.forEach(header => appendHeader(event, header.key, header.value))
 
-    // 4. Return either:
-    // 4.1 the body directly if no redirect is set:
+    // 3. Return either:
+    // 3.1 the body directly if no redirect is set:
     if (!nextResult.redirect) {
       return nextResult.body
     }
-    // 4.2 a json-object with a redirect url if `json: true` is set by client:
+    // 3.2 a json-object with a redirect url if `json: true` is set by client:
     //      ```
     //      // quote from https://github.com/nextauthjs/next-auth/blob/261968b9bbf8f57dd34651f60580d078f0c8a2ef/packages/next-auth/src/react/index.tsx#L3-L7
     //      On signIn() and signOut() we pass 'json: true' to request a response in JSON
@@ -191,7 +143,32 @@ export const NuxtAuthHandler = (nextAuthOption?: NextAuthConfig) => {
     if (nextRequest.body?.json) {
       return { url: nextResult.redirect }
     }
-    // 4.3 via a redirect:
+    // 3.3 via a redirect:
     return sendRedirect(event, nextResult.redirect)
   })
+
+  // Save handler so that it can be used in other places
+  if (preparedAuthHandler) {
+    console.error('You setup the auth handler for a second time - this is likely undesired. Make sure that you only call `NuxtAuthHandler( ... )` once')
+  }
+  preparedAuthHandler = handler
+  return handler
+}
+
+export const getServerSession = async (event: H3Event) => {
+  if (!preparedAuthHandler) {
+    throw createError({ statusCode: 500, statusMessage: 'Tried to get server session without setting up an endpoint to handle authentication (see https://github.com/sidebase/nuxt-auth#quick-start)' })
+  }
+
+  // Run a session check on the event with an arbitrary target endpoint
+  event.context.checkSessionOnNonAuthRequest = true
+  const session = await preparedAuthHandler(event)
+  delete event.context.checkSessionOnNonAuthRequest
+
+  // TODO: This check also happens in the `useSession` composable, refactor it into a small util instead to ensure consistency
+  if (!session || Object.keys(session).length === 0) {
+    return null
+  }
+
+  return session as Session
 }

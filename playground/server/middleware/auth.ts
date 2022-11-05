@@ -1,4 +1,4 @@
-import { getServerSession } from '#sidebase/server'
+import { getServerSession } from '#auth'
 
 export default eventHandler(async (event) => {
   // Only protect a certain backend route

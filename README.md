@@ -324,7 +324,7 @@ Note: `definePageMeta` can only be used inside the `pages/` directory!
 
 On the server side you can get access to the current session like this:
 ```ts
-import { getServerSession } from '#sidebase/server'
+import { getServerSession } from '#auth'
 
 export default eventHandler(async (event) => {
   const session = await getServerSession(event)
@@ -338,7 +338,7 @@ This is inspired by [the getServerSession](https://next-auth.js.org/tutorials/se
 To protect an endpoint with, check the session after fetching it:
 ```ts
 // file: ~/server/api/protected.get.ts
-import { getServerSession } from '#sidebase/server'
+import { getServerSession } from '#auth'
 
 export default eventHandler(async (event) => {
   const session = await getServerSession(event)
@@ -355,7 +355,7 @@ export default eventHandler(async (event) => {
 You can also use this in a [nuxt server middleware](https://v3.nuxtjs.org/guide/directory-structure/server#server-middleware) to protect multiple pages at once and keep the authentication logic out of your endpoints:
 ```ts
 // file: ~/server/middleware/auth.ts
-import { getServerSession } from '#sidebase/server'
+import { getServerSession } from '#auth'
 
 export default eventHandler(async (event) => {
   const session = await getServerSession(event)

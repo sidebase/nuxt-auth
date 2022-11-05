@@ -1,17 +1,6 @@
 import { defineNuxtModule, useLogger, addImportsDir, createResolver, resolveModule, addTemplate } from '@nuxt/kit'
 import defu from 'defu'
-import { NextAuthOptions } from 'next-auth'
-
-export interface NextAuthConfig {
-  /**
-   * Configure the NEXTAUTH_URL, see https://next-auth.js.org/configuration/options#nextauth_url
-   */
-  url?: string
-  /**
-   * All other NextAuth.js options like loggers, secret, providers, ...
-   */
-  options: NextAuthOptions
-}
+import { joinURL } from 'ufo'
 
 export interface ModuleOptions {
   /**
@@ -19,22 +8,34 @@ export interface ModuleOptions {
    */
   isEnabled: boolean
   /**
-   * Options that are passed directly to next-auth. Find the documentation here: https://next-auth.js.org/configuration/options#options
+   * Full url at which the app will run and path to authentication.
+   *
+   * Can be `undefined` during development but _must_ be set for production. This is the origin-part of the NEXTAUTH_URL. The origin consists out of:
+   * - `scheme`: http / https
+   * - `host`: e.g., localhost, example.org, google.com
+   * - `port`: _empty_ (implies `:80`), :3000, :8888
+   *
+   * See https://next-auth.js.org/configuration/options#nextauth_url for more on this. Note that nextauth uses the full url as one.
+   *
+   * @example undefined
+   * @example http://localhost:3000
+   * @example https://example.org
+   * @default http://localhost:3000
    */
-  nextAuth: NextAuthConfig
+  origin: string | undefined
+  /**
+   * The path to the endpoint that you've added `NuxtAuth` at via `export default NuxtAuthHandler({ ... })`. See the getting started for more: https://github.com/sidebase/nuxt-auth#quick-start
+   *
+   * @default /api/auth
+   */
+  basePath: string | undefined
 }
 
 const PACKAGE_NAME = 'nuxt-auth'
 const defaults: ModuleOptions = {
   isEnabled: true,
-  nextAuth: {
-    url: 'http://localhost:3000/api/auth/',
-    options: {
-      secret: undefined,
-      providers: []
-    }
-  }
-
+  origin: 'http://localhost:3000',
+  basePath: '/api/auth'
 }
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -54,63 +55,32 @@ export default defineNuxtModule<ModuleOptions>({
     logger.info('Setting up auth...')
 
     // 2. Set up runtime configuration
+    if (moduleOptions.origin === defaults.origin) {
+      // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
+      logger.warn('`origin` not set - an origin is mandatory for production. Using "http://localhost:3000" as a fallback')
+    }
     const options = defu(moduleOptions, defaults)
-    nuxt.options.runtimeConfig.auth = defu(nuxt.options.runtimeConfig.auth, options)
+
+    const url = joinURL(options.origin, options.basePath)
+    logger.info(`Using "${url}" as the auth API location, make sure the \`[...].ts\` auth-handler is added there. Use the \`auth.orign\` and \`auth.basePath\` config keys to change the API location`)
+
+    nuxt.options.runtimeConfig.auth = defu(nuxt.options.runtimeConfig.auth, {
+      ...options,
+      url
+    })
     nuxt.options.runtimeConfig.public.auth = defu(nuxt.options.runtimeConfig.public.auth, {
-      url: options.nextAuth.url
+      url
     })
 
-    // 3. Setup NextAuth.js options
-    // 3.1. Get options
-    const nextAuthOptions = options.nextAuth
-
-    // 3.2. Reduce the providers to id, name, type and options. This allows us to do two things:
-    //      - the `options` are what was used to instantiate the provider by the user in the `nuxt.config.ts`, we can use them for later re-instantiation in the auth-middleware
-    //      - serialize the whole config correctly in step 2.3., as additional non-serializable properties (that we can get back by re-instatiating) are filtered out
-    const providerOptions = nextAuthOptions.options.providers.map(({ id, name, type, options }) => ({ id, name, type, options }))
-
-    // 3.3. Create virtual imports
-    const deduplicatedProviderIds = Array.from(new Set(providerOptions.map(({ id }) => id)))
-    const providerImports = deduplicatedProviderIds.map(id => `import ${id} from "next-auth/providers/${id}"`)
-    const providerExports = deduplicatedProviderIds.map(id => `"${id}": ${id}`)
-
-    const providerModule = `
-        ${providerImports.join('\n')}
-
-        export default {
-          ${providerExports.join(', ')}
-        }
-    `
-    nuxt.options.nitro.virtual = defu(nuxt.options.nitro.virtual, {
-      '#sidebase/providers': providerModule
-    })
-    nuxt.options.nitro.virtual = defu(nuxt.options.nitro.virtual,
-      {
-        '#sidebase/auth': `export default ${JSON.stringify({
-          ...nextAuthOptions,
-          options: {
-            ...nextAuthOptions.options,
-            providers: providerOptions
-          }
-        })};`
-      })
-
-    // 4. Locate runtime directory
+    // 3. Locate runtime directory
     const { resolve } = createResolver(import.meta.url)
     const resolveRuntimeModule = (path: string) => resolveModule(path, { paths: resolve('./runtime') })
 
-    // 5. Add NextAuth.js API endpoints
-    // const handler = resolve('./runtime/server/api/auth')
-    // addServerHandler({
-    //   handler,
-    //   middleware: true
-    // })
-
-    // 6. Add nuxt-auth composables
+    // 4. Add nuxt-auth composables
     const composables = resolve('./runtime/composables')
     addImportsDir(composables)
 
-    // 7. Create virtual imports of server-side `getServerSession`
+    // 5. Create virtual imports for server-side
     nuxt.hook('nitro:config', (nitroConfig) => {
       nitroConfig.alias = nitroConfig.alias || {}
 
@@ -118,13 +88,13 @@ export default defineNuxtModule<ModuleOptions>({
       nitroConfig.externals = defu(typeof nitroConfig.externals === 'object' ? nitroConfig.externals : {}, {
         inline: [resolve('./runtime')]
       })
-      nitroConfig.alias['#sidebase/server'] = resolveRuntimeModule('./server/services')
+      nitroConfig.alias['#auth'] = resolveRuntimeModule('./server/services')
     })
 
     addTemplate({
-      filename: 'types/sidebase.d.ts',
+      filename: 'types/auth.d.ts',
       getContents: () => [
-        'declare module \'#sidebase/server\' {',
+        'declare module \'#auth\' {',
         `  const getServerSession: typeof import('${resolve('./runtime/server/services')}').getServerSession`,
         `  const NuxtAuthHandler: typeof import('${resolve('./runtime/server/services')}').NuxtAuthHandler`,
         '}'
@@ -132,9 +102,9 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     nuxt.hook('prepare:types', (options) => {
-      options.references.push({ path: resolve(nuxt.options.buildDir, 'types/sidebase.d.ts') })
+      options.references.push({ path: resolve(nuxt.options.buildDir, 'types/auth.d.ts') })
     })
 
-    logger.success('Auth setup complete')
+    logger.success('Auth module setup done')
   }
 })
