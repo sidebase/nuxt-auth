@@ -34,7 +34,7 @@ export interface ModuleOptions {
 const PACKAGE_NAME = 'nuxt-auth'
 const defaults: ModuleOptions = {
   isEnabled: true,
-  origin: 'http://localhost:3000',
+  origin: undefined,
   basePath: '/api/auth'
 }
 export default defineNuxtModule<ModuleOptions>({
@@ -55,11 +55,21 @@ export default defineNuxtModule<ModuleOptions>({
     logger.info('Setting up auth...')
 
     // 2. Set up runtime configuration
-    if (moduleOptions.origin === defaults.origin) {
+    let usedOrigin = moduleOptions.origin
+    if (usedOrigin === defaults.origin) {
       // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
-      logger.warn('`origin` not set - an origin is mandatory for production. Using "http://localhost:3000" as a fallback')
+      if (process.env.NODE_ENV === 'production') {
+        logger.error('You must provide `origin` for production. The origin is the scheme, host and port of your target deployment, e.g., `https://example.org` (port ist 80 implicitly)')
+        throw new Error('Bad production config - please set `auth.origin`')
+      } else {
+        usedOrigin = 'http://localhost:3000'
+        logger.warn(`\`origin\` not set - an origin is mandatory for production. Using "${usedOrigin}" as a fallback`)
+      }
     }
-    const options = defu(moduleOptions, defaults)
+    const options = defu(moduleOptions, {
+      ...defaults,
+      origin: usedOrigin
+    })
 
     const url = joinURL(options.origin, options.basePath)
     logger.info(`Using "${url}" as the auth API location, make sure the \`[...].ts\` auth-handler is added there. Use the \`auth.orign\` and \`auth.basePath\` config keys to change the API location`)
