@@ -1,4 +1,4 @@
-import { defineNuxtModule, useLogger, addServerHandler, addImportsDir, createResolver, resolveModule, addTemplate } from '@nuxt/kit'
+import { defineNuxtModule, useLogger, addImportsDir, createResolver, resolveModule, addTemplate } from '@nuxt/kit'
 import defu from 'defu'
 import { NextAuthOptions } from 'next-auth'
 
@@ -100,11 +100,11 @@ export default defineNuxtModule<ModuleOptions>({
     const resolveRuntimeModule = (path: string) => resolveModule(path, { paths: resolve('./runtime') })
 
     // 5. Add NextAuth.js API endpoints
-    const handler = resolve('./runtime/server/api/auth')
-    addServerHandler({
-      handler,
-      middleware: true
-    })
+    // const handler = resolve('./runtime/server/api/auth')
+    // addServerHandler({
+    //   handler,
+    //   middleware: true
+    // })
 
     // 6. Add nuxt-auth composables
     const composables = resolve('./runtime/composables')
@@ -126,6 +126,7 @@ export default defineNuxtModule<ModuleOptions>({
       getContents: () => [
         'declare module \'#sidebase/server\' {',
         `  const getServerSession: typeof import('${resolve('./runtime/server/services')}').getServerSession`,
+        `  const NuxtAuthHandler: typeof import('${resolve('./runtime/server/services')}').NuxtAuthHandler`,
         '}'
       ].join('\n')
     })

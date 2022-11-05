@@ -30,7 +30,7 @@ const getNextConfig = (): NextAuthConfig => {
   const providers = nextConfig.options.providers.map((providerConfig) => {
     const provider = bundlesProviders[providerConfig.id]
 
-    // Import is exported on .default during SSR, so we need to call `.default.default` here
+    // Import is exported on .default during SSR, so we need to call `.default` here
     return provider.default(providerConfig.options)
   })
 

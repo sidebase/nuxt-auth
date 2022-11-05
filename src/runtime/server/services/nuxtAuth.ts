@@ -4,6 +4,7 @@ import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler
 import type { H3Event } from 'h3'
 import type { RequestInternal } from 'next-auth/core'
 import type { NextAuthAction } from 'next-auth'
+import defu from 'defu'
 import type { NextAuthConfig } from '../../../module'
 
 const SUPPORTED_ACTIONS: NextAuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
@@ -39,7 +40,15 @@ const normalizeBasePath = (path: string) => {
 }
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
-export default ({ url, options }: NextAuthConfig) => {
+export const NuxtAuthHandler = (nextAuthOption?: NextAuthConfig) => {
+  const { url, options } = defu(nextAuthOption, {
+    url: 'http://localhost:3000/api/auth/',
+    options: {
+      logger: undefined,
+      providers: []
+    }
+  })
+
   const parsedUrl = parseBaseUrl(url)
   const NEXTAUTH_BASE_PATH = normalizeBasePath(parsedUrl.pathname)
 
@@ -100,14 +109,14 @@ export default ({ url, options }: NextAuthConfig) => {
   // TODO: Make this code less brittle, checkout if implementation exists withing nextauth itself
   const parseActionAndAttachedInfo = ({ req }: H3Event) => {
   // 0. `req.url` looks like: `${NEXTAUTH_BASE_PATH}signin/github?callbackUrl=http://localhost:3000/`
-    const reqUrl = req.url
-    if (!reqUrl) {
+    const requestUrl = req.url
+    if (!requestUrl) {
       throw createError({ statusCode: 400, statusMessage: 'Auth request URL must exist at this point' })
     }
 
     // 1. Split off query (only first questionmark has significance: https://stackoverflow.com/a/2924187)
     //    -> result: `${NEXTAUTH_BASE_PATH}signin/github`
-    const urlWithoutQuery = reqUrl.split('?')[0]
+    const urlWithoutQuery = requestUrl.split('?')[0]
 
     // 2. Split off auth base path
     //    -> result: `signin/github`
@@ -146,15 +155,9 @@ export default ({ url, options }: NextAuthConfig) => {
   }
 
   return eventHandler(async (event: H3Event) => {
-    const { req, res } = event
+    const { res } = event
 
-    // 1. Skip handler if both:
-    //    a) request is not meant for the auth-handler,
-    //    b) AND server-side flag that forces a check for arbitrary requests is not set to `true`
-    const requestUrl = req.url
-    if (!!requestUrl && !requestUrl.startsWith(NEXTAUTH_BASE_PATH) && event.context.checkSessionOnNonAuthRequest !== true) {
-      return
-    }
+    // TODO: Do we have to check a path match?
 
     // 2. Assemble and perform request to the NextAuth.js auth handler
     const nextRequest = await getInternalNextAuthRequestData(event)
