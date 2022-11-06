@@ -22,56 +22,50 @@
       modules: ['@sidebase/nuxt-auth'],
     })
     ```
-3. Configure the module with at least one [authentication provider](https://next-auth.js.org/providers/):
+3. Create the authentication endpoints and add at least one [authentication provider](https://next-auth.js.org/providers/):
     ```ts
+    // file: ~/server/api/auth/[...].ts
     import GithubProvider from 'next-auth/providers/github'
+    import { NuxtAuthHandler } from '#auth'
 
-    export default defineNuxtConfig({
-      modules: ['@sidebase/nuxt-auth'],
-      auth: {
-        nextAuth: {
-          options: {
-            providers: [GithubProvider({ clientId: 'enter-your-client-id-here', clientSecret: 'enter-your-client-secret-here' })]
-          }
-        }
-      }
+    export default NuxtAuthHandler({
+      providers: [
+        // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
+        GithubProvider.default({ clientId: 'enter-your-client-id-here', clientSecret: 'enter-your-client-secret-here' })
+      ]
     })
     ```
+    - `[..].ts` is a catch-all route, see the [nuxt server docs](https://v3.nuxtjs.org/guide/directory-structure/server#catch-all-route)
 4. Done! You can now use all user-related functionality, for example:
     - client-side (e.g., from `.vue` files):
         ```ts
-        const {
-          status,
-          data,
-          signIn,
-          signOut,
-        } = await useSession({
+        const { status, data, signIn, signOut } = await useSession({
           // Whether a session is required. If it is, a redirect to the signin page will happen if no active session exists
           required: true
         })
 
-        // Session status: `unauthenticated`, `loading`, `authenticated`
-        status.value
+        status.value // Session status: `unauthenticated`, `loading`, `authenticated`
+        data.value // Session data, e.g., expiration, user.email, ...
 
-        // Session data, e.g., expiration, user.email, ...
-        data.value
-
-        // Start the unbranded sign-in flow
-        await signIn()
-
-        // Logout the user
-        await signOut()
+        await signIn() // Sign in the user
+        await signOut() // Sign out the user
         ```
 
-There's more supported methods in the `useSession` composable, you can create authentication middlewares for your app and more - read the documentation below.
+There's more supported methods in the `useSession` composable, you can create client- and server-side authentication middlewares for your app and more - read the documentation below.
 
 ## Features
 
-`nuxt-auth` is still under active development. The goal of this library is to reach feature-parity with `NextAuth.js`. Currently, the library supports:
-
+- ✔️ Authentication providers:
+    - ✔️ OAuth (e.g., Github, Google, Twitter, Azure, ...)
+    - ✔️ Custom OAuth (write it yourself)
+    - 🚧 Credentials (password + username) (track #9)
+    - 🚧 Email Magic URLs
 - ✔️ Client Library:
     - `useSession` composable to: `signIn`, `signOut`, `getCsrfToken`, `getProviders`, `getSession`
     - full typescript support for all methods and property
+- ✔️ Persistent sessions across requests
+- ✔️ Client-side middleware protection
+- ✔️ Server-side middleware and endpoint protection
 - ✔️ REST API:
     - `GET /signin`,
     - `POST /signin/:provider`,
@@ -81,71 +75,182 @@ There's more supported methods in the `useSession` composable, you can create au
     - `GET /session`,
     - `GET /csrf`,
     - `GET /providers`
-- ✔️ Persistent sessions across requests
-- ✔️ Client-side middleware protection
-- ✔️ Server-side middleware and endpoint protection
+
+`nuxt-auth` is actively maintained. The goal of this library is to reach feature-parity with `NextAuth.js`, see the current [status](#project-roadmap) below.
 
 ## Demo Page
 
 Visit the [`nuxt-auth` demo page here](https://nuxt-auth-example.sidebase.io/):
-[![nuxt-auth demo page](./.github/nuxt-auth-demo.png)](https://nuxt-auth-example.sidebase.io/)
+![nuxt-auth demo page](.github/nuxt-user-demo.jpg)
 
-You can find the [full source code here](https://github.com/sidebase/nuxt-auth-example).
-
-### Module Playground
-
-This module also has it's own playground, you can also use that to get familiar with it and play around a bit:
-```sh
-> git clone https://github.com/sidebase/nuxt-auth
-
-> cd nuxt-auth
-
-# **OPEN THE `nuxt.config.ts` and configure your authentication provider (e.g., google, github)**
-
-> npm i
-
-> npm run dev:prepare
-
-> npm run dev
-
-# -> open http://localhost:3000
-```
-
-Note: The playground has considerably less polishing than the example page.
+You can find the [demo source-code here](https://github.com/sidebase/nuxt-auth-example).
 
 ## Documentation
 
-First of all: If you want to have an interactive look, either check-out the [demo page](#demo-page) or the [module playground](#module-playground) in the sections above.
-
 The `nuxt-auth` module takes care of authentication and sessions:
-- authentication: The process of ensuring that somebody is who they claims to be. This is like a passport check at the border: You present some sort of proof that 100% tells the checking entity that you are who you claim to be (typically, this is your passport). The border agents checks the passport and let's you through.
-- sessions: Persist the information that you have been authenticated for some duration across different requests. Additional data can be attached to a session, e.g., via the `mail` or `username` that may be part of data attached to the session. Note: If you need only sessions but no authentication, you can check-out [nuxt-session](https://github.com/sidebase/nuxt-session).
+- authentication: The process of ensuring that somebody is who they claims to be, e.g., via a username and password or by trusting an external authority (e.g., oauth via google, amazon, ...)
+- sessions: Persist the information that you have been authenticated for some duration across different requests. Additional data can be attached to a session, e.g., a `username`. (Note: If you need only sessions but no authentication, you can check-out [nuxt-session](https://github.com/sidebase/nuxt-session))
 
-In addition, you can use `nuxt-auth` to build authorization on top of the supported authentication + session mechanisms: As soon as you know "whos who", you can use this information to let somebody with the right email adress (for example) into a specific area. Right now, this is not supported out of the box.
+In addition, you can use `nuxt-auth` to build authorization on top of the supported authentication + session mechanisms: As soon as you know "whos who", you can use this information to let somebody with the right email adress (for example) into a specific area. Right now, this is not in-scope of `nuxt-auth` itself.
+
+If you want to have a more interactive introduction, check-out the [demo page](#demo-page) or the [module playground](#module-playground).
 
 Below we describe:
-1. [Client-side usage](#client-side-usage)
+1. [Configuration](#configuration)
+    - [`nuxt.config.ts`](#nuxtconfigts)
+        - [origin](#origin)
+        - [basePath](#basepath)
+    - [NuxtAuthHandler](#nuxtauthhandler)
+        - [Example with two providers](#example-with-two-providers)
+2. [Client-side usage](#client-side-usage)
     - [Session access and manipulation](#session-access-and-manipulation)
         - [Redirects](#redirects)
     - [Middlewares](#middlewares)
         - [Global middlewares](#global-middlewares)
         - [Named middlewares](#named-middlewares)
         - [Inline middlewares](#inline-middlewares)
-2. [Server-side usage](#server-side-usage)
+3. [Server-side usage](#server-side-usage)
     - [Server-side endpoint protection](#server-side-endpoint-protection)
     - [Server-side middlewares](#server-side-middlewares)
-3. [REST API](#rest-api)
 4. [Configuration](#configuration)
-5. [Prior Work and Module Concept](#prior-work-and-module-concept)
+5. [REST API](#rest-api)
+6. [Prior Work and Module Concept](#prior-work-and-module-concept)
     - [Project Roadmap](#project-roadmap)
-6. [Development](#development)
+7. [Module Playground](#module-playground)
+8. [Development](#development)
+
+### Configuration
+
+There's two places to configure `nuxt-auth`:
+- [`auth`-key in `nuxt.config.ts`](#nuxtconfigts): Configure the module itself, e.g., where the auth-endpoints are, what origin the app is deployed to, ...
+- [NuxtAuthHandler](#nuxtauthhandler): Configure the authentication behavior, e.g., what authentication providers to use
+
+For development, you can stay with the [Quick Start](#quick-start)-configuration.
+
+For a production deployment, you will have to at least set the:
+- `origin` inside the `nuxt.config.ts` config (equivalent to `NEXTAUTH_URL` environment variable),
+- `secret` inside the `NuxtAuthHandler` config (equivalent to `NEXTAUTH_SECRET` environment variable)
+
+#### `nuxt.config.ts`
+
+Use the `auth`-key inside your `nuxt.config.ts` to configure the module itself. Right now this is limited to the following options:
+```ts
+export default defineNuxtConfig({
+  modules: ['@sidebase/nuxt-auth'],
+  auth: {
+    // The module is enabled. Change this to disable the module
+    isEnabled: true,
+
+    // The origin is set to the development origin. Change this when deploying to production
+    origin: 'http://localhost:300',
+
+    // The base path to the authentication endpoints. Change this if you want to add your auth-endpoints at a non-default location
+    basePath: '/api/auth'
+  }
+})
+```
+
+The `origin` and the `basePath` together are equivalent to the `NEXTAUTH_URL` environment variable of NextAuth.js
+
+##### origin
+
+**You must set the `origin` in production, this includes when you run `npm run build`!** This is so that `nuxt-auth` can ensure that callbacks for authentication are correct. The `origin` consists out of (up to) 3 parts:
+- scheme: `http` or `https`
+- host: e.g., `localhost`, `example.org`, `www.sidebase.io`
+- port: e.g., `:3000`, `:4444`; leave empty to implicitly set `:80` (this is an internet convention, don't ask)
+
+For [the demo-app](https://nuxt-auth-example.sidebase.io) we set the `origin` to `https://nuxt-auth-example.sidebase.io`.
+
+##### basePath
+
+This is what tells the module where you added the authentication endpoints. Per default the `basePath` is set to `/api/auth`, so that means that the module expects that all requests to `/api/auth/*` will be handled by the `NuxtAuthHandler`.
+
+To statify this, you need to create a [catch-all server-route](https://v3.nuxtjs.org/guide/directory-structure/server#catch-all-route) at that location by creating a file `~/server/api/auth/[...].ts` that exports the `NuxtAuthHandler`, see more on this in the [Quick Start](#quick-start) or in the [configuration section below](#serverapiauthts).
+
+If you want to have the authentication at another location, you can overwrite the `basePath`, e.g., when setting:
+- `basePath: "/api/_auth"` -> add the authentication catch-all endpoints into `~/server/api/_auth/[...].ts`
+- `basePath: "/_auth"` -> add the authentication catch-all endpoints into `~/server/routes/_auth/[...].ts` (see [nuxt server-routes docs on this](https://v3.nuxtjs.org/guide/directory-structure/server/#server-routes))
+
+#### NuxtAuthHandler
+
+Use the `NuxtAuthHandler({ ... })` to configure how the authentication itself behaves:
+```ts
+// file: ~/server/api/auth/[...].ts
+import { NuxtAuthHandler } from '#auth'
+
+export default NuxtAuthHandler({
+  // your authentication configuration here!
+})
+```
+
+The `NuxtAuthHandler` accepts [all options that NextAuth.js accepts for its API initialization](https://next-auth.js.org/configuration/options#options). Use this place to configure authentication providers (oauth-google, credential flow, ...), your `secret` (equivalent to `NEXTAUTH_SECRET` in NextAuth.js), add callbacks for authentication events, configure a custom logger and more. Read the linked `NextAuth.js` configuration to figure out how this works and what you can do.
+
+##### Example with two providers
+
+Here's what a full config can look like, wee allow authentication via a:
+- Github Oauth flow,
+- a username + password flow (called `CredentialsProvider`)
+
+Note that the below implementation of the credentials provider is flawd and mostly copied over from the [NextAuth.js credentials example](https://next-auth.js.org/configuration/providers/credentials) in order to give a picture of how to get started with the credentials provider:
+```ts
+// file: ~/server/api/auth/[...].ts
+import CredentialsProvider from 'next-auth/providers/credentials'
+import GithubProvider from 'next-auth/providers/github'
+import { NuxtAuthHandler } from '#auth'
+
+export default NuxtAuthHandler({
+  providers: [
+    // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
+    GithubProvider.default({
+      clientId: 'a-client-id',
+      clientSecret: 'a-client-secret'
+    })
+    // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
+    CredentialsProvider.default({
+      // The name to display on the sign in form (e.g. 'Sign in with...')
+      name: 'Credentials',
+      // The credentials is used to generate a suitable form on the sign in page.
+      // You can specify whatever fields you are expecting to be submitted.
+      // e.g. domain, username, password, 2FA token, etc.
+      // You can pass any HTML attribute to the <input> tag through the object.
+      credentials: {
+        username: { label: 'Username', type: 'text', placeholder: 'jsmith' },
+        password: { label: 'Password', type: 'password' }
+      },
+      authorize (credentials: any) {
+        // You need to provide your own logic here that takes the credentials
+        // submitted and returns either a object representing a user or value
+        // that is false/null if the credentials are invalid.
+        // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
+        // You can also use the `req` object to obtain additional parameters
+        // (i.e., the request IP address)
+        // eslint-disable-next-line no-console
+        console.log('provided credentials: ', credentials)
+        const user = { id: '1', name: 'J Smith', email: 'jsmith@example.com' }
+
+        if (user) {
+          // Any object returned will be saved in `user` property of the JWT
+          return user
+        } else {
+          // If you return null then an error will be displayed advising the user to check their details.
+          return null
+
+          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
+        }
+      }
+    })
+  ]
+})
+
+```
+
+Note that there's way more options inside the `nextAuth.options` object, see [here](https://next-auth.js.org/configuration/options#options) for all available options.
 
 ### Client-side usage
 
 This module allows you user-data access, signing in, signing out and more on the client-side [via `useSession`](#session-access-and-manipulation). It also allows you to defined [middlewares that protects your page](#middlewares).
 
 #### Session access and manipulation
-
 
 The `useSession` composable is your main gateway to accessing and manipulating session-state and data. Here's the main methdos you can use:
 ```ts
@@ -379,33 +484,6 @@ All endpoints that NextAuth.js supports are also supported by `nuxt-auth`:
 
 You can directly interact with them if you wish to, it's probably a better idea to use `useSession` where possible though. [See the full rest API documentation of NextAuth.js here](https://next-auth.js.org/getting-started/rest-api).
 
-#### Configuration
-
-Here's what a full config can look like. Here we use a github-oauth provider to authenticate the user:
-```ts
-import GithubProvider from 'next-auth/providers/github'
-
-{
-    // Module is enabled
-    isEnabled: true,
-    // Configure underlying next auht, use same structure as defined by NextAuth.js config: https://next-auth.js.org/configuration/options#options
-    nextAuth: {
-        // URL that the auth endpoints are reachable at
-        url: 'http://localhost:3000/api/auth/',
-        options: {
-            // Secret to use to encode JWT tokens, if `undefined` a default one is generated. Must be set in production!
-            secret: undefined,
-            // Configure providers that the application supports
-            providers: [GithubProvider({
-                clientId: 'enter-your-client-id-here',
-                clientSecret: 'enter-your-client-secret-here'
-            })],
-        }
-    }
-}
-```
-
-Note that there's way more options inside the `nextAuth.options` object, see [here](https://next-auth.js.org/configuration/options#options) for all available options.
 
 #### Prior Work and Module Concept
 
@@ -427,14 +505,35 @@ The main part of the work was to piece everything together, resolve some outstan
 
 ##### Project Roadmap
 
-🚧 This project is in beta-status: we test things, a lot of features are not complete (but already useful!) - e.g., we have implemented and tested oauth, so all dozens of oauth flows should already work.
+🚧 This project is under active development: A lot of stuff already works and as NextAuth.js handles the authentication under the hood, the module should already be ready for most use-cases. Still, some functionality is missing, e.g., we've focused on oauth-providers in the first implementation, so the credential- and email-flow are untested.
 
 Roughly, the roadmap of `nuxt-auth` is:
-1. Reach feature parity: There's still a lot of options, configuration and behavior from the client-side NextAuth.js module that we do not support yet. We first want to reach feature parity on this front + support the credential and email flow - so far only the oauth flows have been properly tested
+1. Reach feature parity: There's still a lot of options, configuration and behavior from the client-side NextAuth.js module that we do not support yet. We first want to reach feature parity on this front + support the credential and email flow
 2. Reach configuration & server-side parity: Extending the user data model, ensuring full typescript support in doing that, allowing correct configuration of all supported backends and session storage mediums
-3. Fill in missing gaps, add some of our own: There's many ideas we have to support extended user management, maybe discuss whether we want to better support the `local` / `credentials` flow than NextAuth.js does out of the box (they don't do it for good reasons, so, there really is an honest discussion to be had), adding more UI focused components that automatically and easily wrap your app in a nice auth page, ...
+3. Fill in any missing gaps, add some of our own: There's many ideas we have to support extended user management, maybe discuss whether we want to better support the `local` / `credentials` flow than NextAuth.js does out of the box (they don't do it for good reasons, so, there really is an honest discussion to be had), adding more UI focused components that automatically and easily wrap your app in a nice auth page, ...
 
 We also want to listen to all suggestions, feature requests, bug reports, ... from you. So if you have any ideas, please open an issue or reach out to us on Twitter or via E-Mail.
+
+#### Module Playground
+
+This module also has it's own playground, you can also use that to get familiar with it and play around a bit:
+```sh
+> git clone https://github.com/sidebase/nuxt-auth
+
+> cd nuxt-auth
+
+# **OPEN THE `~/playground/server/api/auth/[...].ts` and configure your own auth-provider
+
+> npm i
+
+> npm run dev:prepare
+
+> npm run dev
+
+# -> open http://localhost:3000
+```
+
+Note: The playground has considerably less polishing than the example page.
 
 #### Development
 

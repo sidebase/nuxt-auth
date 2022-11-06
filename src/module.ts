@@ -2,7 +2,7 @@ import { defineNuxtModule, useLogger, addImportsDir, createResolver, resolveModu
 import defu from 'defu'
 import { joinURL } from 'ufo'
 
-export interface ModuleOptions {
+interface ModuleOptions {
   /**
    * Whether the module is enabled at all
    */
