@@ -159,7 +159,7 @@ The `origin` and the `basePath` together are equivalent to the `NEXTAUTH_URL` en
 - host: e.g., `localhost`, `example.org`, `www.sidebase.io`
 - port: e.g., `:3000`, `:4444`; leave empty to implicitly set `:80` (this is an internet convention, don't ask)
 
-For [the demo-app](https://nuxt-auth-example.sidebase.io) we set the `origin` to `https://nuxt-auth-example.sidebase.io`.
+For [the demo-app](https://nuxt-auth-example.sidebase.io) we set the `origin` to `https://nuxt-auth-example.sidebase.io`. If for some reason required, you can explicitly set the `origin` to `http://localhost:3000` to stop `nuxt-auth` from aborting `npm run build` when the origin is unset.
 
 ##### basePath
 

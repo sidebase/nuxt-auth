@@ -48,20 +48,20 @@ const parseActionAndProvider = ({ context }: H3Event): { action: NextAuthAction,
 }
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
-export const NuxtAuthHandler = (nextAuthOptions?: NextAuthOptions) => {
-  let usedSecret = nextAuthOptions?.secret
+export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
+  let usedSecret = nuxtAuthOptions?.secret
   if (!usedSecret) {
     if (process.env.NODE_ENV === 'production') {
       // eslint-disable-next-line no-console
       console.error('No secret supplied - a secret is mandatory for production')
-      throw new Error('Bad production config - please set `secret` inside the `nextAuthOptions`')
+      throw new Error('Bad production config - please set `secret` inside the `nuxtAuthOptions`')
     } else {
       // eslint-disable-next-line no-console
       console.warn('No secret supplied - this will be necessary when running in production')
       usedSecret = 'secret'
     }
   }
-  const options = defu(nextAuthOptions, {
+  const options = defu(nuxtAuthOptions, {
     secret: usedSecret,
     logger: undefined,
     providers: []
