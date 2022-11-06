@@ -1,1 +1,1 @@
-export { NuxtAuthHandler, getServerSession } from './nuxtAuth'
+export { NuxtAuthHandler, getServerSession } from './nuxtAuthHandler'
