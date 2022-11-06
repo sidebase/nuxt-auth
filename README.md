@@ -22,11 +22,11 @@
       modules: ['@sidebase/nuxt-auth'],
     })
     ```
-3. Create the authentication endpoints and add at least one [authentication provider](https://next-auth.js.org/providers/):
+3. Create the authentication handler (`NuxtAuthHandler`) and add at least one [authentication provider](https://next-auth.js.org/providers/):
     ```ts
     // file: ~/server/api/auth/[...].ts
-    import GithubProvider from 'next-auth/providers/github'
     import { NuxtAuthHandler } from '#auth'
+    import GithubProvider from 'next-auth/providers/github'
 
     export default NuxtAuthHandler({
       providers: [
