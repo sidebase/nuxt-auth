@@ -52,9 +52,12 @@ export const NuxtAuthHandler = (nextAuthOptions?: NextAuthOptions) => {
   let usedSecret = nextAuthOptions?.secret
   if (!usedSecret) {
     if (process.env.NODE_ENV === 'production') {
+      // eslint-disable-next-line no-console
       console.error('No secret supplied - a secret is mandatory for production')
       throw new Error('Bad production config - please set `secret` inside the `nextAuthOptions`')
     } else {
+      // eslint-disable-next-line no-console
+      console.warn('No secret supplied - this will be necessary when running in production')
       usedSecret = 'secret'
     }
   }
@@ -67,9 +70,9 @@ export const NuxtAuthHandler = (nextAuthOptions?: NextAuthOptions) => {
   /**
    * Generate a NextAuth.js internal request object that we can pass into the NextAuth.js
    * handler. This method will either try to fill all fields for a request that targets
-   * the auth-REST API (determined by NEXTAUTH_BASE_PATH) or return a minimal internal
-   * request to support server-side session fetching for requests with arbitrary, non
-   * auth-REST API targets (set via: `event.context.checkSessionOnNonAuthRequest = true`)
+   * the auth-REST API or return a minimal internal request to support server-side
+   * session fetching for requests with arbitrary, non auth-REST API
+   * targets (set via: `event.context.checkSessionOnNonAuthRequest = true`)
    *
    * @param event H3Event event to transform into `RequestInternal`
    */
@@ -85,9 +88,8 @@ export const NuxtAuthHandler = (nextAuthOptions?: NextAuthOptions) => {
       error: undefined
     }
 
-    // Setting `event.context.checkSessionOnNonAuthRequest = true` allows callers of `authHandler`
-    // to check the session on arbitrary requests, not just requests starting with `NEXTAUTH_BASE_PATH`. We
-    // can use this to check session status on the server-side.
+    // Setting `event.context.checkSessionOnNonAuthRequest = true` allows callers of `authHandler`.
+    // We can use this to check session status on the server-side.
     //
     // When doing this, most other data is not required, e.g., we do not need to parse the body. For this reason,
     // we return the minimum required data for session checking.
@@ -98,7 +100,7 @@ export const NuxtAuthHandler = (nextAuthOptions?: NextAuthOptions) => {
       }
     }
 
-    // 2. Figure out what action, providerId (optional) and error (optional) of the NextAuth.js lib is targeted
+    // Figure out what action, providerId (optional) and error (optional) of the NextAuth.js lib is targeted
     const query = getQuery(event)
     const { action, providerId } = parseActionAndProvider(event)
     const error = query.error
@@ -159,7 +161,8 @@ export const NuxtAuthHandler = (nextAuthOptions?: NextAuthOptions) => {
 
   // Save handler so that it can be used in other places
   if (preparedAuthHandler) {
-    console.error('You setup the auth handler for a second time - this is likely undesired. Make sure that you only call `NuxtAuthHandler( ... )` once')
+    // eslint-disable-next-line no-console
+    console.warn('You setup the auth handler for a second time - this is likely undesired. Make sure that you only call `NuxtAuthHandler( ... )` once')
   }
   preparedAuthHandler = handler
   return handler

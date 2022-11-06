@@ -5,6 +5,11 @@ import { NuxtAuthHandler } from '#auth'
 export default NuxtAuthHandler({
   providers: [
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
+    GithubProvider.default({
+      clientId: 'your-client-id',
+      clientSecret: 'your-client-secret'
+    }),
+    // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     CredentialsProvider.default({
       // The name to display on the sign in form (e.g. 'Sign in with...')
       name: 'Credentials',
@@ -37,11 +42,6 @@ export default NuxtAuthHandler({
           // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
         }
       }
-    }),
-    // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
-    GithubProvider.default({
-      clientId: 'your-client-id',
-      clientSecret: 'your-client-secret'
     })
   ]
 })
