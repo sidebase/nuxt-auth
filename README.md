@@ -112,12 +112,11 @@ Below we describe:
 3. [Server-side usage](#server-side-usage)
     - [Server-side endpoint protection](#server-side-endpoint-protection)
     - [Server-side middlewares](#server-side-middlewares)
-4. [Configuration](#configuration)
-5. [REST API](#rest-api)
-6. [Prior Work and Module Concept](#prior-work-and-module-concept)
+4. [REST API](#rest-api)
+5. [Prior Work and Module Concept](#prior-work-and-module-concept)
     - [Project Roadmap](#project-roadmap)
-7. [Module Playground](#module-playground)
-8. [Development](#development)
+6. [Module Playground](#module-playground)
+7. [Development](#development)
 
 ### Configuration
 
