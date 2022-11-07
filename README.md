@@ -58,7 +58,7 @@ There's more supported methods in the `useSession` composable, you can create cl
 - ✔️ Authentication providers:
     - ✔️ OAuth (e.g., Github, Google, Twitter, Azure, ...)
     - ✔️ Custom OAuth (write it yourself)
-    - 🚧 Credentials (password + username) (track #9)
+    - ✔️ Credentials (password + username)
     - 🚧 Email Magic URLs
 - ✔️ Client Library:
     - `useSession` composable to: `signIn`, `signOut`, `getCsrfToken`, `getProviders`, `getSession`
@@ -284,6 +284,12 @@ await getProviders()
 
 // Trigger a sign in, see https://next-auth.js.org/getting-started/client#signin
 await signIn()
+
+// Trigger a sign in with a redirect afterwards, see https://next-auth.js.org/getting-started/client#signin
+await signIn(undefined, { callbackUrl: '/protected' })
+
+// Trigger a sign in via a specific authentication provider with a redirect afterwards, see https://next-auth.js.org/getting-started/client#signin
+await signIn('github', { callbackUrl: '/protected' })
 
 // Trigger a sign out, see https://next-auth.js.org/getting-started/client#signout
 await signOut()

@@ -1,10 +1,18 @@
 <template>
   <div>
-    <button @click="signIn({ callbackUrl: '/'})">
+    <button @click="signIn(undefined, { callbackUrl: '/'})">
       sign in
     </button>
     <br>
-    <button @click="signIn({ callbackUrl: '/protected/inline' })">
+    <button @click="signIn('credentials', { callbackUrl: '/'})">
+      sign in (credential)
+    </button>
+    <br>
+    <button @click="signIn('github', { callbackUrl: '/'})">
+      sign in (github)
+    </button>
+    <br>
+    <button @click="signIn(undefined, { callbackUrl: '/protected/inline' })">
       sign in (with redirect to protected page)
     </button>
     <br>
