@@ -26,6 +26,9 @@ interface SignInOptions {
   redirect?: boolean
 }
 
+// Subset from: https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/types.ts#L44-L49
+type SignInAuthorizationParams = Record<string, string>
+
 interface SignOutOptions {
   callbackUrl?: string
 }
@@ -46,7 +49,6 @@ type SessionData = Session | undefined | null
 const _getBasePath = () => parseURL(useRuntimeConfig().public.auth.url).pathname
 const joinPathToBase = (path: string) => joinURL(_getBasePath(), path)
 
-// TODO: Better type this so that TS can narrow whether the full `result` or just `result.data` is returned
 const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: FetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<Ref<T>> => {
   const result = await useFetch(joinPathToBase(path), {
     method,
@@ -68,24 +70,73 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
   const data = useState<SessionData>('session:data', () => undefined)
   const status = useState<SessionStatus>('session:status', () => 'unauthenticated')
 
-  // TODO: Improve typing, make `provider` a literal union instead
-  const signIn = async (options?: Pick<SignInOptions, 'callbackUrl'>) => {
-    const providers = await getProviders()
-
-    if (!providers) {
+  // TODO: Stronger typing for `provider`, see https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/index.tsx#L199-L203
+  const signIn = async (
+    provider?: string | undefined,
+    options?: SignInOptions,
+    authorizationParams?: SignInAuthorizationParams
+  ) => {
+    const configuredProviders = await getProviders()
+    if (!configuredProviders) {
       window.location.href = joinPathToBase('error')
       return
     }
 
-    const { callbackUrl = window.location.href } = options ?? {}
-    window.location.href = `${joinPathToBase('signin')}?${new URLSearchParams({
+    const { callbackUrl = window.location.href, redirect = true } = options ?? {}
+    if (!provider || !(provider in configuredProviders.value)) {
+      window.location.href = `${joinPathToBase('signin')}?${new URLSearchParams({
         callbackUrl
       })}`
+      return
+    }
 
-    // TODO: Add support for credential and mail flows, see https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/index.tsx#L226-L228
+    const isCredentials = configuredProviders.value[provider].type === 'credentials'
+    const isEmail = configuredProviders.value[provider].type === 'email'
+    const isSupportingReturn = isCredentials || isEmail
+
+    let action: 'callback' | 'signin' = 'signin'
+    if (isCredentials) {
+      action = 'callback'
+    }
+
+    const data = await _fetch<{ url: string }>(`${action}/${provider}`, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      params: authorizationParams,
+      // @ts-expect-error
+      body: new URLSearchParams({
+        ...options,
+        csrfToken: await getCsrfToken(),
+        callbackUrl,
+        json: true
+      })
+    })
+
+    if (redirect || !isSupportingReturn) {
+      const url = data.value.url ?? callbackUrl
+      window.location.href = url
+      // If url contains a hash, the browser does not reload the page. We reload manually
+      if (url.includes('#')) {
+        window.location.reload()
+      }
+
+      return
+    }
+
+    // At this point the request succeeded (i.e., it went through)
+    const error = new URL(data.value.url).searchParams.get('error')
+    return {
+      error,
+      status: 200,
+      ok: true,
+      url: error ? null : data.value.url
+    }
   }
 
-  const signOut = async ({ callbackUrl }: SignOutOptions) => {
+  const signOut = async (options?: SignOutOptions) => {
+    const { callbackUrl = window.location.href } = options ?? {}
     const csrfTokenResult = await getCsrfToken()
 
     const csrfToken = csrfTokenResult.value.csrfToken
@@ -119,7 +170,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
   }
 
   const getCsrfToken = () => _fetch<{ csrfToken: string }>('csrf')
-  const getProviders = () => _fetch<AppProvider[]>('providers')
+  const getProviders = () => _fetch<Record<AppProvider['id'], AppProvider>>('providers')
   const getSession = (getSessionOptions?: GetSessionOptions) => {
     const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions || {}, {
       required: true,
