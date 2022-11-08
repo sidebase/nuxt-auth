@@ -3,6 +3,8 @@ import GithubProvider from 'next-auth/providers/github'
 import { NuxtAuthHandler } from '#auth'
 
 export default NuxtAuthHandler({
+  // secret string used to encrypt data. Required for production
+  secret: 'your-secret-here',
   providers: [
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     GithubProvider.default({
