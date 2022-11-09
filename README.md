@@ -51,7 +51,7 @@
         await signOut() // Sign out the user
         ```
 
-There's more supported methods in the `useSession` composable, you can create client- and server-side authentication middlewares for your app and more - read the documentation below.
+There's more supported methods in the `useSession` composable, you can create APP and API authentication middleware - read the documentation below.
 
 ## Features
 
@@ -64,7 +64,7 @@ There's more supported methods in the `useSession` composable, you can create cl
     - `useSession` composable to: `signIn`, `signOut`, `getCsrfToken`, `getProviders`, `getSession`
     - full typescript support for all methods and property
 - ✔️ Persistent sessions across requests
-- ✔️ Client-side middleware protection
+- ✔️ Application-side middleware protection
 - ✔️ Server-side middleware and endpoint protection
 - ✔️ REST API:
     - `GET /signin`,
@@ -102,16 +102,16 @@ Below we describe:
         - [basePath](#basepath)
     - [NuxtAuthHandler](#nuxtauthhandler)
         - [Example with two providers](#example-with-two-providers)
-2. [Client-side usage](#client-side-usage)
+2. [Applicaiton-side usage](#application-side-usage)
     - [Session access and manipulation](#session-access-and-manipulation)
         - [Redirects](#redirects)
-    - [Middlewares](#middlewares)
-        - [Global middlewares](#global-middlewares)
-        - [Named middlewares](#named-middlewares)
-        - [Inline middlewares](#inline-middlewares)
+    - [Middleware](#middleware)
+        - [Global middleware](#global-middleware)
+        - [Named middleware](#named-middleware)
+        - [Inline middleware](#inline-middleware)
 3. [Server-side usage](#server-side-usage)
     - [Server-side endpoint protection](#server-side-endpoint-protection)
-    - [Server-side middlewares](#server-side-middlewares)
+    - [Server-side middleware](#server-side-middleware)
 4. [REST API](#rest-api)
 5. [Prior Work and Module Concept](#prior-work-and-module-concept)
     - [Project Roadmap](#project-roadmap)
@@ -168,7 +168,7 @@ To statify this, you need to create a [catch-all server-route](https://v3.nuxtjs
 
 If you want to have the authentication at another location, you can overwrite the `basePath`, e.g., when setting:
 - `basePath: "/api/_auth"` -> add the authentication catch-all endpoints into `~/server/api/_auth/[...].ts`
-- `basePath: "/_auth"` -> add the authentication catch-all endpoints into `~/server/routes/_auth/[...].ts` (see [nuxt server-routes docs on this](https://v3.nuxtjs.org/guide/directory-structure/server/#server-routes))
+- `basePath: "/_auth"` -> add the authentication catch-all endpoints into `~/server/routes/_auth/[...].ts` (see [Nuxt server-routes docs on this](https://v3.nuxtjs.org/guide/directory-structure/server/#server-routes))
 
 #### NuxtAuthHandler
 
@@ -245,13 +245,14 @@ export default NuxtAuthHandler({
 
 Note that there's way more options inside the `nextAuth.options` object, see [here](https://next-auth.js.org/configuration/options#options) for all available options.
 
-### Client-side usage
+### Application-side usage
 
-This module allows you user-data access, signing in, signing out and more on the client-side [via `useSession`](#session-access-and-manipulation). It also allows you to defined [middlewares that protects your page](#middlewares).
+This module allows you user-data access, signing in, signing out and more [via `useSession`](#session-access-and-manipulation). It also allows you to defined [middleware that protects pages](#middleware).
 
 #### Session access and manipulation
 
 The `useSession` composable is your main gateway to accessing and manipulating session-state and data. Here's the main methdos you can use:
+
 ```ts
 const {
   status,
@@ -297,12 +298,12 @@ await signOut()
 Session `data` has the following interface:
 ```ts
 interface DefaultSession {
-    user?: {
-        name?: string | null;
-        email?: string | null;
-        image?: string | null;
-    };
-    expires: ISODateString;
+  user?: {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  };
+  expires: ISODateString;
 }
 ```
 
@@ -326,43 +327,38 @@ await signOut({ callbackUrl: '/protected' })
 
 E.g., here to redirect the user away from the already loaded, protected, page after signout (else, you will have to handle the redirect yourself).
 
-#### Middlewares
+#### Middleware
 
-You can use this library to define client-side middlewares. This library supports all of [nuxt's supported approaches](https://v3.nuxtjs.org/guide/directory-structure/middleware#middleware-directory) to define client-side middlewares, read on to learn how.
+You can use this library to define application middleware. This library supports all of [Nuxt's supported approaches](https://v3.nuxtjs.org/guide/directory-structure/middleware#middleware-directory), read on to learn how.
 
-##### Global middlewares
+##### Global middleware
 
-Create a global authentication middleware that ensures that your user is authenticated no matter which page they visit. For this create a file in the `middlewares` directory that has a `.global.ts` post-fix. It should look like this:
+Create a global authentication middleware that ensures that your user is authenticated no matter which page they visit. Create a file in the `middleware` directory that has a `.global.ts` suffix.
+
+It should look like this:
+
 ```ts
-// file: ~/middlewares/auth.global.ts
-import { defineNuxtRouteMiddleware } from '#app'
-import useSession from '~/composables/useSession'
-
+// file: ~/middleware/auth.global.ts
 export default defineNuxtRouteMiddleware(async () => {
-    await useSession()
-})
-```
-
-That's it! This middleware will fetch a session and if no active session exists for the current user redirect to the login screen. If you want to write custom redirect logic, you could alter the above code to only apply to specific routes. Here is a global middleware that protects only the routes that start with `/secret/`:
-```ts
-// file: ~/middlewares/auth.global.ts
-import { defineNuxtRouteMiddleware } from '#app'
-import useSession from '~/composables/useSession'
-
-export default defineNuxtRouteMiddleware(async (to) => {
-  if (!to.path.startsWith('/secret/')) {
-    return
-  }
   await useSession()
 })
 ```
 
-Here's a middleware that redirects to a custom login page:
-```ts
-// file: ~/middlewares/auth.global.ts
-import { defineNuxtRouteMiddleware, navigateTo } from '#app'
-import useSession from '~/composables/useSession'
+That's it! This middleware will fetch a session and if no active session exists for the current user redirect to the login screen. If you want to write custom redirect logic, you could alter the above code to only apply to specific routes.
 
+Here is a global middleware that protects only the routes that start with `/secret/`:
+```ts
+// file: ~/middleware/auth.global.ts
+export default defineNuxtRouteMiddleware(async (to) => {
+  if (to.path.startsWith('/secret/')) {
+    await useSession()
+  }
+})
+```
+
+Example of a middleware that redirects to a custom login page:
+```ts
+// file: ~/middleware/auth.global.ts
 export default defineNuxtRouteMiddleware(async (to) => {
   // 1. Always allow access to the login page
   if (to.path === '/login') {
@@ -377,22 +373,19 @@ export default defineNuxtRouteMiddleware(async (to) => {
 })
 ```
 
-##### Named middlewares
+##### Named middleware
 
-Named middlewares behave similar to [global middlewares](#global-middleware) but are not automatically applied to any pages.
+Named middleware behave similar to [global middleware](#global-middleware) but are not automatically applied to any pages.
 
 To use them, first create a middleware:
 ```ts
-// file: ~/middlewares/auth.ts
-import { defineNuxtRouteMiddleware } from '#app'
-import useSession from '~/composables/useSession'
-
+// file: ~/middleware/auth.ts
 export default defineNuxtRouteMiddleware(async () => {
-    await useSession()
+  await useSession()
 })
 ```
 
-Note that there's no `.global.ts` postfix in the filename above! Then inside your pages use this middleware like this:
+Then inside your pages use the middleware with `definePageMeta`:
 ```vue
 <!-- file: ~/pages/protected.vue -->
 <template>
@@ -406,13 +399,13 @@ definePageMeta({
 </script>
 ```
 
-Note: `definePageMeta` can only be used inside the `pages/` directory!
+Note: `definePageMeta` can only be used inside the `pages/` directory.
 
 Nuxt now calls the `auth.ts` middleware on every visit to this page.
 
-##### Inline middlewares
+##### Inline middleware
 
-To define a named middleware, you need to use `definePageMeta` as described [in the nuxt docs](https://v3.nuxtjs.org/api/utils/define-page-meta/). Then you can just call `useSession` as in the other middlewares. Here's an example that would protect just the page itself:
+To define a named middleware, you need to use `definePageMeta` as described [in the nuxt docs](https://v3.nuxtjs.org/api/utils/define-page-meta/). Then you can just call `useSession` as in the other middleware. Here's an example that would protect just the page itself:
 ```vue
 <!-- file: ~/pages/protected.vue -->
 <template>
@@ -421,14 +414,12 @@ To define a named middleware, you need to use `definePageMeta` as described [in 
 
 <script setup lang="ts">
 definePageMeta({
-  middleware: async () => {
-    await useSession()
-  }
+  middleware () => useSession()
 })
 </script>
 ```
 
-Note: `definePageMeta` can only be used inside the `pages/` directory!
+Note: `definePageMeta` can only be used inside the `pages/` directory
 
 #### Server-side usage
 
@@ -460,9 +451,9 @@ export default eventHandler(async (event) => {
 
 ```
 
-##### Server-side middlewares
+##### Server-side middleware
 
-You can also use this in a [nuxt server middleware](https://v3.nuxtjs.org/guide/directory-structure/server#server-middleware) to protect multiple pages at once and keep the authentication logic out of your endpoints:
+You can also use this in a [Nuxt server middleware](https://v3.nuxtjs.org/guide/directory-structure/server#server-middleware) to protect multiple pages at once and keep the authentication logic out of your endpoints:
 ```ts
 // file: ~/server/middleware/auth.ts
 import { getServerSession } from '#auth'
@@ -492,7 +483,7 @@ You can directly interact with them if you wish to, it's probably a better idea 
 
 #### Prior Work and Module Concept
 
-The idea of this library is to re-use all the open-source implementation that already exist in the JS ecosystem instead of rolling our own. The idea was born when researching through the ecosystem of framework-specific authentication libraries to figure out what the best implementation approach for a state-of-the-art nuxt 3 authentication library would be.
+The idea of this library is to re-use all the open-source implementation that already exist in the JS ecosystem instead of rolling our own. The idea was born when researching through the ecosystem of framework-specific authentication libraries to figure out what the best implementation approach for a state-of-the-art Nuxt 3 authentication library would be.
 
 During research it became clear that implementing everything from scratch will be:
 - a lot of work that has already been open-sourced by others,
@@ -500,13 +491,13 @@ During research it became clear that implementing everything from scratch will b
 - hard to maintain as authentication providers come and go,
 - hard to build initial trust for as authentication is important and cannot go wrong,
 
-In order to avoid these problems without taking forever (leaving nuxt without an authentication library in the meantime), we decided to investigate if we can wrap [`NextAuth.js`](https://github.com/nextauthjs/next-auth), the most popular authentication library in the Next.js ecosystem by far and a trusted, well maintained one at that!
+In order to avoid these problems without taking forever (leaving Nuxt without an authentication library in the meantime), we decided to investigate if we can wrap [`NextAuth.js`](https://github.com/nextauthjs/next-auth), the most popular authentication library in the Next.js ecosystem by far and a trusted, well maintained one at that!
 
 In our investigation we found prior attempts to make NextAuth.js framework agnostic. These have more or less come to fruition, so far mostly resulting in some PoCs and example apps. Looking at these was quite helpful to get started. In particular, big pushes in the right direction came from:
 - [NextAuth.js app examples](https://github.com/nextauthjs/next-auth/tree/main/apps)
 - [Various comments, proposals, ... of this thread](https://github.com/nextauthjs/next-auth/discussions/3942), special thanks to @brillout for starting the discussion, @balazsorban44 for NextAuth.js and encouraging the discussion, @wobsoriano for adding PoCs for multiple languages
 
-The main part of the work was to piece everything together, resolve some outstanding issues with existing PoCs, add new things where nothing existed yet, e.g., for the client `useSession` composable by going through the NextAuth.js client code and translating it to a nuxt 3 approach.
+The main part of the work was to piece everything together, resolve some outstanding issues with existing PoCs, add new things where nothing existed yet, e.g., for the client `useSession` composable by going through the NextAuth.js client code and translating it to a Nuxt 3 approach.
 
 ##### Project Roadmap
 
