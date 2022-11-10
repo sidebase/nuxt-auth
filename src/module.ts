@@ -71,7 +71,7 @@ export default defineNuxtModule<ModuleOptions>({
       origin: usedOrigin
     })
 
-    const url = joinURL(options.origin, options.basePath)
+    const url = joinURL(options.origin ? options.origin : 'http://localhost:3000', options.basePath || '')
     logger.info(`Using "${url}" as the auth API location, make sure the \`[...].ts\` auth-handler is added there. Use the \`auth.orign\` and \`auth.basePath\` config keys to change the API location`)
 
     nuxt.options.runtimeConfig.auth = defu(nuxt.options.runtimeConfig.auth, {
