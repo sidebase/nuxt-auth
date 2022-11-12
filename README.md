@@ -102,7 +102,7 @@ Below we describe:
         - [basePath](#basepath)
     - [NuxtAuthHandler](#nuxtauthhandler)
         - [Example with two providers](#example-with-two-providers)
-2. [Applicaiton-side usage](#application-side-usage)
+2. [Application-side usage](#application-side-usage)
     - [Session access and manipulation](#session-access-and-manipulation)
         - [Redirects](#redirects)
     - [Middleware](#middleware)
