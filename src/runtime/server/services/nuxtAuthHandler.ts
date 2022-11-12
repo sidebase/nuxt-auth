@@ -32,7 +32,7 @@ const readBodyForNext = async (event: H3Event) => {
 const parseActionAndProvider = ({ context }: H3Event): { action: NextAuthAction, providerId: string | undefined } => {
   const params: string | undefined = context.params._?.split('/')
 
-  if (![1, 2].includes(params.length)) {
+  if (!params || ![1, 2].includes(params.length)) {
     throw createError({ statusCode: 400, statusMessage: `Invalid path used for auth-endpoint. Supply either one path parameter (e.g., \`/api/auth/session\`) or two (e.g., \`/api/auth/signin/github\` after the base path (in previous examples base path was: \`/api/auth/\`. Received \`${params}\`` })
   }
 
