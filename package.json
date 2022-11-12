@@ -26,7 +26,7 @@
     "start:playground": "node playground/.output/server/index.mjs"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.0.0-rc.12",
+    "@nuxt/kit": "^3.0.0-rc.13",
     "defu": "^6.1.0",
     "nanoid": "^4.0.0",
     "next-auth": "^4.14.0",
@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@nuxt/module-builder": "^0.2.0",
-    "@nuxt/schema": "^3.0.0-rc.12",
+    "@nuxt/schema": "^3.0.0-rc.13",
     "@nuxtjs/eslint-config-typescript": "^11.0.0",
     "eslint": "^8.25.0",
     "nuxt": "^3.0.0-rc.13"
