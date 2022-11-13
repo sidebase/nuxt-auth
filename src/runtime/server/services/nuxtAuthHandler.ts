@@ -10,7 +10,7 @@ import type { GetTokenParams } from 'next-auth/jwt'
 import defu from 'defu'
 import { useRuntimeConfig } from '#imports'
 
-let preparedAuthHandler: ReturnType<typeof defineEventHandler> | undefined
+let preparedAuthHandler: ReturnType<typeof eventHandler> | undefined
 let usedSecret: string | undefined
 const SUPPORTED_ACTIONS: NextAuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
 
@@ -200,7 +200,7 @@ export const getServerSession = async (event: H3Event) => {
 export const getToken = ({ event, secureCookie, secret, ...rest }: Omit<GetTokenParams, 'req'> & { event: H3Event }) => nextGetToken({
   // @ts-expect-error As our request is not a real next-auth request, we pass down only what's required for the method, as per code from https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L68
   req: {
-    cookies: useCookies(event),
+    cookies: parseCookies(event),
     headers: event.req.headers
   },
   // see https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L73
