@@ -51,7 +51,7 @@
         await signOut() // Sign out the user
         ```
 
-There's more supported methods in the `useSession` composable, you can create APP and API authentication middleware - read the documentation below.
+There's more supported methods in the `useSession` composable, you can create [universal-app-](https://v3.nuxtjs.org/guide/directory-structure/middleware) and [server-api-middleware](https://v3.nuxtjs.org/guide/directory-structure/server#server-middleware) that make use of the authentication status and more. All of this is documented below.
 
 ## Features
 
