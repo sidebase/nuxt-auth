@@ -59,11 +59,11 @@
           if (!session) {
             return { status: 'unauthenticated!' }
           }
-          return { status: 'authenticated!', text: 'im protected by an in-endpoint check', ...session }
+          return { status: 'authenticated!', text: 'im protected by an in-endpoint check', session }
         })
         ```
 
-There's more supported methods in the `useSession` composable, you can create [universal-application-](https://v3.nuxtjs.org/guide/directory-structure/middleware) and [server-api-middleware](https://v3.nuxtjs.org/guide/directory-structure/server#server-middleware) that make use of the authentication status and more. All of this is documented below.
+There's more supported methods in the `useSession` composable, you can create [universal-application-](https://v3.nuxtjs.org/guide/directory-structure/middleware) and [server-api-middleware](https://v3.nuxtjs.org/guide/directory-structure/server#server-middleware) that make use of the authentication status and more. All of this is [documented below](#documentation).
 
 ## Features
 
@@ -534,12 +534,11 @@ The main part of the work was to piece everything together, resolve some outstan
 
 ##### Project Roadmap
 
-🚧 This project is under active development: A lot of stuff already works and as NextAuth.js handles the authentication under the hood, the module should already be ready for most use-cases. Still, some functionality is missing, e.g., we've focused on oauth-providers in the first implementation, so the credential- and email-flow are untested.
+This project is under active development: A lot of stuff already works and as NextAuth.js handles the authentication under the hood, the module should already be ready for most use-cases. Still, some functionality is missing, e.g., we've focused on oauth-providers in the first implementation, so the credential- and email-flow are untested.
 
-Roughly, the roadmap of `nuxt-auth` is:
-1. Reach feature parity: There's still a lot of options, configuration and behavior from the client-side NextAuth.js module that we do not support yet. We first want to reach feature parity on this front + support the credential and email flow
-2. Reach configuration & server-side parity: Extending the user data model, ensuring full typescript support in doing that, allowing correct configuration of all supported backends and session storage mediums
-3. Fill in any missing gaps, add some of our own: There's many ideas we have to support extended user management, maybe discuss whether we want to better support the `local` / `credentials` flow than NextAuth.js does out of the box (they don't do it for good reasons, so, there really is an honest discussion to be had), adding more UI focused components that automatically and easily wrap your app in a nice auth page, ...
+Roughly, the priorities of `nuxt-auth` are:
+1. Reach feature parity: There's some options, configuration and behavior from NextAuth.js that we do not support yet. We first want to reach feature parity on this. If any missing feature is of particular relevance to you: [Open an issue](https://github.com/sidebase/nuxt-auth/issues/new)
+2. Add some of our own: There's ideas we have to support extended user management, e.g., discuss whether we want to better support the `local` / `credentials` flow than NextAuth.js does out of the box (they don't do it for good reasons, so, there really is an honest discussion to be had), adding more UI focused components that automatically and easily wrap your app in a nice auth page, ...
 
 We also want to listen to all suggestions, feature requests, bug reports, ... from you. So if you have any ideas, please open an issue or reach out to us on Twitter or via E-Mail.
 
