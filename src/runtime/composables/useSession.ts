@@ -33,23 +33,14 @@ interface SignOutOptions {
   callbackUrl?: string
 }
 
-interface FetchOptions {
-  params?: Record<string, string>
-  method?: string
-  headers?: Record<string, string>
-  body?: any
-  onResponse?: ({ response }: { response?: any }) => void
-  onResponseError?: ({ request, response, options }: { request?: any, response?: any, options?: any }) => void
-  onRequest?: ({ request, options }: { request?: any, options?: any }) => void
-  onRequestError?: ({ request, options, error }: { request?: any, options?: any, error?: any }) => void
-}
+type UseFetchOptions = Parameters<typeof useFetch>[1]
 type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 type SessionData = Session | undefined | null
 
 const _getBasePath = () => parseURL(useRuntimeConfig().public.auth.url).pathname
 const joinPathToBase = (path: string) => joinURL(_getBasePath(), path)
 
-const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: FetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<Ref<T>> => {
+const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: UseFetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<Ref<T>> => {
   const result = await useFetch(joinPathToBase(path), {
     method,
     params,
@@ -100,8 +91,8 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     }
 
     const csrfTokenResult = await getCsrfToken()
-    const csrfToken = csrfTokenResult.value.csrfToken  
-  
+    const csrfToken = csrfTokenResult.value.csrfToken
+
     const data = await _fetch<{ url: string }>(`${action}/${provider}`, {
       method: 'post',
       headers: {
