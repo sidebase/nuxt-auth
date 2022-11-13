@@ -1,5 +1,5 @@
 import type { Session } from 'next-auth'
-import { useFetch, createError, useState, useRuntimeConfig } from '#app'
+import { useFetch, createError, useState, useRuntimeConfig, useRequestHeaders } from '#app'
 import { nanoid } from 'nanoid'
 import defu from 'defu'
 import { joinURL, parseURL } from 'ufo'
@@ -50,20 +50,26 @@ const _getBasePath = () => parseURL(useRuntimeConfig().public.auth.url).pathname
 const joinPathToBase = (path: string) => joinURL(_getBasePath(), path)
 
 const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: FetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<Ref<T>> => {
-  const result = await useFetch(joinPathToBase(path), {
+  const { cookie } = useRequestHeaders(['cookie'])
+  const { data, error, pending } = await useFetch(joinPathToBase(path), {
     method,
     params,
-    headers,
+    headers: {
+      cookie,
+      ...headers
+    },
     body,
     onResponse,
     onRequest,
     onRequestError,
     onResponseError,
-    server: false,
     key: nanoid()
   })
+  if (path == 'csrf') {
+    console.log(path, process.server ? 'server' : 'client', 'result: ', error.value, pending.value, data.value)
+  }
 
-  return result.data as Ref<T>
+  return data as Ref<T>
 }
 
 export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
@@ -100,8 +106,8 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     }
 
     const csrfTokenResult = await getCsrfToken()
-    const csrfToken = csrfTokenResult.value.csrfToken  
-  
+    const csrfToken = csrfTokenResult.value.csrfToken
+
     const data = await _fetch<{ url: string }>(`${action}/${provider}`, {
       method: 'post',
       headers: {
@@ -221,14 +227,12 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     })
   }
 
-  if (process.client) {
-    const initialGetSessionOptionsWithDefaults = defu(initialGetSessionOptions, {
-      required: true,
-      onUnauthenticated: undefined,
-      callbackUrl: undefined
-    })
-    await getSession(initialGetSessionOptionsWithDefaults)
-  }
+  const initialGetSessionOptionsWithDefaults = defu(initialGetSessionOptions, {
+    required: true,
+    onUnauthenticated: undefined,
+    callbackUrl: undefined
+  })
+  await getSession(initialGetSessionOptionsWithDefaults)
 
   return {
     status,

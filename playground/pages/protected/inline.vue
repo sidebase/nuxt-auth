@@ -7,7 +7,9 @@ import { useSession, definePageMeta } from '#imports'
 
 definePageMeta({
   middleware: async () => {
-    await useSession({ callbackUrl: '/protected/inline' })
+    // process.client && await useSession({ callbackUrl: '/protected/inline' })
+    process.server && await useSession({ callbackUrl: '/protected/inline' })
+    // await useSession({ callbackUrl: '/protected/inline' })
   }
 })
 </script>

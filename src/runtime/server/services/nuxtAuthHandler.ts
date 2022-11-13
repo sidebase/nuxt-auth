@@ -51,13 +51,11 @@ const parseActionAndProvider = ({ context }: H3Event): { action: NextAuthAction,
 export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
   let usedSecret = nuxtAuthOptions?.secret
   if (!usedSecret) {
+    // eslint-disable-next-line no-console
+    console.error('nuxt-auth runtime: No secret supplied - a secret is mandatory for production')
     if (process.env.NODE_ENV === 'production') {
-      // eslint-disable-next-line no-console
-      console.error('No secret supplied - a secret is mandatory for production')
       throw new Error('Bad production config - please set `secret` inside the `nuxtAuthOptions`')
     } else {
-      // eslint-disable-next-line no-console
-      console.warn('No secret supplied - this will be necessary when running in production')
       usedSecret = 'secret'
     }
   }
@@ -77,6 +75,9 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
    * @param event H3Event event to transform into `RequestInternal`
    */
   const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
+    if (event.req.url?.includes('session')) {
+      // console.log('req', parseCookies(event)['next-auth.session-token'])
+    }
     const nextRequest: Omit<RequestInternal, 'action'> = {
       host: useRuntimeConfig().auth.url,
       body: undefined,
