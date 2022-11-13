@@ -1,8 +1,10 @@
 import { NextAuthHandler } from 'next-auth/core'
 import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError } from 'h3'
 import type { H3Event } from 'h3'
+
 import type { RequestInternal } from 'next-auth/core'
 import type { NextAuthAction, NextAuthOptions, Session } from 'next-auth'
+
 import defu from 'defu'
 import { useRuntimeConfig } from '#imports'
 

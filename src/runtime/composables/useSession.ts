@@ -5,13 +5,21 @@ import defu from 'defu'
 import { joinURL, parseURL } from 'ufo'
 import { Ref } from 'vue'
 
-import type { AppProvider } from 'next-auth/providers'
+import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
 
 interface UseSessionOptions {
   required?: boolean
   callbackUrl?: string
   onUnauthenticated?: () => void
 }
+
+/**
+ * Utility type that allows autocompletion for a mix of literal, primitiva and non-primitive values.
+ * @source https://github.com/microsoft/TypeScript/issues/29729#issuecomment-832522611
+ */
+// eslint-disable-next-line no-use-before-define
+type LiteralUnion<T extends U, U = string> = T | (U & Record<never, never>);
+type SupportedProviders = LiteralUnion<BuiltInProviderType>
 
 type GetSessionOptions = Partial<UseSessionOptions>
 
@@ -63,7 +71,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
 
   // TODO: Stronger typing for `provider`, see https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/index.tsx#L199-L203
   const signIn = async (
-    provider?: string | undefined,
+    provider?: SupportedProviders,
     options?: SignInOptions,
     authorizationParams?: SignInAuthorizationParams
   ) => {
@@ -164,7 +172,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
   }
 
   const getCsrfToken = () => _fetch<{ csrfToken: string }>('csrf')
-  const getProviders = () => _fetch<Record<AppProvider['id'], AppProvider>>('providers')
+  const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, 'options'> | undefined>>('providers')
   const getSession = (getSessionOptions?: GetSessionOptions) => {
     const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions || {}, {
       required: true,
