@@ -1,12 +1,17 @@
-import { NextAuthHandler } from 'next-auth/core'
 import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError } from 'h3'
 import type { H3Event } from 'h3'
+
+import { NextAuthHandler } from 'next-auth/core'
+import { getToken as nextGetToken } from 'next-auth/jwt'
 import type { RequestInternal } from 'next-auth/core'
 import type { NextAuthAction, NextAuthOptions, Session } from 'next-auth'
+import type { GetTokenParams } from 'next-auth/jwt'
+
 import defu from 'defu'
 import { useRuntimeConfig } from '#imports'
 
 let preparedAuthHandler: ReturnType<typeof defineEventHandler> | undefined
+let usedSecret: string | undefined
 const SUPPORTED_ACTIONS: NextAuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
 
 /**
@@ -49,18 +54,17 @@ const parseActionAndProvider = ({ context }: H3Event): { action: NextAuthAction,
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
 export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
-  let usedSecret = nuxtAuthOptions?.secret
+  usedSecret = nuxtAuthOptions?.secret
   if (!usedSecret) {
+    // eslint-disable-next-line no-console
+    console.warn('nuxt-auth runtime: No secret supplied - supplying a secret will be necessary for production')
     if (process.env.NODE_ENV === 'production') {
-      // eslint-disable-next-line no-console
-      console.error('No secret supplied - a secret is mandatory for production')
       throw new Error('Bad production config - please set `secret` inside the `nuxtAuthOptions`')
     } else {
-      // eslint-disable-next-line no-console
-      console.warn('No secret supplied - this will be necessary when running in production')
       usedSecret = 'secret'
     }
   }
+
   const options = defu(nuxtAuthOptions, {
     secret: usedSecret,
     logger: undefined,
@@ -185,3 +189,22 @@ export const getServerSession = async (event: H3Event) => {
 
   return session as Session
 }
+
+/**
+ * Get the decoded JWT token either from cookies or header (both are attempted).
+ *
+ * The only change from the original `getToken` implementation is that the `req` is not passed in, in favor of `event` being passed in. See https://next-auth.js.org/tutorials/securing-pages-and-api-routes#using-gettoken for further documentation.
+ *
+ * @param eventAndOptions Omit<GetTokenParams, 'req'> & { event: H3Event } The event to get the cookie or authorization header from that contains the JWT Token and options you want to alter token getting behavior.
+ */
+export const getToken = ({ event, secureCookie, secret, ...rest }: Omit<GetTokenParams, 'req'> & { event: H3Event }) => nextGetToken({
+  // @ts-expect-error As our request is not a real next-auth request, we pass down only what's required for the method, as per code from https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L68
+  req: {
+    cookies: useCookies(event),
+    headers: event.req.headers
+  },
+  // see https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L73
+  secureCookie: secureCookie || useRuntimeConfig().auth.url.startsWith('https://'),
+  secret: secret || usedSecret,
+  ...rest
+})

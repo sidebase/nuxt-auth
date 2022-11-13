@@ -37,7 +37,7 @@
     ```
     - `[..].ts` is a catch-all route, see the [nuxt server docs](https://v3.nuxtjs.org/guide/directory-structure/server#catch-all-route)
 4. Done! You can now use all user-related functionality, for example:
-    - client-side (e.g., from `.vue` files):
+    - application-side (e.g., from `.vue` files):
         ```ts
         const { status, data, signIn, signOut } = await useSession({
           // Whether a session is required. If it is, a redirect to the signin page will happen if no active session exists
@@ -50,8 +50,20 @@
         await signIn() // Sign in the user
         await signOut() // Sign out the user
         ```
+    - server-side (e.g., from `~/server/api/session.get.ts`):
+        ```ts
+        import { getServerSession } from '#auth'
 
-There's more supported methods in the `useSession` composable, you can create [universal-app-](https://v3.nuxtjs.org/guide/directory-structure/middleware) and [server-api-middleware](https://v3.nuxtjs.org/guide/directory-structure/server#server-middleware) that make use of the authentication status and more. All of this is documented below.
+        export default eventHandler(async (event) => {
+          const session = await getServerSession(event)
+          if (!session) {
+            return { status: 'unauthenticated!' }
+          }
+          return { status: 'authenticated!', text: 'im protected by an in-endpoint check', session }
+        })
+        ```
+
+There's more supported methods in the `useSession` composable, you can create [universal-application-](https://v3.nuxtjs.org/guide/directory-structure/middleware) and [server-api-middleware](https://v3.nuxtjs.org/guide/directory-structure/server#server-middleware) that make use of the authentication status and more. All of this is [documented below](#documentation).
 
 ## Features
 
@@ -112,11 +124,14 @@ Below we describe:
 3. [Server-side usage](#server-side-usage)
     - [Server-side endpoint protection](#server-side-endpoint-protection)
     - [Server-side middleware](#server-side-middleware)
+    - [Getting the JWT token](#getting-the-jwt-token)
+        - [Application-side JWT token access](#application-side-jwt-token-access)
 4. [REST API](#rest-api)
-5. [Prior Work and Module Concept](#prior-work-and-module-concept)
+5. [Glossary](#glossary)
+6. [Prior Work and Module Concept](#prior-work-and-module-concept)
     - [Project Roadmap](#project-roadmap)
-6. [Module Playground](#module-playground)
-7. [Development](#development)
+7. [Module Playground](#module-playground)
+8. [Development](#development)
 
 ### Configuration
 
@@ -248,6 +263,8 @@ Note that there's way more options inside the `nextAuth.options` object, see [he
 ### Application-side usage
 
 This module allows you user-data access, signing in, signing out and more [via `useSession`](#session-access-and-manipulation). It also allows you to defined [middleware that protects pages](#middleware).
+
+Application-side usage refers to any code like pages, components or composables that are part of the universal server- and client-side rendering of Nuxt, see more in the [glossary](#glossary).
 
 #### Session access and manipulation
 
@@ -466,6 +483,51 @@ export default eventHandler(async (event) => {
 })
 ```
 
+##### Getting the JWT Token
+
+Getting the (decoded) JWT token of the current user can be helpful, e.g., to use it to access an external api that requires this token for authentication or authorization.
+
+You can get the JWT token that was passed along with the request using `getToken`:
+```ts
+// file: ~/server/api/token.get.ts
+import { getToken } from '#auth'
+
+export default eventHandler(async (event) => {
+  const token = await getToken({ event })
+
+  return token || 'no token present'
+})
+```
+
+The function behaves identical to the [`getToken` function from NextAuth.js](https://next-auth.js.org/tutorials/securing-pages-and-api-routes#using-gettoken) with one change: you have to pass in the h3-`event` instead of `req`. This is due to how cookies can be accessed on h3: not via `req.cookies` but rather via `useCookies(event)`.
+
+You do not need to pass in any further parameters like `secret`, `secureCookie`, ... They are automatically inferred to the values you configured if not set and reading the token will work out of the box. You _may_ pass these options, e.g., to get the raw, encoded JWT token you can pass `raw: true`.
+
+###### Application-side JWT token access
+
+To access the JWT token application-side, e.g., in a `.vue` page, you can create an endpoint like this:
+```ts
+// file: ~/server/api/token.get.ts
+import { getToken } from '#auth'
+
+export default eventHandler(event => getToken({ event }))
+```
+
+Then from your application-side code you can fetch it like this:
+```vue
+// file: app.vue
+<template>
+  <div>{{ token || 'no token present, are you logged in?' }}</div>
+</template>
+
+<script setup lang="ts">
+const headers = useRequestHeaders(['cookie'])
+const { data: token } = await useFetch('/api/token', { headers: { cookie: headers.cookie } })
+</script>
+```
+
+Note that you have to pass the cookie-header manually. You also have to pass it using [`useRequestHeaders`](https://v3.nuxtjs.org/api/composables/use-request-headers/) so that the cookies are also correctly passed when this page is rendered server-side during the [universal-rendering process](https://v3.nuxtjs.org/guide/concepts/rendering#universal-rendering).
+
 #### REST API
 
 All endpoints that NextAuth.js supports are also supported by `nuxt-auth`:
@@ -480,6 +542,11 @@ All endpoints that NextAuth.js supports are also supported by `nuxt-auth`:
 
 You can directly interact with them if you wish to, it's probably a better idea to use `useSession` where possible though. [See the full rest API documentation of NextAuth.js here](https://next-auth.js.org/getting-started/rest-api).
 
+#### Glossary
+
+There are some terms we use in this documentation that may not immeadiatly be known to every reader. Here is an explanation for some of them:
+- `application` / `application-side` / `universal-application`: This references all Nuxt code of your app that is [universally rendered](https://v3.nuxtjs.org/guide/concepts/rendering#universal-rendering). In short this means that that code is rendered on the server-side and on the client-side, so all JS in it is executed twice. This is an important distinction, as some things may behave different on the server-side than on the client-side. We use `application...` to denote something that will be universally rendered
+- `server` / `server-side`: This references all Nuxt code of your app that will run **only** on your server. For example, all code inside the `~/server` directory should only ever run on the server
 
 #### Prior Work and Module Concept
 
@@ -497,16 +564,15 @@ In our investigation we found prior attempts to make NextAuth.js framework agnos
 - [NextAuth.js app examples](https://github.com/nextauthjs/next-auth/tree/main/apps)
 - [Various comments, proposals, ... of this thread](https://github.com/nextauthjs/next-auth/discussions/3942), special thanks to @brillout for starting the discussion, @balazsorban44 for NextAuth.js and encouraging the discussion, @wobsoriano for adding PoCs for multiple languages
 
-The main part of the work was to piece everything together, resolve some outstanding issues with existing PoCs, add new things where nothing existed yet, e.g., for the client `useSession` composable by going through the NextAuth.js client code and translating it to a Nuxt 3 approach.
+The main part of the work was to piece everything together, resolve some outstanding issues with existing PoCs, add new things where nothing existed yet, e.g., for the `useSession` composable by going through the NextAuth.js client code and translating it to a Nuxt 3 approach.
 
 ##### Project Roadmap
 
-🚧 This project is under active development: A lot of stuff already works and as NextAuth.js handles the authentication under the hood, the module should already be ready for most use-cases. Still, some functionality is missing, e.g., we've focused on oauth-providers in the first implementation, so the credential- and email-flow are untested.
+This project is under active development: A lot of stuff already works and as NextAuth.js handles the authentication under the hood, the module should already be ready for most use-cases. Still, some functionality is missing, e.g., we've focused on oauth-providers in the first implementation, so the credential- and email-flow are untested.
 
-Roughly, the roadmap of `nuxt-auth` is:
-1. Reach feature parity: There's still a lot of options, configuration and behavior from the client-side NextAuth.js module that we do not support yet. We first want to reach feature parity on this front + support the credential and email flow
-2. Reach configuration & server-side parity: Extending the user data model, ensuring full typescript support in doing that, allowing correct configuration of all supported backends and session storage mediums
-3. Fill in any missing gaps, add some of our own: There's many ideas we have to support extended user management, maybe discuss whether we want to better support the `local` / `credentials` flow than NextAuth.js does out of the box (they don't do it for good reasons, so, there really is an honest discussion to be had), adding more UI focused components that automatically and easily wrap your app in a nice auth page, ...
+Roughly, the priorities of `nuxt-auth` are:
+1. Reach feature parity: There's some options, configuration and behavior from NextAuth.js that we do not support yet. We first want to reach feature parity on this. If any missing feature is of particular relevance to you: [Open an issue](https://github.com/sidebase/nuxt-auth/issues/new)
+2. Add some of our own: There's ideas we have to support extended user management, e.g., discuss whether we want to better support the `local` / `credentials` flow than NextAuth.js does out of the box (they don't do it for good reasons, so, there really is an honest discussion to be had), adding more UI focused components that automatically and easily wrap your app in a nice auth page, ...
 
 We also want to listen to all suggestions, feature requests, bug reports, ... from you. So if you have any ideas, please open an issue or reach out to us on Twitter or via E-Mail.
 

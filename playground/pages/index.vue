@@ -16,7 +16,7 @@
       sign in (with redirect to protected page)
     </button>
     <br>
-    <button @click="signOut()">
+    <button @click="signOut({ callbackUrl: '/' })">
       sign out
     </button>
     <br>
