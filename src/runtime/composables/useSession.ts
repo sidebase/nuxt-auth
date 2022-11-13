@@ -99,6 +99,9 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       action = 'callback'
     }
 
+    const csrfTokenResult = await getCsrfToken()
+    const csrfToken = csrfTokenResult.value.csrfToken  
+  
     const data = await _fetch<{ url: string }>(`${action}/${provider}`, {
       method: 'post',
       headers: {
@@ -108,7 +111,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       // @ts-expect-error
       body: new URLSearchParams({
         ...options,
-        csrfToken: await getCsrfToken(),
+        csrfToken,
         callbackUrl,
         json: true
       })
