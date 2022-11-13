@@ -124,11 +124,14 @@ Below we describe:
 3. [Server-side usage](#server-side-usage)
     - [Server-side endpoint protection](#server-side-endpoint-protection)
     - [Server-side middleware](#server-side-middleware)
+    - [Getting the JWT token](#getting-the-jwt-token)
+        - [Application-side JWT token access](#application-side-jwt-token-access)
 4. [REST API](#rest-api)
-5. [Prior Work and Module Concept](#prior-work-and-module-concept)
+5. [Glossary](#glossary)
+6. [Prior Work and Module Concept](#prior-work-and-module-concept)
     - [Project Roadmap](#project-roadmap)
-6. [Module Playground](#module-playground)
-7. [Development](#development)
+7. [Module Playground](#module-playground)
+8. [Development](#development)
 
 ### Configuration
 
@@ -260,6 +263,8 @@ Note that there's way more options inside the `nextAuth.options` object, see [he
 ### Application-side usage
 
 This module allows you user-data access, signing in, signing out and more [via `useSession`](#session-access-and-manipulation). It also allows you to defined [middleware that protects pages](#middleware).
+
+Application-side usage refers to any code like pages, components or composables that are part of the universal server- and client-side rendering of Nuxt, see more in the [glossary](#glossary).
 
 #### Session access and manipulation
 
@@ -484,6 +489,7 @@ Getting the (decoded) JWT token of the current user can be helpful, e.g., to use
 
 You can get the JWT token that was passed along with the request using `getToken`:
 ```ts
+// file: ~/server/api/token.get.ts
 import { getToken } from '#auth'
 
 export default eventHandler(async (event) => {
@@ -497,7 +503,30 @@ The function behaves identical to the [`getToken` function from NextAuth.js](htt
 
 You do not need to pass in any further parameters like `secret`, `secureCookie`, ... They are automatically inferred to the values you configured if not set and reading the token will work out of the box. You _may_ pass these options, e.g., to get the raw, encoded JWT token you can pass `raw: true`.
 
-To access the JWT token client-side you can create an endpoint like above and call it from the frontend.
+###### Application-side JWT token access
+
+To access the JWT token application-side, e.g., in a `.vue` page, you can create an endpoint like this:
+```ts
+// file: ~/server/api/token.get.ts
+import { getToken } from '#auth'
+
+export default eventHandler(event => getToken({ event }))
+```
+
+Then from your application-side code you can fetch it like this:
+```vue
+// file: app.vue
+<template>
+  <div>{{ token || 'no token present, are you logged in?' }}</div>
+</template>
+
+<script setup lang="ts">
+const headers = useRequestHeaders(['cookie'])
+const { data: token } = await useFetch('/api/token', { headers: { cookie: headers.cookie } })
+</script>
+```
+
+Note that you have to pass the cookie-header manually. You also have to pass it using [`useRequestHeaders`](https://v3.nuxtjs.org/api/composables/use-request-headers/) so that the cookies are also correctly passed when this page is rendered server-side during the [universal-rendering process](https://v3.nuxtjs.org/guide/concepts/rendering#universal-rendering).
 
 #### REST API
 
@@ -513,6 +542,11 @@ All endpoints that NextAuth.js supports are also supported by `nuxt-auth`:
 
 You can directly interact with them if you wish to, it's probably a better idea to use `useSession` where possible though. [See the full rest API documentation of NextAuth.js here](https://next-auth.js.org/getting-started/rest-api).
 
+#### Glossary
+
+There are some terms we use in this documentation that may not immeadiatly be known to every reader. Here is an explanation for some of them:
+- `application` / `application-side` / `universal-application`: This references all Nuxt code of your app that is [universally rendered](https://v3.nuxtjs.org/guide/concepts/rendering#universal-rendering). In short this means that that code is rendered on the server-side and on the client-side, so all JS in it is executed twice. This is an important distinction, as some things may behave different on the server-side than on the client-side. We use `application...` to denote something that will be universally rendered
+- `server` / `server-side`: This references all Nuxt code of your app that will run **only** on your server. For example, all code inside the `~/server` directory should only ever run on the server
 
 #### Prior Work and Module Concept
 
