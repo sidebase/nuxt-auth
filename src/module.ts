@@ -32,7 +32,7 @@ interface ModuleOptions {
 }
 
 const PACKAGE_NAME = 'nuxt-auth'
-const defaults: ModuleOptions = {
+const defaults: ModuleOptions & { basePath: string } = {
   isEnabled: true,
   origin: undefined,
   basePath: '/api/auth'
@@ -56,7 +56,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 2. Set up runtime configuration
     let usedOrigin = moduleOptions.origin
-    if (usedOrigin === defaults.origin) {
+    if (typeof usedOrigin === 'undefined') {
       // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
       if (process.env.NODE_ENV === 'production') {
         logger.error('You must provide `origin` for production. The origin is the scheme, host and port of your target deployment, e.g., `https://example.org` (port ist 80 implicitly)')
@@ -66,8 +66,10 @@ export default defineNuxtModule<ModuleOptions>({
         logger.warn(`\`origin\` not set - an origin is mandatory for production. Using "${usedOrigin}" as a fallback`)
       }
     }
+
     const options = defu(moduleOptions, {
       ...defaults,
+      basePath: defaults.basePath,
       origin: usedOrigin
     })
 

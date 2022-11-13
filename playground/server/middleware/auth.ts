@@ -2,7 +2,7 @@ import { getServerSession } from '#auth'
 
 export default eventHandler(async (event) => {
   // Only protect a certain backend route
-  if (!event.req.url.startsWith('/api/protected/middleware')) {
+  if (!event.req.url?.startsWith('/api/protected/middleware')) {
     return
   }
 
