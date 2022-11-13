@@ -37,7 +37,7 @@
     ```
     - `[..].ts` is a catch-all route, see the [nuxt server docs](https://v3.nuxtjs.org/guide/directory-structure/server#catch-all-route)
 4. Done! You can now use all user-related functionality, for example:
-    - client-side (e.g., from `.vue` files):
+    - application-side (e.g., from `.vue` files):
         ```ts
         const { status, data, signIn, signOut } = await useSession({
           // Whether a session is required. If it is, a redirect to the signin page will happen if no active session exists
@@ -50,8 +50,20 @@
         await signIn() // Sign in the user
         await signOut() // Sign out the user
         ```
+    - server-side (e.g., from `~/server/api/session.get.ts`):
+        ```ts
+        import { getServerSession } from '#auth'
 
-There's more supported methods in the `useSession` composable, you can create [universal-app-](https://v3.nuxtjs.org/guide/directory-structure/middleware) and [server-api-middleware](https://v3.nuxtjs.org/guide/directory-structure/server#server-middleware) that make use of the authentication status and more. All of this is documented below.
+        export default eventHandler(async (event) => {
+          const session = await getServerSession(event)
+          if (!session) {
+            return { status: 'unauthenticated!' }
+          }
+          return { status: 'authenticated!', text: 'im protected by an in-endpoint check', ...session }
+        })
+        ```
+
+There's more supported methods in the `useSession` composable, you can create [universal-application-](https://v3.nuxtjs.org/guide/directory-structure/middleware) and [server-api-middleware](https://v3.nuxtjs.org/guide/directory-structure/server#server-middleware) that make use of the authentication status and more. All of this is documented below.
 
 ## Features
 
@@ -466,6 +478,27 @@ export default eventHandler(async (event) => {
 })
 ```
 
+##### Getting the JWT Token
+
+Getting the (decoded) JWT token of the current user can be helpful, e.g., to use it to access an external api that requires this token for authentication or authorization.
+
+You can get the JWT token that was passed along with the request using `getToken`:
+```ts
+import { getToken } from '#auth'
+
+export default eventHandler(async (event) => {
+  const token = await getToken({ event })
+
+  return token || 'no token present'
+})
+```
+
+The function behaves identical to the [`getToken` function from NextAuth.js](https://next-auth.js.org/tutorials/securing-pages-and-api-routes#using-gettoken) with one change: you have to pass in the h3-`event` instead of `req`. This is due to how cookies can be accessed on h3: not via `req.cookies` but rather via `useCookies(event)`.
+
+You do not need to pass in any further parameters like `secret`, `secureCookie`, ... They are automatically inferred to the values you configured if not set and reading the token will work out of the box. You _may_ pass these options, e.g., to get the raw, encoded JWT token you can pass `raw: true`.
+
+To access the JWT token client-side you can create an endpoint like above and call it from the frontend.
+
 #### REST API
 
 All endpoints that NextAuth.js supports are also supported by `nuxt-auth`:
@@ -497,7 +530,7 @@ In our investigation we found prior attempts to make NextAuth.js framework agnos
 - [NextAuth.js app examples](https://github.com/nextauthjs/next-auth/tree/main/apps)
 - [Various comments, proposals, ... of this thread](https://github.com/nextauthjs/next-auth/discussions/3942), special thanks to @brillout for starting the discussion, @balazsorban44 for NextAuth.js and encouraging the discussion, @wobsoriano for adding PoCs for multiple languages
 
-The main part of the work was to piece everything together, resolve some outstanding issues with existing PoCs, add new things where nothing existed yet, e.g., for the client `useSession` composable by going through the NextAuth.js client code and translating it to a Nuxt 3 approach.
+The main part of the work was to piece everything together, resolve some outstanding issues with existing PoCs, add new things where nothing existed yet, e.g., for the `useSession` composable by going through the NextAuth.js client code and translating it to a Nuxt 3 approach.
 
 ##### Project Roadmap
 

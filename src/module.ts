@@ -108,6 +108,7 @@ export default defineNuxtModule<ModuleOptions>({
       getContents: () => [
         'declare module \'#auth\' {',
         `  const getServerSession: typeof import('${resolve('./runtime/server/services')}').getServerSession`,
+        `  const getToken: typeof import('${resolve('./runtime/server/services')}').getToken`,
         `  const NuxtAuthHandler: typeof import('${resolve('./runtime/server/services')}').NuxtAuthHandler`,
         '}'
       ].join('\n')

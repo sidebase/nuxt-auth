@@ -33,6 +33,10 @@
       <nuxt-link to="/api/protected/middleware" external>
         -> API endpoint protected middleware
       </nuxt-link>
+      <br>
+      <nuxt-link to="/api/token" external>
+        -> See decoded JWT token
+      </nuxt-link>
     </div>
     <hr>
     <p>The page content of "{{ route.path }}"</p>
@@ -41,8 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-import { useSession } from '#imports'
+import { useSession, useRoute } from '#imports'
 
 const { data, status, getCsrfToken, getProviders } = await useSession({ required: false })
 
