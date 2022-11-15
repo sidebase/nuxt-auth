@@ -1,8 +1,8 @@
 import type { Session } from 'next-auth'
-import { useFetch, createError, useState, useRuntimeConfig, useRequestHeaders, navigateTo, useRequestEvent } from '#app'
 import defu from 'defu'
 import { joinURL, parseURL } from 'ufo'
 import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
+import { createError, useState, useRuntimeConfig, useRequestHeaders, navigateTo, useRequestEvent } from '#imports'
 
 interface UseSessionOptions {
   required?: boolean
@@ -38,20 +38,20 @@ interface SignOutOptions {
   callbackUrl?: string
 }
 
-type UseFetchOptions = Parameters<typeof useFetch>[1]
+type UseFetchOptions = Parameters<typeof $fetch>[1]
 type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 type SessionData = Session | undefined | null
 
 const _getBasePath = () => parseURL(useRuntimeConfig().public.auth.url).pathname
 const joinPathToBase = (path: string) => joinURL(_getBasePath(), path)
 
-const getRequestUrl = () => {
-  if (process.server) {
-    const event = useRequestEvent()
+const getUniversalRequestUrl = () => {
+  const event = useRequestEvent()
+  if (event) {
     return event.req.url
   }
 
-  if (process.client) {
+  if (window) {
     return window.location.href
   }
 
@@ -72,16 +72,13 @@ const universalRedirect = (href: string, { external } = { external: true }) => {
 }
 
 const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: UseFetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<T> => {
-  const { cookie } = useRequestHeaders(['cookie'])
+  const _headers = { ...headers, ...useRequestHeaders(['cookie']) }
 
   try {
     const res: T = await $fetch(joinPathToBase(path), {
       method,
       params,
-      headers: {
-        cookie,
-        ...headers
-      },
+      headers: _headers,
       body,
       onResponse,
       onRequest,
@@ -119,7 +116,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       }
     }
 
-    const { callbackUrl = getRequestUrl(), redirect = true } = options ?? {}
+    const { callbackUrl = getUniversalRequestUrl(), redirect = true } = options ?? {}
     if (!provider || !(provider in configuredProviders)) {
       const href = `${joinPathToBase('signin')}?${new URLSearchParams({
         callbackUrl
@@ -170,7 +167,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
   }
 
   const signOut = async (options?: SignOutOptions) => {
-    const { callbackUrl = getRequestUrl() } = options ?? {}
+    const { callbackUrl = getUniversalRequestUrl() } = options ?? {}
     const csrfTokenResult = await getCsrfToken()
 
     const csrfToken = csrfTokenResult.csrfToken
@@ -181,7 +178,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     const onRequest = ({ options }) => {
       options.body = new URLSearchParams({
         csrfToken: csrfToken as string,
-        callbackUrl: callbackUrl || getRequestUrl(),
+        callbackUrl: callbackUrl || getUniversalRequestUrl(),
         json: 'true'
       })
     }
@@ -217,7 +214,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       options.params = {
         ...(options.params || {}),
         // The request is executed with `server: false`, so window will always be defined at this point
-        callbackUrl: callbackUrl || getRequestUrl()
+        callbackUrl: callbackUrl || getUniversalRequestUrl()
       }
     }
 

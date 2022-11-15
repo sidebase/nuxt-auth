@@ -127,11 +127,13 @@ Below we describe:
     - [Getting the JWT token](#getting-the-jwt-token)
         - [Application-side JWT token access](#application-side-jwt-token-access)
 4. [REST API](#rest-api)
-5. [Glossary](#glossary)
-6. [Prior Work and Module Concept](#prior-work-and-module-concept)
+5. [Security](#security)
+    - [Disclosure](#disclosure)
+6. [Glossary](#glossary)
+7. [Prior Work and Module Concept](#prior-work-and-module-concept)
     - [Project Roadmap](#project-roadmap)
-7. [Module Playground](#module-playground)
-8. [Development](#development)
+8. [Module Playground](#module-playground)
+9. [Development](#development)
 
 ### Configuration
 
@@ -540,6 +542,24 @@ All endpoints that NextAuth.js supports are also supported by `nuxt-auth`:
 - `GET /providers`
 
 You can directly interact with them if you wish to, it's probably a better idea to use `useSession` where possible though. [See the full rest API documentation of NextAuth.js here](https://next-auth.js.org/getting-started/rest-api).
+
+#### Security
+
+This section mostly contains a list of possible security problems. Note that the below flaws exist with many libraries and frameworks we use in our day-to-day when building and working with APIs. Even your vanilla Nuxt app already posesses some of these shortcoming. Missing in the below list are estimates of how likely it is that one of the list-items may occur and what impact it will have on your app. This is because that heavily depends on:
+- your app: Are you building a fun project? A proof of concept? The next fort-nox money management app?
+- your environment: Building a freely available app for fun? Have authentication in front of your app and trust all users that successfully authenticated? Superb! Don't trust anyone? Then please be extra-careful when using this library and when building you backend in general
+
+Without further ado, here's some attack cases you can consider and take action against. Neither the attack vectors, the problems or the mitigations are exhaustive:
+1. sending arbitrary data: Denial-of-Service by server-ressource exhaustion (bandwidth, cpu, memory), arbitrary code execution (if you parse the data), ...
+2. creation arbitrarily many sessions: Denial-of-Service by server-ressource exhaustion (bandwidth, cpu, memory)
+3. guessing correct session ids: session data can leak
+4. stealing session id(s) of client(s): session data can leak
+
+Read up how to mitigate these and more issues if you see fit. Checkout the [`nuxt-security`](https://github.com/Baroshem/nuxt-security) module that may help with some of these.
+
+##### Disclosure
+
+A last reminder: This library was not written by crypto- or security-experts. Please proceed at your own risk, inspect the code if you want to and open issues / pull requests where you see room for improvement. If you want to file a security-concern privately, please send an email to `support@sidestream.tech` with the subject saying "SECURITY nuxt-auth" and we'll look into your request ASAP.
 
 #### Glossary
 
