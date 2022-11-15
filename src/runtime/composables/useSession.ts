@@ -1,10 +1,7 @@
 import type { Session } from 'next-auth'
-import { useFetch, createError, useState, useRuntimeConfig } from '#app'
-import { nanoid } from 'nanoid'
+import { useFetch, createError, useState, useRuntimeConfig, useRequestHeaders, navigateTo, useRequestEvent } from '#app'
 import defu from 'defu'
 import { joinURL, parseURL } from 'ufo'
-import { Ref } from 'vue'
-
 import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
 
 interface UseSessionOptions {
@@ -48,21 +45,59 @@ type SessionData = Session | undefined | null
 const _getBasePath = () => parseURL(useRuntimeConfig().public.auth.url).pathname
 const joinPathToBase = (path: string) => joinURL(_getBasePath(), path)
 
-const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: UseFetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<Ref<T>> => {
-  const result = await useFetch(joinPathToBase(path), {
-    method,
-    params,
-    headers,
-    body,
-    onResponse,
-    onRequest,
-    onRequestError,
-    onResponseError,
-    server: false,
-    key: nanoid()
-  })
+const getRequestUrl = () => {
+  if (process.server) {
+    const event = useRequestEvent()
+    return event.req.url
+  }
 
-  return result.data as Ref<T>
+  if (process.client) {
+    return window.location.href
+  }
+
+  throw new Error('Unexpected runtime error, request must either run on client or on server!')
+}
+
+const universalRedirect = (href: string, { external } = { external: true }) => {
+  if (process.client) {
+    window.location.href = href
+
+    // If href contains a hash, the browser does not reload the page. We reload manually
+    if (href.includes('#')) {
+      window.location.reload()
+    }
+  } else {
+    return navigateTo(href, { external })
+  }
+}
+
+const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: UseFetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<T> => {
+  const { cookie } = useRequestHeaders(['cookie'])
+
+  try {
+    const res: T = await $fetch(joinPathToBase(path), {
+      method,
+      params,
+      headers: {
+        cookie,
+        ...headers
+      },
+      body,
+      onResponse,
+      onRequest,
+      onRequestError,
+      onResponseError
+    })
+
+    return res
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error in useSession data fetching: Have you added the authentication handler server-endpoint `[...].ts`? Have you added the authentication hadnler in a non-default location (default is `~/server/api/auth/[...].ts`) and not updated the module-setting `auth.basePath`? Error is:')
+    // eslint-disable-next-line no-console
+    console.error(error)
+
+    throw new Error('Runtime error, checkout the console logs to debug, open an issue at https://github.com/sidebase/nuxt-auth/issues/new/choose if you continue to have this problem')
+  }
 }
 
 export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
@@ -77,20 +112,23 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
   ) => {
     const configuredProviders = await getProviders()
     if (!configuredProviders) {
-      window.location.href = joinPathToBase('error')
-      return
+      if (process.client) {
+        return universalRedirect(joinPathToBase('error'))
+      } else {
+        return
+      }
     }
 
-    const { callbackUrl = window.location.href, redirect = true } = options ?? {}
-    if (!provider || !(provider in configuredProviders.value)) {
-      window.location.href = `${joinPathToBase('signin')}?${new URLSearchParams({
+    const { callbackUrl = getRequestUrl(), redirect = true } = options ?? {}
+    if (!provider || !(provider in configuredProviders)) {
+      const href = `${joinPathToBase('signin')}?${new URLSearchParams({
         callbackUrl
       })}`
-      return
+      return universalRedirect(href)
     }
 
-    const isCredentials = configuredProviders.value[provider].type === 'credentials'
-    const isEmail = configuredProviders.value[provider].type === 'email'
+    const isCredentials = configuredProviders[provider].type === 'credentials'
+    const isEmail = configuredProviders[provider].type === 'email'
     const isSupportingReturn = isCredentials || isEmail
 
     let action: 'callback' | 'signin' = 'signin'
@@ -99,7 +137,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     }
 
     const csrfTokenResult = await getCsrfToken()
-    const csrfToken = csrfTokenResult.value.csrfToken
+    const csrfToken = csrfTokenResult.csrfToken
 
     const data = await _fetch<{ url: string }>(`${action}/${provider}`, {
       method: 'post',
@@ -117,31 +155,25 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     })
 
     if (redirect || !isSupportingReturn) {
-      const url = data.value.url ?? callbackUrl
-      window.location.href = url
-      // If url contains a hash, the browser does not reload the page. We reload manually
-      if (url.includes('#')) {
-        window.location.reload()
-      }
-
-      return
+      const href = data.url ?? callbackUrl
+      return universalRedirect(href)
     }
 
     // At this point the request succeeded (i.e., it went through)
-    const error = new URL(data.value.url).searchParams.get('error')
+    const error = new URL(data.url).searchParams.get('error')
     return {
       error,
       status: 200,
       ok: true,
-      url: error ? null : data.value.url
+      url: error ? null : data.url
     }
   }
 
   const signOut = async (options?: SignOutOptions) => {
-    const { callbackUrl = window.location.href } = options ?? {}
+    const { callbackUrl = getRequestUrl() } = options ?? {}
     const csrfTokenResult = await getCsrfToken()
 
-    const csrfToken = csrfTokenResult.value.csrfToken
+    const csrfToken = csrfTokenResult.csrfToken
     if (!csrfToken) {
       throw createError({ statusCode: 400, statusMessage: 'Could not fetch CSRF Token for signing out' })
     }
@@ -149,8 +181,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     const onRequest = ({ options }) => {
       options.body = new URLSearchParams({
         csrfToken: csrfToken as string,
-        // The request is executed with `server: false`, so window will always be defined at this point
-        callbackUrl: callbackUrl || window.location.href,
+        callbackUrl: callbackUrl || getRequestUrl(),
         json: 'true'
       })
     }
@@ -186,7 +217,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       options.params = {
         ...(options.params || {}),
         // The request is executed with `server: false`, so window will always be defined at this point
-        callbackUrl: callbackUrl || window.location.href
+        callbackUrl: callbackUrl || getRequestUrl()
       }
     }
 
@@ -220,14 +251,12 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     })
   }
 
-  if (process.client) {
-    const initialGetSessionOptionsWithDefaults = defu(initialGetSessionOptions, {
-      required: true,
-      onUnauthenticated: undefined,
-      callbackUrl: undefined
-    })
-    await getSession(initialGetSessionOptionsWithDefaults)
-  }
+  const initialGetSessionOptionsWithDefaults = defu(initialGetSessionOptions, {
+    required: true,
+    onUnauthenticated: undefined,
+    callbackUrl: undefined
+  })
+  await getSession(initialGetSessionOptionsWithDefaults)
 
   return {
     status,
