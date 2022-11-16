@@ -72,7 +72,7 @@ There's more supported methods in the `useSession` composable, you can create [u
     - ✔️ Custom OAuth (write it yourself)
     - ✔️ Credentials (password + username)
     - 🚧 Email Magic URLs
-- ✔️ Client Library:
+- ✔️ Isomorphic / Universal Auth Composable:
     - `useSession` composable to: `signIn`, `signOut`, `getCsrfToken`, `getProviders`, `getSession`
     - full typescript support for all methods and property
 - ✔️ Persistent sessions across requests
