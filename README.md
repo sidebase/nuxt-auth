@@ -315,6 +315,9 @@ await singIn('credentials', { username: 'jsmith', password: 'hunter2' })
 
 // Trigger a sign out, see https://next-auth.js.org/getting-started/client#signout
 await signOut()
+
+// Trigger a sign out and send the user to the sign out page afterwards
+await signOut({ calbackUrl: '/signout' })
 ```
 
 Session `data` has the following interface:
@@ -373,7 +376,7 @@ If you want to create a custom sign-in page that dynamically offers sign-in opti
 
 #### Middleware
 
-You can use this library to define application middleware. This library supports all of [Nuxt's supported approaches](https://v3.nuxtjs.org/guide/directory-structure/middleware#middleware-directory), read on to learn how.
+You can use this library to define application middleware. This library supports all of [Nuxt's supported middleware approaches](https://v3.nuxtjs.org/guide/directory-structure/middleware#middleware-directory). In all methods shown below we make use of the `callbackUrl` parameter to give the best user experience: If the user is not authenticated, they are forced to login, but will be redirected to the same page they wanted to visit after they successfully logged in. Without a `callbackUrl` parameter, the user would be directed to the index page `/`.
 
 ##### Global middleware
 
@@ -383,8 +386,8 @@ It should look like this:
 
 ```ts
 // file: ~/middleware/auth.global.ts
-export default defineNuxtRouteMiddleware(async () => {
-  await useSession()
+export default defineNuxtRouteMiddleware(async (to) => {
+  await useSession({ callbackUrl: to.path })
 })
 ```
 
@@ -395,7 +398,7 @@ Here is a global middleware that protects only the routes that start with `/secr
 // file: ~/middleware/auth.global.ts
 export default defineNuxtRouteMiddleware(async (to) => {
   if (to.path.startsWith('/secret/')) {
-    await useSession()
+    await useSession({ callbackUrl: to.path })
   }
 })
 ```
@@ -424,8 +427,8 @@ Named middleware behave similar to [global middleware](#global-middleware) but a
 To use them, first create a middleware:
 ```ts
 // file: ~/middleware/auth.ts
-export default defineNuxtRouteMiddleware(async () => {
-  await useSession()
+export default defineNuxtRouteMiddleware(async (to) => {
+  await useSession({ callbackUrl: to.path })
 })
 ```
 
@@ -458,7 +461,9 @@ To define a named middleware, you need to use `definePageMeta` as described [in 
 
 <script setup lang="ts">
 definePageMeta({
-  middleware () => useSession()
+  middleware: async () => {
+    await useSession({ callbackUrl: '/protected' })
+  }
 })
 </script>
 ```

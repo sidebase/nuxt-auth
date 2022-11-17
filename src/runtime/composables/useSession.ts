@@ -38,6 +38,7 @@ type SignInAuthorizationParams = Record<string, string>
 
 interface SignOutOptions {
   callbackUrl?: string
+  redirect?: boolean
 }
 
 type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
@@ -169,7 +170,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
   }
 
   const signOut = async (options?: SignOutOptions) => {
-    const { callbackUrl = getUniversalRequestUrl() } = options ?? {}
+    const { callbackUrl = getUniversalRequestUrl(), redirect = true } = options ?? {}
     const csrfTokenResult = await getCsrfToken()
 
     const csrfToken = csrfTokenResult.csrfToken
@@ -193,10 +194,13 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       onRequest
     })
 
-    // TODO: Support redirect if necesseray, see https://github.com/nextauthjs/next-auth/blob/4dbbe5b2d9806353b30a868f7e728b018afeb90b/packages/next-auth/src/react/index.tsx#L303-L310
-
     status.value = 'unauthenticated'
     data.value = undefined
+
+    if (redirect) {
+      const url = signoutData.url ?? callbackUrl
+      return universalRedirect(url)
+    }
 
     return signoutData
   }
