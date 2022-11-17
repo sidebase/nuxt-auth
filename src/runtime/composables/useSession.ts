@@ -2,7 +2,9 @@ import type { Session } from 'next-auth'
 import defu from 'defu'
 import { joinURL, parseURL } from 'ufo'
 import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
-import { createError, useState, useRuntimeConfig, useRequestHeaders, navigateTo, useRequestEvent } from '#imports'
+import { FetchOptions } from 'ofetch'
+import { callWithNuxt } from '#app'
+import { createError, useState, useRuntimeConfig, useRequestHeaders, navigateTo, useRequestEvent, useNuxtApp } from '#imports'
 
 interface UseSessionOptions {
   required?: boolean
@@ -48,7 +50,7 @@ const joinPathToBase = (path: string) => joinURL(_getBasePath(), path)
 const getUniversalRequestUrl = () => {
   const event = useRequestEvent()
   if (event) {
-    return event.req.url
+    return event.req.url || '/'
   }
 
   if (window) {
@@ -72,13 +74,11 @@ const universalRedirect = (href: string, { external } = { external: true }) => {
 }
 
 const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: UseFetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<T> => {
-  const _headers = { ...headers, ...useRequestHeaders(['cookie']) }
-
   try {
     const res: T = await $fetch(joinPathToBase(path), {
       method,
       params,
-      headers: _headers,
+      headers,
       body,
       onResponse,
       onRequest,
@@ -107,6 +107,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     options?: SignInOptions,
     authorizationParams?: SignInAuthorizationParams
   ) => {
+    // 1. Lead to error page if no providers are available
     const configuredProviders = await getProviders()
     if (!configuredProviders) {
       if (process.client) {
@@ -116,16 +117,22 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       }
     }
 
+    // 2. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
     const { callbackUrl = getUniversalRequestUrl(), redirect = true } = options ?? {}
-    if (!provider || !(provider in configuredProviders)) {
-      const href = `${joinPathToBase('signin')}?${new URLSearchParams({
-        callbackUrl
-      })}`
-      return universalRedirect(href)
+    const hrefSignInAllProviderPage = `${joinPathToBase('signin')}?${new URLSearchParams({ callbackUrl })}`
+
+    if (!provider) {
+      return universalRedirect(hrefSignInAllProviderPage)
     }
 
-    const isCredentials = configuredProviders[provider].type === 'credentials'
-    const isEmail = configuredProviders[provider].type === 'email'
+    const selectedProvider = configuredProviders[provider]
+    if (!selectedProvider) {
+      return universalRedirect(hrefSignInAllProviderPage)
+    }
+
+    // 3. Perform a sign-in straight away with the selected provider
+    const isCredentials = selectedProvider.type === 'credentials'
+    const isEmail = selectedProvider.type === 'email'
     const isSupportingReturn = isCredentials || isEmail
 
     let action: 'callback' | 'signin' = 'signin'
@@ -175,7 +182,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       throw createError({ statusCode: 400, statusMessage: 'Could not fetch CSRF Token for signing out' })
     }
 
-    const onRequest = ({ options }) => {
+    const onRequest: FetchOptions['onRequest'] = ({ options }) => {
       options.body = new URLSearchParams({
         csrfToken: csrfToken as string,
         callbackUrl: callbackUrl || getUniversalRequestUrl(),
@@ -199,16 +206,26 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     return signoutData
   }
 
-  const getCsrfToken = () => _fetch<{ csrfToken: string }>('csrf')
+  const getCsrfToken = () => {
+    let headers = {}
+    const { cookie } = useRequestHeaders(['cookie'])
+    if (cookie) {
+      headers = { cookie }
+    }
+    return _fetch<{ csrfToken: string }>('csrf', { headers })
+  }
+
   const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, 'options'> | undefined>>('providers')
-  const getSession = (getSessionOptions?: GetSessionOptions) => {
+  const getSession = async (getSessionOptions?: GetSessionOptions) => {
+    const nuxt = useNuxtApp()
+
     const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions || {}, {
       required: true,
       callbackUrl: undefined,
-      onUnauthenticated: signIn
+      onUnauthenticated: () => universalRedirect(joinPathToBase(`signin?${new URLSearchParams({ callbackUrl: getSessionOptions?.callbackUrl || '/' })}`), { external: true })
     })
 
-    const onRequest = ({ options }) => {
+    const onRequest: FetchOptions['onRequest'] = ({ options }) => {
       status.value = 'loading'
 
       options.params = {
@@ -218,16 +235,12 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       }
     }
 
-    const onResponse = ({ response }) => {
+    const onResponse: FetchOptions['onResponse'] = ({ response }) => {
       const sessionData = response._data
 
       if (!sessionData || Object.keys(sessionData).length === 0) {
         status.value = 'unauthenticated'
         data.value = null
-
-        if (required) {
-          onUnauthenticated()
-        }
       } else {
         status.value = 'authenticated'
         data.value = sessionData
@@ -240,12 +253,26 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       status.value = 'unauthenticated'
     }
 
-    return _fetch<SessionData>('session', {
+    let headers = {}
+    const { cookie } = useRequestHeaders(['cookie'])
+    if (cookie) {
+      headers = { cookie }
+    }
+
+    const result = await _fetch<SessionData>('session', {
       onResponse,
       onRequest,
       onRequestError: onError,
-      onResponseError: onError
+      onResponseError: onError,
+      headers
     })
+
+    if (required && status.value === 'unauthenticated') {
+      const result = await callWithNuxt(nuxt, onUnauthenticated, [])
+      return result
+    }
+
+    return result
   }
 
   const initialGetSessionOptionsWithDefaults = defu(initialGetSessionOptions, {

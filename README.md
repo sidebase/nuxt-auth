@@ -309,6 +309,9 @@ await signIn(undefined, { callbackUrl: '/protected' })
 // Trigger a sign in via a specific authentication provider with a redirect afterwards, see https://next-auth.js.org/getting-started/client#signin
 await signIn('github', { callbackUrl: '/protected' })
 
+// Trigger a sign in with username and password already passed, e.g., from your own custom-made sign-in form
+await singIn('credentials', { username: 'jsmith', password: 'hunter2' })
+
 // Trigger a sign out, see https://next-auth.js.org/getting-started/client#signout
 await signOut()
 ```
