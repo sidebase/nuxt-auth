@@ -56,15 +56,10 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 2. Set up runtime configuration
     let usedOrigin = moduleOptions.origin
-    if (typeof usedOrigin === 'undefined') {
+    const isOriginSet = typeof usedOrigin !== 'undefined'
+    if (!isOriginSet) {
       // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
-      if (process.env.NODE_ENV === 'production') {
-        logger.error('You must provide `origin` for production. The origin is the scheme, host and port of your target deployment, e.g., `https://example.org` (port ist 80 implicitly)')
-        throw new Error('Bad production config - please set `auth.origin`')
-      } else {
-        usedOrigin = 'http://localhost:3000'
-        logger.warn(`\`origin\` not set - an origin is mandatory for production. Using "${usedOrigin}" as a fallback`)
-      }
+      usedOrigin = 'http://localhost:3000'
     }
 
     const options = defu(moduleOptions, {
@@ -74,11 +69,15 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     const url = joinURL(options.origin, options.basePath)
-    logger.info(`Using "${url}" as the auth API location, make sure the \`[...].ts\` auth-handler is added there. Use the \`auth.orign\` and \`auth.basePath\` config keys to change the API location`)
+    logger.info(`Using \`${url}\` as the auth API location, make sure the \`[...].ts\` file with the \`export default NuxtAuthHandler({ ... })\` is added there. Use the \`nuxt.config.ts\` \`auth.origin\` and \`auth.basePath\` config keys to change the API location`)
+    if (process.env.NODE_ENV === 'production') {
+      logger.info('When building for production ensure to (1) set the application origin using `auth.origin` inside your `nuxt.config.ts` and (2) set the secret inside the `NuxtAuthHandler({ secret: ... })`')
+    }
 
     nuxt.options.runtimeConfig.auth = defu(nuxt.options.runtimeConfig.auth, {
       ...options,
-      url
+      url,
+      isOriginSet
     })
     nuxt.options.runtimeConfig.public.auth = defu(nuxt.options.runtimeConfig.public.auth, {
       url
