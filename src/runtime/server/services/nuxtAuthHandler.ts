@@ -69,9 +69,9 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
 
   if (!useRuntimeConfig().auth.isOriginSet) {
     // eslint-disable-next-line no-console
-    console.warn('nuxt-auth runtime: No `origin` supplied - supplying an `origin` will be necessary for production. Set the `origin` in your `nuxt.config.ts` like so: `auth: { origin: "https://your-origin.com" } }`')
+    console.warn('nuxt-auth runtime: No `origin` supplied - supplying an `origin` will be necessary for production. Set the `origin` in your `nuxt.config.ts` like so: `auth: { origin: "https://your-origin.com" }`')
     if (isProduction) {
-      throw new Error('Bad production config - please set your application `origin` inside your `nuxt.config.ts` file like so: `auth: { origin: "https://your-cool-website.com" }` ')
+      throw new Error('Bad production config - set the application `origin` inside your `nuxt.config.ts` file like so: `auth: { origin: "https://your-cool-website.com" }` ')
     }
   }
 
