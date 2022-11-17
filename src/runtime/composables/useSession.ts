@@ -40,7 +40,6 @@ interface SignOutOptions {
   callbackUrl?: string
 }
 
-type UseFetchOptions = Parameters<typeof $fetch>[1]
 type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 type SessionData = Session | undefined | null
 
@@ -73,7 +72,7 @@ const universalRedirect = (href: string, { external } = { external: true }) => {
   }
 }
 
-const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: UseFetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<T> => {
+const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: FetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<T> => {
   try {
     const res: T = await $fetch(joinPathToBase(path), {
       method,
