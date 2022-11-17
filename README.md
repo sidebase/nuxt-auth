@@ -39,13 +39,13 @@
 4. Done! You can now use all user-related functionality, for example:
     - application-side (e.g., from `.vue` files):
         ```ts
-        const { status, data, signIn, signOut } = await useSession({
+        const { session, signIn, signOut } = await useSession({
           // Whether a session is required. If it is, a redirect to the signin page will happen if no active session exists
           required: true
         })
 
-        status.value // Session status: `unauthenticated`, `loading`, `authenticated`
-        data.value // Session data, e.g., expiration, user.email, ...
+        session.value.status // Session status: `unauthenticated`, `loading`, `authenticated`
+        session.value.data // Session data, e.g., expiration, user.email, ...
 
         await signIn() // Sign in the user
         await signOut() // Sign out the user
@@ -118,6 +118,7 @@ Below we describe:
     - [Session access and manipulation](#session-access-and-manipulation)
         - [Redirects](#redirects)
         - [Custom sign in page](#custom-sign-in-page)
+        - [The session interface](#the-session-interface)
     - [Middleware](#middleware)
         - [Global middleware](#global-middleware)
         - [Named middleware](#named-middleware)
@@ -274,8 +275,7 @@ The `useSession` composable is your main gateway to accessing and manipulating s
 
 ```ts
 const {
-  status,
-  data,
+  session,
   getCsrfToken,
   getProviders,
   getSession,
@@ -287,10 +287,12 @@ const {
 })
 
 // Session status, either `unauthenticated`, `loading`, `authenticated`, see https://next-auth.js.org/getting-started/client#signout
-status.value
+session.value.status
 
-// Session data, either `undefined` (= authentication not attempted), `null` (= user unauthenticated), `loading` (= session loading in progress), see https://next-auth.js.org/getting-started/client#signout
-data.value
+// Session data, only set when `session.value.status === 'authenticated'`, typescript will help you to only let you use this if you checked that the status is `authenticated`
+if (session.value.status === 'authenticated') {
+  session.value.data
+}
 
 // Get / Reload the current session from the server, pass `{ required: true }` to force a login if no session exists, see https://next-auth.js.org/getting-started/client#getsession
 await getSession()
@@ -319,20 +321,6 @@ await signOut()
 // Trigger a sign out and send the user to the sign out page afterwards
 await signOut({ calbackUrl: '/signout' })
 ```
-
-Session `data` has the following interface:
-```ts
-interface DefaultSession {
-  user?: {
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-  };
-  expires: ISODateString;
-}
-```
-
-Note that this is only set when the use is logged-in and when the provider used to login the user provides the fields.
 
 ##### Redirects
 
@@ -373,6 +361,32 @@ const { signIn } = await useSession({ required: false })
 Note: In the above example `username` and `password` are hard-coded. In your own custom page, these two fields should probably come from inputs on your page.
 
 If you want to create a custom sign-in page that dynamically offers sign-in options based on your configured providers, you can call `getProviders()` first and then iterate over the supported providers to generate your sign in page.
+
+##### The session interface
+
+When you access the session as `const { session } = await useSession()`, `session` is a [reactive object](https://vuejs.org/api/reactivity-core.html#ref), where `session.value` is the following when logged in:
+```ts
+{
+  status: 'authenticated'
+  data: {
+    user?: {
+        name?: string | null;
+        email?: string | null;
+        image?: string | null;
+    };
+    expires: ISODateString;
+  }
+}
+```
+
+Or the following when not logged in:
+```ts
+{
+  status: 'unauthenticated' | 'loading'
+}
+```
+
+Note that this is only set when the use is logged-in and when the provider used to login the user provides the fields.
 
 #### Middleware
 
@@ -481,7 +495,9 @@ export default eventHandler(async (event) => {
 })
 ```
 
-This is inspired by [the getServerSession](https://next-auth.js.org/tutorials/securing-pages-and-api-routes#securing-api-routes) of NextAuth.js. It also avoids an external, internet call to the `GET /api/auth/sessions` endpoint, instead directly calling a pure JS-method.
+This is inspired by [the getServerSession](https://next-auth.js.org/tutorials/securing-pages-and-api-routes#securing-api-routes) of NextAuth.js. It also avoids an external, internet call to the `GET /api/auth/sessions` endpoint, instead directly performing a JS-function call for vastly improved performance.
+
+The `session` object above has the same interface as [the universal session interface shown above](#the-session-interface).
 
 ##### Server-side endpoint protection
 

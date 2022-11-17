@@ -1,10 +1,10 @@
-import type { Session } from 'next-auth'
 import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
 import type { FetchOptions } from 'ofetch'
 import defu from 'defu'
 import { joinURL, parseURL } from 'ufo'
 import { callWithNuxt } from '#app'
 import { Ref } from 'vue'
+import type { NuxtSessionUniversal, NextSessionData } from '../../types'
 import { createError, useState, useRuntimeConfig, useRequestHeaders, navigateTo, useRequestEvent, useNuxtApp } from '#imports'
 
 interface UseSessionOptions {
@@ -41,9 +41,6 @@ interface SignOutOptions {
   callbackUrl?: string
   redirect?: boolean
 }
-
-type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
-type SessionData = Session | undefined | null
 
 const _getBasePath = () => parseURL(useRuntimeConfig().public.auth.url).pathname
 const joinPathToBase = (path: string) => joinURL(_getBasePath(), path)
@@ -99,8 +96,9 @@ const _fetch = async <T>(path: string, { body, params, method, headers, onRespon
 }
 
 export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
-  const data = useState<SessionData>('session:data', () => undefined)
-  const status = useState<SessionStatus>('session:status', () => 'unauthenticated')
+  const getters: Ref<NuxtSessionUniversal> = useState<NuxtSessionUniversal>('session', (): NuxtSessionUniversal => ({
+    status: 'unauthenticated'
+  }))
 
   // TODO: Stronger typing for `provider`, see https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/index.tsx#L199-L203
   const signIn = async (
@@ -195,8 +193,9 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       onRequest
     })
 
-    status.value = 'unauthenticated'
-    data.value = undefined
+    getters.value = {
+      status: 'unauthenticated'
+    }
 
     if (redirect) {
       const url = signoutData.url ?? callbackUrl
@@ -226,7 +225,9 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     })
 
     const onRequest: FetchOptions['onRequest'] = ({ options }) => {
-      status.value = 'loading'
+      getters.value = {
+        status: 'loading'
+      }
 
       options.params = {
         ...(options.params || {}),
@@ -235,22 +236,28 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       }
     }
 
+    const isValidSessionData = (data: object) => !!data && Object.keys(data).length > 0
     const onResponse: FetchOptions['onResponse'] = ({ response }) => {
       const sessionData = response._data
 
-      if (!sessionData || Object.keys(sessionData).length === 0) {
-        status.value = 'unauthenticated'
-        data.value = null
+      if (isValidSessionData(sessionData)) {
+        getters.value = {
+          status: 'authenticated',
+          data: sessionData as NextSessionData
+        }
       } else {
-        status.value = 'authenticated'
-        data.value = sessionData
+        getters.value = {
+          status: 'unauthenticated'
+        }
       }
 
       return sessionData
     }
 
     const onError = () => {
-      status.value = 'unauthenticated'
+      getters.value = {
+        status: 'unauthenticated'
+      }
     }
 
     let headers = {}
@@ -259,7 +266,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       headers = { cookie }
     }
 
-    const result = await _fetch<SessionData>('session', {
+    await _fetch<NextSessionData | {}>('session', {
       onResponse,
       onRequest,
       onRequestError: onError,
@@ -267,13 +274,14 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       headers
     })
 
-    if (required && status.value === 'unauthenticated') {
+    if (required && getters.value.status === 'unauthenticated') {
       // Calling nested, async composables drops the implicit nuxt context, this is not a bug but rather a design-limitation of Vue/Nuxt. In order to avoid this, we use the `callWithNuxt` helper to keep the context. See https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
       const result = await callWithNuxt(nuxt, onUnauthenticated, [])
       return result
     }
 
-    return result
+    // At this point getters was updated in `onResponse`
+    return getters
   }
 
   const initialGetSessionOptionsWithDefaults = defu(initialGetSessionOptions, {
@@ -291,16 +299,8 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     signOut
   }
 
-  const getters: {
-    status: Ref<SessionStatus>,
-    data: Ref<SessionData>
-  } = {
-    status,
-    data
-  }
-
   return {
     ...actions,
-    ...getters
+    session: getters
   }
 }

@@ -2,9 +2,10 @@
   <div>
     <h3>Authentication Overview</h3>
     <p>See all available authentication & session information below. Navigate to different sub-pages to test out the app.</p>
-    <pre>Status: {{ status }}</pre>
-    <pre>Data: {{ data || 'no session data present, are you logged in?' }}</pre>
-    <pre>Decoded JWT token: {{ token || 'no token present, are you logged in?' }}</pre>
+    <pre>Status: {{ session.status }}</pre>
+    <pre v-if="session.status === 'authenticated'">Data: {{ session.data }}</pre>
+    <pre v-else>Data: No session data present, are you logged in?</pre>
+    <pre>Decoded JWT token from server: {{ token || 'No token present, are you logged in?' }}</pre>
     <pre>CSRF Token: {{ csrfToken }}</pre>
     <pre>Providers: {{ providers }}</pre>
     <hr>
@@ -45,7 +46,7 @@
 <script setup lang="ts">
 import { useSession, useRoute, useFetch, useRequestHeaders } from '#imports'
 
-const { data, status, getCsrfToken, getProviders } = await useSession({ required: false })
+const { session, getCsrfToken, getProviders } = await useSession({ required: false })
 
 const providers = await getProviders()
 const csrfToken = await getCsrfToken()

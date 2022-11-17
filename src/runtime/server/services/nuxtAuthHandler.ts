@@ -8,6 +8,8 @@ import type { NextAuthAction, NextAuthOptions, Session } from 'next-auth'
 import type { GetTokenParams } from 'next-auth/jwt'
 
 import defu from 'defu'
+import type { NuxtSessionServer } from '../../../types'
+
 import { useRuntimeConfig } from '#imports'
 
 let preparedAuthHandler: ReturnType<typeof eventHandler> | undefined
@@ -172,7 +174,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
   return handler
 }
 
-export const getServerSession = async (event: H3Event) => {
+export const getServerSession = async (event: H3Event): Promise<NuxtSessionServer> => {
   if (!preparedAuthHandler) {
     throw createError({ statusCode: 500, statusMessage: 'Tried to get server session without setting up an endpoint to handle authentication (see https://github.com/sidebase/nuxt-auth#quick-start)' })
   }
@@ -184,10 +186,15 @@ export const getServerSession = async (event: H3Event) => {
 
   // TODO: This check also happens in the `useSession` composable, refactor it into a small util instead to ensure consistency
   if (!session || Object.keys(session).length === 0) {
-    return null
+    return {
+      status: 'unauthenticated'
+    }
   }
 
-  return session as Session
+  return {
+    status: 'authenticated',
+    data: session as Session
+  }
 }
 
 /**
