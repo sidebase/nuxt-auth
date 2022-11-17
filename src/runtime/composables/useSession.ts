@@ -1,8 +1,8 @@
 import type { Session } from 'next-auth'
+import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
+import type { FetchOptions } from 'ofetch'
 import defu from 'defu'
 import { joinURL, parseURL } from 'ufo'
-import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
-import { FetchOptions } from 'ofetch'
 import { callWithNuxt } from '#app'
 import { createError, useState, useRuntimeConfig, useRequestHeaders, navigateTo, useRequestEvent, useNuxtApp } from '#imports'
 
@@ -110,11 +110,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     // 1. Lead to error page if no providers are available
     const configuredProviders = await getProviders()
     if (!configuredProviders) {
-      if (process.client) {
-        return universalRedirect(joinPathToBase('error'))
-      } else {
-        return
-      }
+      return universalRedirect(joinPathToBase('error'))
     }
 
     // 2. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
@@ -268,6 +264,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     })
 
     if (required && status.value === 'unauthenticated') {
+      // Calling nested, async composables drops the implicit nuxt context, this is not a bug but rather a design-limitation of Vue/Nuxt. In order to avoid this, we use the `callWithNuxt` helper to keep the context. See https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
       const result = await callWithNuxt(nuxt, onUnauthenticated, [])
       return result
     }
