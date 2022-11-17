@@ -117,6 +117,7 @@ Below we describe:
 2. [Application-side usage](#application-side-usage)
     - [Session access and manipulation](#session-access-and-manipulation)
         - [Redirects](#redirects)
+        - [Custom sign in page](#custom-sign-in-page)
     - [Middleware](#middleware)
         - [Global middleware](#global-middleware)
         - [Named middleware](#named-middleware)
@@ -347,6 +348,28 @@ await signOut({ callbackUrl: '/protected' })
 ```
 
 E.g., here to redirect the user away from the already loaded, protected, page after signout (else, you will have to handle the redirect yourself).
+
+##### Custom sign in page
+
+To create your custom sign-in page you can use `signIn` to directly start a provider-flow once the user selected it, e.g., by clicking on a button on your custom sign-in page. Here is a very simple sign-in page that either directly starts a github-oauth sign in flow or directly signs in the user via the credentials flow:
+```vue
+<template>
+  <div>
+    <p>Sign In Options</p>
+    <button @click="signIn('github')">Github</button>
+    <!-- NOTE: Here we hard-coded username and password, on your own page this should probably be connected to two inputs for username + password -->
+    <button @click="signIn('credentials', { username: 'test', password: 'hunter2' })">Username and Password</button>
+  </div>
+</template>
+
+<script setup lang="ts">
+const { signIn } = await useSession({ required: false })
+</script>
+```
+
+Note: In the above example `username` and `password` are hard-coded. In your own custom page, these two fields should probably come from inputs on your page.
+
+If you want to create a custom sign-in page that dynamically offers sign-in options based on your configured providers, you can call `getProviders()` first and then iterate over the supported providers to generate your sign in page.
 
 #### Middleware
 
