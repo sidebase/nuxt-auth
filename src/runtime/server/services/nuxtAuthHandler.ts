@@ -54,14 +54,24 @@ const parseActionAndProvider = ({ context }: H3Event): { action: NextAuthAction,
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
 export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
+  const isProduction = process.env.NODE_ENV === 'production'
+
   usedSecret = nuxtAuthOptions?.secret
   if (!usedSecret) {
     // eslint-disable-next-line no-console
-    console.warn('nuxt-auth runtime: No secret supplied - supplying a secret will be necessary for production')
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('Bad production config - please set `secret` inside the `nuxtAuthOptions`')
+    console.warn('nuxt-auth runtime: No `secret` supplied - supplying a `secret` will be necessary for production. Set the `secret` in the `NuxtAuthHandler` like so: `NuxtAuthHandler({ secret: "your-production-secret" })`')
+    if (isProduction) {
+      throw new Error('Bad production config - set `secret` inside the `NuxtAuthHandler` like so: `NuxtAuthHandler({ secret: "your-production-secret" })`')
     } else {
       usedSecret = 'secret'
+    }
+  }
+
+  if (!useRuntimeConfig().auth.isOriginSet) {
+    // eslint-disable-next-line no-console
+    console.warn('nuxt-auth runtime: No `origin` supplied - supplying an `origin` will be necessary for production. Set the `origin` in your `nuxt.config.ts` like so: `auth: { origin: "https://your-origin.com" } }`')
+    if (isProduction) {
+      throw new Error('Bad production config - please set your application `origin` inside your `nuxt.config.ts` file like so: `auth: { origin: "https://your-cool-website.com" }` ')
     }
   }
 
