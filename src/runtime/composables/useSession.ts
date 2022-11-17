@@ -4,6 +4,7 @@ import type { FetchOptions } from 'ofetch'
 import defu from 'defu'
 import { joinURL, parseURL } from 'ufo'
 import { callWithNuxt } from '#app'
+import { Ref } from 'vue'
 import { createError, useState, useRuntimeConfig, useRequestHeaders, navigateTo, useRequestEvent, useNuxtApp } from '#imports'
 
 interface UseSessionOptions {
@@ -282,13 +283,24 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
   })
   await getSession(initialGetSessionOptionsWithDefaults)
 
-  return {
-    status,
-    data,
+  const actions = {
     getSession,
     getCsrfToken,
     getProviders,
     signIn,
     signOut
+  }
+
+  const getters: {
+    status: Ref<SessionStatus>,
+    data: Ref<SessionData>
+  } = {
+    status,
+    data
+  }
+
+  return {
+    ...actions,
+    ...getters
   }
 }
