@@ -72,7 +72,7 @@ There's more supported methods in the `useSession` composable, you can create [u
     - ✔️ Custom OAuth (write it yourself)
     - ✔️ Credentials (password + username)
     - 🚧 Email Magic URLs
-- ✔️ Client Library:
+- ✔️ Isomorphic / Universal Auth Composable:
     - `useSession` composable to: `signIn`, `signOut`, `getCsrfToken`, `getProviders`, `getSession`
     - full typescript support for all methods and property
 - ✔️ Persistent sessions across requests
@@ -117,6 +117,7 @@ Below we describe:
 2. [Application-side usage](#application-side-usage)
     - [Session access and manipulation](#session-access-and-manipulation)
         - [Redirects](#redirects)
+        - [Custom sign in page](#custom-sign-in-page)
     - [Middleware](#middleware)
         - [Global middleware](#global-middleware)
         - [Named middleware](#named-middleware)
@@ -127,11 +128,13 @@ Below we describe:
     - [Getting the JWT token](#getting-the-jwt-token)
         - [Application-side JWT token access](#application-side-jwt-token-access)
 4. [REST API](#rest-api)
-5. [Glossary](#glossary)
-6. [Prior Work and Module Concept](#prior-work-and-module-concept)
+5. [Security](#security)
+    - [Disclosure](#disclosure)
+6. [Glossary](#glossary)
+7. [Prior Work and Module Concept](#prior-work-and-module-concept)
     - [Project Roadmap](#project-roadmap)
-7. [Module Playground](#module-playground)
-8. [Development](#development)
+8. [Module Playground](#module-playground)
+9. [Development](#development)
 
 ### Configuration
 
@@ -216,9 +219,9 @@ export default NuxtAuthHandler({
   providers: [
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     GithubProvider.default({
-      clientId: 'a-client-id',
-      clientSecret: 'a-client-secret'
-    })
+      clientId: 'your-client-id',
+      clientSecret: 'your-client-secret'
+    }),
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     CredentialsProvider.default({
       // The name to display on the sign in form (e.g. 'Sign in with...')
@@ -228,24 +231,24 @@ export default NuxtAuthHandler({
       // e.g. domain, username, password, 2FA token, etc.
       // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
-        username: { label: 'Username', type: 'text', placeholder: 'jsmith' },
-        password: { label: 'Password', type: 'password' }
+        username: { label: 'Username', type: 'text', placeholder: '(hint: jsmith)' },
+        password: { label: 'Password', type: 'password', placeholder: '(hint: hunter2)' }
       },
       authorize (credentials: any) {
         // You need to provide your own logic here that takes the credentials
         // submitted and returns either a object representing a user or value
         // that is false/null if the credentials are invalid.
-        // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
-        // You can also use the `req` object to obtain additional parameters
-        // (i.e., the request IP address)
-        // eslint-disable-next-line no-console
-        console.log('provided credentials: ', credentials)
-        const user = { id: '1', name: 'J Smith', email: 'jsmith@example.com' }
+        // NOTE: THE BELOW LOGIC IS NOT SAFE OR PROPER FOR AUTHENTICATION!
 
-        if (user) {
+        const user = { id: '1', name: 'J Smith', username: 'jsmith', password: 'hunter2' }
+
+        if (credentials?.username === user.username && credentials?.password === user.password) {
           // Any object returned will be saved in `user` property of the JWT
           return user
         } else {
+          // eslint-disable-next-line no-console
+          console.error('Warning: Malicious login attempt registered, bad credentials provided')
+
           // If you return null then an error will be displayed advising the user to check their details.
           return null
 
@@ -255,7 +258,6 @@ export default NuxtAuthHandler({
     })
   ]
 })
-
 ```
 
 Note that there's way more options inside the `nextAuth.options` object, see [here](https://next-auth.js.org/configuration/options#options) for all available options.
@@ -308,6 +310,9 @@ await signIn(undefined, { callbackUrl: '/protected' })
 // Trigger a sign in via a specific authentication provider with a redirect afterwards, see https://next-auth.js.org/getting-started/client#signin
 await signIn('github', { callbackUrl: '/protected' })
 
+// Trigger a sign in with username and password already passed, e.g., from your own custom-made sign-in form
+await singIn('credentials', { username: 'jsmith', password: 'hunter2' })
+
 // Trigger a sign out, see https://next-auth.js.org/getting-started/client#signout
 await signOut()
 ```
@@ -343,6 +348,28 @@ await signOut({ callbackUrl: '/protected' })
 ```
 
 E.g., here to redirect the user away from the already loaded, protected, page after signout (else, you will have to handle the redirect yourself).
+
+##### Custom sign in page
+
+To create your custom sign-in page you can use `signIn` to directly start a provider-flow once the user selected it, e.g., by clicking on a button on your custom sign-in page. Here is a very simple sign-in page that either directly starts a github-oauth sign in flow or directly signs in the user via the credentials flow:
+```vue
+<template>
+  <div>
+    <p>Sign In Options</p>
+    <button @click="signIn('github')">Github</button>
+    <!-- NOTE: Here we hard-coded username and password, on your own page this should probably be connected to two inputs for username + password -->
+    <button @click="signIn('credentials', { username: 'test', password: 'hunter2' })">Username and Password</button>
+  </div>
+</template>
+
+<script setup lang="ts">
+const { signIn } = await useSession({ required: false })
+</script>
+```
+
+Note: In the above example `username` and `password` are hard-coded. In your own custom page, these two fields should probably come from inputs on your page.
+
+If you want to create a custom sign-in page that dynamically offers sign-in options based on your configured providers, you can call `getProviders()` first and then iterate over the supported providers to generate your sign in page.
 
 #### Middleware
 
@@ -541,6 +568,24 @@ All endpoints that NextAuth.js supports are also supported by `nuxt-auth`:
 - `GET /providers`
 
 You can directly interact with them if you wish to, it's probably a better idea to use `useSession` where possible though. [See the full rest API documentation of NextAuth.js here](https://next-auth.js.org/getting-started/rest-api).
+
+#### Security
+
+This section mostly contains a list of possible security problems. Note that the below flaws exist with many libraries and frameworks we use in our day-to-day when building and working with APIs. Even your vanilla Nuxt app already posesses some of these shortcoming. Missing in the below list are estimates of how likely it is that one of the list-items may occur and what impact it will have on your app. This is because that heavily depends on:
+- your app: Are you building a fun project? A proof of concept? The next fort-nox money management app?
+- your environment: Building a freely available app for fun? Have authentication in front of your app and trust all users that successfully authenticated? Superb! Don't trust anyone? Then please be extra-careful when using this library and when building you backend in general
+
+Without further ado, here's some attack cases you can consider and take action against. Neither the attack vectors, the problems or the mitigations are exhaustive:
+1. sending arbitrary data: Denial-of-Service by server-ressource exhaustion (bandwidth, cpu, memory), arbitrary code execution (if you parse the data), ...
+2. creation arbitrarily many sessions: Denial-of-Service by server-ressource exhaustion (bandwidth, cpu, memory)
+3. guessing correct session ids: session data can leak
+4. stealing session id(s) of client(s): session data can leak
+
+Read up how to mitigate these and more issues if you see fit. Checkout the [`nuxt-security`](https://github.com/Baroshem/nuxt-security) module that may help with some of these.
+
+##### Disclosure
+
+A last reminder: This library was not written by crypto- or security-experts. Please proceed at your own risk, inspect the code if you want to and open issues / pull requests where you see room for improvement. If you want to file a security-concern privately, please send an email to `support@sidestream.tech` with the subject saying "SECURITY nuxt-auth" and we'll look into your request ASAP.
 
 #### Glossary
 

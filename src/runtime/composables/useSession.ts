@@ -1,11 +1,10 @@
 import type { Session } from 'next-auth'
-import { useFetch, createError, useState, useRuntimeConfig } from '#app'
-import { nanoid } from 'nanoid'
+import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
+import type { FetchOptions } from 'ofetch'
 import defu from 'defu'
 import { joinURL, parseURL } from 'ufo'
-import { Ref } from 'vue'
-
-import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
+import { callWithNuxt } from '#app'
+import { createError, useState, useRuntimeConfig, useRequestHeaders, navigateTo, useRequestEvent, useNuxtApp } from '#imports'
 
 interface UseSessionOptions {
   required?: boolean
@@ -41,28 +40,60 @@ interface SignOutOptions {
   callbackUrl?: string
 }
 
-type UseFetchOptions = Parameters<typeof useFetch>[1]
 type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 type SessionData = Session | undefined | null
 
 const _getBasePath = () => parseURL(useRuntimeConfig().public.auth.url).pathname
 const joinPathToBase = (path: string) => joinURL(_getBasePath(), path)
 
-const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: UseFetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<Ref<T>> => {
-  const result = await useFetch(joinPathToBase(path), {
-    method,
-    params,
-    headers,
-    body,
-    onResponse,
-    onRequest,
-    onRequestError,
-    onResponseError,
-    server: false,
-    key: nanoid()
-  })
+const getUniversalRequestUrl = () => {
+  const event = useRequestEvent()
+  if (event) {
+    return event.req.url || '/'
+  }
 
-  return result.data as Ref<T>
+  if (window) {
+    return window.location.href
+  }
+
+  throw new Error('Unexpected runtime error, request must either run on client or on server!')
+}
+
+const universalRedirect = (href: string, { external } = { external: true }) => {
+  if (process.client) {
+    window.location.href = href
+
+    // If href contains a hash, the browser does not reload the page. We reload manually
+    if (href.includes('#')) {
+      window.location.reload()
+    }
+  } else {
+    return navigateTo(href, { external })
+  }
+}
+
+const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: FetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<T> => {
+  try {
+    const res: T = await $fetch(joinPathToBase(path), {
+      method,
+      params,
+      headers,
+      body,
+      onResponse,
+      onRequest,
+      onRequestError,
+      onResponseError
+    })
+
+    return res
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error in useSession data fetching: Have you added the authentication handler server-endpoint `[...].ts`? Have you added the authentication hadnler in a non-default location (default is `~/server/api/auth/[...].ts`) and not updated the module-setting `auth.basePath`? Error is:')
+    // eslint-disable-next-line no-console
+    console.error(error)
+
+    throw new Error('Runtime error, checkout the console logs to debug, open an issue at https://github.com/sidebase/nuxt-auth/issues/new/choose if you continue to have this problem')
+  }
 }
 
 export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
@@ -75,22 +106,28 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     options?: SignInOptions,
     authorizationParams?: SignInAuthorizationParams
   ) => {
+    // 1. Lead to error page if no providers are available
     const configuredProviders = await getProviders()
     if (!configuredProviders) {
-      window.location.href = joinPathToBase('error')
-      return
+      return universalRedirect(joinPathToBase('error'))
     }
 
-    const { callbackUrl = window.location.href, redirect = true } = options ?? {}
-    if (!provider || !(provider in configuredProviders.value)) {
-      window.location.href = `${joinPathToBase('signin')}?${new URLSearchParams({
-        callbackUrl
-      })}`
-      return
+    // 2. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
+    const { callbackUrl = getUniversalRequestUrl(), redirect = true } = options ?? {}
+    const hrefSignInAllProviderPage = `${joinPathToBase('signin')}?${new URLSearchParams({ callbackUrl })}`
+
+    if (!provider) {
+      return universalRedirect(hrefSignInAllProviderPage)
     }
 
-    const isCredentials = configuredProviders.value[provider].type === 'credentials'
-    const isEmail = configuredProviders.value[provider].type === 'email'
+    const selectedProvider = configuredProviders[provider]
+    if (!selectedProvider) {
+      return universalRedirect(hrefSignInAllProviderPage)
+    }
+
+    // 3. Perform a sign-in straight away with the selected provider
+    const isCredentials = selectedProvider.type === 'credentials'
+    const isEmail = selectedProvider.type === 'email'
     const isSupportingReturn = isCredentials || isEmail
 
     let action: 'callback' | 'signin' = 'signin'
@@ -99,7 +136,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     }
 
     const csrfTokenResult = await getCsrfToken()
-    const csrfToken = csrfTokenResult.value.csrfToken
+    const csrfToken = csrfTokenResult.csrfToken
 
     const data = await _fetch<{ url: string }>(`${action}/${provider}`, {
       method: 'post',
@@ -117,40 +154,33 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     })
 
     if (redirect || !isSupportingReturn) {
-      const url = data.value.url ?? callbackUrl
-      window.location.href = url
-      // If url contains a hash, the browser does not reload the page. We reload manually
-      if (url.includes('#')) {
-        window.location.reload()
-      }
-
-      return
+      const href = data.url ?? callbackUrl
+      return universalRedirect(href)
     }
 
     // At this point the request succeeded (i.e., it went through)
-    const error = new URL(data.value.url).searchParams.get('error')
+    const error = new URL(data.url).searchParams.get('error')
     return {
       error,
       status: 200,
       ok: true,
-      url: error ? null : data.value.url
+      url: error ? null : data.url
     }
   }
 
   const signOut = async (options?: SignOutOptions) => {
-    const { callbackUrl = window.location.href } = options ?? {}
+    const { callbackUrl = getUniversalRequestUrl() } = options ?? {}
     const csrfTokenResult = await getCsrfToken()
 
-    const csrfToken = csrfTokenResult.value.csrfToken
+    const csrfToken = csrfTokenResult.csrfToken
     if (!csrfToken) {
       throw createError({ statusCode: 400, statusMessage: 'Could not fetch CSRF Token for signing out' })
     }
 
-    const onRequest = ({ options }) => {
+    const onRequest: FetchOptions['onRequest'] = ({ options }) => {
       options.body = new URLSearchParams({
         csrfToken: csrfToken as string,
-        // The request is executed with `server: false`, so window will always be defined at this point
-        callbackUrl: callbackUrl || window.location.href,
+        callbackUrl: callbackUrl || getUniversalRequestUrl(),
         json: 'true'
       })
     }
@@ -171,35 +201,41 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     return signoutData
   }
 
-  const getCsrfToken = () => _fetch<{ csrfToken: string }>('csrf')
+  const getCsrfToken = () => {
+    let headers = {}
+    const { cookie } = useRequestHeaders(['cookie'])
+    if (cookie) {
+      headers = { cookie }
+    }
+    return _fetch<{ csrfToken: string }>('csrf', { headers })
+  }
+
   const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, 'options'> | undefined>>('providers')
-  const getSession = (getSessionOptions?: GetSessionOptions) => {
+  const getSession = async (getSessionOptions?: GetSessionOptions) => {
+    const nuxt = useNuxtApp()
+
     const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions || {}, {
       required: true,
       callbackUrl: undefined,
-      onUnauthenticated: signIn
+      onUnauthenticated: () => universalRedirect(joinPathToBase(`signin?${new URLSearchParams({ callbackUrl: getSessionOptions?.callbackUrl || '/' })}`), { external: true })
     })
 
-    const onRequest = ({ options }) => {
+    const onRequest: FetchOptions['onRequest'] = ({ options }) => {
       status.value = 'loading'
 
       options.params = {
         ...(options.params || {}),
         // The request is executed with `server: false`, so window will always be defined at this point
-        callbackUrl: callbackUrl || window.location.href
+        callbackUrl: callbackUrl || getUniversalRequestUrl()
       }
     }
 
-    const onResponse = ({ response }) => {
+    const onResponse: FetchOptions['onResponse'] = ({ response }) => {
       const sessionData = response._data
 
       if (!sessionData || Object.keys(sessionData).length === 0) {
         status.value = 'unauthenticated'
         data.value = null
-
-        if (required) {
-          onUnauthenticated()
-        }
       } else {
         status.value = 'authenticated'
         data.value = sessionData
@@ -212,22 +248,35 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       status.value = 'unauthenticated'
     }
 
-    return _fetch<SessionData>('session', {
+    let headers = {}
+    const { cookie } = useRequestHeaders(['cookie'])
+    if (cookie) {
+      headers = { cookie }
+    }
+
+    const result = await _fetch<SessionData>('session', {
       onResponse,
       onRequest,
       onRequestError: onError,
-      onResponseError: onError
+      onResponseError: onError,
+      headers
     })
+
+    if (required && status.value === 'unauthenticated') {
+      // Calling nested, async composables drops the implicit nuxt context, this is not a bug but rather a design-limitation of Vue/Nuxt. In order to avoid this, we use the `callWithNuxt` helper to keep the context. See https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
+      const result = await callWithNuxt(nuxt, onUnauthenticated, [])
+      return result
+    }
+
+    return result
   }
 
-  if (process.client) {
-    const initialGetSessionOptionsWithDefaults = defu(initialGetSessionOptions, {
-      required: true,
-      onUnauthenticated: undefined,
-      callbackUrl: undefined
-    })
-    await getSession(initialGetSessionOptionsWithDefaults)
-  }
+  const initialGetSessionOptionsWithDefaults = defu(initialGetSessionOptions, {
+    required: true,
+    onUnauthenticated: undefined,
+    callbackUrl: undefined
+  })
+  await getSession(initialGetSessionOptionsWithDefaults)
 
   return {
     status,
