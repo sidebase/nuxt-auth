@@ -156,10 +156,11 @@ export default defineNuxtConfig({
   modules: ['@sidebase/nuxt-auth'],
   auth: {
     // The module is enabled. Change this to disable the module
+    // Note: Optional and true by default, don't include this line.
     isEnabled: true,
 
     // The origin is set to the development origin. Change this when deploying to production
-    origin: 'http://localhost:300',
+    origin: 'http://localhost:3000',
 
     // The base path to the authentication endpoints. Change this if you want to add your auth-endpoints at a non-default location
     basePath: '/api/auth'
@@ -205,10 +206,11 @@ The `NuxtAuthHandler` accepts [all options that NextAuth.js accepts for its API 
 ##### Example with two providers
 
 Here's what a full config can look like, wee allow authentication via a:
-- Github Oauth flow,
+- Github Oauth flow
 - a username + password flow (called `CredentialsProvider`)
+- Strapi JWT example with the `CredentialsProvider`
 
-Note that the below implementation of the credentials provider is flawd and mostly copied over from the [NextAuth.js credentials example](https://next-auth.js.org/configuration/providers/credentials) in order to give a picture of how to get started with the credentials provider:
+Note that the below implementation of the credentials provider is flawed and mostly copied over from the [NextAuth.js credentials example](https://next-auth.js.org/configuration/providers/credentials) in order to give a picture of how to get started with the credentials provider:
 ```ts
 // file: ~/server/api/auth/[...].ts
 import CredentialsProvider from 'next-auth/providers/credentials'
@@ -260,7 +262,158 @@ export default NuxtAuthHandler({
 })
 ```
 
-Note that there's way more options inside the `nextAuth.options` object, see [here](https://next-auth.js.org/configuration/options#options) for all available options.
+##### Example with a custom Strapi JWT provider 
+
+Here's what a full config can look like, wee allow authentication via:
+- Strapi v4 JWTs with the `CredentialsProvider`
+
+Note that the below implementation of the credentials provider stores the Strapi JWT in the profile field of the user. The user object will be wrapped inside the session. Sidenote: the session has it's own JWT. Sending the Nuxt-Auth session JWT token as bearer token will not work, you need to pass the token that is originally returned by Strapi to get authorised accessing any auth enabled resources on your Strapi Server.
+
+For development, you can stay with the [Quick Start](#quick-start)-configuration.
+
+There's three places to configure `nuxt-auth` to work with Strapi:
+- `STRAPI_BASE_URL` in `.env`: Add the Strapi environment variable to your .env file.
+- [`runtimeConfig.STRAPI_BASE_URL`-key in `nuxt.config.ts`](#nuxtconfigts): Add the Strapi base url env variable. 
+- [`runtimeConfig.STRAPI_API_TOKEN_SECRET`-key in `nuxt.config.ts`](#nuxtconfigts): Optional: Allows server-to-server/machine-to-machine/headless usage through Strapi API Tokens. 
+- [`auth`-key in `nuxt.config.ts`](#nuxtconfigts): Configure the module itself, e.g., where the auth-endpoints are, what origin the app is deployed to, ...
+- [NuxtAuthHandler](#nuxtauthhandler): Configure the authentication behavior, e.g., what authentication providers to use
+
+
+For a production deployment, you will have to at least set the:
+- `origin` inside the `nuxt.config.ts` config (equivalent to `NEXTAUTH_URL` environment variable),
+- `secret` inside the `NuxtAuthHandler` config (equivalent to `NEXTAUTH_SECRET` environment variable)
+- `STRAPI_BASE_URL` Strapi base URL for all API endpoints by default http://localhost:1337 
+- `STRAPI_API_TOKEN_SECRET` optional, but required for server-to-server and/or headless usage.
+
+In your .env file add the following line:
+```ts
+// Strapi v4 url, out of the box
+ STRAPI_BASE_URL=http://localhost:1337/api
+ STRAPI_API_TOKEN_SECRET=optional
+```
+
+In your `nuxt.config.ts` file, configure it like the following
+```ts
+export default defineNuxtConfig({
+  runtimeConfig: {
+    // The private keys which are only available server-side
+    NUXT_SECRET: process.env.NUXT_SECRET,
+    // Default http://localhost:1337/api
+    STRAPI_BASE_URL: process.env.STRAPI_BASE_URL,
+    // Optional but required for server-to-server ops
+    STRAPI_APITOKEN_SECRET:process.env.STRAPI_APITOKEN_SECRET
+  },
+  auth: {
+    origin: process.env.ORIGIN,
+  },
+});
+
+```
+
+Create the catch-all nitro route and add the this custom Strapi credentials provider.
+```ts
+// file: ~/server/api/auth/[...].ts
+import CredentialsProvider from "next-auth/providers/credentials";
+import { NuxtAuthHandler } from "#auth";
+
+export default NuxtAuthHandler({
+  // secret needed to run nuxt-auth in production mode (used to encrypt data)
+  secret: process.env.NUXT_SECRET,
+  providers: [
+    // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
+    CredentialsProvider.default({
+      name: "Credentials",
+      credentials: {
+        username: { label: "Username", type: "text", placeholder: "Test user" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials: any) {
+        
+        const user = await $fetch(
+          `${process.env.STRAPI_BASE_URL}/auth/local/`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              identifier: credentials.username,
+              password: credentials.password,
+            }),
+          }
+        );
+
+        if (user) {
+          const u = {
+            id: user.user.id,
+            name: user.user.username,
+            email: user.user.email,
+            // Passing OG JWT through the email field.
+            // IMPORTANT: Always pass around encoded JWTs,
+            // don't pass around decoded JWTs.
+            profile: user.jwt
+          };
+          return u;
+        } else {
+          return null;
+        }
+      },
+    }),
+  ],
+  session: {
+    jwt: true,
+  }
+});
+```
+
+###### Passing the headers after authenticating. 
+
+After setting up the authentication flow and when authenticated in the browser.
+We need to supply the cookie headers to Nitro in our fetch calls to access auth protected Strapi resources.
+- Create a useFetch or $fetch request that calls Nitro that includes the session cookie headers.
+- In order to gain access to your protected Strapi endpoints, we need to extract the user object from the session server side in nitro using the getToken function.
+- Finally we add the JWT token stored in the session user object as auth headers for our fetch request to Strapi.
+
+Add the following fetch request in e.g. your admin dashboard section of your Nuxt app.
+
+```ts
+const headers = useRequestHeaders(['cookie'])
+const { data, pending, error, refresh } = await useFetch(`/api/admin/data`, { headers: { cookie: headers.cookie } });
+```
+We're gonna call this admin resource API after authentication next, after we have created it on the next step.
+
+###### Creating a nitro endpoint for authenticated calls. 
+
+1. Add a folder called admin in the `./server/api/` folder for ths example.
+
+2. Inside the admin folder create a new nitro endpoint called `data.get.ts`. Add the following code.
+```ts
+import { getToken, getServerSession } from "#auth";
+
+export default defineEventHandler(async (event) => {
+  const session = await getServerSession(event);
+  if (!session) return { status: "unauthenticated!" };
+
+  const config = useRuntimeConfig();
+  const token = await getToken({ event });
+  const query = await useQuery(event);
+
+  const settings = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      // Ensure that the JWT tokens are encoded, when you are passing it around.
+      Authorization: "Bearer " + token.profile,
+    },
+  };
+
+  const { data } = await $fetch(
+    `${config.STRAPI_BASE_URL}/<protected-strapi-resources>?populate=*`,
+    settings
+  );
+  return data;
+});
+
+```
+
+This is the end of Strapi example section.
 
 ### Application-side usage
 
