@@ -323,13 +323,10 @@ export default NuxtAuthHandler({
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     CredentialsProvider.default({
       name: "Credentials",
-      credentials: {
-        username: { label: "Username", type: "text", placeholder: "Test user" },
-        password: { label: "Password", type: "password" },
-      },
+      credentials: {},
       async authorize(credentials: any) {
         
-        const user = await $fetch(
+        const response = await $fetch(
           `${process.env.STRAPI_BASE_URL}/auth/local/`,
           {
             method: "POST",
@@ -340,15 +337,14 @@ export default NuxtAuthHandler({
           }
         );
 
-        if (user) {
+        if (response.user) {
           const u = {
-            id: user.user.id,
-            name: user.user.username,
-            email: user.user.email,
-            // Passing OG JWT through the email field.
-            // IMPORTANT: Always pass around encoded JWTs,
+            id: response.user.id,
+            name: response.user.username,
+            email: response.user.jwt,
+            // Passing the original JWT token through the email field.
+            // IMPORTANT: Always pass encoded JWTs,
             // don't pass around decoded JWTs.
-            profile: user.jwt
           };
           return u;
         } else {
@@ -358,7 +354,7 @@ export default NuxtAuthHandler({
     }),
   ],
   session: {
-    jwt: true,
+    strategy: 'jwt',
   }
 });
 ```
@@ -400,7 +396,7 @@ export default defineEventHandler(async (event) => {
     headers: {
       "Content-Type": "application/json",
       // Ensure that the JWT tokens are encoded, when you are passing it around.
-      Authorization: "Bearer " + token.profile,
+      Authorization: "Bearer " + token.email,
     },
   };
 
