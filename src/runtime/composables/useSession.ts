@@ -37,7 +37,7 @@ interface SignInOptions extends Record<string, unknown> {
 // Subset from: https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/types.ts#L44-L49
 type SignInAuthorizationParams = Record<string, string>
 
-interface SignOutOptions extends Record<string, unknown> {
+interface SignOutOptions {
   callbackUrl?: string
   redirect?: boolean
 }
