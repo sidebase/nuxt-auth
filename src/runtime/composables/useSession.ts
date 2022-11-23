@@ -23,7 +23,7 @@ type SupportedProviders = LiteralUnion<BuiltInProviderType>
 
 type GetSessionOptions = Partial<UseSessionOptions>
 
-interface SignInOptions {
+interface SignInOptions extends Record<string, unknown> {
   /**
    * Specify to which URL the user will be redirected after signing in. Defaults to the page URL the sign-in is initiated from.
    *
@@ -37,7 +37,7 @@ interface SignInOptions {
 // Subset from: https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/types.ts#L44-L49
 type SignInAuthorizationParams = Record<string, string>
 
-interface SignOutOptions {
+interface SignOutOptions extends Record<string, unknown> {
   callbackUrl?: string
   redirect?: boolean
 }
@@ -103,6 +103,13 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
   const status = useState<SessionStatus>('session:status', () => 'unauthenticated')
 
   // TODO: Stronger typing for `provider`, see https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/index.tsx#L199-L203
+  /**
+   * Trigger a sign in flow for the passed `provider`. If no provider is given the sign in page for all providers will be shown.
+   *
+   * @param provider - Provider to trigger sign in flow for. Leave empty to show page with all providers
+   * @param options - Sign in options, everything you pass here will be passed with the body of the sign-in request. You can use this to include provider-specific data, e.g., the username and password for the `credential` flow
+   * @param authorizationParams - Everything you put in here is passed along as url-parameters in the sign-in request
+   */
   const signIn = async (
     provider?: SupportedProviders,
     options?: SignInOptions,
@@ -170,6 +177,11 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     }
   }
 
+  /**
+   * Sign out the current user.
+   *
+   * @param options - Options for sign out, e.g., to `redirect` the user to a specific page after sign out has completed
+   */
   const signOut = async (options?: SignOutOptions) => {
     const { callbackUrl = getUniversalRequestUrl(), redirect = true } = options ?? {}
     const csrfTokenResult = await getCsrfToken()
@@ -206,6 +218,11 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     return signoutData
   }
 
+  /**
+   * Get the current Cross-Site Request Forgery token.
+   *
+   * You can use this to pass along for certain requests, most of the time you will not need it.
+   */
   const getCsrfToken = () => {
     let headers = {}
     const { cookie } = useRequestHeaders(['cookie'])
@@ -215,7 +232,16 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
     return _fetch<{ csrfToken: string }>('csrf', { headers })
   }
 
+  /**
+   * Get all configured providers from the backend. You can use this method to build your own sign-in page.
+   */
   const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, 'options'> | undefined>>('providers')
+
+  /**
+   * Refresh and get the current session data.
+   *
+   * @param getSessionOptions - Options for getting the session, e.g., set `required: true` to enforce that a session _must_ exist, the user will be directed to a login page otherwise.
+   */
   const getSession = async (getSessionOptions?: GetSessionOptions) => {
     const nuxt = useNuxtApp()
 
