@@ -357,7 +357,7 @@ E.g., here to redirect the user away from the already loaded, protected, page af
 ##### Custom sign-in page
 
 To create a custom sign-in page you will need to:
-1. Create the custom sign-in page: Creating the actual page your user will see
+1. Create the custom sign-in page: Creating the actual page your user will enter their credentials on OR select their oauth provider (e.g., google, azure, ...)
 2. Configure `nuxt-auth` to redirect to the custom sign-in page: If a sign-in is triggered or a session check fails, `nuxt-auth` has to forward you to your custom sign-in page, instead of the `nuxt-auth` builtin sign-in page
 
 ###### Create the custom sign-in page
