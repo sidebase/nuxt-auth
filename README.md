@@ -47,8 +47,8 @@
         status.value // Session status: `unauthenticated`, `loading`, `authenticated`
         data.value // Session data, e.g., expiration, user.email, ...
 
-        await signIn() // Sign in the user
-        await signOut() // Sign out the user
+        await signIn() // Sign-in the user
+        await signOut() // Sign-out the user
         ```
     - server-side (e.g., from `~/server/api/session.get.ts`):
         ```ts
@@ -117,7 +117,9 @@ Below we describe:
 2. [Application-side usage](#application-side-usage)
     - [Session access and manipulation](#session-access-and-manipulation)
         - [Redirects](#redirects)
-        - [Custom sign in page](#custom-sign-in-page)
+        - [Custom sign-in page](#custom-sign-in-page)
+            - [Create the custom sign-in page](#create-the-custom-sign-in-page)
+            - [Configure `nuxt-auth` to redirect to the custom sign-in page](#configure-nuxt-auth-to-redirect-to-the-custom-sign-in-page)
     - [Middleware](#middleware)
         - [Global middleware](#global-middleware)
         - [Named middleware](#named-middleware)
@@ -226,9 +228,9 @@ export default NuxtAuthHandler({
     }),
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     CredentialsProvider.default({
-      // The name to display on the sign in form (e.g. 'Sign in with...')
+      // The name to display on the sign-in form (e.g. 'Sign-in with...')
       name: 'Credentials',
-      // The credentials is used to generate a suitable form on the sign in page.
+      // The credentials is used to generate a suitable form on the sign-in page.
       // You can specify whatever fields you are expecting to be submitted.
       // e.g. domain, username, password, 2FA token, etc.
       // You can pass any HTML attribute to the <input> tag through the object.
@@ -450,22 +452,22 @@ await getCsrfToken()
 // Get the supported providers, e.g., to build your own login page, see https://next-auth.js.org/getting-started/client#getproviders
 await getProviders()
 
-// Trigger a sign in, see https://next-auth.js.org/getting-started/client#signin
+// Trigger a sign-in, see https://next-auth.js.org/getting-started/client#signin
 await signIn()
 
-// Trigger a sign in with a redirect afterwards, see https://next-auth.js.org/getting-started/client#signin
+// Trigger a sign-in with a redirect afterwards, see https://next-auth.js.org/getting-started/client#signin
 await signIn(undefined, { callbackUrl: '/protected' })
 
-// Trigger a sign in via a specific authentication provider with a redirect afterwards, see https://next-auth.js.org/getting-started/client#signin
+// Trigger a sign-in via a specific authentication provider with a redirect afterwards, see https://next-auth.js.org/getting-started/client#signin
 await signIn('github', { callbackUrl: '/protected' })
 
-// Trigger a sign in with username and password already passed, e.g., from your own custom-made sign-in form
+// Trigger a sign-in with username and password already passed, e.g., from your own custom-made sign-in form
 await singIn('credentials', { username: 'jsmith', password: 'hunter2' })
 
-// Trigger a sign out, see https://next-auth.js.org/getting-started/client#signout
+// Trigger a sign-out, see https://next-auth.js.org/getting-started/client#signout
 await signOut()
 
-// Trigger a sign out and send the user to the sign out page afterwards
+// Trigger a sign-out and send the user to the sign-out page afterwards
 await signOut({ calbackUrl: '/signout' })
 ```
 
@@ -501,13 +503,20 @@ await signOut({ callbackUrl: '/protected' })
 
 E.g., here to redirect the user away from the already loaded, protected, page after signout (else, you will have to handle the redirect yourself).
 
-##### Custom sign in page
+##### Custom sign-in page
 
-To create your custom sign-in page you can use `signIn` to directly start a provider-flow once the user selected it, e.g., by clicking on a button on your custom sign-in page. Here is a very simple sign-in page that either directly starts a github-oauth sign in flow or directly signs in the user via the credentials flow:
+To create a custom sign-in page you will need to:
+1. Create the custom sign-in page: Creating the actual page your user will enter their credentials on OR select their oauth provider (e.g., google, azure, ...)
+2. Configure `nuxt-auth` to redirect to the custom sign-in page: If a sign-in is triggered or a session check fails, `nuxt-auth` has to forward you to your custom sign-in page, instead of the `nuxt-auth` builtin sign-in page
+
+###### Create the custom sign-in page
+
+To create your custom sign-in page you can use `signIn` to directly start a provider-flow once the user selected it, e.g., by clicking on a button on your custom sign-in page. Here is a very simple sign-in page that either directly starts a github-oauth sign-in flow or directly signs in the user via the credentials flow:
 ```vue
+<!-- file: ~/pages/login.vue -->
 <template>
   <div>
-    <p>Sign In Options</p>
+    <p>Sign-In Options:</p>
     <button @click="signIn('github')">Github</button>
     <!-- NOTE: Here we hard-coded username and password, on your own page this should probably be connected to two inputs for username + password -->
     <button @click="signIn('credentials', { username: 'test', password: 'hunter2' })">Username and Password</button>
@@ -519,9 +528,33 @@ const { signIn } = await useSession({ required: false })
 </script>
 ```
 
-Note: In the above example `username` and `password` are hard-coded. In your own custom page, these two fields should probably come from inputs on your page.
+Note:
+- In the above example `username` and `password` are hard-coded. In your own custom page, these two fields should probably come from inputs on your page.
+- We set `required: false` in `useSession`, as the user is _not_ expected to have an active session when they are on the custom sign-in page
 
-If you want to create a custom sign-in page that dynamically offers sign-in options based on your configured providers, you can call `getProviders()` first and then iterate over the supported providers to generate your sign in page.
+If you want to create a custom sign-in page that dynamically offers sign-in options based on your configured providers, you can call `getProviders()` first and then iterate over the supported providers to generate your sign-in page.
+
+###### Configure `nuxt-auth` to redirect to the custom sign-in page
+
+Redirects to the sign-in page happen automatically, e.g., when a `getSession()` call fails to get a session or when `signIn()` is called. By default this redirect sends the user to `/api/auth/signin`. To use a custom sign-in page we will have to configure `nuxt-auth` to send the user to the custom sign-in page instead.
+
+We can apply this configuration in the `NuxtAuthHandler`:
+```ts
+// file: ~/server/api/auth/[...].ts
+import { NuxtAuthHandler } from '#auth'
+
+export default NuxtAuthHandler({
+  pages: {
+    // Change the default behavior to use `/login` as the path for the sign-in page
+    signIn: '/login'
+  },
+  providers: [
+    // ... your provider configuration
+  ]
+})
+```
+
+We can also configure the default-location for other pages in the `pages` configuration, see [the NextAuth.js pages docs for more](https://next-auth.js.org/configuration/pages).
 
 #### Middleware
 
