@@ -341,7 +341,7 @@ export default NuxtAuthHandler({
 
         if (response.user) {
           const u = {
-            id: response.user.id,
+            id: response.id,
             name: response.user.username,
             email: response.user.jwt,
             // Passing the original JWT token through the email field.
