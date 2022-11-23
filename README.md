@@ -47,8 +47,8 @@
         status.value // Session status: `unauthenticated`, `loading`, `authenticated`
         data.value // Session data, e.g., expiration, user.email, ...
 
-        await signIn() // Sign in the user
-        await signOut() // Sign out the user
+        await signIn() // Sign-in the user
+        await signOut() // Sign-out the user
         ```
     - server-side (e.g., from `~/server/api/session.get.ts`):
         ```ts
@@ -226,9 +226,9 @@ export default NuxtAuthHandler({
     }),
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     CredentialsProvider.default({
-      // The name to display on the sign in form (e.g. 'Sign in with...')
+      // The name to display on the sign-in form (e.g. 'Sign-in with...')
       name: 'Credentials',
-      // The credentials is used to generate a suitable form on the sign in page.
+      // The credentials is used to generate a suitable form on the sign-in page.
       // You can specify whatever fields you are expecting to be submitted.
       // e.g. domain, username, password, 2FA token, etc.
       // You can pass any HTML attribute to the <input> tag through the object.
@@ -303,22 +303,22 @@ await getCsrfToken()
 // Get the supported providers, e.g., to build your own login page, see https://next-auth.js.org/getting-started/client#getproviders
 await getProviders()
 
-// Trigger a sign in, see https://next-auth.js.org/getting-started/client#signin
+// Trigger a sign-in, see https://next-auth.js.org/getting-started/client#signin
 await signIn()
 
-// Trigger a sign in with a redirect afterwards, see https://next-auth.js.org/getting-started/client#signin
+// Trigger a sign-in with a redirect afterwards, see https://next-auth.js.org/getting-started/client#signin
 await signIn(undefined, { callbackUrl: '/protected' })
 
-// Trigger a sign in via a specific authentication provider with a redirect afterwards, see https://next-auth.js.org/getting-started/client#signin
+// Trigger a sign-in via a specific authentication provider with a redirect afterwards, see https://next-auth.js.org/getting-started/client#signin
 await signIn('github', { callbackUrl: '/protected' })
 
-// Trigger a sign in with username and password already passed, e.g., from your own custom-made sign-in form
+// Trigger a sign-in with username and password already passed, e.g., from your own custom-made sign-in form
 await singIn('credentials', { username: 'jsmith', password: 'hunter2' })
 
-// Trigger a sign out, see https://next-auth.js.org/getting-started/client#signout
+// Trigger a sign-out, see https://next-auth.js.org/getting-started/client#signout
 await signOut()
 
-// Trigger a sign out and send the user to the sign out page afterwards
+// Trigger a sign-out and send the user to the sign-out page afterwards
 await signOut({ calbackUrl: '/signout' })
 ```
 
@@ -358,7 +358,7 @@ E.g., here to redirect the user away from the already loaded, protected, page af
 
 To create a custom sign-in page you will need to:
 1. Create the custom sign-in page: Creating the actual page your user will see
-2. Configure `nuxt-auth` to redirect to the custom sign-in page: If a sign-in is triggered or a session check fails, `nuxt-auth` has to forward you to your custom sign in page, instead of it's builtin sign in page
+2. Configure `nuxt-auth` to redirect to the custom sign-in page: If a sign-in is triggered or a session check fails, `nuxt-auth` has to forward you to your custom sign-in page, instead of the `nuxt-auth` builtin sign-in page
 
 ###### Create the custom sign-in page
 
@@ -367,7 +367,7 @@ To create your custom sign-in page you can use `signIn` to directly start a prov
 <!-- file: ~/pages/login.vue -->
 <template>
   <div>
-    <p>Sign In Options</p>
+    <p>Sign-In Options:</p>
     <button @click="signIn('github')">Github</button>
     <!-- NOTE: Here we hard-coded username and password, on your own page this should probably be connected to two inputs for username + password -->
     <button @click="signIn('credentials', { username: 'test', password: 'hunter2' })">Username and Password</button>
@@ -396,7 +396,7 @@ import { NuxtAuthHandler } from '#auth'
 
 export default NuxtAuthHandler({
   pages: {
-    // Change the default behavior to use `/login` as the path for the sign in page
+    // Change the default behavior to use `/login` as the path for the sign-in page
     signIn: '/login'
   },
   providers: [
