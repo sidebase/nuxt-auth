@@ -111,6 +111,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
     if (event.context.checkSessionOnNonAuthRequest === true) {
       return {
         ...nextRequest,
+        method: 'GET',
         action: 'session'
       }
     }
