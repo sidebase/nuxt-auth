@@ -59,8 +59,13 @@ export default defineNuxtModule<ModuleOptions>({
     const isOriginSet = typeof usedOrigin !== 'undefined'
     if (!isOriginSet) {
       // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
+      const usingHTTPS = (typeof nuxt.options.server.https !== 'object' ? nuxt.options.server.https : false) || Boolean(process.env.HTTPS) || Boolean(process.env.NITRO_HTTPS) || false
+
+      const usedProtocol = usingHTTPS ? 'https' : 'http'
+      const usedHost = nuxt.options.server.host || process.env.HOST || process.env.NITRO_HOST || 'localhost'
       const usedPort = nuxt.options.server.port || process.env.PORT || process.env.NITRO_PORT || 3000
-      usedOrigin = `http://localhost:${usedPort}`
+
+      usedOrigin = `${usedProtocol}://${usedHost}:${usedPort}`
     }
 
     const options = defu(moduleOptions, {
