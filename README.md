@@ -173,8 +173,8 @@ The `origin` and the `basePath` together are equivalent to the `NEXTAUTH_URL` en
 
 One can also influence the `origin` path generation when setting certain environment vars:
 
--   host: `HOST`, `NITRO_HOST` or the nuxt server option `host`
--   port: `PORT`, `NITRO_PORT` or the nuxt server option `port`
+-   host: `HOST`, `NITRO_HOST` or the nuxt server option `host` | default: `localhost`
+-   port: `PORT`, `NITRO_PORT` or the nuxt server option `port` | default: `3000`
 
 ##### origin
 
