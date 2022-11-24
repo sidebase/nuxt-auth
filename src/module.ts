@@ -1,6 +1,7 @@
 import { defineNuxtModule, useLogger, addImportsDir, createResolver, resolveModule, addTemplate } from '@nuxt/kit'
 import defu from 'defu'
 import { joinURL } from 'ufo'
+import getPort, { portNumbers } from 'get-port'
 
 interface ModuleOptions {
   /**
@@ -43,7 +44,7 @@ export default defineNuxtModule<ModuleOptions>({
     configKey: 'auth'
   },
   defaults,
-  setup (moduleOptions, nuxt) {
+  async setup (moduleOptions, nuxt) {
     const logger = useLogger(PACKAGE_NAME)
 
     // 1. Check if module should be enabled at all
@@ -57,9 +58,12 @@ export default defineNuxtModule<ModuleOptions>({
     // 2. Set up runtime configuration
     let usedOrigin = moduleOptions.origin
     const isOriginSet = typeof usedOrigin !== 'undefined'
+    // NOTE: generatedPort - We substract 1 because apparently getPort / get-port itself occupies a port to check if one is available(?)
+    //       Edge case is documented here: https://github.com/sidebase/nuxt-auth/pull/51#issuecomment-1326618298
+    const generatedPort = await getPort({ port: portNumbers(3000, 3100) }) - 1
     if (!isOriginSet) {
       const usedHost = nuxt.options.server.host || process.env.HOST || process.env.NITRO_HOST || 'localhost'
-      const usedPort = nuxt.options.server.port || process.env.PORT || process.env.NITRO_PORT || 3000
+      const usedPort = nuxt.options.server.port || process.env.PORT || process.env.NITRO_PORT || generatedPort
       usedOrigin = `http://${usedHost}:${usedPort}`
     }
 
