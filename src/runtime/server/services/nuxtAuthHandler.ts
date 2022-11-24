@@ -97,7 +97,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
       cookies: parseCookies(event),
       query: undefined,
       headers: event.req.headers,
-      // NextAuth.js will complain if the method is not uppercase
+      // NextAuth.js will complain if the method is not uppercase, fix for #55
       method: event.req.method?.toUpperCase(),
       providerId: undefined,
       error: undefined
