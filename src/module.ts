@@ -59,7 +59,8 @@ export default defineNuxtModule<ModuleOptions>({
     const isOriginSet = typeof usedOrigin !== 'undefined'
     if (!isOriginSet) {
       // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
-      usedOrigin = 'http://localhost:3000'
+      const usedPort = nuxt.options.server.port || process.env.PORT || process.env.NITRO_PORT || 3000
+      usedOrigin = `http://localhost:${usedPort}`
     }
 
     const options = defu(moduleOptions, {
