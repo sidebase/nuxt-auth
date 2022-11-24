@@ -60,7 +60,7 @@ export default defineNuxtModule<ModuleOptions>({
     const isOriginSet = typeof usedOrigin !== 'undefined'
     // NOTE: generatedPort - We substract 1 because apparently getPort / get-port itself occupies a port to check if one is available(?)
     //       Edge case is documented here: https://github.com/sidebase/nuxt-auth/pull/51#issuecomment-1326618298
-    const generatedPort = await getPort({ port: portNumbers(3000, 3100) }) - 1
+    const generatedPort = await getPort({ port: portNumbers(3000, 65535) }) - 1
     if (!isOriginSet) {
       const usedHost = nuxt.options.server.host || process.env.HOST || process.env.NITRO_HOST || 'localhost'
       const usedPort = nuxt.options.server.port || process.env.PORT || process.env.NITRO_PORT || generatedPort
