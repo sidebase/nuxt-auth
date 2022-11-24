@@ -768,7 +768,7 @@ Note: The playground has considerably less polishing than the example page.
 -   Run `npm run dev:prepare` to generate type stubs.
 -   Use `npm run dev` to start [the module playground](./playground) in development mode.
 -   Run `npm run lint` to run eslint
--   Run `npm run type` to run typescheck via tsc
+-   Run `npm run types` to run typescheck via tsc
 -   Run `npm publish --access public` to publish (bump version before)
 
 <!-- Badges -->
