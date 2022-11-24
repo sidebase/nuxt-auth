@@ -23,7 +23,7 @@ const readBodyForNext = async (event: H3Event) => {
   let body: any
   const { method } = event.req
 
-  if (method && ['PATCH', 'POST', 'PUT', 'DELETE'].includes(method)) {
+  if (method && ['PATCH', 'POST', 'PUT', 'DELETE'].includes(method.toUpperCase())) {
     body = await readBody(event)
   }
   return body
@@ -97,7 +97,8 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
       cookies: parseCookies(event),
       query: undefined,
       headers: event.req.headers,
-      method: event.req.method,
+      // NextAuth.js will complain if the method is not uppercase, fix for #55
+      method: event.req.method?.toUpperCase(),
       providerId: undefined,
       error: undefined
     }
@@ -110,6 +111,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
     if (event.context.checkSessionOnNonAuthRequest === true) {
       return {
         ...nextRequest,
+        method: 'GET',
         action: 'session'
       }
     }
