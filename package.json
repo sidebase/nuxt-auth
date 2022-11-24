@@ -29,14 +29,14 @@
     "@nuxt/kit": "^3.0.0-rc.12",
     "defu": "^6.1.0",
     "next-auth": "^4.14.0",
-    "ufo": "^0.8.6"
+    "ufo": "^1.0.0"
   },
   "devDependencies": {
-    "@nuxt/module-builder": "^0.2.0",
-    "@nuxt/schema": "^3.0.0-rc.12",
-    "@nuxtjs/eslint-config-typescript": "^11.0.0",
+    "@nuxt/module-builder": "^0.2.1",
+    "@nuxt/schema": "^3.0.0",
+    "@nuxtjs/eslint-config-typescript": "^12.0.0",
     "eslint": "^8.25.0",
-    "nuxt": "^3.0.0-rc.12",
+    "nuxt": "^3.0.0",
     "ofetch": "^1.0.0"
   }
 }
