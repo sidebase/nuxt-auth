@@ -1,0 +1,3 @@
+---
+redirect: /nuxt-auth/welcome
+---
