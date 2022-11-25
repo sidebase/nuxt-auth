@@ -2,7 +2,7 @@ name: Sync docs
 on:
   push:
     branches:
-      - add-docs
+      - add-docs-workflows
   workflow_dispatch:
 jobs:
   sync:
