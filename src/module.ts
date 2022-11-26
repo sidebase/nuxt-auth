@@ -76,6 +76,7 @@ export default defineNuxtModule<ModuleOptions>({
       logger.info('When building for production ensure to (1) set the application origin using `auth.origin` inside your `nuxt.config.ts` and (2) set the secret inside the `NuxtAuthHandler({ secret: ... })`')
     }
 
+    nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }
     nuxt.options.runtimeConfig.auth = defu(nuxt.options.runtimeConfig.auth, {
       ...options,
       url,
