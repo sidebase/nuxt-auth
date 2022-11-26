@@ -207,10 +207,10 @@ The `NuxtAuthHandler` accepts [all options that NextAuth.js accepts for its API 
 
 ##### Example with two providers
 
-Here's what a full config can look like, wee allow authentication via a:
+Here's what a full config can look like, we allow authentication via:
 - Github Oauth flow
 - a username + password flow (called `CredentialsProvider`)
-- Strapi JWT example with the `CredentialsProvider`
+
 
 Note that the below implementation of the credentials provider is flawed and mostly copied over from the [NextAuth.js credentials example](https://next-auth.js.org/configuration/providers/credentials) in order to give a picture of how to get started with the credentials provider:
 ```ts
@@ -266,10 +266,10 @@ export default NuxtAuthHandler({
 
 ##### Example with a custom Strapi JWT provider 
 
-Here's what a full config can look like, wee allow authentication via:
+Here's what a full config can look like, we allow authentication via:
 - Strapi v4 JWTs with the `CredentialsProvider`
 
-Note that the below implementation of the credentials provider stores the Strapi JWT in the profile field of the user. The user object will be wrapped inside the session. Sidenote: the session has it's own JWT. Sending the Nuxt-Auth session JWT token as bearer token will not work, you need to pass the token that is originally returned by Strapi to get authorised accessing any auth enabled resources on your Strapi Server.
+Note that the below implementation of the credentials provider stores the Strapi JWT in the e-mail field of the user. The user object will be wrapped inside the session. Sidenote: the session has it's own JWT. Sending the Nuxt-Auth session JWT token as bearer token will not work, you need to pass the token that is originally returned by Strapi to get authorised accessing any auth enabled resources on your Strapi Server.
 
 For development, you can stay with the [Quick Start](#quick-start)-configuration.
 
@@ -319,15 +319,15 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { NuxtAuthHandler } from "#auth";
 
 export default NuxtAuthHandler({
-  // secret needed to run nuxt-auth in production mode (used to encrypt data)
   secret: process.env.NUXT_SECRET,
   providers: [
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     CredentialsProvider.default({
       name: "Credentials",
-      credentials: {},
+      credentials: {
+        // Object is required but can be left empty.
+      },
       async authorize(credentials: any) {
-        
         const response = await $fetch(
           `${process.env.STRAPI_BASE_URL}/auth/local/`,
           {
@@ -369,7 +369,7 @@ We need to supply the cookie headers to Nitro in our fetch calls to access auth 
 - In order to gain access to your protected Strapi endpoints, we need to extract the user object from the session server side in nitro using the getToken function.
 - Finally we add the JWT token stored in the session user object as auth headers for our fetch request to Strapi.
 
-Add the following fetch request in e.g. your admin dashboard section of your Nuxt app.
+Add the following fetch request in e.g. your admin dashboard section of your Nuxt application.
 
 ```ts
 const headers = useRequestHeaders(['cookie'])
@@ -391,7 +391,6 @@ export default defineEventHandler(async (event) => {
 
   const config = useRuntimeConfig();
   const token = await getToken({ event });
-  const query = await useQuery(event);
 
   const settings = {
     method: "GET",
@@ -408,10 +407,7 @@ export default defineEventHandler(async (event) => {
   );
   return data;
 });
-
 ```
-
-This is the end of Strapi example section.
 
 ### Application-side usage
 
