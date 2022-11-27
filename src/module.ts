@@ -55,11 +55,13 @@ export default defineNuxtModule<ModuleOptions>({
     logger.info('Setting up auth...')
 
     // 2. Set up runtime configuration
-    let usedOrigin = moduleOptions.origin
-    const isOriginSet = typeof usedOrigin !== 'undefined'
-    if (!isOriginSet) {
+    let usedOrigin
+    const isOriginSet = typeof moduleOptions.origin === 'undefined'
+    if (typeof moduleOptions.origin === 'undefined') {
       // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
       usedOrigin = 'http://localhost:3000'
+    } else {
+      usedOrigin = moduleOptions.origin
     }
 
     const options = defu(moduleOptions, {
@@ -68,12 +70,13 @@ export default defineNuxtModule<ModuleOptions>({
       origin: usedOrigin
     })
 
-    const url = joinURL(options.origin, options.basePath)
+    const url = joinURL(usedOrigin, options.basePath)
     logger.info(`Using \`${url}\` as the auth API location, make sure the \`[...].ts\` file with the \`export default NuxtAuthHandler({ ... })\` is added there. Use the \`nuxt.config.ts\` \`auth.origin\` and \`auth.basePath\` config keys to change the API location`)
     if (process.env.NODE_ENV === 'production') {
       logger.info('When building for production ensure to (1) set the application origin using `auth.origin` inside your `nuxt.config.ts` and (2) set the secret inside the `NuxtAuthHandler({ secret: ... })`')
     }
 
+    nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }
     nuxt.options.runtimeConfig.auth = defu(nuxt.options.runtimeConfig.auth, {
       ...options,
       url,
