@@ -33,7 +33,6 @@ export default NuxtAuthHandler({
           // Any object returned will be saved in `user` property of the JWT
           return user
         } else {
-          // eslint-disable-next-line no-console
           console.error('Warning: Malicious login attempt registered, bad credentials provided')
 
           // If you return null then an error will be displayed advising the user to check their details.
