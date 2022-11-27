@@ -252,10 +252,8 @@ export default NuxtAuthHandler({
         } else {
           // eslint-disable-next-line no-console
           console.error('Warning: Malicious login attempt registered, bad credentials provided')
-
           // If you return null then an error will be displayed advising the user to check their details.
           return null
-
           // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
         }
       }
@@ -280,21 +278,20 @@ There's three places to configure `nuxt-auth` to work with Strapi:
 - [`auth`-key in `nuxt.config.ts`](#nuxtconfigts): Configure the module itself, e.g., where the auth-endpoints are, what origin the app is deployed to, ...
 - [NuxtAuthHandler](#nuxtauthhandler): Configure the authentication behavior, e.g., what authentication providers to use
 
-
 For a production deployment, you will have to at least set the:
 - `origin` inside the `nuxt.config.ts` config (equivalent to `NEXTAUTH_URL` environment variable),
 - `secret` inside the `NuxtAuthHandler` config (equivalent to `NEXTAUTH_SECRET` environment variable)
 - `STRAPI_BASE_URL` Strapi base URL for all API endpoints by default http://localhost:1337 
 - `STRAPI_API_TOKEN_SECRET` optional, but required for server-to-server and/or headless usage.
 
-In your .env file add the following line:
+1. In your .env file add the following lines:
 ```ts
 // Strapi v4 url, out of the box
  STRAPI_BASE_URL=http://localhost:1337/api
  STRAPI_API_TOKEN_SECRET=optional
 ```
 
-In your `nuxt.config.ts` file, configure it like the following
+2. In your `nuxt.config.ts` file, configure it like the following
 ```ts
 export default defineNuxtConfig({
   runtimeConfig: {
@@ -312,7 +309,7 @@ export default defineNuxtConfig({
 
 ```
 
-Create the catch-all nitro route and add the this custom Strapi credentials provider.
+3. Create the catch-all nitro route and add the this custom Strapi credentials provider.
 ```ts
 // file: ~/server/api/auth/[...].ts
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -354,34 +351,124 @@ export default NuxtAuthHandler({
         }
       },
     }),
-  ],
-  session: {
-    strategy: 'jwt',
-  }
+  ]
 });
 ```
 
-###### Passing the headers after authenticating 
+###### Passing the headers after authenticating on a protected page
 
-After setting up the authentication flow and when authenticated in the browser.
+After setting up the authentication flow and when authenticated in the browser through logging in succesfully.
 We need to supply the cookie headers to Nitro in our fetch calls to access auth protected Strapi resources.
-- Create a useFetch or $fetch request that calls Nitro that includes the session cookie headers.
-- In order to gain access to your protected Strapi endpoints, we need to extract the user object from the session server side in nitro using the getToken function.
-- Finally we add the JWT token stored in the session user object as auth headers for our fetch request to Strapi.
 
-Add the following fetch request in e.g. your admin dashboard section of your Nuxt application.
+1. Create a new folder in your `pages` folder and name it `dashboard`. 
+2. In the `dashboard` folder create a file called `index.vue`, this will be our entry-point into the `dashboard` area of our Nuxt application.
+3. Copy the following code into your empty `index.vue` file inside the `dashboard` folder.
 
 ```ts
+<script setup lang="ts">
+import { useSession } from '#imports'
+const { signOut } = await useSession({ required: true })
+
+const headers = useRequestHeaders(['cookie'])
+const { data, pending, error, refresh } = await useFetch(`/api/admin/data`, { headers: { cookie: headers.cookie } });
+</script>
+
+<template>
+  <section>
+    <div class="w-full text-white bg-main-color">
+      <div
+        class="flex flex-col max-w-screen-xl px-4 mx-auto md:items-center md:justify-between md:flex-row md:px-6 lg:px-8"
+      >
+        <div class="p-4 flex flex-row items-center justify-between">
+          <NuxtLink
+            to="/dashboard/"
+            class="text-lg font-semibold tracking-widest uppercase rounded-lg focus:outline-none focus:shadow-outline hover:text-orange-600"
+          >
+            example dashboard
+          </NuxtLink>
+        </div>
+        <nav
+          class="flex-col flex-grow pb-4 md:pb-0 hidden md:flex md:justify-end md:flex-row"
+        >
+          <ul class="flex justify-evenly my-auto">
+            <li class="my-auto mr-6">Link</li>
+            <li class="my-auto mr-6">Link</li>
+            <li>
+              <button
+                @click="signOut"
+                class="px-2 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded-xl"
+              >
+                Sign Out
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="container mx-auto my-5 p-5">
+      <div class="md:flex no-wrap md:-mx-2">
+        <div class="w-full md:w-3/12 md:mx-2">
+          <div class="bg-white rounded-b-xl p-3 border-t-4 border-green-400">
+            <h2 class="text-gray-900 font-bold text-xl leading-8 my-1">
+              Welcome
+            </h2>
+            <p class="text-gray-700 py-4">
+              This is your protected dashboard area.
+            </p>
+          </div>
+        </div>
+
+        <div class="w-full md:w-9/12 mx-2 h-64">
+          <div class="bg-white p-3 shadow-sm rounded-xl">
+            <div
+              class="flex items-center space-x-2 font-semibold text-gray-900 leading-8"
+            >
+              <span class="tracking-wide">Protected Resource</span>
+            </div>
+
+            <div class="text-gray-700">
+              <div class="grid md:grid-cols-1 text-sm mt-4">
+                <div class="grid grid-cols-2">
+                  <div class="px-4 py-2 font-semibold">Data</div>
+                  <div class="px-4 py-2">{{ data }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex">
+              <button
+                class="block w-full text-blue-800 text-sm font-semibold rounded-lg hover:bg-gray-100 focus:outline-none focus:shadow-outline focus:bg-gray-100 hover:shadow-xs p-3 my-4"
+              >
+                Refresh data
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+```
+For this example we won't focussing on the design of the page but we will be focussing on how to access restricted Strapi resources through that page.
+
+Within the `<script setup>` section of the above code, take notice of the following lines.
+```ts
+// In this section of the Nuxt 3 application we need the session to be required, so we've set the required field to true.
+const { signOut } = await useSession({ required: true })
+
+// We need to take the existing headers from the current session and pass them on to the admin endpoint we are creating.
 const headers = useRequestHeaders(['cookie'])
 const { data, pending, error, refresh } = await useFetch(`/api/admin/data`, { headers: { cookie: headers.cookie } });
 ```
-We're gonna call this admin resource API after authentication next, after we have created it on the next step.
+
+We're going to call this admin API endpoint, but first we have to create the endpoint in Nitro.
 
 ###### Creating a nitro endpoint for authenticated calls
 
-1. Add a folder called admin in the `./server/api/` folder for ths example.
+1. To create the `admin` endpoint, add a folder called admin in the `./server/api/`.
 
-2. Inside the admin folder create a new nitro endpoint called `data.get.ts`. Add the following code.
+2. Inside the admin folder create a new Nitro endpoint called `data.get.ts`. Add the following code.
 ```ts
 import { getToken, getServerSession } from "#auth";
 
@@ -396,8 +483,8 @@ export default defineEventHandler(async (event) => {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      // Ensure that the JWT tokens are encoded, when you are passing it around.
-      Authorization: "Bearer " + token.email,
+      // Ensure that the JWT tokens are encoded when you are passing them around.
+      Authorization: `Bearer ${token.email}`,
     },
   };
 
