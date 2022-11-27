@@ -361,7 +361,7 @@ export default NuxtAuthHandler({
 });
 ```
 
-###### Passing the headers after authenticating. 
+###### Passing the headers after authenticating 
 
 After setting up the authentication flow and when authenticated in the browser.
 We need to supply the cookie headers to Nitro in our fetch calls to access auth protected Strapi resources.
@@ -377,7 +377,7 @@ const { data, pending, error, refresh } = await useFetch(`/api/admin/data`, { he
 ```
 We're gonna call this admin resource API after authentication next, after we have created it on the next step.
 
-###### Creating a nitro endpoint for authenticated calls. 
+###### Creating a nitro endpoint for authenticated calls
 
 1. Add a folder called admin in the `./server/api/` folder for ths example.
 
