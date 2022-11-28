@@ -3,6 +3,6 @@ sidebase/nuxt-auth:
   - docs/public
 sidebase/docs:
   - source: docs/content/
-    dest: content/nuxt-auth/
+    dest: content/1.nuxt-auth/
   - source: docs/public/
     dest: public/
