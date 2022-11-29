@@ -269,8 +269,8 @@ Note: The above credential-provider example is taken over in part from the [Next
 This section gives an example of how the `NuxtAuthHandler` can be configured to use Strapi JWTs for authentication via the `CredentialsProvider` provider.
 
 You have to configure the following places to make `nuxt-auth` work with Strapi:
-- `STRAPI_BASE_URL` in `.env`: Add the Strapi environment variable to your .env file.
-- [`runtimeConfig.STRAPI_BASE_URL`-key in `nuxt.config.ts`](#nuxtconfigts): Add the Strapi base url env variable to the runtime config. 
+- `STRAPI_BASE_URL` in `.env`: Add the Strapi environment variable to your .env file
+- [`runtimeConfig.STRAPI_BASE_URL`-key in `nuxt.config.ts`](#nuxtconfigts): Add the Strapi base url env variable to the runtime config
 - [`auth`-key in `nuxt.config.ts`](#nuxtconfigts): Configure the module itself, e.g., where the auth-endpoints are, what origin the app is deployed to, ...
 - [NuxtAuthHandler](#nuxtauthhandler): Configure the authentication behavior, e.g., what authentication providers to use
 
