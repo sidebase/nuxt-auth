@@ -278,7 +278,7 @@ For a production deployment, you will have to at least set the:
 - `STRAPI_BASE_URL` Strapi base URL for all API endpoints by default http://localhost:1337
 
 1. Create a `.env` file with the following lines:
-```ts
+```env
 // Strapi v4 url, out of the box
  STRAPI_BASE_URL=http://localhost:1337/api
 ```
