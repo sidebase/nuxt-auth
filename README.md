@@ -285,7 +285,7 @@ For a production deployment, you will have to at least set the:
  STRAPI_BASE_URL=http://localhost:1337/api
 ```
 
-2.  Set the following options in your `nuxt.config.ts`:
+2. Set the following options in your `nuxt.config.ts`:
 ```ts
 export default defineNuxtConfig({
   runtimeConfig: {
