@@ -263,7 +263,7 @@ export default NuxtAuthHandler({
 
 ##### Example with a custom Strapi JWT provider 
 
-Here's what a full config can look like, we allow authentication via Strapi with the `CredentialsProvider`
+This section gives an example of how the `NuxtAuthHandler` can be configured to use Strapi JWTs for authentication via the `CredentialsProvider` provider.
 
 Ther are five places to configure `nuxt-auth` to work with Strapi:
 - `STRAPI_BASE_URL` in `.env`: Add the Strapi environment variable to your .env file.
@@ -291,8 +291,6 @@ export default defineNuxtConfig({
     NUXT_SECRET: process.env.NUXT_SECRET,
     // Default http://localhost:1337/api
     STRAPI_BASE_URL: process.env.STRAPI_BASE_URL,
-    // Optional but required for server-to-server ops
-    STRAPI_APITOKEN_SECRET:process.env.STRAPI_APITOKEN_SECRET
   },
   auth: {
     origin: process.env.ORIGIN,
@@ -330,7 +328,7 @@ export default NuxtAuthHandler({
           const u = {
             id: response.id,
             name: response.user.username,
-            email: response.user.jwt,
+            email: response.user.email,
           };
           return u;
         } else {
