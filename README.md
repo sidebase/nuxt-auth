@@ -260,7 +260,7 @@ export default NuxtAuthHandler({
 })
 ```
 
-Note that there's way more options inside the `nextAuth.options` object, see [here](https://next-auth.js.org/configuration/options#options) for all available options.
+Note: There's more possible options for the `nextAuth.options` object, see [here](https://next-auth.js.org/configuration/options#options) for all available options.
 
 Note: The above credential-provider example is taken over in part from the [NextAuth.js credentials example](https://next-auth.js.org/configuration/providers/credentials). It is _not_ considered safe for production usage and you would need to adapt it further, e.g., by calling another service that provides authentication, such as [strapi](#example-with-a-custom-strapi-jwt-provider)
 
