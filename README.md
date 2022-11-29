@@ -211,8 +211,6 @@ Here's what a full config can look like, we allow authentication via:
 - a Github Oauth flow
 - a username + password flow (called `CredentialsProvider`)
 
-
-Note that the below implementation of the credentials provider is flawed and mostly copied over from the [NextAuth.js credentials example](https://next-auth.js.org/configuration/providers/credentials) in order to give a picture of how to get started with the credentials provider:
 ```ts
 // file: ~/server/api/auth/[...].ts
 import CredentialsProvider from 'next-auth/providers/credentials'
@@ -262,31 +260,30 @@ export default NuxtAuthHandler({
 })
 ```
 
+Note that there's way more options inside the `nextAuth.options` object, see [here](https://next-auth.js.org/configuration/options#options) for all available options.
+
 Note: The above credential-provider example is taken over in part from the [NextAuth.js credentials example](https://next-auth.js.org/configuration/providers/credentials). It is _not_ considered safe for production usage and you would need to adapt it further, e.g., by calling another service that provides authentication, such as [strapi](#example-with-a-custom-strapi-jwt-provider)
 
 ##### Example with a custom Strapi JWT provider 
 
 This section gives an example of how the `NuxtAuthHandler` can be configured to use Strapi JWTs for authentication via the `CredentialsProvider` provider.
 
-Ther are five places to configure `nuxt-auth` to work with Strapi:
+You have to configure the following places to make `nuxt-auth` work with Strapi:
 - `STRAPI_BASE_URL` in `.env`: Add the Strapi environment variable to your .env file.
-- [`runtimeConfig.STRAPI_BASE_URL`-key in `nuxt.config.ts`](#nuxtconfigts): Add the Strapi base url env variable. 
-- [`runtimeConfig.STRAPI_API_TOKEN_SECRET`-key in `nuxt.config.ts`](#nuxtconfigts): Optional: Allows server-to-server/machine-to-machine/headless usage through Strapi API Tokens. 
+- [`runtimeConfig.STRAPI_BASE_URL`-key in `nuxt.config.ts`](#nuxtconfigts): Add the Strapi base url env variable to the runtime config. 
 - [`auth`-key in `nuxt.config.ts`](#nuxtconfigts): Configure the module itself, e.g., where the auth-endpoints are, what origin the app is deployed to, ...
 - [NuxtAuthHandler](#nuxtauthhandler): Configure the authentication behavior, e.g., what authentication providers to use
 
 For a production deployment, you will have to at least set the:
-- `STRAPI_BASE_URL` Strapi base URL for all API endpoints by default http://localhost:1337 
-- `STRAPI_API_TOKEN_SECRET` optional, but required for server-to-server and/or headless usage.
+- `STRAPI_BASE_URL` Strapi base URL for all API endpoints by default http://localhost:1337
 
-1. In your .env file add the following lines:
+1. Create a `.env` file with the following lines:
 ```ts
 // Strapi v4 url, out of the box
  STRAPI_BASE_URL=http://localhost:1337/api
- STRAPI_API_TOKEN_SECRET=optional
 ```
 
-2. In your `nuxt.config.ts` file, configure it like the following
+2.  Set the following options in your `nuxt.config.ts`:
 ```ts
 export default defineNuxtConfig({
   runtimeConfig: {
@@ -299,18 +296,16 @@ export default defineNuxtConfig({
     origin: process.env.ORIGIN,
   },
 });
-
 ```
 
-3. Create the catch-all nitro route and add the this custom Strapi credentials provider.
+3. Create the catch-all `NuxtAuthHandler` and add the this custom Strapi credentials provider:
 ```ts
 // file: ~/server/api/auth/[...].ts
 import CredentialsProvider from "next-auth/providers/credentials";
 import { NuxtAuthHandler } from "#auth";
-const config = useRuntimeConfig()
 
 export default NuxtAuthHandler({
-  secret: config.NUXT_SECRET,
+  secret: process.env.NUXT_SECRET,
   providers: [
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     CredentialsProvider.default({
@@ -318,7 +313,7 @@ export default NuxtAuthHandler({
       credentials: {},  // Object is required but can be left empty.
       async authorize(credentials: any) {
         const response = await $fetch(
-          `${config.STRAPI_BASE_URL}/auth/local/`,
+          `${process.env.STRAPI_BASE_URL}/auth/local/`,
           {
             method: "POST",
             body: JSON.stringify({
