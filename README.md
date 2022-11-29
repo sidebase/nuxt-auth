@@ -114,6 +114,7 @@ Below we describe:
         - [basePath](#basepath)
     - [NuxtAuthHandler](#nuxtauthhandler)
         - [Example with two providers](#example-with-two-providers)
+        - [Example with a custom Strapi JWT provider](#example-with-a-custom-strapi-jwt-provider)
 2. [Application-side usage](#application-side-usage)
     - [Session access and manipulation](#session-access-and-manipulation)
         - [Redirects](#redirects)
@@ -261,6 +262,8 @@ export default NuxtAuthHandler({
 })
 ```
 
+Note: The above credential-provider example is taken over in part from the [NextAuth.js credentials example](https://next-auth.js.org/configuration/providers/credentials). It is _not_ considered safe for production usage and you would need to adapt it further, e.g., by calling another service that provides authentication, such as [strapi](#example-with-a-custom-strapi-jwt-provider)
+
 ##### Example with a custom Strapi JWT provider 
 
 This section gives an example of how the `NuxtAuthHandler` can be configured to use Strapi JWTs for authentication via the `CredentialsProvider` provider.
@@ -304,9 +307,10 @@ export default defineNuxtConfig({
 // file: ~/server/api/auth/[...].ts
 import CredentialsProvider from "next-auth/providers/credentials";
 import { NuxtAuthHandler } from "#auth";
+const config = useRuntimeConfig()
 
 export default NuxtAuthHandler({
-  secret: process.env.NUXT_SECRET,
+  secret: config.NUXT_SECRET,
   providers: [
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     CredentialsProvider.default({
@@ -314,7 +318,7 @@ export default NuxtAuthHandler({
       credentials: {},  // Object is required but can be left empty.
       async authorize(credentials: any) {
         const response = await $fetch(
-          `${process.env.STRAPI_BASE_URL}/auth/local/`,
+          `${config.STRAPI_BASE_URL}/auth/local/`,
           {
             method: "POST",
             body: JSON.stringify({
@@ -332,7 +336,6 @@ export default NuxtAuthHandler({
           };
           return u;
         } else {
-          // If you return null then an error will be displayed advising the user to check their details.
           return null
         }
       },
@@ -340,9 +343,6 @@ export default NuxtAuthHandler({
   ]
 });
 ```
-
-Note: The above credential-provider example is taken over in part from the [NextAuth.js credentials example](https://next-auth.js.org/configuration/providers/credentials). It is _not_ considered safe for production usage and you would need to adapt it further, e.g., by calling another service that provides authentication, such as [strapi](#example-with-a-custom-strapi-jwt-provider)
-
 
 ### Application-side usage
 
