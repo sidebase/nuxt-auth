@@ -277,9 +277,11 @@ You have to configure the following places to make `nuxt-auth` work with Strapi:
 For a production deployment, you will have to at least set the:
 - `STRAPI_BASE_URL` Strapi base URL for all API endpoints by default http://localhost:1337
 
-1. Create a `.env` file with the following lines:
+1. Create a `.env` file with atleast the following line:
 ```ts
 // Strapi v4 url, out of the box
+ ORIGIN=http://localhost:3000
+ NUXT_SECRET=a-not-so-good-secret
  STRAPI_BASE_URL=http://localhost:1337/api
 ```
 
@@ -303,9 +305,10 @@ export default defineNuxtConfig({
 // file: ~/server/api/auth/[...].ts
 import CredentialsProvider from "next-auth/providers/credentials";
 import { NuxtAuthHandler } from "#auth";
+const config = useRuntimeConfig()
 
 export default NuxtAuthHandler({
-  secret: process.env.NUXT_SECRET,
+  secret: config.NUXT_SECRET,
   providers: [
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
     CredentialsProvider.default({
@@ -313,7 +316,7 @@ export default NuxtAuthHandler({
       credentials: {},  // Object is required but can be left empty.
       async authorize(credentials: any) {
         const response = await $fetch(
-          `${process.env.STRAPI_BASE_URL}/auth/local/`,
+          `${config.STRAPI_BASE_URL}/auth/local/`,
           {
             method: "POST",
             body: JSON.stringify({
