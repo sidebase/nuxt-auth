@@ -208,7 +208,7 @@ The `NuxtAuthHandler` accepts [all options that NextAuth.js accepts for its API 
 ##### Example with two providers
 
 Here's what a full config can look like, we allow authentication via:
-- Github Oauth flow
+- a Github Oauth flow
 - a username + password flow (called `CredentialsProvider`)
 
 
