@@ -90,7 +90,7 @@ const _fetch = async <T>(path: string, { body, params, method, headers, onRespon
     return res
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('Error in useSession data fetching: Have you added the authentication handler server-endpoint `[...].ts`? Have you added the authentication hadnler in a non-default location (default is `~/server/api/auth/[...].ts`) and not updated the module-setting `auth.basePath`? Error is:')
+    console.error('Error in useSession data fetching: Have you added the authentication handler server-endpoint `[...].ts`? Have you added the authentication handler in a non-default location (default is `~/server/api/auth/[...].ts`) and not updated the module-setting `auth.basePath`? Error is:')
     // eslint-disable-next-line no-console
     console.error(error)
 
