@@ -1,1 +1,0 @@
-Nuxt-auth media test file
