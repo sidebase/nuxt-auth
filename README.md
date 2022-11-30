@@ -114,6 +114,7 @@ Below we describe:
         - [basePath](#basepath)
     - [NuxtAuthHandler](#nuxtauthhandler)
         - [Example with two providers](#example-with-two-providers)
+        - [Example with a custom Strapi JWT provider](#example-with-a-custom-strapi-jwt-provider)
 2. [Application-side usage](#application-side-usage)
     - [Session access and manipulation](#session-access-and-manipulation)
         - [Redirects](#redirects)
@@ -206,11 +207,10 @@ The `NuxtAuthHandler` accepts [all options that NextAuth.js accepts for its API 
 
 ##### Example with two providers
 
-Here's what a full config can look like, wee allow authentication via a:
-- Github Oauth flow,
+Here's what a full config can look like, we allow authentication via:
+- a Github Oauth flow
 - a username + password flow (called `CredentialsProvider`)
 
-Note that the below implementation of the credentials provider is flawd and mostly copied over from the [NextAuth.js credentials example](https://next-auth.js.org/configuration/providers/credentials) in order to give a picture of how to get started with the credentials provider:
 ```ts
 // file: ~/server/api/auth/[...].ts
 import CredentialsProvider from 'next-auth/providers/credentials'
@@ -250,10 +250,8 @@ export default NuxtAuthHandler({
         } else {
           // eslint-disable-next-line no-console
           console.error('Warning: Malicious login attempt registered, bad credentials provided')
-
           // If you return null then an error will be displayed advising the user to check their details.
           return null
-
           // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
         }
       }
@@ -262,7 +260,87 @@ export default NuxtAuthHandler({
 })
 ```
 
-Note that there's way more options inside the `nextAuth.options` object, see [here](https://next-auth.js.org/configuration/options#options) for all available options.
+Note: There's more possible options for the `nextAuth.options` object, see [here](https://next-auth.js.org/configuration/options#options) for all available options.
+
+Note: The above credential-provider example is taken over in part from the [NextAuth.js credentials example](https://next-auth.js.org/configuration/providers/credentials). It is _not_ considered safe for production usage and you would need to adapt it further, e.g., by calling another service that provides authentication, such as [strapi](#example-with-a-custom-strapi-jwt-provider)
+
+##### Example with a custom Strapi JWT provider 
+
+This section gives an example of how the `NuxtAuthHandler` can be configured to use Strapi JWTs for authentication via the `CredentialsProvider` provider.
+
+You have to configure the following places to make `nuxt-auth` work with Strapi:
+- `STRAPI_BASE_URL` in `.env`: Add the Strapi environment variable to your .env file
+- [`runtimeConfig.STRAPI_BASE_URL`-key in `nuxt.config.ts`](#nuxtconfigts): Add the Strapi base url env variable to the runtime config
+- [`auth`-key in `nuxt.config.ts`](#nuxtconfigts): Configure the module itself, e.g., where the auth-endpoints are, what origin the app is deployed to, ...
+- [NuxtAuthHandler](#nuxtauthhandler): Configure the authentication behavior, e.g., what authentication providers to use
+
+For a production deployment, you will have to at least set the:
+- `STRAPI_BASE_URL` Strapi base URL for all API endpoints by default http://localhost:1337
+
+1. Create a `.env` file with the following lines:
+```env
+// Strapi v4 url, out of the box
+ ORIGIN=http://localhost:3000
+ NUXT_SECRET=a-not-so-good-secret
+ STRAPI_BASE_URL=http://localhost:1337/api
+```
+
+2. Set the following options in your `nuxt.config.ts`:
+```ts
+export default defineNuxtConfig({
+  runtimeConfig: {
+    // The private keys which are only available server-side
+    NUXT_SECRET: process.env.NUXT_SECRET,
+    // Default http://localhost:1337/api
+    STRAPI_BASE_URL: process.env.STRAPI_BASE_URL,
+  },
+  auth: {
+    origin: process.env.ORIGIN,
+  },
+});
+```
+
+3. Create the catch-all `NuxtAuthHandler` and add the this custom Strapi credentials provider:
+```ts
+// file: ~/server/api/auth/[...].ts
+import CredentialsProvider from "next-auth/providers/credentials";
+import { NuxtAuthHandler } from "#auth";
+const config = useRuntimeConfig()
+
+export default NuxtAuthHandler({
+  secret: config.NUXT_SECRET,
+  providers: [
+    // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
+    CredentialsProvider.default({
+      name: "Credentials",
+      credentials: {},  // Object is required but can be left empty.
+      async authorize(credentials: any) {
+        const response = await $fetch(
+          `${config.STRAPI_BASE_URL}/auth/local/`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              identifier: credentials.username,
+              password: credentials.password,
+            }),
+          }
+        );
+
+        if (response.user) {
+          const u = {
+            id: response.id,
+            name: response.user.username,
+            email: response.user.email,
+          };
+          return u;
+        } else {
+          return null
+        }
+      },
+    }),
+  ]
+});
+```
 
 ### Application-side usage
 
