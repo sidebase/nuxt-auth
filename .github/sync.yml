@@ -1,0 +1,8 @@
+sidebase/nuxt-auth:
+  - docs/content
+  - docs/public
+sidebase/docs:
+  - source: docs/content/
+    dest: content/2.nuxt-auth/
+  - source: docs/public/
+    dest: public/
