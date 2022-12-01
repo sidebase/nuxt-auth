@@ -19,6 +19,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       getSession()
     }
   }
+
   nuxtApp.hook('app:mounted', () => {
     document.addEventListener('visibilitychange', visibilityHandler, false)
   })

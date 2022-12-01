@@ -84,14 +84,19 @@ There's more supported methods in the `useSession` composable, you can create [u
     - ✔️ OAuth (e.g., Github, Google, Twitter, Azure, ...)
     - ✔️ Custom OAuth (write it yourself)
     - ✔️ Credentials (password + username)
-    - 🚧 Email Magic URLs
+    - ✔️ Email Magic URLs
 - ✔️ Isomorphic / Universal Auth Composable `useSession` supports:
     - actions: `getSession`, `getCsrfToken`, `getProviders`, `signIn`, `signOut`
     - getters: `status`, `data`, `lastRefreshedAt`
     - full typescript support for all methods and property
-- ✔️ Persistent sessions across requests
 - ✔️ Application-side middleware protection
 - ✔️ Server-side middleware and endpoint protection
+- ✔️ Advanced features for session life-cycle management:
+    - Refresh the session periodically
+    - Refresh the session on tab-refocus
+    - One time session fetch on page load, afterwards for specific actions (e.g., on navigation)
+    - 🚧 Session broadcasting between tabs (see #70)
+- ✔️ Persistent sessions across requests
 - ✔️ REST API:
     - `GET /signin`,
     - `POST /signin/:provider`,

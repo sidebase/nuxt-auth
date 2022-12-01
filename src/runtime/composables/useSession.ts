@@ -200,8 +200,7 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
 
   if (required && status.value === 'unauthenticated') {
     // Calling nested, async composables drops the implicit nuxt context, this is not a bug but rather a design-limitation of Vue/Nuxt. In order to avoid this, we use the `callWithNuxt` helper to keep the context. See https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
-    const result = await callWithNuxt(nuxt, onUnauthenticated, [])
-    return result
+    return callWithNuxt(nuxt, onUnauthenticated, [])
   }
 
   return result
