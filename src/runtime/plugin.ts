@@ -9,7 +9,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const { data, lastRefreshedAt } = useSessionState()
   const { getSession } = useSession()
 
-  await getSession()
+  // Only fetch session if it was not yet initialized server-side
+  if (typeof data.value === 'undefined') {
+    await getSession()
+  }
 
   // Listen for when the page is visible, if the user switches tabs
   // and makes our tab visible again, re-fetch the session, but only if
