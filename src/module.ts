@@ -1,4 +1,4 @@
-import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate, addPlugin } from '@nuxt/kit'
+import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate, addPlugin, extendViteConfig } from '@nuxt/kit'
 import defu from 'defu'
 import { joinURL } from 'ufo'
 
@@ -85,7 +85,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 2. Set up runtime configuration
     const isOriginSet = Boolean(moduleOptions.origin)
-    // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
+    // TODO: see if we can figure out localhost + port dynamically from the nuxt instance _for dev mode only_
     const usedOrigin = moduleOptions.origin ?? 'http://localhost:3000'
 
     const options = defu(moduleOptions, {
@@ -146,6 +146,14 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 6. Add plugin for initial load
     addPlugin(resolve('./runtime/plugin'))
+
+    // 7. Setup next-auth env-variables just to be safe, see https://github.com/nextauthjs/next-auth/blob/6280fe9e10bd123aeab576398d1e807a5ac37edc/apps/playground-nuxt/src/module.ts#L32-L38
+    extendViteConfig((config) => {
+      config.define = config.define || {}
+      config.define['process.env.NEXTAUTH_URL'] = JSON.stringify(url)
+      config.define['process.env.NEXTAUTH_URL_INTERNAL'] = JSON.stringify(url)
+      config.define['process.env.VERCEL_URL'] = JSON.stringify(process.env.VERCEL_URL)
+    })
 
     logger.success('`nuxt-auth` setup done')
   }
