@@ -1,7 +1,7 @@
 import { defineNuxtRouteMiddleware } from '#app'
 import useSession from '../composables/useSession'
 
-export default defineNuxtRouteMiddleware(async (to) => {
+export default defineNuxtRouteMiddleware((to) => {
   if (to.meta.auth === false) {
     return
   }
@@ -11,5 +11,5 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return
   }
 
-  await signIn(undefined, { callbackUrl: to.path }, { error: 'SessionRequired' })
+  return signIn(undefined, { callbackUrl: to.path }, { error: 'SessionRequired' })
 })

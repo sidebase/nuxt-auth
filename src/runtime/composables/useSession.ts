@@ -254,7 +254,7 @@ export default () => {
   }
 
   const getters = {
-    status: readonly(status),
+    status,
     data: readonly(data),
     lastRefreshedAt: readonly(lastRefreshedAt)
   }
