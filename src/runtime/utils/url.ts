@@ -1,12 +1,13 @@
-import { joinURL, parseURL } from 'ufo'
+import { joinURL } from 'ufo'
 import _getURL from 'requrl'
 import { useRequestEvent } from '#app'
 import { useRuntimeConfig, navigateTo as _navigateTo } from '#imports'
 
-const _getBasePath = () => parseURL(useRuntimeConfig().public.auth.url).pathname
-export const joinPathToBase = (path: string) => joinURL(_getBasePath(), path)
+const getApiURL = () => joinURL(getRequestURL(false), useRuntimeConfig().public.auth.basePath)
 
-export const getRequestUrl = (includePath = true) => _getURL(useRequestEvent()?.node.req, includePath)
+export const getRequestURL = (includePath = true) => _getURL(useRequestEvent()?.node.req, includePath)
+export const joinPathToApiURL = (path: string) => joinURL(getApiURL(), path)
+
 export const navigateTo = (href: string, { external } = { external: true }) => {
   if (process.client) {
     window.location.href = href

@@ -2,7 +2,7 @@ import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
 import defu from 'defu'
 import { callWithNuxt } from '#app'
 import { readonly } from 'vue'
-import { joinPathToBase, navigateTo, getRequestUrl } from '../utils/url'
+import { navigateTo, getRequestURL, joinPathToApiURL } from '../utils/url'
 import { _fetch } from '../utils/fetch'
 import { isNonEmptyObject } from '../utils/checkSessionResult'
 import useSessionState, { SessionData } from './useSessionState'
@@ -69,22 +69,22 @@ const signIn = async (
   options?: SignInOptions,
   authorizationParams?: SignInAuthorizationParams
 ) => {
-  // Workaround to make nested composable calls possible (`useRuntimeConfig` is called by `joinPathToBase`), see https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
+  // Workaround to make nested composable calls possible (`useRuntimeConfig` is called by `joinPathToApiURL`), see https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
   const nuxt = useNuxtApp()
-  const joinPathToBaseWithNuxt = (path: string) => callWithNuxt(nuxt, joinPathToBase, [path])
+  const joinPathToApiURLWithNuxt = (path: string) => callWithNuxt(nuxt, joinPathToApiURL, [path])
   const navigateToWithNuxt = (href: string) => callWithNuxt(nuxt, navigateTo, [href])
 
   // 1. Lead to error page if no providers are available
   const configuredProviders = await getProviders()
   if (!configuredProviders) {
-    const errorUrl = await joinPathToBaseWithNuxt('error')
+    const errorUrl = await joinPathToApiURLWithNuxt('error')
     return navigateToWithNuxt(errorUrl)
   }
 
   // 2. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
-  const { callbackUrl = getRequestUrl(), redirect = true } = options ?? {}
+  const { callbackUrl = getRequestURL(), redirect = true } = options ?? {}
 
-  const signinUrl = await joinPathToBaseWithNuxt('signin')
+  const signinUrl = await joinPathToApiURLWithNuxt('signin')
   const hrefSignInAllProviderPage = `${signinUrl}?${new URLSearchParams({ callbackUrl })}`
   if (!provider) {
     return navigateToWithNuxt(hrefSignInAllProviderPage)
@@ -150,7 +150,7 @@ const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, '
  * @param getSessionOptions - Options for getting the session, e.g., set `required: true` to enforce that a session _must_ exist, the user will be directed to a login page otherwise.
  */
 const getSession = async (getSessionOptions?: GetSessionOptions) => {
-  // Workaround to make nested composable calls possible (`useRuntimeConfig` is called by `joinPathToBase` in `onUnauthenticated` below, so we call it with `callWithNuxt` below), see https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
+  // Workaround to make nested composable calls possible (`useRuntimeConfig` is called by `joinPathToApiURL` in `onUnauthenticated` below, so we call it with `callWithNuxt` below), see https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
   const nuxt = useNuxtApp()
 
   const { data, status, loading, lastRefreshedAt } = useSessionState()
@@ -159,7 +159,7 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
     required: false,
     callbackUrl: undefined,
     onUnauthenticated: () => {
-      const signinUrl = joinPathToBase(`signin?${new URLSearchParams({ callbackUrl: getSessionOptions?.callbackUrl || '/' })}`)
+      const signinUrl = joinPathToApiURL(`signin?${new URLSearchParams({ callbackUrl: getSessionOptions?.callbackUrl || '/' })}`)
       return navigateTo(signinUrl)
     }
   })
@@ -190,7 +190,7 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
       options.params = {
         ...(options.params || {}),
         // The request is executed with `server: false`, so window will always be defined at this point
-        callbackUrl: callbackUrl || getRequestUrl()
+        callbackUrl: callbackUrl || getRequestURL()
       }
     },
     onRequestError: onError,
@@ -212,7 +212,7 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
  * @param options - Options for sign out, e.g., to `redirect` the user to a specific page after sign out has completed
  */
 const signOut = async (options?: SignOutOptions) => {
-  const { callbackUrl = getRequestUrl(), redirect = true } = options ?? {}
+  const { callbackUrl = getRequestURL(), redirect = true } = options ?? {}
   const csrfToken = await getCsrfToken()
 
   if (!csrfToken) {
@@ -227,7 +227,7 @@ const signOut = async (options?: SignOutOptions) => {
     onRequest: ({ options }) => {
       options.body = new URLSearchParams({
         csrfToken: csrfToken as string,
-        callbackUrl: callbackUrl || getRequestUrl(),
+        callbackUrl: callbackUrl || getRequestURL(),
         json: 'true'
       })
     }
