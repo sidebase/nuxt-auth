@@ -55,14 +55,9 @@ export default defineNuxtModule<ModuleOptions>({
     logger.info('Setting up auth...')
 
     // 2. Set up runtime configuration
-    let usedOrigin
-    const isOriginSet = typeof moduleOptions.origin === 'undefined'
-    if (typeof moduleOptions.origin === 'undefined') {
-      // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
-      usedOrigin = 'http://localhost:3000'
-    } else {
-      usedOrigin = moduleOptions.origin
-    }
+    const isOriginSet = Boolean(moduleOptions.origin)
+    // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
+    const usedOrigin = moduleOptions.origin ?? 'http://localhost:3000'
 
     const options = defu(moduleOptions, {
       ...defaults,
