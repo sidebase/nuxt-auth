@@ -1,11 +1,11 @@
 import type { Session } from 'next-auth'
 import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
-import type { FetchOptions } from 'ofetch'
 import defu from 'defu'
-import { joinURL, parseURL } from 'ufo'
 import { callWithNuxt } from '#app'
 import { Ref } from 'vue'
-import { createError, useState, useRuntimeConfig, useRequestHeaders, navigateTo, useRequestEvent, useNuxtApp } from '#imports'
+import { joinPathToBase } from '../utils/url'
+import { _fetch } from '../utils/fetch'
+import { createError, useState, useRequestHeaders, navigateTo, useRequestEvent, useNuxtApp } from '#imports'
 
 interface UseSessionOptions {
   required?: boolean
@@ -45,9 +45,6 @@ interface SignOutOptions {
 type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 type SessionData = Session | undefined | null
 
-const _getBasePath = () => parseURL(useRuntimeConfig().public.auth.url).pathname
-const joinPathToBase = (path: string) => joinURL(_getBasePath(), path)
-
 const getUniversalRequestUrl = () => {
   const event = useRequestEvent()
   if (event) {
@@ -71,30 +68,6 @@ const universalRedirect = (href: string, { external } = { external: true }) => {
     }
   } else {
     return navigateTo(href, { external })
-  }
-}
-
-const _fetch = async <T>(path: string, { body, params, method, headers, onResponse, onRequest, onRequestError, onResponseError }: FetchOptions = { params: {}, headers: {}, method: 'GET' }): Promise<T> => {
-  try {
-    const res: T = await $fetch(joinPathToBase(path), {
-      method,
-      params,
-      headers,
-      body,
-      onResponse,
-      onRequest,
-      onRequestError,
-      onResponseError
-    })
-
-    return res
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error in useSession data fetching: Have you added the authentication handler server-endpoint `[...].ts`? Have you added the authentication handler in a non-default location (default is `~/server/api/auth/[...].ts`) and not updated the module-setting `auth.basePath`? Error is:')
-    // eslint-disable-next-line no-console
-    console.error(error)
-
-    throw new Error('Runtime error, checkout the console logs to debug, open an issue at https://github.com/sidebase/nuxt-auth/issues/new/choose if you continue to have this problem')
   }
 }
 
@@ -191,7 +164,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       throw createError({ statusCode: 400, statusMessage: 'Could not fetch CSRF Token for signing out' })
     }
 
-    const onRequest: FetchOptions['onRequest'] = ({ options }) => {
+    const onRequest = ({ options }) => {
       options.body = new URLSearchParams({
         csrfToken: csrfToken as string,
         callbackUrl: callbackUrl || getUniversalRequestUrl(),
@@ -251,7 +224,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       onUnauthenticated: () => universalRedirect(joinPathToBase(`signin?${new URLSearchParams({ callbackUrl: getSessionOptions?.callbackUrl || '/' })}`), { external: true })
     })
 
-    const onRequest: FetchOptions['onRequest'] = ({ options }) => {
+    const onRequest = ({ options }) => {
       status.value = 'loading'
 
       options.params = {
@@ -261,7 +234,7 @@ export default async (initialGetSessionOptions: UseSessionOptions = {}) => {
       }
     }
 
-    const onResponse: FetchOptions['onResponse'] = ({ response }) => {
+    const onResponse = ({ response }) => {
       const sessionData = response._data
 
       if (!sessionData || Object.keys(sessionData).length === 0) {
