@@ -8,7 +8,7 @@ import type { NextAuthAction, NextAuthOptions, Session } from 'next-auth'
 import type { GetTokenParams } from 'next-auth/jwt'
 
 import defu from 'defu'
-import isNonEmptyObject from '../../utils/isNonEmptyObject'
+import { isNonEmptyObject } from '../../utils/checkSessionResult'
 
 import { useRuntimeConfig } from '#imports'
 
@@ -196,10 +196,10 @@ export const getServerSession = async (event: H3Event) => {
   delete event.context.checkSessionOnNonAuthRequest
 
   if (isNonEmptyObject(session)) {
-    return null
+    return session as Session
   }
 
-  return session as Session
+  return null
 }
 
 /**

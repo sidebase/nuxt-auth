@@ -1,60 +1,44 @@
-import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig, useState } from '#app'
+import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig } from '#app'
+import useSessionState from './composables/useSessionState'
 import useSession from './composables/useSession'
-import { now, useBroadcastChannel } from './utils'
-import type { SessionData } from './types'
 import authMiddleware from './middleware/auth'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  const { refetchOnWindowFocus, refetchInterval, globalMiddleware } = useRuntimeConfig().public.auth
+  const { enableSessionRefreshOnWindowFocus, enableSessionRefreshPeriodically, enableGlobalAuthMiddleware } = useRuntimeConfig().public.auth
 
-  const { data, status, getSession } = useSession()
+  const { data } = useSessionState()
+  const { getSession, lastSync } = useSession()
 
-  /**
-   * If session was `null`, there was an attempt to fetch it,
-   * but it failed, but we still treat it as a valid initial value.
-   */
-  const hasInitialSession = data.value !== undefined
-
-  /** If session was passed, initialize as already synced */
-  const lastSync = useState<number>('auth:lastSync', () => hasInitialSession ? now() : 0)
-
-  /** If session was passed, initialize as not loading */
-  useState<boolean>('auth:loading', () => !hasInitialSession)
-
-  await getSession({ event: 'initialize' })
+  await getSession()
 
   // Listen for when the page is visible, if the user switches tabs
   // and makes our tab visible again, re-fetch the session, but only if
   // this feature is not disabled.
   const visibilityHandler = () => {
-    if (refetchOnWindowFocus && document.visibilityState === 'visible') { getSession({ event: 'visibilitychange' }) }
+    if (enableSessionRefreshOnWindowFocus && document.visibilityState === 'visible') {
+      getSession()
+    }
   }
   nuxtApp.hook('app:mounted', () => {
     document.addEventListener('visibilitychange', visibilityHandler, false)
   })
 
-  // Subscribe to broadcast
-  const broadcast = useBroadcastChannel()
-  const unsubscribeFromBroadcast = broadcast.receive(() =>
-    getSession({ event: 'storage' })
-  )
-
   // Refetch interval
   let refetchIntervalTimer: NodeJS.Timer
 
-  if (refetchInterval) {
+  if (enableSessionRefreshPeriodically !== false) {
+    const intervalTime = enableSessionRefreshPeriodically === true ? 1000 : enableSessionRefreshPeriodically
     refetchIntervalTimer = setInterval(() => {
-      if (data.value) { getSession({ event: 'poll' }) }
-    }, refetchInterval * 1000)
+      if (data.value) {
+        getSession()
+      }
+    }, intervalTime)
   }
 
   const _unmount = nuxtApp.vueApp.unmount
   nuxtApp.vueApp.unmount = function () {
     // Clear visibility handler
     document.removeEventListener('visibilitychange', visibilityHandler, false)
-
-    // Unsubscribe from broadcast
-    unsubscribeFromBroadcast?.()
 
     // Clear refetch interval
     clearInterval(refetchIntervalTimer)
@@ -68,6 +52,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   addRouteMiddleware('auth', authMiddleware, {
-    global: globalMiddleware
+    global: enableGlobalAuthMiddleware
   })
 })

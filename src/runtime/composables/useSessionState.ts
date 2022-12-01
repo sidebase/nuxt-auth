@@ -1,13 +1,13 @@
-import { computed } from 'vue'
+import { computed, ComputedRef, Ref } from 'vue'
 import type { Session } from 'next-auth'
+import { now } from '../utils/date'
 import { useState } from '#imports'
 
-const now = () => Math.floor(Date.now() / 1000)
 type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 
 export type SessionData = Session | undefined | null
 
-export default () => {
+function getSessionState () {
   const data = useState<SessionData>('session:data', () => undefined)
 
   const hasInitialSession = data.value !== undefined
@@ -35,5 +35,11 @@ export default () => {
     loading,
     lastSync,
     status
+  } as {
+    data: Ref<SessionData>
+    loading: Ref<boolean>
+    lastSync: Ref<number>
+    status: ComputedRef<SessionStatus>
   }
 }
+export default getSessionState

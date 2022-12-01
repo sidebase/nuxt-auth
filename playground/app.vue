@@ -19,10 +19,6 @@
         -> globally protected page
       </nuxt-link>
       <br>
-      <nuxt-link to="/protected/inline">
-        -> inline protected page
-      </nuxt-link>
-      <br>
       <nuxt-link to="/protected/named">
         -> named protected page
       </nuxt-link>
@@ -45,7 +41,7 @@
 <script setup lang="ts">
 import { useSession, useRoute, useFetch, useRequestHeaders } from '#imports'
 
-const { data, status, getCsrfToken, getProviders } = await useSession({ required: false })
+const { data, status, getCsrfToken, getProviders } = useSession()
 
 const providers = await getProviders()
 const csrfToken = await getCsrfToken()

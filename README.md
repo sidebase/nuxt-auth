@@ -39,10 +39,7 @@
 4. Done! You can now use all user-related functionality, for example:
     - application-side (e.g., from `.vue` files):
         ```ts
-        const { status, data, signIn, signOut } = await useSession({
-          // Whether a session is required. If it is, a redirect to the signin page will happen if no active session exists
-          required: true
-        })
+        const { status, data, signIn, signOut } = useSession()
 
         status.value // Session status: `unauthenticated`, `loading`, `authenticated`
         data.value // Session data, e.g., expiration, user.email, ...
@@ -123,8 +120,8 @@ Below we describe:
             - [Configure `nuxt-auth` to redirect to the custom sign-in page](#configure-nuxt-auth-to-redirect-to-the-custom-sign-in-page)
     - [Middleware](#middleware)
         - [Global middleware](#global-middleware)
-        - [Named middleware](#named-middleware)
-        - [Inline middleware](#inline-middleware)
+            - [Disabling the global middleware locally](#disabling-the-global-middleware-locally)
+        - [Local middleware](#local-middleware)
 3. [Server-side usage](#server-side-usage)
     - [Server-side endpoint protection](#server-side-endpoint-protection)
     - [Server-side middleware](#server-side-middleware)
@@ -264,7 +261,7 @@ Note: There's more possible options for the `nextAuth.options` object, see [here
 
 Note: The above credential-provider example is taken over in part from the [NextAuth.js credentials example](https://next-auth.js.org/configuration/providers/credentials). It is _not_ considered safe for production usage and you would need to adapt it further, e.g., by calling another service that provides authentication, such as [strapi](#example-with-a-custom-strapi-jwt-provider)
 
-##### Example with a custom Strapi JWT provider 
+##### Example with a custom Strapi JWT provider
 
 This section gives an example of how the `NuxtAuthHandler` can be configured to use Strapi JWTs for authentication via the `CredentialsProvider` provider.
 
@@ -453,7 +450,7 @@ To create your custom sign-in page you can use `signIn` to directly start a prov
 </template>
 
 <script setup lang="ts">
-const { signIn } = await useSession({ required: false })
+const { signIn } = useSession()
 </script>
 ```
 
@@ -487,99 +484,51 @@ We can also configure the default-location for other pages in the `pages` config
 
 #### Middleware
 
-You can use this library to define application middleware. This library supports all of [Nuxt's supported middleware approaches](https://v3.nuxtjs.org/guide/directory-structure/middleware#middleware-directory). In all methods shown below we make use of the `callbackUrl` parameter to give the best user experience: If the user is not authenticated, they are forced to login, but will be redirected to the same page they wanted to visit after they successfully logged in. Without a `callbackUrl` parameter, the user would be directed to the index page `/`.
+The `nuxt-auth` module comes with an included [middleware](https://v3.nuxtjs.org/guide/directory-structure/middleware#middleware-directory) to authenticate users in your application. The middleware can either be enabled [globally to protect all pages](#global-middleware) or [locally inside specific pages](#local-middleware).
+
+The middleware will check whether a user is authenticated. If the user is not they are forced to login, but will be redirected to the page they originally wanted to visit after logging in. If the user is authenticated, they will be forwarded to their desired page.
 
 ##### Global middleware
 
-Create a global authentication middleware that ensures that your user is authenticated no matter which page they visit. Create a file in the `middleware` directory that has a `.global.ts` suffix.
-
-It should look like this:
-
+To create a global authentication middleware that ensures that your user is authenticated no matter which page they visit, you configure `nuxt-auth` as follows:
 ```ts
-// file: ~/middleware/auth.global.ts
-export default defineNuxtRouteMiddleware(async (to) => {
-  await useSession({ callbackUrl: to.path })
-})
-```
-
-That's it! This middleware will fetch a session and if no active session exists for the current user redirect to the login screen. If you want to write custom redirect logic, you could alter the above code to only apply to specific routes.
-
-Here is a global middleware that protects only the routes that start with `/secret/`:
-```ts
-// file: ~/middleware/auth.global.ts
-export default defineNuxtRouteMiddleware(async (to) => {
-  if (to.path.startsWith('/secret/')) {
-    await useSession({ callbackUrl: to.path })
+export default defineNuxtConfig({
+  modules: ['@sidebase/nuxt-auth'],
+  auth: {
+    enableGlobalAuthMiddleware: true
   }
 })
 ```
 
-Example of a middleware that redirects to a custom login page:
-```ts
-// file: ~/middleware/auth.global.ts
-export default defineNuxtRouteMiddleware(async (to) => {
-  // 1. Always allow access to the login page
-  if (to.path === '/login') {
-    return
-  }
+That's it! Every page of your application will now need authentication for the user to visit it.
 
-  // 2. Otherwise: Check status and redirect to login page
-  const { status } = await useSession({ required: false })
-  if (status.value !== 'authenticated') {
-    navigateTo('/login')
-  }
-})
-```
+###### Disabling the global middleware locally
 
-##### Named middleware
-
-Named middleware behave similar to [global middleware](#global-middleware) but are not automatically applied to any pages.
-
-To use them, first create a middleware:
-```ts
-// file: ~/middleware/auth.ts
-export default defineNuxtRouteMiddleware(async (to) => {
-  await useSession({ callbackUrl: to.path })
-})
-```
-
-Then inside your pages use the middleware with `definePageMeta`:
+To disable the global middleware on a specific page only, you can use the [`definePageMeta` macro](https://nuxt.com/docs/api/utils/define-page-meta#definepagemeta) to turn `auth` off:
 ```vue
-<!-- file: ~/pages/protected.vue -->
+<!-- file: ~/pages/unprotected.vue -->
 <template>
-  <div>I'm a secret!</div>
+  <div>I'm publicly available!</div>
 </template>
 
 <script setup lang="ts">
-definePageMeta({
-  middleware: ['auth']
-})
+definePageMeta({ auth: false })
 </script>
 ```
 
-Note: `definePageMeta` can only be used inside the `pages/` directory.
+##### Local middleware
 
-Nuxt now calls the `auth.ts` middleware on every visit to this page.
-
-##### Inline middleware
-
-To define a named middleware, you need to use `definePageMeta` as described [in the nuxt docs](https://v3.nuxtjs.org/api/utils/define-page-meta/). Then you can just call `useSession` as in the other middleware. Here's an example that would protect just the page itself:
+To protect specific pages with a middleware, you can use the [`definePageMeta` macro](https://nuxt.com/docs/api/utils/define-page-meta#definepagemeta) to turn `auth` on:
 ```vue
-<!-- file: ~/pages/protected.vue -->
+<!-- file: ~/pages/unprotected.vue -->
 <template>
-  <div>I'm a secret!</div>
+  <div>I'm publicly available!</div>
 </template>
 
 <script setup lang="ts">
-definePageMeta({
-  middleware: async () => {
-    await useSession({ callbackUrl: '/protected' })
-  }
-})
+definePageMeta({ middleware: 'auth' })
 </script>
 ```
-
-Note: `definePageMeta` can only be used inside the `pages/` directory
 
 #### Server-side usage
 

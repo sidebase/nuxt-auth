@@ -1,4 +1,4 @@
-import { defineNuxtModule, useLogger, addImportsDir, createResolver, resolveModule, addTemplate } from '@nuxt/kit'
+import { defineNuxtModule, useLogger, addImportsDir, createResolver, resolveModule, addTemplate, addPlugin } from '@nuxt/kit'
 import defu from 'defu'
 import { joinURL } from 'ufo'
 
@@ -29,13 +29,42 @@ interface ModuleOptions {
    * @default /api/auth
    */
   basePath: string | undefined
+  /**
+   * Whether to refresh the session every `X` milliseconds. Set this to `false` to turn it off. The session will only be refreshed if a session already exists.
+   *
+   * Setting this to `true` will refresh the session every second.
+   * Setting this to `false` will turn off session refresh.
+   * Setting this to a number `X` will refresh the session every `X` milliseconds.
+   *
+   * @example 1000
+   * @default false
+   *
+   */
+  enableSessionRefreshPeriodically: number | boolean
+  /**
+   * Whether to refresh the session every time the browser window is refocused.
+   *
+   * @example false
+   * @default true
+   */
+  enableSessionRefreshOnWindowFocus: boolean
+  /**
+   * Whether to add a global authentication middleware that protects all pages.
+   *
+   * @example true
+   * @default false
+   */
+  enableGlobalAuthMiddleware: boolean
 }
 
 const PACKAGE_NAME = 'nuxt-auth'
 const defaults: ModuleOptions & { basePath: string } = {
   isEnabled: true,
   origin: undefined,
-  basePath: '/api/auth'
+  basePath: '/api/auth',
+  enableSessionRefreshPeriodically: false,
+  enableSessionRefreshOnWindowFocus: true,
+  enableGlobalAuthMiddleware: false
 }
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -83,6 +112,7 @@ export default defineNuxtModule<ModuleOptions>({
       isOriginSet
     })
     nuxt.options.runtimeConfig.public.auth = defu(nuxt.options.runtimeConfig.public.auth, {
+      ...options,
       url
     })
 
@@ -119,6 +149,9 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.hook('prepare:types', (options) => {
       options.references.push({ path: resolve(nuxt.options.buildDir, 'types/auth.d.ts') })
     })
+
+    // 6. Add plugin for initial load
+    addPlugin(resolve('./runtime/plugin'))
 
     logger.success('Auth module setup done')
   }

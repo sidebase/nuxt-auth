@@ -12,7 +12,7 @@
       sign in (github)
     </button>
     <br>
-    <button @click="signIn(undefined, { callbackUrl: '/protected/inline' })">
+    <button @click="signIn(undefined, { callbackUrl: '/protected/named' })">
       sign in (with redirect to protected page)
     </button>
     <br>
@@ -27,7 +27,11 @@
 </template>
 
 <script setup lang="ts">
-import { useSession } from '#imports'
+import { definePageMeta, useSession } from '#imports'
 
-const { getSession, signIn, signOut } = await useSession({ required: false })
+definePageMeta({
+  auth: false
+})
+
+const { getSession, signIn, signOut } = useSession()
 </script>
