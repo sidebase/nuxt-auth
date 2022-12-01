@@ -1,4 +1,4 @@
-import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError } from 'h3'
+import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError, isMethod, getMethod, getHeaders } from 'h3'
 import type { H3Event } from 'h3'
 
 import { NextAuthHandler } from 'next-auth/core'
@@ -21,9 +21,8 @@ const SUPPORTED_ACTIONS: NextAuthAction[] = ['providers', 'session', 'csrf', 'si
  */
 const readBodyForNext = async (event: H3Event) => {
   let body: any
-  const { method } = event.req
 
-  if (method && ['PATCH', 'POST', 'PUT', 'DELETE'].includes(method.toUpperCase())) {
+  if (isMethod(event, 'PATCH') || isMethod(event, 'POST') || isMethod(event, 'PUT') || isMethod(event, 'DELETE')) {
     body = await readBody(event)
   }
   return body
@@ -96,9 +95,8 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
       body: undefined,
       cookies: parseCookies(event),
       query: undefined,
-      headers: event.req.headers,
-      // NextAuth.js will complain if the method is not uppercase, fix for #55
-      method: event.req.method?.toUpperCase(),
+      headers: getHeaders(event),
+      method: getMethod(event),
       providerId: undefined,
       error: undefined
     }
@@ -137,7 +135,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
   }
 
   const handler = eventHandler(async (event: H3Event) => {
-    const { res } = event
+    const { res } = event.node
 
     // 1. Assemble and perform request to the NextAuth.js auth handler
     const nextRequest = await getInternalNextAuthRequestData(event)
@@ -171,6 +169,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
     if (nextRequest.body?.json) {
       return { url: nextResult.redirect }
     }
+
     // 3.3 via a redirect:
     return sendRedirect(event, nextResult.redirect)
   })
@@ -213,7 +212,7 @@ export const getToken = ({ event, secureCookie, secret, ...rest }: Omit<GetToken
   // @ts-expect-error As our request is not a real next-auth request, we pass down only what's required for the method, as per code from https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L68
   req: {
     cookies: parseCookies(event),
-    headers: event.req.headers
+    headers: event.node.req.headers
   },
   // see https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L73
   secureCookie: secureCookie || useRuntimeConfig().auth.url.startsWith('https://'),
