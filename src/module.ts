@@ -1,4 +1,4 @@
-import { defineNuxtModule, useLogger, addImportsDir, createResolver, resolveModule, addTemplate, addPlugin } from '@nuxt/kit'
+import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate, addPlugin } from '@nuxt/kit'
 import defu from 'defu'
 import { joinURL } from 'ufo'
 
@@ -113,7 +113,6 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 3. Locate runtime directory
     const { resolve } = createResolver(import.meta.url)
-    const resolveRuntimeModule = (path: string) => resolveModule(path, { paths: resolve('./runtime') })
 
     // 4. Add nuxt-auth composables
     const composables = resolve('./runtime/composables')
@@ -127,7 +126,7 @@ export default defineNuxtModule<ModuleOptions>({
       nitroConfig.externals = defu(typeof nitroConfig.externals === 'object' ? nitroConfig.externals : {}, {
         inline: [resolve('./runtime')]
       })
-      nitroConfig.alias['#auth'] = resolveRuntimeModule('./server/services')
+      nitroConfig.alias['#auth'] = resolve('./runtime/server/services')
     })
 
     addTemplate({
