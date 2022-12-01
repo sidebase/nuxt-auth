@@ -54,7 +54,7 @@ interface ModuleOptions {
    * @example true
    * @default false
    */
-  enableGlobalAuthMiddleware: boolean
+  enableGlobalAppMiddleware: boolean
 }
 
 const PACKAGE_NAME = 'nuxt-auth'
@@ -64,7 +64,7 @@ const defaults: ModuleOptions & { basePath: string } = {
   basePath: '/api/auth',
   enableSessionRefreshPeriodically: false,
   enableSessionRefreshOnWindowFocus: true,
-  enableGlobalAuthMiddleware: false
+  enableGlobalAppMiddleware: false
 }
 export default defineNuxtModule<ModuleOptions>({
   meta: {

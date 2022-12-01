@@ -5,7 +5,6 @@ import { readonly } from 'vue'
 import { joinPathToBase, navigateTo, getRequestUrl } from '../utils/url'
 import { _fetch } from '../utils/fetch'
 import { isNonEmptyObject } from '../utils/checkSessionResult'
-import { now } from '../utils/date'
 import useSessionState, { SessionData } from './useSessionState'
 import { createError, useRequestHeaders, useNuxtApp } from '#imports'
 
@@ -55,7 +54,7 @@ const getCsrfToken = () => {
   if (cookie) {
     headers = { cookie }
   }
-  return _fetch<{ csrfToken: string }>('csrf', { headers })
+  return _fetch<{ csrfToken: string }>('csrf', { headers }).then(response => response.csrfToken)
 }
 
 /**
@@ -99,8 +98,7 @@ const signIn = async (
     action = 'callback'
   }
 
-  const csrfTokenResult = await getCsrfToken()
-  const csrfToken = csrfTokenResult.csrfToken
+  const csrfToken = await getCsrfToken()
 
   const data = await _fetch<{ url: string }>(`${action}/${provider}`, {
     method: 'post',
@@ -146,7 +144,7 @@ const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, '
  */
 const getSession = async (getSessionOptions?: GetSessionOptions) => {
   const nuxt = useNuxtApp()
-  const { data, status, loading, lastSync } = useSessionState()
+  const { data, status, loading, lastRefreshedAt } = useSessionState()
 
   const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions || {}, {
     required: false,
@@ -174,7 +172,7 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
       return sessionData
     },
     onRequest: ({ options }) => {
-      lastSync.value = now()
+      lastRefreshedAt.value = new Date()
       loading.value = true
 
       options.params = {
@@ -204,9 +202,8 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
  */
 const signOut = async (options?: SignOutOptions) => {
   const { callbackUrl = getRequestUrl(), redirect = true } = options ?? {}
-  const csrfTokenResult = await getCsrfToken()
+  const csrfToken = await getCsrfToken()
 
-  const csrfToken = csrfTokenResult.csrfToken
   if (!csrfToken) {
     throw createError({ statusCode: 400, statusMessage: 'Could not fetch CSRF Token for signing out' })
   }
@@ -235,7 +232,7 @@ const signOut = async (options?: SignOutOptions) => {
 }
 
 export default () => {
-  const { data, status, loading, lastSync } = useSessionState()
+  const { data, status, lastRefreshedAt } = useSessionState()
 
   const actions = {
     getSession,
@@ -246,10 +243,9 @@ export default () => {
   }
 
   const getters = {
-    status,
+    status: readonly(status),
     data: readonly(data),
-    loading,
-    lastSync
+    lastRefreshedAt: readonly(lastRefreshedAt)
   }
 
   return {

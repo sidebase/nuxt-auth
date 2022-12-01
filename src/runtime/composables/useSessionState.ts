@@ -1,19 +1,25 @@
 import { computed, ComputedRef, Ref } from 'vue'
 import type { Session } from 'next-auth'
-import { now } from '../utils/date'
 import { useState } from '#imports'
 
 type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 
+type SessionLastRefreshedAt = Date | undefined
 export type SessionData = Session | undefined | null
 
-function getSessionState () {
+export default () => {
   const data = useState<SessionData>('session:data', () => undefined)
 
   const hasInitialSession = data.value !== undefined
 
   // If session exists, initialize as already synced
-  const lastSync = useState<number>('auth:lastSync', () => hasInitialSession ? now() : 0)
+  const lastRefreshedAt = useState<SessionLastRefreshedAt>('session:lastRefreshedAt', () => {
+    if (hasInitialSession) {
+      return new Date()
+    }
+
+    return undefined
+  })
 
   // If session exists, initialize as not loading
   const loading = useState<boolean>('session:loading', () => !hasInitialSession)
@@ -33,13 +39,12 @@ function getSessionState () {
   return {
     data,
     loading,
-    lastSync,
+    lastRefreshedAt,
     status
   } as {
     data: Ref<SessionData>
     loading: Ref<boolean>
-    lastSync: Ref<number>
+    lastRefreshedAt: Ref<SessionLastRefreshedAt>
     status: ComputedRef<SessionStatus>
   }
 }
-export default getSessionState

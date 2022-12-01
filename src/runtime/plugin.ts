@@ -4,10 +4,10 @@ import useSession from './composables/useSession'
 import authMiddleware from './middleware/auth'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  const { enableSessionRefreshOnWindowFocus, enableSessionRefreshPeriodically, enableGlobalAuthMiddleware } = useRuntimeConfig().public.auth
+  const { enableSessionRefreshOnWindowFocus, enableSessionRefreshPeriodically, enableGlobalAppMiddleware } = useRuntimeConfig().public.auth
 
-  const { data } = useSessionState()
-  const { getSession, lastSync } = useSession()
+  const { data, lastRefreshedAt } = useSessionState()
+  const { getSession } = useSession()
 
   await getSession()
 
@@ -44,7 +44,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     clearInterval(refetchIntervalTimer)
 
     // Clear session
-    lastSync.value = 0
+    lastRefreshedAt.value = undefined
     data.value = undefined
 
     // Call original unmount
@@ -52,6 +52,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   addRouteMiddleware('auth', authMiddleware, {
-    global: enableGlobalAuthMiddleware
+    global: enableGlobalAppMiddleware
   })
 })
