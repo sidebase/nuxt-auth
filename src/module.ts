@@ -1,4 +1,4 @@
-import { defineNuxtModule, useLogger, addImportsDir, createResolver, resolveModule, addTemplate } from '@nuxt/kit'
+import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate, addPlugin, extendViteConfig } from '@nuxt/kit'
 import defu from 'defu'
 import { joinURL } from 'ufo'
 
@@ -29,13 +29,42 @@ interface ModuleOptions {
    * @default /api/auth
    */
   basePath: string | undefined
+  /**
+   * Whether to refresh the session every `X` milliseconds. Set this to `false` to turn it off. The session will only be refreshed if a session already exists.
+   *
+   * Setting this to `true` will refresh the session every second.
+   * Setting this to `false` will turn off session refresh.
+   * Setting this to a number `X` will refresh the session every `X` milliseconds.
+   *
+   * @example 1000
+   * @default false
+   *
+   */
+  enableSessionRefreshPeriodically: number | boolean
+  /**
+   * Whether to refresh the session every time the browser window is refocused.
+   *
+   * @example false
+   * @default true
+   */
+  enableSessionRefreshOnWindowFocus: boolean
+  /**
+   * Whether to add a global authentication middleware that protects all pages.
+   *
+   * @example true
+   * @default false
+   */
+  enableGlobalAppMiddleware: boolean
 }
 
 const PACKAGE_NAME = 'nuxt-auth'
 const defaults: ModuleOptions & { basePath: string } = {
   isEnabled: true,
   origin: undefined,
-  basePath: '/api/auth'
+  basePath: '/api/auth',
+  enableSessionRefreshPeriodically: false,
+  enableSessionRefreshOnWindowFocus: true,
+  enableGlobalAppMiddleware: false
 }
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -52,11 +81,11 @@ export default defineNuxtModule<ModuleOptions>({
       return
     }
 
-    logger.info('Setting up auth...')
+    logger.info('`nuxt-auth` setup starting')
 
     // 2. Set up runtime configuration
     const isOriginSet = Boolean(moduleOptions.origin)
-    // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
+    // TODO: see if we can figure out localhost + port dynamically from the nuxt instance _for dev mode only_
     const usedOrigin = moduleOptions.origin ?? 'http://localhost:3000'
 
     const options = defu(moduleOptions, {
@@ -78,12 +107,12 @@ export default defineNuxtModule<ModuleOptions>({
       isOriginSet
     })
     nuxt.options.runtimeConfig.public.auth = defu(nuxt.options.runtimeConfig.public.auth, {
+      ...options,
       url
     })
 
     // 3. Locate runtime directory
     const { resolve } = createResolver(import.meta.url)
-    const resolveRuntimeModule = (path: string) => resolveModule(path, { paths: resolve('./runtime') })
 
     // 4. Add nuxt-auth composables
     const composables = resolve('./runtime/composables')
@@ -97,7 +126,7 @@ export default defineNuxtModule<ModuleOptions>({
       nitroConfig.externals = defu(typeof nitroConfig.externals === 'object' ? nitroConfig.externals : {}, {
         inline: [resolve('./runtime')]
       })
-      nitroConfig.alias['#auth'] = resolveRuntimeModule('./server/services')
+      nitroConfig.alias['#auth'] = resolve('./runtime/server/services')
     })
 
     addTemplate({
@@ -115,6 +144,17 @@ export default defineNuxtModule<ModuleOptions>({
       options.references.push({ path: resolve(nuxt.options.buildDir, 'types/auth.d.ts') })
     })
 
-    logger.success('Auth module setup done')
+    // 6. Add plugin for initial load
+    addPlugin(resolve('./runtime/plugin'))
+
+    // 7. Setup next-auth env-variables just to be safe, see https://github.com/nextauthjs/next-auth/blob/6280fe9e10bd123aeab576398d1e807a5ac37edc/apps/playground-nuxt/src/module.ts#L32-L38
+    extendViteConfig((config) => {
+      config.define = config.define || {}
+      config.define['process.env.NEXTAUTH_URL'] = JSON.stringify(url)
+      config.define['process.env.NEXTAUTH_URL_INTERNAL'] = JSON.stringify(url)
+      config.define['process.env.VERCEL_URL'] = JSON.stringify(process.env.VERCEL_URL)
+    })
+
+    logger.success('`nuxt-auth` setup done')
   }
 })

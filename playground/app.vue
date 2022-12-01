@@ -4,6 +4,7 @@
     <p>See all available authentication & session information below. Navigate to different sub-pages to test out the app.</p>
     <pre>Status: {{ status }}</pre>
     <pre>Data: {{ data || 'no session data present, are you logged in?' }}</pre>
+    <pre>Last refreshed at: {{ lastRefreshedAt || 'no refresh happened' }}</pre>
     <pre>Decoded JWT token: {{ token || 'no token present, are you logged in?' }}</pre>
     <pre>CSRF Token: {{ csrfToken }}</pre>
     <pre>Providers: {{ providers }}</pre>
@@ -19,12 +20,12 @@
         -> globally protected page
       </nuxt-link>
       <br>
-      <nuxt-link to="/protected/inline">
-        -> inline protected page
+      <nuxt-link to="/protected/locally">
+        -> locally protected page
       </nuxt-link>
       <br>
-      <nuxt-link to="/protected/named">
-        -> named protected page
+      <nuxt-link to="/always-unprotected">
+        -> page that is always unprotected
       </nuxt-link>
       <br>
       <nuxt-link to="/api/protected/inline" external>
@@ -45,7 +46,7 @@
 <script setup lang="ts">
 import { useSession, useRoute, useFetch, useRequestHeaders } from '#imports'
 
-const { data, status, getCsrfToken, getProviders } = await useSession({ required: false })
+const { data, status, lastRefreshedAt, getCsrfToken, getProviders } = useSession()
 
 const providers = await getProviders()
 const csrfToken = await getCsrfToken()

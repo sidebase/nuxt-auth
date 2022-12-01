@@ -20,6 +20,9 @@
     ```ts
     export default defineNuxtConfig({
       modules: ['@sidebase/nuxt-auth'],
+      auth: {
+        enableGlobalAppMiddleware: true
+      }
     })
     ```
 3. Create the authentication handler (`NuxtAuthHandler`) and add at least one [authentication provider](https://next-auth.js.org/providers/):
@@ -31,24 +34,34 @@
     export default NuxtAuthHandler({
       providers: [
         // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
-        GithubProvider.default({ clientId: 'enter-your-client-id-here', clientSecret: 'enter-your-client-secret-here' })
+        GithubProvider.default({ clientId: 'your-client-id-here', clientSecret: 'your-client-secret-here' })
       ]
     })
     ```
     - `[..].ts` is a catch-all route, see the [nuxt server docs](https://v3.nuxtjs.org/guide/directory-structure/server#catch-all-route)
 4. Done! You can now use all user-related functionality, for example:
-    - application-side (e.g., from `.vue` files):
+    - application-side session access:
         ```ts
-        const { status, data, signIn, signOut } = await useSession({
-          // Whether a session is required. If it is, a redirect to the signin page will happen if no active session exists
-          required: true
-        })
+        // file: ~/pages/some-page.vue
+        const { status, data, signIn, signOut } = useSession()
 
         status.value // Session status: `unauthenticated`, `loading`, `authenticated`
         data.value // Session data, e.g., expiration, user.email, ...
 
         await signIn() // Sign-in the user
         await signOut() // Sign-out the user
+        ```
+    - application-side local page protection (i.e., when `enableGlobalAppMiddleware: true` not set):
+        ```ts
+        // file: ~/pages/some-page.vue
+        <template>
+          <div>I'm a secret! My protection works via the named `nuxt-auth` module middleware.</div>
+        </template>
+
+        <script setup lang="ts">
+        // This only makes sense when you don't set `enableGlobalAppMiddleware: true` in the `nuxt.config.ts`
+        definePageMeta({ middleware: 'auth' })
+        </script>
         ```
     - server-side (e.g., from `~/server/api/session.get.ts`):
         ```ts
@@ -63,7 +76,7 @@
         })
         ```
 
-There's more supported methods in the `useSession` composable, you can create [universal-application-](https://v3.nuxtjs.org/guide/directory-structure/middleware) and [server-api-middleware](https://v3.nuxtjs.org/guide/directory-structure/server#server-middleware) that make use of the authentication status and more. All of this is [documented below](#documentation).
+There's more supported methods in the `useSession` composable, you can create [universal-application-](#middleware) and [server-api-middleware](#server-side-middleware) that make use of the authentication status and more. All of this is [documented below](#documentation).
 
 ## Features
 
@@ -71,13 +84,19 @@ There's more supported methods in the `useSession` composable, you can create [u
     - ✔️ OAuth (e.g., Github, Google, Twitter, Azure, ...)
     - ✔️ Custom OAuth (write it yourself)
     - ✔️ Credentials (password + username)
-    - 🚧 Email Magic URLs
-- ✔️ Isomorphic / Universal Auth Composable:
-    - `useSession` composable to: `signIn`, `signOut`, `getCsrfToken`, `getProviders`, `getSession`
+    - ✔️ Email Magic URLs
+- ✔️ Isomorphic / Universal Auth Composable `useSession` supports:
+    - actions: `getSession`, `getCsrfToken`, `getProviders`, `signIn`, `signOut`
+    - getters: `status`, `data`, `lastRefreshedAt`
     - full typescript support for all methods and property
-- ✔️ Persistent sessions across requests
 - ✔️ Application-side middleware protection
 - ✔️ Server-side middleware and endpoint protection
+- ✔️ Advanced features for session life-cycle management:
+    - Refresh the session periodically
+    - Refresh the session on tab-refocus
+    - One time session fetch on page load, afterwards for specific actions (e.g., on navigation)
+    - 🚧 Session broadcasting between tabs (see #70)
+- ✔️ Persistent sessions across requests
 - ✔️ REST API:
     - `GET /signin`,
     - `POST /signin/:provider`,
@@ -123,8 +142,8 @@ Below we describe:
             - [Configure `nuxt-auth` to redirect to the custom sign-in page](#configure-nuxt-auth-to-redirect-to-the-custom-sign-in-page)
     - [Middleware](#middleware)
         - [Global middleware](#global-middleware)
-        - [Named middleware](#named-middleware)
-        - [Inline middleware](#inline-middleware)
+            - [Disabling the global middleware locally](#disabling-the-global-middleware-locally)
+        - [Local middleware](#local-middleware)
 3. [Server-side usage](#server-side-usage)
     - [Server-side endpoint protection](#server-side-endpoint-protection)
     - [Server-side middleware](#server-side-middleware)
@@ -145,7 +164,7 @@ There's two places to configure `nuxt-auth`:
 - [`auth`-key in `nuxt.config.ts`](#nuxtconfigts): Configure the module itself, e.g., where the auth-endpoints are, what origin the app is deployed to, ...
 - [NuxtAuthHandler](#nuxtauthhandler): Configure the authentication behavior, e.g., what authentication providers to use
 
-For development, you can stay with the [Quick Start](#quick-start)-configuration.
+For development, using the [Quick Start](#quick-start)-configuration can already bring you quite far..
 
 For a production deployment, you will have to at least set the:
 - `origin` inside the `nuxt.config.ts` config (equivalent to `NEXTAUTH_URL` environment variable),
@@ -153,7 +172,7 @@ For a production deployment, you will have to at least set the:
 
 #### `nuxt.config.ts`
 
-Use the `auth`-key inside your `nuxt.config.ts` to configure the module itself. Right now this is limited to the following options:
+Use the `auth`-key inside your `nuxt.config.ts` to configure the module itself. Below is a full configuration with the default-values set:
 ```ts
 export default defineNuxtConfig({
   modules: ['@sidebase/nuxt-auth'],
@@ -165,7 +184,16 @@ export default defineNuxtConfig({
     origin: 'http://localhost:3000',
 
     // The base path to the authentication endpoints. Change this if you want to add your auth-endpoints at a non-default location
-    basePath: '/api/auth'
+    basePath: '/api/auth',
+
+    // Whether to periodically refresh the session. Change this to `true` for a refresh every seconds or set this to a number like `5000` for a refresh every 5000 milliseconds (aka: 5 seconds)
+    enableSessionRefreshPeriodically: false,
+
+    // Whether to refresh the session whenever a window focus event happens, i.e, when your user refocuses the window. Set this to `false` to turn this off
+    enableSessionRefreshOnWindowFocus: true,
+
+    // Whether to add a global authentication middleware that will protect all pages without exclusion
+    enableGlobalAppMiddleware: false
   }
 })
 ```
@@ -264,7 +292,7 @@ Note: There's more possible options for the `nextAuth.options` object, see [here
 
 Note: The above credential-provider example is taken over in part from the [NextAuth.js credentials example](https://next-auth.js.org/configuration/providers/credentials). It is _not_ considered safe for production usage and you would need to adapt it further, e.g., by calling another service that provides authentication, such as [strapi](#example-with-a-custom-strapi-jwt-provider)
 
-##### Example with a custom Strapi JWT provider 
+##### Example with a custom Strapi JWT provider
 
 This section gives an example of how the `NuxtAuthHandler` can be configured to use Strapi JWTs for authentication via the `CredentialsProvider` provider.
 
@@ -356,21 +384,22 @@ The `useSession` composable is your main gateway to accessing and manipulating s
 const {
   status,
   data,
+  lastRefreshedAt,
   getCsrfToken,
   getProviders,
   getSession,
   signIn,
   signOut,
-} = await useSession({
-  // Whether a session is required. If it is, a redirect to the signin page will happen if no active session exists
-  required: true
-})
+} = useSession()
 
 // Session status, either `unauthenticated`, `loading`, `authenticated`, see https://next-auth.js.org/getting-started/client#signout
 status.value
 
 // Session data, either `undefined` (= authentication not attempted), `null` (= user unauthenticated), `loading` (= session loading in progress), see https://next-auth.js.org/getting-started/client#signout
 data.value
+
+// Time at which the session was last refreshed, either `undefined` is no refresh was attempted or a `Date`-object of the time the refresh happened
+lastRefreshedAt.value
 
 // Get / Reload the current session from the server, pass `{ required: true }` to force a login if no session exists, see https://next-auth.js.org/getting-started/client#getsession
 await getSession()
@@ -400,7 +429,7 @@ await signOut()
 await signOut({ calbackUrl: '/signout' })
 ```
 
-Session `data` has the following interface:
+Session `data.value` has the following interface:
 ```ts
 interface DefaultSession {
   user?: {
@@ -430,7 +459,12 @@ You can do the same for signing out the user:
 await signOut({ callbackUrl: '/protected' })
 ```
 
-E.g., here to redirect the user away from the already loaded, protected, page after signout (else, you will have to handle the redirect yourself).
+E.g., to redirect the user away from the already loaded, protected, page after signout (else, you will have to handle the redirect yourself).
+
+You may also pass specify a callback for the `getSession` utility:
+```ts
+await getSession({ callbackUrl: '/protected' })
+```
 
 ##### Custom sign-in page
 
@@ -453,7 +487,7 @@ To create your custom sign-in page you can use `signIn` to directly start a prov
 </template>
 
 <script setup lang="ts">
-const { signIn } = await useSession({ required: false })
+const { signIn } = useSession()
 </script>
 ```
 
@@ -487,99 +521,53 @@ We can also configure the default-location for other pages in the `pages` config
 
 #### Middleware
 
-You can use this library to define application middleware. This library supports all of [Nuxt's supported middleware approaches](https://v3.nuxtjs.org/guide/directory-structure/middleware#middleware-directory). In all methods shown below we make use of the `callbackUrl` parameter to give the best user experience: If the user is not authenticated, they are forced to login, but will be redirected to the same page they wanted to visit after they successfully logged in. Without a `callbackUrl` parameter, the user would be directed to the index page `/`.
+The `nuxt-auth` module comes with an included [middleware](https://v3.nuxtjs.org/guide/directory-structure/middleware#middleware-directory) to authenticate users in your application. The middleware can either be enabled [globally to protect all pages](#global-middleware) or [locally inside specific pages](#local-middleware).
+
+The middleware will check whether a user is authenticated. If the user is not they are forced to login, but will be redirected to the page they originally wanted to visit after logging in. If the user is authenticated, they will be forwarded to their desired page.
 
 ##### Global middleware
 
-Create a global authentication middleware that ensures that your user is authenticated no matter which page they visit. Create a file in the `middleware` directory that has a `.global.ts` suffix.
-
-It should look like this:
-
+To create a global authentication middleware that ensures that your user is authenticated no matter which page they visit, you configure `nuxt-auth` as follows:
 ```ts
-// file: ~/middleware/auth.global.ts
-export default defineNuxtRouteMiddleware(async (to) => {
-  await useSession({ callbackUrl: to.path })
-})
-```
-
-That's it! This middleware will fetch a session and if no active session exists for the current user redirect to the login screen. If you want to write custom redirect logic, you could alter the above code to only apply to specific routes.
-
-Here is a global middleware that protects only the routes that start with `/secret/`:
-```ts
-// file: ~/middleware/auth.global.ts
-export default defineNuxtRouteMiddleware(async (to) => {
-  if (to.path.startsWith('/secret/')) {
-    await useSession({ callbackUrl: to.path })
+export default defineNuxtConfig({
+  modules: ['@sidebase/nuxt-auth'],
+  auth: {
+    enableGlobalAppMiddleware: true
   }
 })
 ```
 
-Example of a middleware that redirects to a custom login page:
-```ts
-// file: ~/middleware/auth.global.ts
-export default defineNuxtRouteMiddleware(async (to) => {
-  // 1. Always allow access to the login page
-  if (to.path === '/login') {
-    return
-  }
+That's it! Every page of your application will now need authentication for the user to visit it.
 
-  // 2. Otherwise: Check status and redirect to login page
-  const { status } = await useSession({ required: false })
-  if (status.value !== 'authenticated') {
-    navigateTo('/login')
-  }
-})
-```
+###### Disabling the global middleware locally
 
-##### Named middleware
-
-Named middleware behave similar to [global middleware](#global-middleware) but are not automatically applied to any pages.
-
-To use them, first create a middleware:
-```ts
-// file: ~/middleware/auth.ts
-export default defineNuxtRouteMiddleware(async (to) => {
-  await useSession({ callbackUrl: to.path })
-})
-```
-
-Then inside your pages use the middleware with `definePageMeta`:
+To disable the global middleware on a specific page only, you can use the [`definePageMeta` macro](https://nuxt.com/docs/api/utils/define-page-meta#definepagemeta) to turn `auth` off:
 ```vue
-<!-- file: ~/pages/protected.vue -->
+<!-- file: ~/pages/unprotected.vue -->
 <template>
-  <div>I'm a secret!</div>
+  <div>I'm publicly available!</div>
 </template>
 
 <script setup lang="ts">
-definePageMeta({
-  middleware: ['auth']
-})
+definePageMeta({ auth: false })
 </script>
 ```
 
-Note: `definePageMeta` can only be used inside the `pages/` directory.
+##### Local middleware
 
-Nuxt now calls the `auth.ts` middleware on every visit to this page.
-
-##### Inline middleware
-
-To define a named middleware, you need to use `definePageMeta` as described [in the nuxt docs](https://v3.nuxtjs.org/api/utils/define-page-meta/). Then you can just call `useSession` as in the other middleware. Here's an example that would protect just the page itself:
+To protect specific pages with a middleware, you can use the [`definePageMeta` macro](https://nuxt.com/docs/api/utils/define-page-meta#definepagemeta) to turn `auth` on:
 ```vue
-<!-- file: ~/pages/protected.vue -->
+<!-- file: ~/pages/unprotected.vue -->
 <template>
-  <div>I'm a secret!</div>
+  <div>I'm publicly available!</div>
 </template>
 
 <script setup lang="ts">
-definePageMeta({
-  middleware: async () => {
-    await useSession({ callbackUrl: '/protected' })
-  }
-})
+definePageMeta({ middleware: 'auth' })
 </script>
 ```
 
-Note: `definePageMeta` can only be used inside the `pages/` directory
+Note: You cannot use local protection when you turned on the global middleware by setting `enableGlobalAppMiddleware: true` in the `nuxt-auth` configuration. You will get an error along the lines of "Error: Unknown route middleware: 'auth'". This is because the `auth` middleware is then added globally and not available to use as a local, page-specific middleware.
 
 #### Server-side usage
 
@@ -592,7 +580,7 @@ export default eventHandler(async (event) => {
 })
 ```
 
-This is inspired by [the getServerSession](https://next-auth.js.org/tutorials/securing-pages-and-api-routes#securing-api-routes) of NextAuth.js. It also avoids an external, internet call to the `GET /api/auth/sessions` endpoint, instead directly calling a pure JS-method.
+This is inspired by [the `getServerSession`](https://next-auth.js.org/tutorials/securing-pages-and-api-routes#securing-api-routes) of NextAuth.js. It also avoids an external, internet call to the `GET /api/auth/sessions` endpoint, instead directly calling a pure JS-method.
 
 ##### Server-side endpoint protection
 
@@ -727,6 +715,8 @@ In our investigation we found prior attempts to make NextAuth.js framework agnos
 
 The main part of the work was to piece everything together, resolve some outstanding issues with existing PoCs, add new things where nothing existed yet, e.g., for the `useSession` composable by going through the NextAuth.js client code and translating it to a Nuxt 3 approach.
 
+The module had another big iteration in collaboration with @JoaoPedroAS51 to make `useSession` a sync operation and trigger the session lifecycle from a plugin rather than the `useSession` composable itself.
+
 ##### Project Roadmap
 
 This project is under active development: A lot of stuff already works and as NextAuth.js handles the authentication under the hood, the module should already be ready for most use-cases. Still, some functionality is missing, e.g., we've focused on oauth-providers in the first implementation, so the credential- and email-flow are untested.
@@ -763,7 +753,7 @@ Note: The playground has considerably less polishing than the example page.
 - Run `npm run dev:prepare` to generate type stubs.
 - Use `npm run dev` to start [the module playground](./playground) in development mode.
 - Run `npm run lint` to run eslint
-- Run `npm run type` to run typescheck via tsc
+- Run `npm run types` to run typescheck via tsc
 - Run `npm publish --access public` to publish (bump version before)
 
 <!-- Badges -->
