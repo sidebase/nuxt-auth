@@ -56,7 +56,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 2. Set up runtime configuration
     const isOriginSet = !moduleOptions.origin
-      // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
+    // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
     const usedOrigin = moduleOptions.origin ?? 'http://localhost:3000'
 
     const options = defu(moduleOptions, {
