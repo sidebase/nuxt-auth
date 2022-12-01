@@ -1,27 +1,27 @@
-import type { Session } from 'next-auth'
 import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
 import defu from 'defu'
 import { callWithNuxt } from '#app'
-import { readonly, Ref } from 'vue'
+import { readonly } from 'vue'
 import { joinPathToBase, navigateTo, getRequestUrl } from '../utils/url'
 import { _fetch } from '../utils/fetch'
-import { createError, useState, useRequestHeaders, useNuxtApp } from '#imports'
-
-interface UseSessionOptions {
-  required?: boolean
-  callbackUrl?: string
-  onUnauthenticated?: () => void
-}
-
+import isNonEmptyObject from '../utils/isNonEmptyObject'
+import useSessionState, { SessionData } from './useSessionState'
+import { createError, useRequestHeaders, useNuxtApp } from '#imports'
 /**
  * Utility type that allows autocompletion for a mix of literal, primitiva and non-primitive values.
  * @source https://github.com/microsoft/TypeScript/issues/29729#issuecomment-832522611
  */
 // eslint-disable-next-line no-use-before-define
 type LiteralUnion<T extends U, U = string> = T | (U & Record<never, never>);
+
+// TODO: Stronger typing for `provider`, see https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/index.tsx#L199-L203
 type SupportedProviders = LiteralUnion<BuiltInProviderType>
 
-type GetSessionOptions = Partial<UseSessionOptions>
+type GetSessionOptions = Partial<{
+  required?: boolean
+  callbackUrl?: string
+  onUnauthenticated?: () => void
+}>
 
 interface SignInOptions extends Record<string, unknown> {
   /**
@@ -42,9 +42,6 @@ interface SignOutOptions {
   redirect?: boolean
 }
 
-type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
-type SessionData = Session | undefined | null
-
 /**
  * Get the current Cross-Site Request Forgery token.
  *
@@ -59,7 +56,6 @@ const getCsrfToken = () => {
   return _fetch<{ csrfToken: string }>('csrf', { headers })
 }
 
-// TODO: Stronger typing for `provider`, see https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/index.tsx#L199-L203
 /**
    * Trigger a sign in flow for the passed `provider`. If no provider is given the sign in page for all providers will be shown.
    *
@@ -140,14 +136,13 @@ const signIn = async (
 const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, 'options'> | undefined>>('providers')
 
 export default () => {
-  const data = useState<SessionData>('session:data', () => undefined)
-  const status = useState<SessionStatus>('session:status', () => 'unauthenticated')
+  const { data, status, loading } = useSessionState()
 
   /**
- * Refresh and get the current session data.
- *
- * @param getSessionOptions - Options for getting the session, e.g., set `required: true` to enforce that a session _must_ exist, the user will be directed to a login page otherwise.
- */
+   * Refresh and get the current session data.
+   *
+   * @param getSessionOptions - Options for getting the session, e.g., set `required: true` to enforce that a session _must_ exist, the user will be directed to a login page otherwise.
+   */
   const getSession = async (getSessionOptions?: GetSessionOptions) => {
     const nuxt = useNuxtApp()
 
@@ -158,7 +153,7 @@ export default () => {
     })
 
     const onError = () => {
-      status.value = 'unauthenticated'
+      loading.value = false
     }
 
     let headers = {}
@@ -171,18 +166,13 @@ export default () => {
       onResponse: ({ response }) => {
         const sessionData = response._data
 
-        if (!sessionData || Object.keys(sessionData).length === 0) {
-          status.value = 'unauthenticated'
-          data.value = null
-        } else {
-          status.value = 'authenticated'
-          data.value = sessionData
-        }
+        data.value = isNonEmptyObject(sessionData) ? sessionData : null
+        loading.value = false
 
         return sessionData
       },
       onRequest: ({ options }) => {
-        status.value = 'loading'
+        loading.value = true
 
         options.params = {
           ...(options.params || {}),
@@ -232,8 +222,8 @@ export default () => {
       }
     })
 
-    status.value = 'unauthenticated'
     data.value = undefined
+    loading.value = false
 
     if (redirect) {
       const url = signoutData.url ?? callbackUrl
@@ -251,10 +241,7 @@ export default () => {
     signOut
   }
 
-  const getters: {
-    status: Ref<SessionStatus>,
-    data: Ref<SessionData>
-  } = {
+  const getters = {
     status,
     data: readonly(data)
   }

@@ -8,6 +8,8 @@ import type { NextAuthAction, NextAuthOptions, Session } from 'next-auth'
 import type { GetTokenParams } from 'next-auth/jwt'
 
 import defu from 'defu'
+import isNonEmptyObject from '../../utils/isNonEmptyObject'
+
 import { useRuntimeConfig } from '#imports'
 
 let preparedAuthHandler: ReturnType<typeof eventHandler> | undefined
@@ -193,8 +195,7 @@ export const getServerSession = async (event: H3Event) => {
   const session = await preparedAuthHandler(event)
   delete event.context.checkSessionOnNonAuthRequest
 
-  // TODO: This check also happens in the `useSession` composable, refactor it into a small util instead to ensure consistency
-  if (!session || Object.keys(session).length === 0) {
+  if (isNonEmptyObject(session)) {
     return null
   }
 
