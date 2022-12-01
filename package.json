@@ -29,6 +29,7 @@
     "@nuxt/kit": "^3.0.0-rc.12",
     "defu": "^6.1.0",
     "next-auth": "^4.14.0",
+    "requrl": "^3.0.2",
     "ufo": "^1.0.0"
   },
   "devDependencies": {
