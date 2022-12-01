@@ -81,7 +81,7 @@ export default defineNuxtModule<ModuleOptions>({
       return
     }
 
-    logger.info('Setting up auth...')
+    logger.info('`nuxt-auth` setup starting')
 
     // 2. Set up runtime configuration
     const isOriginSet = Boolean(moduleOptions.origin)
@@ -147,6 +147,6 @@ export default defineNuxtModule<ModuleOptions>({
     // 6. Add plugin for initial load
     addPlugin(resolve('./runtime/plugin'))
 
-    logger.success('Auth module setup done')
+    logger.success('`nuxt-auth` setup done')
   }
 })

@@ -20,8 +20,8 @@
         -> globally protected page
       </nuxt-link>
       <br>
-      <nuxt-link to="/protected/named">
-        -> named protected page
+      <nuxt-link to="/protected/locally">
+        -> locally protected page
       </nuxt-link>
       <br>
       <nuxt-link to="/always-unprotected">

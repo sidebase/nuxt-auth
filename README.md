@@ -567,6 +567,8 @@ definePageMeta({ middleware: 'auth' })
 </script>
 ```
 
+Note: You cannot use local protection when you turned on the global middleware by setting `enableGlobalAppMiddleware: true` in the `nuxt-auth` configuration. You will get an error along the lines of "Error: Unknown route middleware: 'auth'". This is because the `auth` middleware is then added globally and not available to use as a local, page-specific middleware.
+
 #### Server-side usage
 
 On the server side you can get access to the current session like this:
