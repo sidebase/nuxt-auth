@@ -55,7 +55,7 @@ export default defineNuxtModule<ModuleOptions>({
     logger.info('Setting up auth...')
 
     // 2. Set up runtime configuration
-    const isOriginSet = !moduleOptions.origin
+    const isOriginSet = Boolean(moduleOptions.origin)
     // TODO: see if we can figure out localhost + port dynamically from the nuxt instance
     const usedOrigin = moduleOptions.origin ?? 'http://localhost:3000'
 
