@@ -1,5 +1,5 @@
 <template>
-  <div>I'm always public, even when a global middleware is added!</div>
+  <div>I'm always public, even when the global auth middleware is enabled!</div>
 </template>
 
 <script setup lang="ts">

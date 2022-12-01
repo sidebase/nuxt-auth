@@ -69,23 +69,30 @@ const signIn = async (
   options?: SignInOptions,
   authorizationParams?: SignInAuthorizationParams
 ) => {
+  // Workaround to make nested composable calls possible (`useRuntimeConfig` is called by `joinPathToBase`), see https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
+  const nuxt = useNuxtApp()
+  const joinPathToBaseWithNuxt = (path: string) => callWithNuxt(nuxt, joinPathToBase, [path])
+  const navigateToWithNuxt = (href: string) => callWithNuxt(nuxt, navigateTo, [href])
+
   // 1. Lead to error page if no providers are available
   const configuredProviders = await getProviders()
   if (!configuredProviders) {
-    return navigateTo(joinPathToBase('error'))
+    const errorUrl = await joinPathToBaseWithNuxt('error')
+    return navigateToWithNuxt(errorUrl)
   }
 
   // 2. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
   const { callbackUrl = getRequestUrl(), redirect = true } = options ?? {}
-  const hrefSignInAllProviderPage = `${joinPathToBase('signin')}?${new URLSearchParams({ callbackUrl })}`
 
+  const signinUrl = await joinPathToBaseWithNuxt('signin')
+  const hrefSignInAllProviderPage = `${signinUrl}?${new URLSearchParams({ callbackUrl })}`
   if (!provider) {
-    return navigateTo(hrefSignInAllProviderPage)
+    return navigateToWithNuxt(hrefSignInAllProviderPage)
   }
 
   const selectedProvider = configuredProviders[provider]
   if (!selectedProvider) {
-    return navigateTo(hrefSignInAllProviderPage)
+    return navigateToWithNuxt(hrefSignInAllProviderPage)
   }
 
   // 3. Perform a sign-in straight away with the selected provider
@@ -143,13 +150,18 @@ const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, '
  * @param getSessionOptions - Options for getting the session, e.g., set `required: true` to enforce that a session _must_ exist, the user will be directed to a login page otherwise.
  */
 const getSession = async (getSessionOptions?: GetSessionOptions) => {
+  // Workaround to make nested composable calls possible (`useRuntimeConfig` is called by `joinPathToBase` in `onUnauthenticated` below, so we call it with `callWithNuxt` below), see https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
   const nuxt = useNuxtApp()
+
   const { data, status, loading, lastRefreshedAt } = useSessionState()
 
   const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions || {}, {
     required: false,
     callbackUrl: undefined,
-    onUnauthenticated: () => navigateTo(joinPathToBase(`signin?${new URLSearchParams({ callbackUrl: getSessionOptions?.callbackUrl || '/' })}`))
+    onUnauthenticated: () => {
+      const signinUrl = joinPathToBase(`signin?${new URLSearchParams({ callbackUrl: getSessionOptions?.callbackUrl || '/' })}`)
+      return navigateTo(signinUrl)
+    }
   })
 
   const onError = () => {
