@@ -185,7 +185,6 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
     },
     onRequest: ({ options }) => {
       lastRefreshedAt.value = new Date()
-      loading.value = true
 
       options.params = {
         ...(options.params || {}),
