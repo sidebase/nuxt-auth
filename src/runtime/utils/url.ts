@@ -3,7 +3,10 @@ import _getURL from 'requrl'
 import { useRequestEvent } from '#app'
 import { useRuntimeConfig, navigateTo as _navigateTo } from '#imports'
 
-const getApiURL = () => joinURL(getRequestURL(false), useRuntimeConfig().public.auth.basePath)
+const getApiURL = () => {
+  const origin = useRuntimeConfig().public.auth.origin ?? (process.env.NODE_ENV !== 'production' ? getRequestURL(false) : '')
+  return joinURL(origin, useRuntimeConfig().public.auth.basePath)
+}
 
 export const getRequestURL = (includePath = true) => _getURL(useRequestEvent()?.node.req, includePath)
 export const joinPathToApiURL = (path: string) => joinURL(getApiURL(), path)
