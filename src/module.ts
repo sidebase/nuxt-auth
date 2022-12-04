@@ -159,6 +159,7 @@ export default defineNuxtModule<ModuleOptions>({
         config.define = config.define || {}
         config.define['process.env.NEXTAUTH_URL'] = JSON.stringify(url)
         config.define['process.env.NEXTAUTH_URL_INTERNAL'] = JSON.stringify(url)
+        config.define['process.env.AUTH_TRUST_HOST'] = JSON.stringify(options.trustHost)
         config.define['process.env.VERCEL_URL'] = JSON.stringify(process.env.VERCEL_URL)
       })
     }
