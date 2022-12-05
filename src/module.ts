@@ -1,4 +1,4 @@
-import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate, addPlugin, extendViteConfig } from '@nuxt/kit'
+import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate, addPlugin } from '@nuxt/kit'
 import defu from 'defu'
 import { joinURL } from 'ufo'
 
@@ -29,6 +29,16 @@ interface ModuleOptions {
    * @default /api/auth
    */
   basePath: string | undefined
+  /**
+   * If set to `true`, `NuxtAuth` will use either the `x-forwarded-host` or `host` headers,
+   * instead of `auth.origin`
+   * Make sure that reading `x-forwarded-host` on your hosting platform can be trusted.
+   * - ⚠ **This is an advanced option.** Advanced options are passed the same way as basic options,
+   * but **may have complex implications** or side effects.
+   * You should **try to avoid using advanced options** unless you are very comfortable using them.
+   * @default false
+   */
+  trustHost: boolean
   /**
    * Whether to refresh the session every `X` milliseconds. Set this to `false` to turn it off. The session will only be refreshed if a session already exists.
    *
@@ -62,6 +72,7 @@ const defaults: ModuleOptions & { basePath: string } = {
   isEnabled: true,
   origin: undefined,
   basePath: '/api/auth',
+  trustHost: false,
   enableSessionRefreshPeriodically: false,
   enableSessionRefreshOnWindowFocus: true,
   enableGlobalAppMiddleware: false
@@ -85,16 +96,13 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 2. Set up runtime configuration
     const isOriginSet = Boolean(moduleOptions.origin)
-    // TODO: see if we can figure out localhost + port dynamically from the nuxt instance _for dev mode only_
-    const usedOrigin = moduleOptions.origin ?? 'http://localhost:3000'
 
     const options = defu(moduleOptions, {
       ...defaults,
-      basePath: defaults.basePath,
-      origin: usedOrigin
+      basePath: defaults.basePath
     })
 
-    const url = joinURL(usedOrigin, options.basePath)
+    const url = joinURL(options.origin ?? '', options.basePath)
     logger.info(`Using \`${url}\` as the auth API location, make sure the \`[...].ts\` file with the \`export default NuxtAuthHandler({ ... })\` is added there. Use the \`nuxt.config.ts\` \`auth.origin\` and \`auth.basePath\` config keys to change the API location`)
     if (process.env.NODE_ENV === 'production') {
       logger.info('When building for production ensure to (1) set the application origin using `auth.origin` inside your `nuxt.config.ts` and (2) set the secret inside the `NuxtAuthHandler({ secret: ... })`')
@@ -103,12 +111,10 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }
     nuxt.options.runtimeConfig.auth = defu(nuxt.options.runtimeConfig.auth, {
       ...options,
-      url,
       isOriginSet
     })
     nuxt.options.runtimeConfig.public.auth = defu(nuxt.options.runtimeConfig.public.auth, {
-      ...options,
-      url
+      ...options
     })
 
     // 3. Locate runtime directory
@@ -146,14 +152,6 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 6. Add plugin for initial load
     addPlugin(resolve('./runtime/plugin'))
-
-    // 7. Setup next-auth env-variables just to be safe, see https://github.com/nextauthjs/next-auth/blob/6280fe9e10bd123aeab576398d1e807a5ac37edc/apps/playground-nuxt/src/module.ts#L32-L38
-    extendViteConfig((config) => {
-      config.define = config.define || {}
-      config.define['process.env.NEXTAUTH_URL'] = JSON.stringify(url)
-      config.define['process.env.NEXTAUTH_URL_INTERNAL'] = JSON.stringify(url)
-      config.define['process.env.VERCEL_URL'] = JSON.stringify(process.env.VERCEL_URL)
-    })
 
     logger.success('`nuxt-auth` setup done')
   }

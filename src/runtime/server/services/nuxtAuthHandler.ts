@@ -7,6 +7,7 @@ import type { RequestInternal } from 'next-auth/core'
 import type { NextAuthAction, NextAuthOptions, Session } from 'next-auth'
 import type { GetTokenParams } from 'next-auth/jwt'
 
+import getURL from 'requrl'
 import defu from 'defu'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
 
@@ -53,6 +54,24 @@ const parseActionAndProvider = ({ context }: H3Event): { action: NextAuthAction,
   return { action, providerId }
 }
 
+/**
+ * Get `origin` and fallback to `x-forwarded-host` or `host` headers if not in production.
+ */
+const getServerOrigin = (event: H3Event): string => useRuntimeConfig().auth.origin ?? (process.env.NODE_ENV !== 'production' ? getURL(event.node.req) : '')
+
+/** Extract the host from the environment */
+const detectHost = (
+  trusted: boolean,
+  forwardedValue: string | string[] | undefined | null,
+  defaultValue: string | false
+): string | undefined => {
+  if (trusted && forwardedValue) {
+    return Array.isArray(forwardedValue) ? forwardedValue[0] : forwardedValue
+  }
+
+  return defaultValue || undefined
+}
+
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
 export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
   const isProduction = process.env.NODE_ENV === 'production'
@@ -79,7 +98,8 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
   const options = defu(nuxtAuthOptions, {
     secret: usedSecret,
     logger: undefined,
-    providers: []
+    providers: [],
+    trustHost: useRuntimeConfig().auth.trustHost
   })
 
   /**
@@ -93,7 +113,13 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
    */
   const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
     const nextRequest: Omit<RequestInternal, 'action'> = {
-      host: useRuntimeConfig().auth.url,
+      host: detectHost(
+        options.trustHost,
+        // Forwarded host
+        getURL(event.node.req),
+        // Origin
+        getServerOrigin(event)
+      ),
       body: undefined,
       cookies: parseCookies(event),
       query: undefined,
@@ -213,10 +239,10 @@ export const getToken = ({ event, secureCookie, secret, ...rest }: Omit<GetToken
   // @ts-expect-error As our request is not a real next-auth request, we pass down only what's required for the method, as per code from https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L68
   req: {
     cookies: parseCookies(event),
-    headers: event.node.req.headers
+    headers: getHeaders(event)
   },
   // see https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L73
-  secureCookie: secureCookie || useRuntimeConfig().auth.url.startsWith('https://'),
+  secureCookie: secureCookie || getServerOrigin(event).startsWith('https://'),
   secret: secret || usedSecret,
   ...rest
 })
