@@ -209,6 +209,7 @@ const signOut = async (options?: SignOutOptions) => {
     throw createError({ statusCode: 400, statusMessage: 'Could not fetch CSRF Token for signing out' })
   }
 
+  const callbackUrlFallback = getRequestURL()
   const signoutData = await _fetch<{ url: string }>('signout', {
     method: 'POST',
     headers: {
@@ -217,7 +218,7 @@ const signOut = async (options?: SignOutOptions) => {
     onRequest: ({ options }) => {
       options.body = new URLSearchParams({
         csrfToken: csrfToken as string,
-        callbackUrl: callbackUrl || getRequestURL(),
+        callbackUrl: callbackUrl || callbackUrlFallback,
         json: 'true'
       })
     }
