@@ -1,4 +1,4 @@
-import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate, addPlugin, extendViteConfig } from '@nuxt/kit'
+import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate, addPlugin } from '@nuxt/kit'
 import defu from 'defu'
 import { joinURL } from 'ufo'
 
