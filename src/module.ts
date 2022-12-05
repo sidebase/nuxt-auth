@@ -153,17 +153,6 @@ export default defineNuxtModule<ModuleOptions>({
     // 6. Add plugin for initial load
     addPlugin(resolve('./runtime/plugin'))
 
-    // 7. Setup next-auth env-variables just to be safe, see https://github.com/nextauthjs/next-auth/blob/6280fe9e10bd123aeab576398d1e807a5ac37edc/apps/playground-nuxt/src/module.ts#L32-L38
-    if (!nuxt.options.dev && isOriginSet) {
-      extendViteConfig((config) => {
-        config.define = config.define || {}
-        config.define['process.env.NEXTAUTH_URL'] = JSON.stringify(url)
-        config.define['process.env.NEXTAUTH_URL_INTERNAL'] = JSON.stringify(url)
-        config.define['process.env.AUTH_TRUST_HOST'] = JSON.stringify(options.trustHost)
-        config.define['process.env.VERCEL_URL'] = JSON.stringify(process.env.VERCEL_URL)
-      })
-    }
-
     logger.success('`nuxt-auth` setup done')
   }
 })
