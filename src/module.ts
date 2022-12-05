@@ -72,7 +72,7 @@ const defaults: ModuleOptions & { basePath: string } = {
   isEnabled: true,
   origin: undefined,
   basePath: '/api/auth',
-  trustHost: Boolean(process.env.AUTH_TRUST_HOST ?? process.env.VERCEL),
+  trustHost: false,
   enableSessionRefreshPeriodically: false,
   enableSessionRefreshOnWindowFocus: true,
   enableGlobalAppMiddleware: false
