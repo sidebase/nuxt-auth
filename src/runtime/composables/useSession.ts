@@ -149,21 +149,14 @@ const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, '
  *
  * @param getSessionOptions - Options for getting the session, e.g., set `required: true` to enforce that a session _must_ exist, the user will be directed to a login page otherwise.
  */
-const getSession = async (getSessionOptions?: GetSessionOptions) => {
-  // Workaround to make nested composable calls possible (`useRuntimeConfig` is called by `joinPathToApiURL` in `onUnauthenticated` below, so we call it with `callWithNuxt` below), see https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
-  const nuxt = useNuxtApp()
-
-  const { data, status, loading, lastRefreshedAt } = useSessionState()
-
+const getSession = (getSessionOptions?: GetSessionOptions) => {
   const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions || {}, {
     required: false,
     callbackUrl: undefined,
-    onUnauthenticated: () => {
-      const signinUrl = joinPathToApiURL(`signin?${new URLSearchParams({ callbackUrl: getSessionOptions?.callbackUrl || '/' })}`)
-      return navigateTo(signinUrl)
-    }
+    onUnauthenticated: () => signIn()
   })
 
+  const { data, status, loading, lastRefreshedAt } = useSessionState()
   const onError = () => {
     loading.value = false
   }
@@ -174,12 +167,17 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
     headers = { cookie }
   }
 
-  const result = await _fetch<SessionData>('session', {
+  const callbackUrlFallback = getRequestURL()
+  return _fetch<SessionData>('session', {
     onResponse: ({ response }) => {
       const sessionData = response._data
 
       data.value = isNonEmptyObject(sessionData) ? sessionData : null
       loading.value = false
+
+      if (required && status.value === 'unauthenticated') {
+        return onUnauthenticated()
+      }
 
       return sessionData
     },
@@ -189,20 +187,13 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
       options.params = {
         ...(options.params || {}),
         // The request is executed with `server: false`, so window will always be defined at this point
-        callbackUrl: callbackUrl || getRequestURL()
+        callbackUrl: callbackUrl || callbackUrlFallback
       }
     },
     onRequestError: onError,
     onResponseError: onError,
     headers
   })
-
-  if (required && status.value === 'unauthenticated') {
-    // Calling nested, async composables drops the implicit nuxt context, this is not a bug but rather a design-limitation of Vue/Nuxt. In order to avoid this, we use the `callWithNuxt` helper to keep the context. See https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
-    return callWithNuxt(nuxt, onUnauthenticated, [])
-  }
-
-  return result
 }
 
 /**
