@@ -14,11 +14,7 @@ export const joinPathToApiURL = (path: string) => joinURL(getApiURL(), path)
 export const navigateTo = (href: string, options?: { external?: boolean, replace?: boolean }) => {
   const { external = true, replace = false } = options ?? {}
 
-  if (process.server) {
-    return _navigateTo(href, { external })
-  }
-
-  if (!external) {
+  if (process.server || !external) {
     return _navigateTo(href, { external, replace })
   }
 
