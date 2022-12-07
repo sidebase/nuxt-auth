@@ -33,6 +33,8 @@ interface SignInOptions extends Record<string, unknown> {
   callbackUrl?: string
   /** [Documentation](https://next-auth.js.org/getting-started/client#using-the-redirect-false-option) */
   redirect?: boolean
+
+  replace?: boolean
 }
 
 // Subset from: https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/types.ts#L44-L49
@@ -69,10 +71,12 @@ const signIn = async (
   options?: SignInOptions,
   authorizationParams?: SignInAuthorizationParams
 ) => {
+  const { callbackUrl = getRequestURL(), redirect = true, replace = false } = options ?? {}
+
   // Workaround to make nested composable calls possible (`useRuntimeConfig` is called by `joinPathToApiURL`), see https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
   const nuxt = useNuxtApp()
   const joinPathToApiURLWithNuxt = (path: string) => callWithNuxt(nuxt, joinPathToApiURL, [path])
-  const navigateToWithNuxt = (href: string) => callWithNuxt(nuxt, navigateTo, [href])
+  const navigateToWithNuxt = (href: string) => callWithNuxt(nuxt, navigateTo, [href, { replace }])
 
   // 1. Lead to error page if no providers are available
   const configuredProviders = await getProviders()
@@ -82,8 +86,6 @@ const signIn = async (
   }
 
   // 2. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
-  const { callbackUrl = getRequestURL(), redirect = true } = options ?? {}
-
   const signinUrl = await joinPathToApiURLWithNuxt('signin')
   const hrefSignInAllProviderPage = `${signinUrl}?${new URLSearchParams({ callbackUrl })}`
   if (!provider) {
