@@ -16,6 +16,10 @@
         -> manual login, logout, refresh button
       </nuxt-link>
       <br>
+      <nuxt-link to="/custom-signin">
+        -> custom sign-in page
+      </nuxt-link>
+      <br>
       <nuxt-link to="/protected/globally">
         -> globally protected page
       </nuxt-link>
