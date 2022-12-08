@@ -20,7 +20,7 @@
 npm i -D @sidebase/nuxt-auth
 ```
 
-Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/quick-start) to setup the module.
+Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting-started/quick-start) to setup the module.
 
 ## Features
 
