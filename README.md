@@ -1,3 +1,5 @@
+![nuxt-auth demo page](.github/nuxt-auth.jpg)
+
 # 🔐 nuxt-auth
 
 [![npm version][npm-version-src]][npm-version-href]
@@ -52,7 +54,7 @@ Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/quick-s
 ## Demo Page
 
 Visit the [`nuxt-auth` demo page here](https://nuxt-auth-example.sidebase.io/):
-![nuxt-auth demo page](.github/nuxt-user-demo.jpg)
+![nuxt-auth demo page](.github/nuxt-auth-demo.png)
 
 You can find the [demo source-code here](https://github.com/sidebase/nuxt-auth-example).
 
