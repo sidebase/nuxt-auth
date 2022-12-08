@@ -34,6 +34,14 @@ interface SignInOptions extends Record<string, unknown> {
   /** [Documentation](https://next-auth.js.org/getting-started/client#using-the-redirect-false-option) */
   redirect?: boolean
 
+  /**
+   * The current page will not be saved in session History, meaning the user won't be able to use the back button
+   * to navigate to it.
+   *
+   * @default false
+   *
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Location/replace|location.replace}
+   */
   replace?: boolean
 }
 
