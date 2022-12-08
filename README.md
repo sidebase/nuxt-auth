@@ -9,10 +9,7 @@
 [![Follow us on Twitter](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/sidebase_io)
 [![Join our Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/9MUHR8WT9B)
 
-
 > `nuxt-auth` is a feature-packed, open-source authentication module for Nuxt 3 applications.
-
-`nuxt-auth` wraps [NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 12k star library to the nuxt 3 ecosystem with a native developer experience (DX).
 
 ## Quick Start
 
@@ -24,6 +21,7 @@ Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting
 
 ## Features
 
+`nuxt-auth` wraps [NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 12k star library to the nuxt 3 ecosystem with a native developer experience (DX). Features of `nuxt-auth` include:
 - ✔️ Authentication providers:
     - ✔️ OAuth (e.g., Github, Google, Twitter, Azure, ...)
     - ✔️ Custom OAuth (write it yourself)
