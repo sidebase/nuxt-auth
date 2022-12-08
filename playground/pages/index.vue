@@ -27,7 +27,8 @@
 </template>
 
 <script setup lang="ts">
-import { useSession } from '#imports'
+import { definePageMeta, useSession } from '#imports'
+definePageMeta({ auth: false })
 
 const { getSession, signIn, signOut } = useSession()
 </script>
