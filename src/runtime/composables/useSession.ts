@@ -22,6 +22,7 @@ type GetSessionOptions = Partial<{
   required?: boolean
   callbackUrl?: string
   onUnauthenticated?: () => void
+  replace?: boolean
 }>
 
 interface SignInOptions extends Record<string, unknown> {
@@ -160,10 +161,14 @@ const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, '
  * @param getSessionOptions - Options for getting the session, e.g., set `required: true` to enforce that a session _must_ exist, the user will be directed to a login page otherwise.
  */
 const getSession = (getSessionOptions?: GetSessionOptions) => {
+  const callbackUrlFallback = getRequestURL()
   const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions || {}, {
     required: false,
     callbackUrl: undefined,
-    onUnauthenticated: () => signIn()
+    onUnauthenticated: () => signIn(undefined, {
+      callbackUrl: getSessionOptions?.callbackUrl || callbackUrlFallback,
+      replace: getSessionOptions?.replace || false
+    })
   })
 
   const { data, status, loading, lastRefreshedAt } = useSessionState()
@@ -177,7 +182,6 @@ const getSession = (getSessionOptions?: GetSessionOptions) => {
     headers = { cookie }
   }
 
-  const callbackUrlFallback = getRequestURL()
   return _fetch<SessionData>('session', {
     onResponse: ({ response }) => {
       const sessionData = response._data
@@ -196,7 +200,6 @@ const getSession = (getSessionOptions?: GetSessionOptions) => {
 
       options.params = {
         ...(options.params || {}),
-        // The request is executed with `server: false`, so window will always be defined at this point
         callbackUrl: callbackUrl || callbackUrlFallback
       }
     },
