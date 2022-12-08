@@ -11,5 +11,5 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
-  return signIn(undefined, { callbackUrl: to.path }, { error: 'SessionRequired' })
+  return signIn(undefined, { callbackUrl: to.path, replace: true }, { error: 'SessionRequired' })
 })
