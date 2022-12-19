@@ -4,12 +4,12 @@ import { NuxtAuthHandler } from '#auth'
 
 export default NuxtAuthHandler({
   providers: [
-    // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
+    // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
     GithubProvider.default({
       clientId: 'your-client-id',
       clientSecret: 'your-client-secret'
     }),
-    // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
+    // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
     CredentialsProvider.default({
       // The name to display on the sign in form (e.g. 'Sign in with...')
       name: 'Credentials',
