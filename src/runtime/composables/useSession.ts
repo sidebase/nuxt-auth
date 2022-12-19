@@ -2,10 +2,16 @@ import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
 import defu from 'defu'
 import { callWithNuxt } from '#app'
 import { readonly } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 import { navigateTo, getRequestURL, joinPathToApiURL } from '../utils/url'
 import { _fetch } from '../utils/fetch'
 import { isNonEmptyObject } from '../utils/checkSessionResult'
-import useSessionState, { SessionData } from './useSessionState'
+import useSessionState from './useSessionState'
+import type {
+  SessionData,
+  SessionLastRefreshedAt,
+  SessionStatus
+} from './useSessionState'
 import { createError, useRequestHeaders, useNuxtApp } from '#imports'
 
 /**
@@ -69,7 +75,8 @@ const getCsrfToken = () => {
 }
 
 /**
- * Trigger a sign in flow for the passed `provider`. If no provider is given the sign in page for all providers will be shown.
+ * Trigger a sign in flow for the passed `provider`. If no provider is given the sign in page for all providers will be
+ * shown.
  *
  * @param provider - Provider to trigger sign in flow for. Leave empty to show page with all providers
  * @param options - Sign in options, everything you pass here will be passed with the body of the sign-in request. You can use this to include provider-specific data, e.g., the username and password for the `credential` flow
@@ -246,8 +253,23 @@ const signOut = async (options?: SignOutOptions) => {
   return signoutData
 }
 
-export default () => {
-  const { data, status, lastRefreshedAt } = useSessionState()
+export interface UseSessionReturn {
+  data: Readonly<Ref<SessionData>>
+  lastRefreshedAt: Readonly<Ref<SessionLastRefreshedAt>>
+  status: ComputedRef<SessionStatus>
+  getSession: typeof getSession
+  getCsrfToken: typeof getCsrfToken
+  getProviders: typeof getProviders
+  signIn: typeof signIn
+  signOut: typeof signOut
+}
+
+export default (): UseSessionReturn => {
+  const {
+    data,
+    status,
+    lastRefreshedAt
+  } = useSessionState()
 
   const actions = {
     getSession,
