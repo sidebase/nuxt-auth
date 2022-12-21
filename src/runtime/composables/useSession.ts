@@ -75,8 +75,7 @@ const getCsrfToken = () => {
 }
 
 /**
- * Trigger a sign in flow for the passed `provider`. If no provider is given the sign in page for all providers will be
- * shown.
+ * Trigger a sign in flow for the passed `provider`. If no provider is given the sign in page for all providers will be shown.
  *
  * @param provider - Provider to trigger sign in flow for. Leave empty to show page with all providers
  * @param options - Sign in options, everything you pass here will be passed with the body of the sign-in request. You can use this to include provider-specific data, e.g., the username and password for the `credential` flow
