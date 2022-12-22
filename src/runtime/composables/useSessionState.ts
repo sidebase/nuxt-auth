@@ -1,13 +1,21 @@
-import { computed, ComputedRef, Ref } from 'vue'
+import { computed } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 import type { Session } from 'next-auth'
 import { useState } from '#imports'
 
-type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
+export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 
-type SessionLastRefreshedAt = Date | undefined
+export type SessionLastRefreshedAt = Date | undefined
 export type SessionData = Session | undefined | null
 
-export default () => {
+export interface UseSessionStateReturn {
+  data: Ref<SessionData>
+  loading: Ref<boolean>
+  lastRefreshedAt: Ref<SessionLastRefreshedAt>
+  status: ComputedRef<SessionStatus>
+}
+
+export default (): UseSessionStateReturn => {
   const data = useState<SessionData>('session:data', () => undefined)
 
   const hasInitialSession = data.value !== undefined
@@ -41,10 +49,5 @@ export default () => {
     loading,
     lastRefreshedAt,
     status
-  } as {
-    data: Ref<SessionData>
-    loading: Ref<boolean>
-    lastRefreshedAt: Ref<SessionLastRefreshedAt>
-    status: ComputedRef<SessionStatus>
   }
 }
