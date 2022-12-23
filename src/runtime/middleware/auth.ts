@@ -21,6 +21,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
    *
    * See https://github.com/sidebase/nuxt-auth/issues/100 for a discussion on this topic.
    * */
-  await signIn(undefined, { callbackUrl: to.path, replace: true, redirect: false }, { error: 'SessionRequired' })
+  await signIn(undefined, { callbackUrl: to.path, redirect: false }, { error: 'SessionRequired' })
   return navigateTo(joinPathToApiURL('signin'))
 })
