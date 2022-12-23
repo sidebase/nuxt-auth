@@ -26,8 +26,26 @@ jobs:
 
       # Check linting and typing
       - run: npm run lint
-      - run: npm run types
+      - run: npm run typecheck
 
       # Check building
       - run: npm run build:module
       - run: npm run build:playground
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js 16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+
+      - run: npm ci
+
+      - uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          access: public

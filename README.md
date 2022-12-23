@@ -61,7 +61,7 @@ You can find the [demo source-code here](https://github.com/sidebase/nuxt-auth-e
 - Run `npm run dev:prepare` to generate type stubs.
 - Use `npm run dev` to start [the module playground](./playground) in development mode.
 - Run `npm run lint` to run eslint
-- Run `npm run types` to run typescheck via tsc
+- Run `npm run typecheck` to run typescheck via tsc
 - Run `npm publish --access public` to publish (bump version before)
 
 <!-- Badges -->
