@@ -137,7 +137,7 @@ const signIn = async (
       callbackUrl,
       json: true
     })
-  })
+  }).catch(error => error.data)
 
   if (redirect || !isSupportingReturn) {
     const href = data.url ?? callbackUrl
@@ -241,7 +241,7 @@ const signOut = async (options?: SignOutOptions) => {
         json: 'true'
       })
     }
-  })
+  }).catch(error => error.data)
 
   if (redirect) {
     const url = signoutData.url ?? callbackUrl
