@@ -103,6 +103,7 @@ const signIn = async (
   // 2. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
   const signinUrl = await joinPathToApiURLWithNuxt('signin')
   const hrefSignInAllProviderPage = `${signinUrl}?${new URLSearchParams({ callbackUrl })}`
+
   if (!provider) {
     return navigateToWithNuxt(hrefSignInAllProviderPage)
   }
