@@ -28,7 +28,6 @@ type GetSessionOptions = Partial<{
   required?: boolean
   callbackUrl?: string
   onUnauthenticated?: () => void
-  replace?: boolean
 }>
 
 interface SignInOptions extends Record<string, unknown> {
@@ -40,16 +39,6 @@ interface SignInOptions extends Record<string, unknown> {
   callbackUrl?: string
   /** [Documentation](https://next-auth.js.org/getting-started/client#using-the-redirect-false-option) */
   redirect?: boolean
-
-  /**
-   * The current page will not be saved in session History, meaning the user won't be able to use the back button
-   * to navigate to it.
-   *
-   * @default false
-   *
-   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Location/replace|location.replace}
-   */
-  replace?: boolean
 }
 
 // Subset from: https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/types.ts#L44-L49
@@ -86,12 +75,10 @@ const signIn = async (
   options?: SignInOptions,
   authorizationParams?: SignInAuthorizationParams
 ) => {
-  const { callbackUrl = getRequestURL(), redirect = true, replace = false } = options ?? {}
-
   // Workaround to make nested composable calls possible (`useRuntimeConfig` is called by `joinPathToApiURL`), see https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
   const nuxt = useNuxtApp()
   const joinPathToApiURLWithNuxt = (path: string) => callWithNuxt(nuxt, joinPathToApiURL, [path])
-  const navigateToWithNuxt = (href: string) => callWithNuxt(nuxt, navigateTo, [href, { replace }])
+  const navigateToWithNuxt = (href: string) => callWithNuxt(nuxt, navigateTo, [href])
 
   // 1. Lead to error page if no providers are available
   const configuredProviders = await getProviders()
@@ -101,6 +88,8 @@ const signIn = async (
   }
 
   // 2. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
+  const { callbackUrl = getRequestURL(), redirect = true } = options ?? {}
+
   const signinUrl = await joinPathToApiURLWithNuxt('signin')
   const hrefSignInAllProviderPage = `${signinUrl}?${new URLSearchParams({ callbackUrl })}`
 
@@ -173,8 +162,7 @@ const getSession = (getSessionOptions?: GetSessionOptions) => {
     required: false,
     callbackUrl: undefined,
     onUnauthenticated: () => signIn(undefined, {
-      callbackUrl: getSessionOptions?.callbackUrl || callbackUrlFallback,
-      replace: getSessionOptions?.replace || false
+      callbackUrl: getSessionOptions?.callbackUrl || callbackUrlFallback
     })
   })
 
