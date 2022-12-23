@@ -55,8 +55,8 @@ const { data, status, lastRefreshedAt, getCsrfToken, getProviders } = useSession
 const providers = await getProviders()
 const csrfToken = await getCsrfToken()
 
-const headers = useRequestHeaders(['cookie'])
-const { data: token } = await useFetch('/api/token', { headers: { cookie: headers.cookie } })
+const headers = useRequestHeaders(['cookie']) as HeadersInit
+const { data: token } = await useFetch('/api/token', { headers })
 
 const route = useRoute()
 </script>
