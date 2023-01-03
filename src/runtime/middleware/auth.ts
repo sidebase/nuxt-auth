@@ -2,6 +2,12 @@ import { defineNuxtRouteMiddleware, navigateTo } from '#app'
 import useSession from '../composables/useSession'
 import { joinPathToApiURL } from '../utils/url'
 
+declare module '#app' {
+  interface PageMeta {
+    auth?: boolean
+  }
+}
+
 export default defineNuxtRouteMiddleware(async (to) => {
   if (to.meta.auth === false) {
     return
