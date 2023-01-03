@@ -2,6 +2,12 @@ import { defineNuxtRouteMiddleware, navigateTo } from '#app'
 import { withQuery } from 'ufo'
 import useSession from '../composables/useSession'
 
+declare module '#app' {
+  interface PageMeta {
+    auth?: boolean
+  }
+}
+
 export default defineNuxtRouteMiddleware((to) => {
   if (to.meta.auth === false) {
     return
