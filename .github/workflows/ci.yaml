@@ -31,3 +31,9 @@ jobs:
       # Check building
       - run: npm run build:module
       - run: npm run build:playground
+
+      # start dev-app and curl from it
+      - run: "timeout 30 npm run dev & (sleep 10 && curl --fail localhost:3000)"
+
+      # start prod-app and curl from it
+      - run: "timeout 30 npm run start:playground & (sleep 10 && curl --fail localhost:3000)"
