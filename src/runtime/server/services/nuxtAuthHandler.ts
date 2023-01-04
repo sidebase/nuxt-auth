@@ -19,8 +19,8 @@ let usedSecret: string | undefined
 const SUPPORTED_ACTIONS: NextAuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
 
 export const ERROR_MESSAGES = {
-  NO_SECRET: 'nuxt-auth: No `secret` detected - supplying a `secret` is necessary for production. Set the `secret` by setting it inside your `NuxtAuthHandler` like so: `NuxtAuthHandler({ secret: "your-production-secret", ...restOfYourConfig })`. You can also use an environment variable or `useRuntimeConfig`-value, as shown in the docs: https://sidebase.io/nuxt-auth/configuration/nuxt-auth-handler',
-  NO_ORIGIN: 'nuxt-auth: No `origin` detected - supplying a `origin` is necessary for production. Set the `origin` by exporting it `export AUTH_ORIGIN=...` at runtime or by setting it at build-time inside your `nuxt.config.ts` file like so: `auth: { origin: "https://your-cool-website.com" }`'
+  NO_SECRET: 'AUTH_NO_SECRET: No `secret` - this is an error in production, see https://sidebase.io/nuxt-auth/ressources/errors. You can ignore this during development',
+  NO_ORIGIN: 'AUTH_NO_ORIGIN: No `origin` - this is an error in production, see https://sidebase.io/nuxt-auth/ressources/errors. You can ignore this during development'
 }
 
 /**
@@ -107,7 +107,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
       throw new Error(ERROR_MESSAGES.NO_SECRET)
     } else {
     // eslint-disable-next-line no-console
-      console.warn(ERROR_MESSAGES.NO_SECRET)
+      console.info(ERROR_MESSAGES.NO_SECRET)
       usedSecret = 'secret'
     }
   }
