@@ -1,5 +1,4 @@
 import { getServerOrigin, ERROR_MESSAGES } from '../services/nuxtAuthHandler'
-import { defineNitroPlugin } from '#imports'
 
 export default defineNitroPlugin(() => {
   try {
