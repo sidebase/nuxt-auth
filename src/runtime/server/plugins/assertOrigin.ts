@@ -1,4 +1,6 @@
 import { getServerOrigin, ERROR_MESSAGES } from '../services/nuxtAuthHandler'
+// eslint-disable-next-line import/named
+import { defineNitroPlugin } from '#imports'
 
 export default defineNitroPlugin(() => {
   try {
