@@ -135,7 +135,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
         // Forwarded host
         getURL(event.node.req),
         // Origin
-        getServerOrigin(event) || false
+        getServerOrigin(event)
       ),
       body: undefined,
       cookies: parseCookies(event),
