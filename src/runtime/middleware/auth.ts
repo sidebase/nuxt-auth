@@ -1,4 +1,4 @@
-import { defineNuxtRouteMiddleware, navigateTo, useRuntimeConfig, useRequestEvent, useRouter, useNuxtApp } from '#app'
+import { defineNuxtRouteMiddleware, navigateTo, useRuntimeConfig, useRouter, useNuxtApp } from '#app'
 import { joinURL, withQuery } from 'ufo'
 import { sendRedirect } from 'h3'
 import useSession from '../composables/useSession'
