@@ -69,5 +69,8 @@ export default defineNuxtRouteMiddleware((to) => {
   if (url.includes('#')) {
     window.location.reload()
   }
-  return (new Promise(resolve => setTimeout(resolve, 100)))
+
+  // Wait for the `window.location.href` navigation from above to complete to avoid showing content. If that doesn't work fast enough, delegate navigation back to the `vue-router` (risking a vue-router 404 warning in the console, but still avoiding content-flashes of the protected target page)
+  const avoidContentFlashAtAllCosts = new Promise(resolve => setTimeout(resolve, 60 * 1000)).then(() => router.push(url))
+  return avoidContentFlashAtAllCosts
 })
