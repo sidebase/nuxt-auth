@@ -18,6 +18,11 @@ let preparedAuthHandler: ReturnType<typeof eventHandler> | undefined
 let usedSecret: string | undefined
 const SUPPORTED_ACTIONS: NextAuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
 
+export const ERROR_MESSAGES = {
+  NO_SECRET: 'nuxt-auth: No `secret` detected - supplying a `secret` is necessary for production. Set the `secret` by setting it inside your `NuxtAuthHandler` like so: `NuxtAuthHandler({ secret: "your-production-secret", ...restOfYourConfig })`. You can also use an environment variable or `useRuntimeConfig`-value, as shown in the docs: https://sidebase.io/nuxt-auth/configuration/nuxt-auth-handler',
+  NO_ORIGIN: 'nuxt-auth: No `origin` detected - supplying a `origin` is necessary for production. Set the `origin` by exporting it `export AUTH_ORIGIN=...` at runtime or by setting it at build-time inside your `nuxt.config.ts` file like so: `auth: { origin: "https://your-cool-website.com" }`'
+}
+
 /**
  * Parse a body if the request method is supported, return `undefined` otherwise.
 
@@ -58,7 +63,26 @@ const parseActionAndProvider = ({ context }: H3Event): { action: NextAuthAction,
 /**
  * Get `origin` and fallback to `x-forwarded-host` or `host` headers if not in production.
  */
-const getServerOrigin = (event: H3Event): string => useRuntimeConfig().auth.origin ?? (process.env.NODE_ENV !== 'production' ? getURL(event.node.req) : '')
+export const getServerOrigin = (event?: H3Event): string => {
+  // Prio 1: Environment variable
+  const envOrigin = process.env.AUTH_ORIGIN
+  if (envOrigin) {
+    return envOrigin
+  }
+
+  // Prio 2: Runtime configuration
+  const runtimeConfigOrigin = useRuntimeConfig().auth.origin
+  if (runtimeConfigOrigin) {
+    return runtimeConfigOrigin
+  }
+
+  // Prio 3: Try to infer the origin if we're not in production
+  if (event && process.env.NODE_ENV !== 'production') {
+    return getURL(event.node.req)
+  }
+
+  throw new Error(ERROR_MESSAGES.NO_ORIGIN)
+}
 
 /** Extract the host from the environment */
 const detectHost = (
@@ -79,20 +103,12 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
 
   usedSecret = nuxtAuthOptions?.secret
   if (!usedSecret) {
-    // eslint-disable-next-line no-console
-    console.warn('nuxt-auth runtime: No `secret` supplied - supplying a `secret` will be necessary for production. Set the `secret` in the `NuxtAuthHandler` like so: `NuxtAuthHandler({ secret: "your-production-secret" })`')
     if (isProduction) {
-      throw new Error('Bad production config - set `secret` inside the `NuxtAuthHandler` like so: `NuxtAuthHandler({ secret: "your-production-secret" })`')
+      throw new Error(ERROR_MESSAGES.NO_SECRET)
     } else {
-      usedSecret = 'secret'
-    }
-  }
-
-  if (!useRuntimeConfig().auth.isOriginSet) {
     // eslint-disable-next-line no-console
-    console.warn('nuxt-auth runtime: No `origin` supplied - supplying an `origin` will be necessary for production. Set the `origin` in your `nuxt.config.ts` like so: `auth: { origin: "https://your-origin.com" }`')
-    if (isProduction) {
-      throw new Error('Bad production config - set the application `origin` inside your `nuxt.config.ts` file like so: `auth: { origin: "https://your-cool-website.com" }` ')
+      console.warn(ERROR_MESSAGES.NO_SECRET)
+      usedSecret = 'secret'
     }
   }
 
@@ -119,7 +135,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
         // Forwarded host
         getURL(event.node.req),
         // Origin
-        getServerOrigin(event)
+        getServerOrigin(event) || false
       ),
       body: undefined,
       cookies: parseCookies(event),

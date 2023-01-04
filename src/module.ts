@@ -1,4 +1,4 @@
-import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate, addPlugin } from '@nuxt/kit'
+import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate, addPlugin, addServerPlugin } from '@nuxt/kit'
 import defu from 'defu'
 import { joinURL } from 'ufo'
 
@@ -152,6 +152,9 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 6. Add plugin for initial load
     addPlugin(resolve('./runtime/plugin'))
+
+    // 7. Add a server-plugin to check the `origin` on production-startup
+    addServerPlugin(resolve('./runtime/server/plugins/assertOrigin'))
 
     logger.success('`nuxt-auth` setup done')
   }

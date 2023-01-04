@@ -1,7 +1,8 @@
 <template>
   <div>
     <h3>Authentication Overview</h3>
-    <p>See all available authentication & session information below. Navigate to different sub-pages to test out the app.</p>
+    <p>See all available authentication & session information below. Navigate to different sub-pages to test out the
+      app.</p>
     <pre>Status: {{ status }}</pre>
     <pre>Data: {{ data || 'no session data present, are you logged in?' }}</pre>
     <pre>Last refreshed at: {{ lastRefreshedAt || 'no refresh happened' }}</pre>
@@ -25,7 +26,7 @@
       </nuxt-link>
       <br>
       <nuxt-link to="/protected/locally">
-        -> locally protected page
+        -> locally protected page (only works if global middleware disabled)
       </nuxt-link>
       <br>
       <nuxt-link to="/always-unprotected">
