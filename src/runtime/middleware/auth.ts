@@ -22,14 +22,14 @@ export default defineNuxtRouteMiddleware((to) => {
   const authConfig = useRuntimeConfig().public.auth
 
   /**
-   * We do not want to enforce protection on `404` pages (unless the user opts out of it by setting `enableEarly404Redirect: false`).
+   * We do not want to enforce protection on `404` pages (unless the user opts out of it by setting `allow404WithoutAuth: false`).
    *
    * This is to:
    * - improve UX and DX: Having to log-in to see a `404` is not pleasent,
    * - avoid the `Error [ERR_HTTP_HEADERS_SENT]`-error that occurs when we redirect to the sign-in page when the original to-page does not exist. Likely related to https://github.com/nuxt/framework/issues/9438
    *
    */
-  if (authConfig.globalMiddlewareOptions.enableEarly404Redirect) {
+  if (authConfig.globalMiddlewareOptions.allow404WithoutAuth) {
     const matchedRoute = useRouter().getRoutes().find(route => route.path === to.path)
     if (!matchedRoute) {
       // Hands control back to `vue-router`, which will direct to the `404` page

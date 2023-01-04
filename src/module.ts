@@ -14,7 +14,7 @@ interface GlobalMiddlewareOptions {
    * @example false
    * @default true
    */
-  enableEarly404Redirect?: boolean
+  allow404WithoutAuth?: boolean
 }
 
 interface ModuleOptions {
@@ -96,7 +96,7 @@ const defaults: ModuleOptions & { basePath: string } = {
   enableSessionRefreshOnWindowFocus: true,
   enableGlobalAppMiddleware: false,
   globalMiddlewareOptions: {
-    enableEarly404Redirect: true
+    allow404WithoutAuth: true
   }
 }
 export default defineNuxtModule<ModuleOptions>({
