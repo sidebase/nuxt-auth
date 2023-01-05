@@ -25,7 +25,7 @@
       </nuxt-link>
       <br>
       <nuxt-link to="/protected/locally">
-        -> locally protected page
+        -> locally protected page (only works if global middleware disabled)
       </nuxt-link>
       <br>
       <nuxt-link to="/always-unprotected">
