@@ -125,9 +125,8 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     const url = joinURL(options.origin ?? '', options.basePath)
-    logger.info(`Using \`${url}\` as the auth API location, make sure the \`[...].ts\` file with the \`export default NuxtAuthHandler({ ... })\` is added there. Use the \`nuxt.config.ts\` \`auth.origin\` and \`auth.basePath\` config keys to change the API location`)
-    if (process.env.NODE_ENV === 'production') {
-      logger.info('When building for production ensure to (1) set the application origin using `auth.origin` inside your `nuxt.config.ts` and (2) set the secret inside the `NuxtAuthHandler({ secret: ... })`')
+    if (process.env.NODE_ENV !== 'production') {
+      logger.info(`Auth API location is \`${url}\`, ensure that \`NuxtAuthHandler({ ... })\` is there, see https://sidebase.io/nuxt-auth/configuration/nuxt-auth-handler`)
     }
 
     nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }
