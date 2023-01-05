@@ -40,5 +40,13 @@
     "eslint": "^8.30.0",
     "nuxt": "^3.0.0",
     "ofetch": "^1.0.0"
+  },
+  "overrides": {
+    "@nuxt/kit": {
+      "json5": ">=2.2.2"
+    },
+    "@nuxtjs/eslint-config-typescript": {
+      "json5": ">=1.0.2"
+    }
   }
 }
