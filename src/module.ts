@@ -2,6 +2,21 @@ import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate
 import defu from 'defu'
 import { joinURL } from 'ufo'
 
+interface GlobalMiddlewareOptions {
+  /**
+   * Whether to enforce authentication if the target-route does not exist. Per default the middleware redirects
+   * to Nuxts' default 404 page instead of forcing a sign-in if the target does not exist. This is to avoid a
+   * user-experience and developer-experience of having to sign-in only to see a 404 page afterwards.
+   *
+   * Note: Setting this to `false` this may lead to `vue-router` + node related warnings like: "Error [ERR_HTTP_HEADERS_SENT] ...",
+   * this may be related to https://github.com/nuxt/framework/issues/9438.
+   *
+   * @example false
+   * @default true
+   */
+  allow404WithoutAuth?: boolean
+}
+
 interface ModuleOptions {
   /**
    * Whether the module is enabled at all
@@ -65,6 +80,10 @@ interface ModuleOptions {
    * @default false
    */
   enableGlobalAppMiddleware: boolean
+  /**
+   * Options of the global middleware. They will only apply if `enableGlobalAppMiddleware` is set to `true`.
+   */
+  globalMiddlewareOptions: GlobalMiddlewareOptions
 }
 
 const PACKAGE_NAME = 'nuxt-auth'
@@ -75,7 +94,10 @@ const defaults: ModuleOptions & { basePath: string } = {
   trustHost: false,
   enableSessionRefreshPeriodically: false,
   enableSessionRefreshOnWindowFocus: true,
-  enableGlobalAppMiddleware: false
+  enableGlobalAppMiddleware: false,
+  globalMiddlewareOptions: {
+    allow404WithoutAuth: true
+  }
 }
 export default defineNuxtModule<ModuleOptions>({
   meta: {
