@@ -28,7 +28,7 @@
   "dependencies": {
     "@nuxt/kit": "^3.0.0",
     "defu": "^6.1.1",
-    "next-auth": "4.18.0",
+    "next-auth": "4.18.7",
     "nitropack": "^1.0.0",
     "requrl": "^3.0.2",
     "ufo": "^1.0.1"
