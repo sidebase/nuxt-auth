@@ -86,15 +86,23 @@ export const getServerOrigin = (event?: H3Event): string => {
 
 /** Extract the host from the environment */
 const detectHost = (
-  trusted: boolean,
-  forwardedValue: string | string[] | undefined | null,
-  defaultValue: string | false
+  event: H3Event,
+  { trusted, basePath }: { trusted: boolean, basePath: string }
 ): string | undefined => {
-  if (trusted && forwardedValue) {
-    return Array.isArray(forwardedValue) ? forwardedValue[0] : forwardedValue
+  if (trusted) {
+    const forwardedValue = getURL(event.node.req)
+    if (forwardedValue) {
+      return Array.isArray(forwardedValue) ? forwardedValue[0] : forwardedValue
+    }
   }
 
-  return defaultValue || undefined
+  let origin
+  try {
+    origin = getServerOrigin(event)
+  } catch (error) {
+    return undefined
+  }
+  return joinURL(origin, basePath)
 }
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
@@ -130,13 +138,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
    */
   const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
     const nextRequest: Omit<RequestInternal, 'action'> = {
-      host: detectHost(
-        options.trustHost,
-        // Forwarded host
-        getURL(event.node.req),
-        // Origin
-        getServerOrigin(event)
-      ),
+      host: detectHost(event, { trusted: useRuntimeConfig().auth.trustHost, basePath: useRuntimeConfig().auth.basePath }),
       body: undefined,
       cookies: parseCookies(event),
       query: undefined,
