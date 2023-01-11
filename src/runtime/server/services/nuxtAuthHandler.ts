@@ -86,9 +86,8 @@ export const getServerOrigin = (event?: H3Event): string => {
 
 /** Extract the host from the environment */
 const detectHost = (
-  trusted: boolean,
   event: H3Event,
-  basePath: string
+  { trusted, basePath }: { trusted: boolean, basePath: string }
 ): string | undefined => {
   if (trusted) {
     const forwardedValue = getURL(event.node.req)
@@ -139,7 +138,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
    */
   const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
     const nextRequest: Omit<RequestInternal, 'action'> = {
-      host: detectHost(options.trustHost, event, useRuntimeConfig().auth.basePath),
+      host: detectHost(event, { trusted: useRuntimeConfig().auth.trustHost, basePath: useRuntimeConfig().auth.basePath }),
       body: undefined,
       cookies: parseCookies(event),
       query: undefined,
