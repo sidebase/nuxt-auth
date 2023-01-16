@@ -81,6 +81,13 @@ interface ModuleOptions {
    */
   enableGlobalAppMiddleware: boolean
   /**
+   * The default login provider.
+   *
+   * @example true
+   * @default "DEFAULT_PROVIDER_NAME"
+   */
+  defaultProvider: string | undefined
+  /**
    * Options of the global middleware. They will only apply if `enableGlobalAppMiddleware` is set to `true`.
    */
   globalMiddlewareOptions: GlobalMiddlewareOptions
@@ -95,6 +102,7 @@ const defaults: ModuleOptions & { basePath: string } = {
   enableSessionRefreshPeriodically: false,
   enableSessionRefreshOnWindowFocus: true,
   enableGlobalAppMiddleware: false,
+  defaultProvider: undefined,
   globalMiddlewareOptions: {
     allow404WithoutAuth: true
   }

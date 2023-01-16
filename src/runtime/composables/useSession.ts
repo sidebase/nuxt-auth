@@ -3,7 +3,7 @@ import defu from 'defu'
 import { callWithNuxt } from '#app'
 import { readonly } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
-import { navigateTo, getRequestURL, joinPathToApiURL } from '../utils/url'
+import { navigateTo, getRequestURL, joinPathToApiURL, publicRuntimeConfig } from '../utils/url'
 import { _fetch } from '../utils/fetch'
 import { isNonEmptyObject } from '../utils/checkSessionResult'
 import useSessionState from './useSessionState'
@@ -87,7 +87,13 @@ const signIn = async (
     return navigateToWithNuxt(errorUrl)
   }
 
-  // 2. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
+  // 2. Check if a custom provider was given and use its defaultProvider
+  const runtimeConfig = publicRuntimeConfig()
+  if (runtimeConfig?.auth?.defaultProvider !== undefined) {
+    provider = runtimeConfig.auth.defaultProvider
+  }
+
+  // 3. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
   const { callbackUrl = getRequestURL(), redirect = true } = options ?? {}
 
   const signinUrl = await joinPathToApiURLWithNuxt('signin')
@@ -102,7 +108,7 @@ const signIn = async (
     return navigateToWithNuxt(hrefSignInAllProviderPage)
   }
 
-  // 3. Perform a sign-in straight away with the selected provider
+  // 4. Perform a sign-in straight away with the selected provider
   const isCredentials = selectedProvider.type === 'credentials'
   const isEmail = selectedProvider.type === 'email'
   const isSupportingReturn = isCredentials || isEmail
