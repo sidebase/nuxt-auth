@@ -10,7 +10,6 @@ const getApiURL = () => {
 
 export const getRequestURL = (includePath = true) => _getURL(useRequestEvent()?.node.req, includePath)
 export const joinPathToApiURL = (path: string) => joinURL(getApiURL(), path)
-export const publicRuntimeConfig = () => useRuntimeConfig().public
 
 export const navigateTo = (href: string, options?: { external?: boolean, replace?: boolean }) => {
   const { external = true, replace = false } = options ?? {}

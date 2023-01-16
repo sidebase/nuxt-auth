@@ -3,7 +3,7 @@ import defu from 'defu'
 import { callWithNuxt } from '#app'
 import { readonly } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
-import { navigateTo, getRequestURL, joinPathToApiURL, publicRuntimeConfig } from '../utils/url'
+import { navigateTo, getRequestURL, joinPathToApiURL } from '../utils/url'
 import { _fetch } from '../utils/fetch'
 import { isNonEmptyObject } from '../utils/checkSessionResult'
 import useSessionState from './useSessionState'
@@ -12,7 +12,7 @@ import type {
   SessionLastRefreshedAt,
   SessionStatus
 } from './useSessionState'
-import { createError, useRequestHeaders, useNuxtApp } from '#imports'
+import { createError, useRequestHeaders, useNuxtApp, useRuntimeConfig } from '#imports'
 
 /**
  * Utility type that allows autocompletion for a mix of literal, primitiva and non-primitive values.
@@ -87,10 +87,10 @@ const signIn = async (
     return navigateToWithNuxt(errorUrl)
   }
 
-  // 2. Check if a custom provider was given and use its defaultProvider
-  const runtimeConfig = publicRuntimeConfig()
-  if (runtimeConfig?.auth?.defaultProvider !== undefined) {
-    provider = runtimeConfig.auth.defaultProvider
+  // 2. No provider implies we should check if a default provider was given. If thats the case, use the configured provider.
+  const runtimeConfig = useRuntimeConfig()
+  if (provider === undefined && runtimeConfig?.public?.auth?.defaultProvider !== undefined) {
+    provider = runtimeConfig.public.auth.defaultProvider
   }
 
   // 3. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected

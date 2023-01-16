@@ -81,10 +81,10 @@ interface ModuleOptions {
    */
   enableGlobalAppMiddleware: boolean
   /**
-   * The default login provider.
+   * The default auth provider that handles authentication.
    *
-   * @example true
-   * @default "DEFAULT_PROVIDER_NAME"
+   * @example "DEFAULT_PROVIDER_NAME"
+   * @default undefined
    */
   defaultProvider: string | undefined
   /**
