@@ -22,7 +22,7 @@ import { createError, useRequestHeaders, useNuxtApp, useRuntimeConfig } from '#i
 type LiteralUnion<T extends U, U = string> = T | (U & Record<never, never>);
 
 // TODO: Stronger typing for `provider`, see https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/index.tsx#L199-L203
-type SupportedProviders = LiteralUnion<BuiltInProviderType>
+export type SupportedProviders = LiteralUnion<BuiltInProviderType>
 
 type GetSessionOptions = Partial<{
   required?: boolean
@@ -87,9 +87,9 @@ const signIn = async (
     return navigateToWithNuxt(errorUrl)
   }
 
-  // 2. No provider implies we should check if a default provider was given. If thats the case, use the configured provider.
+  // 2. If no `provider` was given, either use the configured `defaultProvider` or `undefined` (leading to a forward to the `/login` page with all providers)
   const runtimeConfig = useRuntimeConfig()
-  if (provider === undefined && runtimeConfig?.public?.auth?.defaultProvider !== undefined) {
+  if (typeof provider === 'undefined') {
     provider = runtimeConfig.public.auth.defaultProvider
   }
 
