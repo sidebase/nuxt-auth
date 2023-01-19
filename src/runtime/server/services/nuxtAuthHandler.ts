@@ -137,6 +137,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
    * @param event H3Event event to transform into `RequestInternal`
    */
   const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
+
     const nextRequest: Omit<RequestInternal, 'action'> = {
       host: detectHost(event, { trusted: useRuntimeConfig().auth.trustHost, basePath: useRuntimeConfig().auth.basePath }),
       body: undefined,
@@ -196,7 +197,11 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
     if (nextResult.status) {
       res.statusCode = nextResult.status
     }
-    nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value, cookie.options))
+    // TODO
+    if (nextResult.cookies !== undefined && nextResult.cookies.length > 0) {
+      nextResult.cookies = JSON.parse(JSON.stringify(nextResult.cookies).replaceAll('next-', 'next-'))
+    }
+    nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value))
     nextResult.headers?.forEach(header => appendHeader(event, header.key, header.value))
 
     // 3. Return either:
