@@ -199,7 +199,8 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
     }
     // TODO
     if (nextResult.cookies !== undefined && nextResult.cookies.length > 0) {
-      nextResult.cookies = JSON.parse(JSON.stringify(nextResult.cookies).replaceAll('next-', 'next-'))
+      const replaceable = process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt'
+      nextResult.cookies = JSON.parse(JSON.stringify(nextResult.cookies).replaceAll('next-', `${replaceable}-`))
     }
     nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value))
     nextResult.headers?.forEach(header => appendHeader(event, header.key, header.value))
