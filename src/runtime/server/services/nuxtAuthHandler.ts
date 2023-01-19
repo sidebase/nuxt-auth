@@ -4,7 +4,7 @@ import type { H3Event } from 'h3'
 import { NextAuthHandler } from 'next-auth/core'
 import { getToken as nextGetToken } from 'next-auth/jwt'
 import type { RequestInternal } from 'next-auth/core'
-import type { NextAuthAction, NextAuthOptions, Session } from 'next-auth'
+import type { NextAuthAction, NextAuthOptions, Session, CookiesOptions } from 'next-auth'
 import type { GetTokenParams } from 'next-auth/jwt'
 
 import getURL from 'requrl'
@@ -124,7 +124,27 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
     secret: usedSecret,
     logger: undefined,
     providers: [],
-    trustHost: useRuntimeConfig().auth.trustHost
+    trustHost: useRuntimeConfig().auth.trustHost,
+    cookies: {
+      sessionToken: {
+        name: `${process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt-auth'}.session-token`
+      },
+      callbackUrl: {
+        name: `${process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt-auth'}.callback-url`
+      },
+      csrfToken: {
+        name: `${process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt-auth'}.csrf-token`
+      },
+      pkceCodeVerifier: {
+        name: `${process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt-auth'}.pkce.code_verifier`
+      },
+      state: {
+        name: `${process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt-auth'}.state`
+      },
+      nonce: {
+        name: `${process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt-auth'}.nonce`
+      }
+    } as CookiesOptions
   })
 
   /**
@@ -137,7 +157,6 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
    * @param event H3Event event to transform into `RequestInternal`
    */
   const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
-
     const nextRequest: Omit<RequestInternal, 'action'> = {
       host: detectHost(event, { trusted: useRuntimeConfig().auth.trustHost, basePath: useRuntimeConfig().auth.basePath }),
       body: undefined,
@@ -196,11 +215,6 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
     // 2. Set response status, headers, cookies
     if (nextResult.status) {
       res.statusCode = nextResult.status
-    }
-    // TODO
-    if (nextResult.cookies !== undefined && nextResult.cookies.length > 0) {
-      const replaceable = process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt'
-      nextResult.cookies = JSON.parse(JSON.stringify(nextResult.cookies).replaceAll('next-', `${replaceable}-`))
     }
     nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value))
     nextResult.headers?.forEach(header => appendHeader(event, header.key, header.value))
