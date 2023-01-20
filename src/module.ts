@@ -86,7 +86,7 @@ interface ModuleOptions {
   globalMiddlewareOptions: GlobalMiddlewareOptions
 }
 
-const PACKAGE_NAME = 'nuxt-auth'
+export const PACKAGE_NAME = 'nuxt-auth'
 const defaults: ModuleOptions & { basePath: string } = {
   isEnabled: true,
   origin: undefined,

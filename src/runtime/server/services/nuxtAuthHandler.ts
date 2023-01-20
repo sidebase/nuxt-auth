@@ -1,10 +1,11 @@
 import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError, isMethod, getMethod, getHeaders } from 'h3'
 import type { H3Event } from 'h3'
 
+import { CookiesOptions } from 'next-auth'
 import { NextAuthHandler } from 'next-auth/core'
 import { getToken as nextGetToken } from 'next-auth/jwt'
 import type { RequestInternal } from 'next-auth/core'
-import type { NextAuthAction, NextAuthOptions, Session, CookiesOptions } from 'next-auth'
+import type { NextAuthAction, NextAuthOptions, Session } from 'next-auth'
 import type { GetTokenParams } from 'next-auth/jwt'
 
 import getURL from 'requrl'
@@ -12,11 +13,14 @@ import defu from 'defu'
 import { joinURL } from 'ufo'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
 
+import { PACKAGE_NAME } from '../../../module'
+
 import { useRuntimeConfig } from '#imports'
 
 let preparedAuthHandler: ReturnType<typeof eventHandler> | undefined
 let usedSecret: string | undefined
 const SUPPORTED_ACTIONS: NextAuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
+const DEFAULT_NUXT_AUTH_COOKIE_NAME = process.env?.NUXT_AUTH_COOKIE_NAME || PACKAGE_NAME
 
 export const ERROR_MESSAGES = {
   NO_SECRET: 'AUTH_NO_SECRET: No `secret` - this is an error in production, see https://sidebase.io/nuxt-auth/ressources/errors. You can ignore this during development',
@@ -127,22 +131,22 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
     trustHost: useRuntimeConfig().auth.trustHost,
     cookies: {
       sessionToken: {
-        name: `${process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt-auth'}.session-token`
+        name: `${DEFAULT_NUXT_AUTH_COOKIE_NAME}.session-token`
       },
       callbackUrl: {
-        name: `${process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt-auth'}.callback-url`
+        name: `${DEFAULT_NUXT_AUTH_COOKIE_NAME}.callback-url`
       },
       csrfToken: {
-        name: `${process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt-auth'}.csrf-token`
+        name: `${DEFAULT_NUXT_AUTH_COOKIE_NAME}.csrf-token`
       },
       pkceCodeVerifier: {
-        name: `${process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt-auth'}.pkce.code_verifier`
+        name: `${DEFAULT_NUXT_AUTH_COOKIE_NAME}.pkce.code_verifier`
       },
       state: {
-        name: `${process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt-auth'}.state`
+        name: `${DEFAULT_NUXT_AUTH_COOKIE_NAME}.state`
       },
       nonce: {
-        name: `${process.env?.NUXT_AUTH_COOKIE_NAME || 'nuxt-auth'}.nonce`
+        name: `${DEFAULT_NUXT_AUTH_COOKIE_NAME}.nonce`
       }
     } as CookiesOptions
   })
