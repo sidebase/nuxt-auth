@@ -220,7 +220,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
     if (nextResult.status) {
       res.statusCode = nextResult.status
     }
-    nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value))
+    nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value, cookie.options))
     nextResult.headers?.forEach(header => appendHeader(event, header.key, header.value))
 
     // 3. Return either:
