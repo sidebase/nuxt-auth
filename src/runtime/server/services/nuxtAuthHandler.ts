@@ -13,9 +13,8 @@ import defu from 'defu'
 import { joinURL } from 'ufo'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
 
-import { PACKAGE_NAME } from '../../../module'
-
 import { useRuntimeConfig } from '#imports'
+import { PACKAGE_NAME } from '~~/../src/module'
 
 let preparedAuthHandler: ReturnType<typeof eventHandler> | undefined
 let usedSecret: string | undefined
