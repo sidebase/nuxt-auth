@@ -3,6 +3,8 @@ import GithubProvider from 'next-auth/providers/github'
 import { NuxtAuthHandler } from '#auth'
 
 export default NuxtAuthHandler({
+  // a) Never hardcode your secret in your code!! and b) use a secure secret, `test-123` is **not** secure!!
+  secret: process.env.AUTH_SECRET || 'test-123',
   providers: [
     // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
     GithubProvider.default({
