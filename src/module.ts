@@ -1,6 +1,7 @@
 import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate, addPlugin, addServerPlugin } from '@nuxt/kit'
 import defu from 'defu'
 import { joinURL } from 'ufo'
+import { SupportedProviders } from './runtime/composables/useSession'
 
 interface GlobalMiddlewareOptions {
   /**
@@ -81,6 +82,13 @@ interface ModuleOptions {
    */
   enableGlobalAppMiddleware: boolean
   /**
+   * Select the default-provider to use when `signIn` is called. Setting this here will also effect the global middleware behavior: E.g., when you set it to `github` and the user is unauthorized, they will be directly forwarded to the Github OAuth page instead of seeing the app-login page.
+   *
+   * @example "github"
+   * @default undefined
+   */
+  defaultProvider: SupportedProviders | undefined
+  /**
    * Options of the global middleware. They will only apply if `enableGlobalAppMiddleware` is set to `true`.
    */
   globalMiddlewareOptions: GlobalMiddlewareOptions
@@ -95,6 +103,7 @@ const defaults: ModuleOptions & { basePath: string } = {
   enableSessionRefreshPeriodically: false,
   enableSessionRefreshOnWindowFocus: true,
   enableGlobalAppMiddleware: false,
+  defaultProvider: undefined,
   globalMiddlewareOptions: {
     allow404WithoutAuth: true
   }
