@@ -33,7 +33,7 @@
     "ufo": "^1.0.1"
   },
   "peerDependencies": {
-    "next-auth": "4.18.0"
+    "next-auth": "4.18.8"
   },
   "devDependencies": {
     "@nuxt/module-builder": "^0.2.1",

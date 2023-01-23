@@ -1,7 +1,7 @@
 import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError, isMethod, getMethod, getHeaders } from 'h3'
 import type { H3Event } from 'h3'
 
-import { NextAuthHandler } from 'next-auth/core'
+import { AuthHandler } from 'next-auth/core'
 import { getToken as nextGetToken } from 'next-auth/jwt'
 import type { RequestInternal } from 'next-auth/core'
 import type { NextAuthAction, NextAuthOptions, Session } from 'next-auth'
@@ -187,7 +187,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
     // 1. Assemble and perform request to the NextAuth.js auth handler
     const nextRequest = await getInternalNextAuthRequestData(event)
 
-    const nextResult = await NextAuthHandler({
+    const nextResult = await AuthHandler({
       req: nextRequest,
       options
     })
