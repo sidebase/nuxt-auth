@@ -1,5 +1,4 @@
 import { defineNuxtRouteMiddleware, useRuntimeConfig, useNuxtApp } from '#app'
-import type { Router } from 'vue-router'
 import useSession from '../composables/useSession'
 import { navigateToAuthPages } from '../utils/url'
 
@@ -30,9 +29,10 @@ export default defineNuxtRouteMiddleware((to) => {
    *
    */
   const nuxtApp = useNuxtApp()
-  const router = nuxtApp.$router as Router
+  // TODO: Sadly, we cannot directly import types from `vue-router` as it leads to build failures. Typing the router about should help us to avoid manually typing `route` below
+  const router = nuxtApp.$router
   if (authConfig.globalMiddlewareOptions.allow404WithoutAuth) {
-    const matchedRoute = router.getRoutes().find(route => route.path === to.path)
+    const matchedRoute = router.getRoutes().find((route: { path: string }) => route.path === to.path)
     if (!matchedRoute) {
       // Hands control back to `vue-router`, which will direct to the `404` page
       return

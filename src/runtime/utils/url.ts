@@ -1,7 +1,6 @@
 import { joinURL } from 'ufo'
 import _getURL from 'requrl'
 import { useRequestEvent, useNuxtApp } from '#app'
-import type { Router } from 'vue-router'
 import { sendRedirect } from 'h3'
 import { useRuntimeConfig } from '#imports'
 
@@ -40,8 +39,10 @@ export const navigateToAuthPages = (href: string) => {
     window.location.reload()
   }
 
+  // TODO: Sadly, we cannot directly import types from `vue-router` as it leads to build failures. Typing the router about should help us to avoid manually typing `route` below
+  const router = nuxtApp.$router
+
   // Wait for the `window.location.href` navigation from above to complete to avoid showing content. If that doesn't work fast enough, delegate navigation back to the `vue-router` (risking a vue-router 404 warning in the console, but still avoiding content-flashes of the protected target page)
-  const router = nuxtApp.$router as Router
   const waitForNavigationWithFallbackToRouter = new Promise(resolve => setTimeout(resolve, 60 * 1000)).then(() => router.push(href))
-  return waitForNavigationWithFallbackToRouter
+  return waitForNavigationWithFallbackToRouter as Promise<void | undefined>
 }
