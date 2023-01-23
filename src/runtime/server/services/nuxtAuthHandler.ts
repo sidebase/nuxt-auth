@@ -4,7 +4,7 @@ import type { H3Event } from 'h3'
 import { NextAuthHandler } from 'next-auth/core'
 import { getToken as nextGetToken } from 'next-auth/jwt'
 import type { RequestInternal } from 'next-auth/core'
-import type { CookiesOptions, NextAuthAction, NextAuthOptions, Session } from 'next-auth'
+import type { NextAuthAction, NextAuthOptions, Session } from 'next-auth'
 import type { GetTokenParams } from 'next-auth/jwt'
 
 import getURL from 'requrl'
@@ -120,32 +120,11 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
     }
   }
 
-  const cookieNameBase = 'nuxt-auth'
   const options = defu(nuxtAuthOptions, {
     secret: usedSecret,
     logger: undefined,
     providers: [],
-    trustHost: useRuntimeConfig().auth.trustHost,
-    cookies: {
-      sessionToken: {
-        name: `${cookieNameBase}.session-token`
-      },
-      callbackUrl: {
-        name: `${cookieNameBase}.callback-url`
-      },
-      csrfToken: {
-        name: `${cookieNameBase}.csrf-token`
-      },
-      pkceCodeVerifier: {
-        name: `${cookieNameBase}.pkce.code_verifier`
-      },
-      state: {
-        name: `${cookieNameBase}.state`
-      },
-      nonce: {
-        name: `${cookieNameBase}.nonce`
-      }
-    } as CookiesOptions
+    trustHost: useRuntimeConfig().auth.trustHost
   })
 
   /**
