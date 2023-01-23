@@ -1,10 +1,10 @@
 import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError, isMethod, getMethod, getHeaders } from 'h3'
 import type { H3Event } from 'h3'
 
-import { NextAuthHandler } from 'next-auth/core'
+import { AuthHandler } from 'next-auth/core'
 import { getToken as nextGetToken } from 'next-auth/jwt'
 import type { RequestInternal } from 'next-auth/core'
-import type { NextAuthAction, NextAuthOptions, Session } from 'next-auth'
+import type { AuthAction, AuthOptions, Session } from 'next-auth'
 import type { GetTokenParams } from 'next-auth/jwt'
 
 import getURL from 'requrl'
@@ -16,7 +16,7 @@ import { useRuntimeConfig } from '#imports'
 
 let preparedAuthHandler: ReturnType<typeof eventHandler> | undefined
 let usedSecret: string | undefined
-const SUPPORTED_ACTIONS: NextAuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
+const SUPPORTED_ACTIONS: AuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
 
 export const ERROR_MESSAGES = {
   NO_SECRET: 'AUTH_NO_SECRET: No `secret` - this is an error in production, see https://sidebase.io/nuxt-auth/ressources/errors. You can ignore this during development',
@@ -42,7 +42,7 @@ const readBodyForNext = async (event: H3Event) => {
  *
  * E.g., with a request like `/api/signin/github` get the action `signin` with the provider `github`
  */
-const parseActionAndProvider = ({ context }: H3Event): { action: NextAuthAction, providerId: string | undefined } => {
+const parseActionAndProvider = ({ context }: H3Event): { action: AuthAction, providerId: string | undefined } => {
   const params: string | undefined = context.params._?.split('/')
 
   if (!params || ![1, 2].includes(params.length)) {
@@ -106,7 +106,7 @@ const detectHost = (
 }
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
-export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
+export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
   const isProduction = process.env.NODE_ENV === 'production'
 
   usedSecret = nuxtAuthOptions?.secret
@@ -187,7 +187,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: NextAuthOptions) => {
     // 1. Assemble and perform request to the NextAuth.js auth handler
     const nextRequest = await getInternalNextAuthRequestData(event)
 
-    const nextResult = await NextAuthHandler({
+    const nextResult = await AuthHandler({
       req: nextRequest,
       options
     })
