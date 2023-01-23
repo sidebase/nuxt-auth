@@ -5,6 +5,6 @@ export default defineNuxtConfig({
   modules: [NuxtAuth],
   auth: {
     enableGlobalAppMiddleware: true,
-    defaultProvider: 'github'
+    defaultProvider: undefined
   }
 })
