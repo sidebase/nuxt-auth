@@ -57,9 +57,9 @@ interface SignOutOptions {
  */
 type NuxtApp = ReturnType<typeof useNuxtApp>
 
-const getRequestCookies = (nuxt: NuxtApp): {} | { cookie: string } => {
+const getRequestCookies = async (nuxt: NuxtApp): Promise<{ cookie: string } | {}> => {
   // `useRequestHeaders` is sync, so we narrow it to the awaited return type here
-  const { cookie } = callWithNuxt(nuxt, () => useRequestHeaders(['cookie'])) as ReturnType<typeof useRequestHeaders>
+  const { cookie } = await callWithNuxt(nuxt, () => useRequestHeaders(['cookie']))
   if (cookie) {
     return { cookie }
   }
@@ -74,9 +74,9 @@ const getRequestURLWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getRequestUR
  *
  * You can use this to pass along for certain requests, most of the time you will not need it.
  */
-const getCsrfToken = () => {
+const getCsrfToken = async () => {
   const nuxt = useNuxtApp()
-  const headers = getRequestCookies(nuxt)
+  const headers = await getRequestCookies(nuxt)
   return _fetch<{ csrfToken: string }>(nuxt, 'csrf', { headers }).then(response => response.csrfToken)
 }
 
@@ -136,7 +136,7 @@ const signIn = async (
 
   const headers: { 'Content-Type': string; cookie?: string | undefined } = {
     'Content-Type': 'application/x-www-form-urlencoded',
-    ...getRequestCookies(nuxt)
+    ...(await getRequestCookies(nuxt))
   }
 
   // @ts-expect-error
@@ -199,7 +199,7 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
     loading.value = false
   }
 
-  const headers = getRequestCookies(nuxt)
+  const headers = await getRequestCookies(nuxt)
 
   return _fetch<SessionData>(nuxt, 'session', {
     onResponse: ({ response }) => {
