@@ -77,8 +77,8 @@ const signIn = async (
 ) => {
   // Workaround to make nested composable calls possible (`useRuntimeConfig` is called by `joinPathToApiURL`), see https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
   const nuxt = useNuxtApp()
-  const joinPathToApiURLWithNuxt = (path: string): Promise<ReturnType<typeof joinPathToApiURL>> => callWithNuxt(nuxt, joinPathToApiURL, [path])
-  const navigateToAuthPageWithNuxt = (href: string): Promise<ReturnType<typeof navigateToAuthPages>> => callWithNuxt(nuxt, navigateToAuthPages, [href])
+  const joinPathToApiURLWithNuxt = (path: string) => callWithNuxt(nuxt, joinPathToApiURL, [path])
+  const navigateToAuthPageWithNuxt = (href: string) => callWithNuxt(nuxt, navigateToAuthPages, [href])
 
   // 1. Lead to error page if no providers are available
   const configuredProviders = await getProviders()
@@ -135,12 +135,13 @@ const signIn = async (
     json: true
   })
 
-  const data: { url: string } = await callWithNuxt(nuxt, _fetch, [`${action}/${provider}`, {
+  const fetchSignIn = () => _fetch<{ url: string }>(`${action}/${provider}`, {
     method: 'post',
     params: authorizationParams,
     headers,
     body
-  }]).catch((error: { data: any }) => error.data)
+  }).catch<Record<string, any>>((error: { data: any }) => error.data)
+  const data = await callWithNuxt(nuxt, fetchSignIn)
 
   if (redirect || !isSupportingReturn) {
     const href = data.url ?? callbackUrl
