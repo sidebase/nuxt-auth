@@ -234,7 +234,7 @@ export const getServerSession = async (event: H3Event) => {
   const authBasePath = useRuntimeConfig().public.auth.basePath
   // avoid running auth middleware on auth middleware (see #186)
   if (event.path.startsWith(authBasePath)) {
-    return
+    return null
   }
   if (!preparedAuthHandler) {
     // Edge-case: If no auth-endpoint was called yet, `preparedAuthHandler`-initialization was also not attempted as Nuxt lazily loads endpoints in production-mode. This call gives it a chance to load + initialize the variable. If it fails we still throw. This edge-case has happened to user matijao#7025 on discord.
