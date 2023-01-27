@@ -67,7 +67,7 @@ const getRequestCookies = (nuxt: NuxtApp): {} | { cookie: string } => {
 }
 const navigateToAuthPageWithNuxt = (nuxt: NuxtApp, href: string) => callWithNuxt(nuxt, navigateToAuthPages, [href])
 const joinPathToApiURLWithNuxt = (nuxt: NuxtApp, path: string) => callWithNuxt(nuxt, joinPathToApiURL, [path])
-const getRequestURLWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getRequestURL) as ReturnType<typeof getRequestURL>
+const getRequestURLWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getRequestURL)
 
 /**
  * Get the current Cross-Site Request Forgery token.
@@ -75,8 +75,9 @@ const getRequestURLWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getRequestUR
  * You can use this to pass along for certain requests, most of the time you will not need it.
  */
 const getCsrfToken = () => {
-  const headers = getRequestCookies(useNuxtApp())
-  return _fetch<{ csrfToken: string }>('csrf', { headers }).then(response => response.csrfToken)
+  const nuxt = useNuxtApp()
+  const headers = getRequestCookies(nuxt)
+  return _fetch<{ csrfToken: string }>(nuxt, 'csrf', { headers }).then(response => response.csrfToken)
 }
 
 /**
@@ -108,7 +109,7 @@ const signIn = async (
   }
 
   // 3. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
-  const { callbackUrl = getRequestURLWithNuxt(nuxt), redirect = true } = options ?? {}
+  const { callbackUrl = await getRequestURLWithNuxt(nuxt), redirect = true } = options ?? {}
 
   const signinUrl = await joinPathToApiURLWithNuxt(nuxt, 'signin')
   const hrefSignInAllProviderPage = `${signinUrl}?${new URLSearchParams({ callbackUrl })}`
@@ -146,7 +147,7 @@ const signIn = async (
     json: true
   })
 
-  const fetchSignIn = () => _fetch<{ url: string }>(`${action}/${provider}`, {
+  const fetchSignIn = () => _fetch<{ url: string }>(nuxt, `${action}/${provider}`, {
     method: 'post',
     params: authorizationParams,
     headers,
@@ -174,17 +175,17 @@ const signIn = async (
 /**
  * Get all configured providers from the backend. You can use this method to build your own sign-in page.
  */
-const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, 'options'> | undefined>>('providers')
+const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, 'options'> | undefined>>(useNuxtApp(), 'providers')
 
 /**
  * Refresh and get the current session data.
  *
  * @param getSessionOptions - Options for getting the session, e.g., set `required: true` to enforce that a session _must_ exist, the user will be directed to a login page otherwise.
  */
-const getSession = (getSessionOptions?: GetSessionOptions) => {
+const getSession = async (getSessionOptions?: GetSessionOptions) => {
   const nuxt = useNuxtApp()
 
-  const callbackUrlFallback = getRequestURLWithNuxt(nuxt)
+  const callbackUrlFallback = await getRequestURLWithNuxt(nuxt)
   const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions || {}, {
     required: false,
     callbackUrl: undefined,
@@ -193,14 +194,14 @@ const getSession = (getSessionOptions?: GetSessionOptions) => {
     })
   })
 
-  const { data, status, loading, lastRefreshedAt } = useSessionState()
+  const { data, status, loading, lastRefreshedAt } = await callWithNuxt(nuxt, useSessionState)
   const onError = () => {
     loading.value = false
   }
 
   const headers = getRequestCookies(nuxt)
 
-  return _fetch<SessionData>('session', {
+  return _fetch<SessionData>(nuxt, 'session', {
     onResponse: ({ response }) => {
       const sessionData = response._data
 
@@ -235,7 +236,7 @@ const getSession = (getSessionOptions?: GetSessionOptions) => {
 const signOut = async (options?: SignOutOptions) => {
   const nuxt = useNuxtApp()
 
-  const requestURL = getRequestURLWithNuxt(nuxt)
+  const requestURL = await getRequestURLWithNuxt(nuxt)
   const { callbackUrl = requestURL, redirect = true } = options ?? {}
   const csrfToken = await getCsrfToken()
 
@@ -244,7 +245,7 @@ const signOut = async (options?: SignOutOptions) => {
   }
 
   const callbackUrlFallback = requestURL
-  const signoutData = await _fetch<{ url: string }>('signout', {
+  const signoutData = await _fetch<{ url: string }>(nuxt, 'signout', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
