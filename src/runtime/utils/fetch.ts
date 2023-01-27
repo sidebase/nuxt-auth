@@ -1,7 +1,6 @@
-import type { FetchOptions } from 'ofetch'
 import { joinPathToApiURL } from './url'
 
-export const _fetch = <T>(path: string, fetchOptions?: FetchOptions): Promise<T> => {
+export const _fetch = <T>(path: string, fetchOptions?: Parameters<typeof $fetch>[1]): Promise<T> => {
   try {
     return $fetch(joinPathToApiURL(path), fetchOptions)
   } catch (error) {
