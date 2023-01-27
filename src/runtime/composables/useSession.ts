@@ -3,6 +3,7 @@ import defu from 'defu'
 import { callWithNuxt } from '#app'
 import { readonly } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
+import type { NuxtApp } from '#app'
 import { getRequestURL, joinPathToApiURL, navigateToAuthPages } from '../utils/url'
 import { _fetch } from '../utils/fetch'
 import { isNonEmptyObject } from '../utils/checkSessionResult'
@@ -55,8 +56,6 @@ interface SignOutOptions {
  * Calling nested async composable can lead to "nuxt instance unavailable" errors. See more details here: https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529. To resolve this we can manually ensure that the nuxt-context is set. This module contains `callWithNuxt` helpers for some of the methods that are frequently called in nested `useSession` composable calls.
  *
  */
-type NuxtApp = ReturnType<typeof useNuxtApp>
-
 const getRequestCookies = async (nuxt: NuxtApp): Promise<{ cookie: string } | {}> => {
   // `useRequestHeaders` is sync, so we narrow it to the awaited return type here
   const { cookie } = await callWithNuxt(nuxt, () => useRequestHeaders(['cookie']))
