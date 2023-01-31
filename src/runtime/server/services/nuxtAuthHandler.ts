@@ -187,7 +187,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
     // 1. Assemble and perform request to the NextAuth.js auth handler
     const nextRequest = await getInternalNextAuthRequestData(event)
 
-    const nextResult = await AuthHandler(nextRequest, options})
+    const nextResult = await AuthHandler(nextRequest, options)
 
     // 2. Set response status, headers, cookies
     if (nextResult.status) {
