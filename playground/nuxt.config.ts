@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   modules: ['../src/module.ts'],
   auth: {
-    enableGlobalAppMiddleware: false,
+    enableGlobalAppMiddleware: true,
     defaultProvider: undefined
   }
 })
