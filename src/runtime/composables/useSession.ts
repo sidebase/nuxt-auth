@@ -203,7 +203,15 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
   return _fetch<SessionData>(nuxt, 'session', {
     onResponse: ({ response }) => {
       const sessionData = response._data
-
+      
+      // Pass the new cookie to the server side request   
+      if (process.server) {
+        if (response.headers.get('set-cookie')) {
+          const setCookieValue = response.headers.get('set-cookie')
+          appendHeader(nuxt.ssrContext.event, 'set-cookie', setCookieValue)
+        }
+      }
+      
       data.value = isNonEmptyObject(sessionData) ? sessionData : null
       loading.value = false
 
