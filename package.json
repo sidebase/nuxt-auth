@@ -35,7 +35,7 @@
     "next-auth": "^4.18.8"
   },
   "devDependencies": {
-    "@nuxt/kit": "^3.1.1",
+    "@nuxt/kit": "^3.1.2",
     "@nuxt/module-builder": "^0.2.1",
     "@nuxt/schema": "^3.1.1",
     "@nuxtjs/eslint-config-typescript": "^12.0.0",
