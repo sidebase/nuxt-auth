@@ -4,6 +4,7 @@ import { callWithNuxt } from '#app'
 import { readonly } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
 import type { NuxtApp } from '#app'
+import { appendHeader } from 'h3'
 import { getRequestURL, joinPathToApiURL, navigateToAuthPages } from '../utils/url'
 import { _fetch } from '../utils/fetch'
 import { isNonEmptyObject } from '../utils/checkSessionResult'
@@ -14,7 +15,6 @@ import type {
   SessionStatus
 } from './useSessionState'
 import { createError, useNuxtApp, useRuntimeConfig, useRequestHeaders } from '#imports'
-import { appendHeader } from 'h3'
 
 /**
  * Utility type that allows autocompletion for a mix of literal, primitiva and non-primitive values.
