@@ -14,6 +14,7 @@ import type {
   SessionStatus
 } from './useSessionState'
 import { createError, useNuxtApp, useRuntimeConfig, useRequestHeaders } from '#imports'
+import { appendHeader } from 'h3'
 
 /**
  * Utility type that allows autocompletion for a mix of literal, primitiva and non-primitive values.
