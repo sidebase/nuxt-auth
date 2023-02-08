@@ -4,6 +4,7 @@ import { callWithNuxt } from '#app'
 import { readonly } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
 import type { NuxtApp } from '#app'
+import { appendHeader } from 'h3'
 import { getRequestURL, joinPathToApiURL, navigateToAuthPages } from '../utils/url'
 import { _fetch } from '../utils/fetch'
 import { isNonEmptyObject } from '../utils/checkSessionResult'
@@ -203,6 +204,15 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
   return _fetch<SessionData>(nuxt, 'session', {
     onResponse: ({ response }) => {
       const sessionData = response._data
+
+      // Add any new cookie to the server-side event for it to be present on the app-side after
+      // initial load, see sidebase/nuxt-auth/issues/200 for more information.
+      if (process.server) {
+        const setCookieValue = response.headers.get('set-cookie')
+        if (setCookieValue && nuxt.ssrContext) {
+          appendHeader(nuxt.ssrContext.event, 'set-cookie', setCookieValue)
+        }
+      }
 
       data.value = isNonEmptyObject(sessionData) ? sessionData : null
       loading.value = false
