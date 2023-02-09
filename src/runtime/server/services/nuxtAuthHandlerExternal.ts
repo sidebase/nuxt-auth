@@ -168,11 +168,6 @@ export const NuxtAuthHandlerExternal = (nuxtAuthOptions?: AuthOptions) => {
     })
   }
 
-  // Save handler so that it can be used in other places
-  if (preparedAuthHandler) {
-    // eslint-disable-next-line no-console
-    console.warn('You setup the auth handler for a second time - this is likely undesired. Make sure that you only call `NuxtAuthHandler( ... )` once')
-  }
   preparedAuthHandler = handler
   return handler
 }

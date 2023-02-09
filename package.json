@@ -26,6 +26,7 @@
     "start:playground": "node playground/.output/server/index.mjs"
   },
   "dependencies": {
+    "cookie": "^0.5.0",
     "defu": "^6.1.1",
     "nitropack": "^2.1.1",
     "requrl": "^3.0.2",
