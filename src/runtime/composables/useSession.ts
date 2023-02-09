@@ -1,5 +1,5 @@
 import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
-import defu from 'defu'
+import { defu } from 'defu'
 import { callWithNuxt } from '#app'
 import { readonly } from 'vue'
 import type { ComputedRef, Ref } from 'vue'

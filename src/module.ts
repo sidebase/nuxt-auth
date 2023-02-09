@@ -1,5 +1,5 @@
 import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate, addPlugin, addServerPlugin } from '@nuxt/kit'
-import defu from 'defu'
+import { defu } from 'defu'
 import { joinURL } from 'ufo'
 import { SupportedProviders } from './runtime/composables/useSession'
 
