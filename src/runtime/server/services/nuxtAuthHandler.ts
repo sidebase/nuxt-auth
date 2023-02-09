@@ -8,7 +8,7 @@ import type { AuthAction, AuthOptions, Session } from 'next-auth'
 import type { GetTokenParams } from 'next-auth/jwt'
 
 import getURL from 'requrl'
-import defu from 'defu'
+import { defu } from 'defu'
 import { joinURL } from 'ufo'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
 
