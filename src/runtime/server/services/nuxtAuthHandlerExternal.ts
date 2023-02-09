@@ -11,18 +11,11 @@ import defu from 'defu'
 import getURL from 'requrl'
 import { getQuery, joinURL } from 'ufo'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
+import { ERROR_MESSAGES, PAYLOAD_METHODS, SUPPORTED_ACTIONS } from './nuxtAuthHandler'
 
 import { useRuntimeConfig } from '#imports'
 
 let preparedAuthHandler: (req: IncomingMessage) => any | undefined
-let usedSecret: string | undefined
-const SUPPORTED_ACTIONS: AuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
-const PAYLOAD_METHODS: HTTPMethod[] = ['PATCH', 'POST', 'PUT', 'DELETE']
-
-export const ERROR_MESSAGES = {
-  NO_SECRET: 'AUTH_NO_SECRET: No `secret` - this is an error in production, see https://sidebase.io/nuxt-auth/ressources/errors. You can ignore this during development',
-  NO_ORIGIN: 'AUTH_NO_ORIGIN: No `origin` - this is an error in production, see https://sidebase.io/nuxt-auth/ressources/errors. You can ignore this during development'
-}
 
 /**
  * Parse a body if the request method is supported, return `undefined` otherwise.
@@ -78,7 +71,7 @@ const parseActionAndProvider = (req: IncomingMessage): { action: AuthAction, pro
 /**
  * Get `origin` and fallback to `x-forwarded-host` or `host` headers if not in production.
  */
-export const getServerOrigin = (req?: IncomingMessage): string => {
+const getServerOrigin = (req?: IncomingMessage): string => {
   // Prio 1: Environment variable
   const envOrigin = process.env.AUTH_ORIGIN
   if (envOrigin) {
@@ -121,22 +114,10 @@ const detectHost = (
 }
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
-export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
+export const NuxtAuthHandlerExternal = (nuxtAuthOptions?: AuthOptions) => {
   const isProduction = process.env.NODE_ENV === 'production'
-
-  usedSecret = nuxtAuthOptions?.secret
-  if (!usedSecret) {
-    if (isProduction) {
-      throw new Error(ERROR_MESSAGES.NO_SECRET)
-    } else {
-    // eslint-disable-next-line no-console
-      console.info(ERROR_MESSAGES.NO_SECRET)
-      usedSecret = 'secret'
-    }
-  }
-
   const options = defu(nuxtAuthOptions, {
-    secret: usedSecret,
+    secret: isProduction ? nuxtAuthOptions?.secret : 'secret',
     logger: undefined,
     providers: [],
     trustHost: useRuntimeConfig().auth.trustHost

@@ -1,22 +1,24 @@
-import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError, isMethod, getMethod, getHeaders } from 'h3'
-import type { H3Event } from 'h3'
+import type { H3Event, HTTPMethod } from 'h3'
+import { appendHeader, createError, eventHandler, getHeaders, getMethod, getQuery, isMethod, parseCookies, readBody, sendRedirect, setCookie } from 'h3'
 
-import { AuthHandler } from 'next-auth/core'
-import { getToken as nextGetToken } from 'next-auth/jwt'
-import type { RequestInternal } from 'next-auth/core'
 import type { AuthAction, AuthOptions, Session } from 'next-auth'
+import type { RequestInternal } from 'next-auth/core'
+import { AuthHandler } from 'next-auth/core'
 import type { GetTokenParams } from 'next-auth/jwt'
+import { getToken as nextGetToken } from 'next-auth/jwt'
 
-import getURL from 'requrl'
 import defu from 'defu'
+import getURL from 'requrl'
 import { joinURL } from 'ufo'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
 
+import { NuxtAuthHandlerExternal } from './nuxtAuthHandlerExternal'
 import { useRuntimeConfig } from '#imports'
 
 let preparedAuthHandler: ReturnType<typeof eventHandler> | undefined
 let usedSecret: string | undefined
-const SUPPORTED_ACTIONS: AuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
+export const SUPPORTED_ACTIONS: AuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
+export const PAYLOAD_METHODS: HTTPMethod[] = ['PATCH', 'POST', 'PUT', 'DELETE']
 
 export const ERROR_MESSAGES = {
   NO_SECRET: 'AUTH_NO_SECRET: No `secret` - this is an error in production, see https://sidebase.io/nuxt-auth/ressources/errors. You can ignore this during development',
@@ -31,9 +33,10 @@ export const ERROR_MESSAGES = {
 const readBodyForNext = async (event: H3Event) => {
   let body: any
 
-  if (isMethod(event, 'PATCH') || isMethod(event, 'POST') || isMethod(event, 'PUT') || isMethod(event, 'DELETE')) {
+  if (PAYLOAD_METHODS.some(method => isMethod(event, method))) {
     body = await readBody(event)
   }
+
   return body
 }
 
@@ -107,6 +110,8 @@ const detectHost = (
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
 export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
+  NuxtAuthHandlerExternal(nuxtAuthOptions)
+
   const isProduction = process.env.NODE_ENV === 'production'
 
   usedSecret = nuxtAuthOptions?.secret
