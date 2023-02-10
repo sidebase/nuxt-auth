@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@nuxt/kit": "^3.1.2",
+    "cookie": "^0.5.0",
     "defu": "^6.1.1",
     "nitropack": "^2.1.1",
     "requrl": "^3.0.2",
@@ -39,6 +40,7 @@
     "@nuxt/module-builder": "^0.2.1",
     "@nuxt/schema": "^3.1.2",
     "@nuxtjs/eslint-config-typescript": "^12.0.0",
+    "@types/cookie": "^0.5.1",
     "@types/node": "^18.13.0",
     "eslint": "^8.33.0",
     "nuxt": "^3.1.2",
@@ -52,5 +54,4 @@
       "json5": ">=1.0.2"
     }
   }
-
 }
