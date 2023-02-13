@@ -23,21 +23,21 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
   }
 
-  nuxtApp.hook('app:mounted', () => {
-    document.addEventListener('visibilitychange', visibilityHandler, false)
-  })
-
   // Refetch interval
   let refetchIntervalTimer: NodeJS.Timer
-
-  if (enableSessionRefreshPeriodically !== false) {
-    const intervalTime = enableSessionRefreshPeriodically === true ? 1000 : enableSessionRefreshPeriodically
-    refetchIntervalTimer = setInterval(() => {
-      if (data.value) {
-        getSession()
-      }
-    }, intervalTime)
-  }
+  
+  nuxtApp.hook('app:mounted', () => {
+    document.addEventListener('visibilitychange', visibilityHandler, false)
+    
+    if (enableSessionRefreshPeriodically !== false) {
+      const intervalTime = enableSessionRefreshPeriodically === true ? 1000 : enableSessionRefreshPeriodically
+      refetchIntervalTimer = setInterval(() => {
+        if (data.value) {
+          getSession()
+        }
+      }, intervalTime)
+    }
+  })
 
   const _unmount = nuxtApp.vueApp.unmount
   nuxtApp.vueApp.unmount = function () {
