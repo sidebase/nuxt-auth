@@ -25,10 +25,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   // Refetch interval
   let refetchIntervalTimer: NodeJS.Timer
-  
+
   nuxtApp.hook('app:mounted', () => {
     document.addEventListener('visibilitychange', visibilityHandler, false)
-    
+
     if (enableSessionRefreshPeriodically !== false) {
       const intervalTime = enableSessionRefreshPeriodically === true ? 1000 : enableSessionRefreshPeriodically
       refetchIntervalTimer = setInterval(() => {
