@@ -237,8 +237,12 @@ export const getServerSession = async (event: H3Event) => {
     return null
   }
   if (!preparedAuthHandler) {
+    const headers = getHeaders(event) as HeadersInit
+
     // Edge-case: If no auth-endpoint was called yet, `preparedAuthHandler`-initialization was also not attempted as Nuxt lazily loads endpoints in production-mode. This call gives it a chance to load + initialize the variable. If it fails we still throw. This edge-case has happened to user matijao#7025 on discord.
-    await $fetch(joinURL(authBasePath, '/session')).catch(error => error.data)
+    await $fetch(joinURL(authBasePath, '/session'), {
+      headers
+    }).catch(error => error.data)
     if (!preparedAuthHandler) {
       throw createError({ statusCode: 500, statusMessage: 'Tried to get server session without setting up an endpoint to handle authentication (see https://github.com/sidebase/nuxt-auth#quick-start)' })
     }
