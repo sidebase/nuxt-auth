@@ -30,7 +30,7 @@
     "defu": "^6.1.1",
     "nitropack": "^2.1.1",
     "requrl": "^3.0.2",
-    "ufo": "^1.0.1"
+    "ufo": "^1.1.1"
   },
   "peerDependencies": {
     "next-auth": "^4.18.8"
