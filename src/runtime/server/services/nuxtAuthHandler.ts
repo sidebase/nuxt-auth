@@ -22,8 +22,8 @@ let usedSecret: string | undefined
 const SUPPORTED_ACTIONS: AuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
 
 export const ERROR_MESSAGES = {
-  NO_SECRET: 'AUTH_NO_SECRET: No `secret` - this is an error in production, see https://sidebase.io/nuxt-auth/ressources/errors. You can ignore this during development',
-  NO_ORIGIN: 'AUTH_NO_ORIGIN: No `origin` - this is an error in production, see https://sidebase.io/nuxt-auth/ressources/errors. You can ignore this during development'
+  NO_SECRET: 'AUTH_NO_SECRET: No `secret` - this is an error in production, see https://sidebase.io/nuxt-auth/resources/errors. You can ignore this during development',
+  NO_ORIGIN: 'AUTH_NO_ORIGIN: No `origin` - this is an error in production, see https://sidebase.io/nuxt-auth/resources/errors. You can ignore this during development'
 }
 
 /**
@@ -258,8 +258,12 @@ export const getServerSession = async (event: H3Event) => {
     return null
   }
   if (!preparedAuthHandler) {
+    const headers = getHeaders(event) as HeadersInit
+
     // Edge-case: If no auth-endpoint was called yet, `preparedAuthHandler`-initialization was also not attempted as Nuxt lazily loads endpoints in production-mode. This call gives it a chance to load + initialize the variable. If it fails we still throw. This edge-case has happened to user matijao#7025 on discord.
-    await $fetch(joinURL(authBasePath, '/session')).catch(error => error.data)
+    await $fetch(joinURL(authBasePath, '/session'), {
+      headers
+    }).catch(error => error.data)
     if (!preparedAuthHandler) {
       throw createError({ statusCode: 500, statusMessage: 'Tried to get server session without setting up an endpoint to handle authentication (see https://github.com/sidebase/nuxt-auth#quick-start)' })
     }
