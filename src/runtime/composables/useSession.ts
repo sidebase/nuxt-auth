@@ -68,6 +68,8 @@ const getRequestCookies = async (nuxt: NuxtApp): Promise<{ cookie: string } | {}
 const navigateToAuthPageWithNuxt = (nuxt: NuxtApp, href: string) => callWithNuxt(nuxt, navigateToAuthPages, [href])
 const joinPathToApiURLWithNuxt = (nuxt: NuxtApp, path: string) => callWithNuxt(nuxt, joinPathToApiURL, [path])
 const getRequestURLWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getRequestURL)
+const getCsrfTokenWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getCsrfToken)
+const getSessionWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getSession)
 
 /**
  * Get the current Cross-Site Request Forgery token.
@@ -162,7 +164,7 @@ const signIn = async (
 
   // At this point the request succeeded (i.e., it went through)
   const error = new URL(data.url).searchParams.get('error')
-  await callWithNuxt(nuxt, getSession)
+  await getSessionWithNuxt(nuxt)
 
   return {
     error,
@@ -247,7 +249,7 @@ const signOut = async (options?: SignOutOptions) => {
 
   const requestURL = await getRequestURLWithNuxt(nuxt)
   const { callbackUrl = requestURL, redirect = true } = options ?? {}
-  const csrfToken = await getCsrfToken()
+  const csrfToken = await getCsrfTokenWithNuxt(nuxt)
 
   if (!csrfToken) {
     throw createError({ statusCode: 400, statusMessage: 'Could not fetch CSRF Token for signing out' })
@@ -273,7 +275,7 @@ const signOut = async (options?: SignOutOptions) => {
     return navigateToAuthPageWithNuxt(nuxt, url)
   }
 
-  await getSession()
+  await getSessionWithNuxt(nuxt)
   return signoutData
 }
 
