@@ -42,5 +42,21 @@ export default defineNuxtRouteMiddleware((to) => {
    * For this reason we need to use `callWithNuxt`.
    *
    */
-  return signIn(undefined, { callbackUrl: to.path, error: 'SessionRequired' }) as ReturnType<typeof navigateToAuthPages>
+  const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired' }
+
+  const callbackUrl = authConfig.globalMiddlewareOptions?.callbackUrl
+  if (typeof callbackUrl !== 'undefined') {
+    // If string was set, always callback to that string
+    if (typeof callbackUrl === 'string') {
+      signInOptions.callbackUrl = callbackUrl
+    }
+
+    // If boolean was set, set to current path if set to true
+    if (typeof callbackUrl === 'boolean') {
+      if (callbackUrl) {
+        signInOptions.callbackUrl = to.path
+      }
+    }
+  }
+  return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
 })
