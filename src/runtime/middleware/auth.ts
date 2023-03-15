@@ -44,7 +44,7 @@ export default defineNuxtRouteMiddleware((to) => {
    */
   const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired' }
 
-  const callbackUrl = authConfig.globalMiddlewareOptions?.callbackUrl
+  const callbackUrl = authConfig.globalMiddlewareOptions?.addDefaultCallbackUrl
   if (typeof callbackUrl !== 'undefined') {
     // If string was set, always callback to that string
     if (typeof callbackUrl === 'string') {
@@ -58,5 +58,6 @@ export default defineNuxtRouteMiddleware((to) => {
       }
     }
   }
+
   return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
 })

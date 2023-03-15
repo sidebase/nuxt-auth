@@ -24,7 +24,7 @@ interface GlobalMiddlewareOptions {
    * @example /i-caught-you
    * @default true
    */
-  callbackUrl?: boolean | string
+  addDefaultCallbackUrl?: boolean | string
 }
 
 interface ModuleOptions {
@@ -98,6 +98,10 @@ interface ModuleOptions {
    */
   defaultProvider: SupportedProviders | undefined
   /**
+   * Whether to add a callbackUrl to sign in requests. Setting this to a string-value will result in that being used as the callbackUrl path. Setting this to `true` will result in the blocked original target path being chosen (if it can be determined).
+   */
+  addDefaultCallbackUrl: boolean | string
+  /**
    * Options of the global middleware. They will only apply if `enableGlobalAppMiddleware` is set to `true`.
    */
   globalMiddlewareOptions: GlobalMiddlewareOptions
@@ -113,9 +117,10 @@ const defaults: ModuleOptions & { basePath: string } = {
   enableSessionRefreshOnWindowFocus: true,
   enableGlobalAppMiddleware: false,
   defaultProvider: undefined,
+  addDefaultCallbackUrl: true,
   globalMiddlewareOptions: {
     allow404WithoutAuth: true,
-    callbackUrl: true
+    addDefaultCallbackUrl: true
   }
 }
 export default defineNuxtModule<ModuleOptions>({

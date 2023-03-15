@@ -109,10 +109,30 @@ const signIn = async (
   }
 
   // 3. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
-  const { callbackUrl = await getRequestURLWithNuxt(nuxt), redirect = true } = options ?? {}
+  const { redirect = true } = options ?? {}
+
+  let { callbackUrl } = options ?? {}
+  if (typeof callbackUrl === 'undefined' && runtimeConfig.public.auth.addDefaultCallbackUrl) {
+    const addDefaultCallbackUrl = runtimeConfig.public.auth.addDefaultCallbackUrl
+    if (typeof addDefaultCallbackUrl !== 'undefined') {
+      // If string was set, always callback to that string
+      if (typeof addDefaultCallbackUrl === 'string') {
+        callbackUrl = addDefaultCallbackUrl
+      }
+
+      // If boolean was set, set to current path if set to true
+      if (typeof addDefaultCallbackUrl === 'boolean') {
+        if (addDefaultCallbackUrl) {
+          callbackUrl = await getRequestURLWithNuxt(nuxt)
+        }
+      }
+    }
+  }
 
   const signinUrl = await joinPathToApiURLWithNuxt(nuxt, 'signin')
-  const hrefSignInAllProviderPage = `${signinUrl}?${new URLSearchParams({ callbackUrl })}`
+
+  const queryParams = callbackUrl ? `?${new URLSearchParams({ callbackUrl })}` : ''
+  const hrefSignInAllProviderPage = `${signinUrl}${queryParams}`
   if (!provider) {
     return navigateToAuthPageWithNuxt(nuxt, hrefSignInAllProviderPage)
   }
