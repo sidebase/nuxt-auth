@@ -16,6 +16,15 @@ interface GlobalMiddlewareOptions {
    * @default true
    */
   allow404WithoutAuth?: boolean
+  /**
+   * Whether to automatically set the callback url to the page the user tried to visit when the middleware stopped them. This is useful to disable this when using the credentials provider, as it does not allow a `callbackUrl`. Setting this
+   * to a string-value will result in that being used as the callbackUrl path. Note: You also need to set the global `addDefaultCallbackUrl` setting to `false` if you want to fully disable this.
+   *
+   * @example false
+   * @example /i-caught-you-but-now-you-are-signed-in
+   * @default true
+   */
+  addDefaultCallbackUrl?: boolean | string
 }
 
 interface ModuleOptions {
@@ -89,6 +98,10 @@ interface ModuleOptions {
    */
   defaultProvider: SupportedProviders | undefined
   /**
+   * Whether to add a callbackUrl to sign in requests. Setting this to a string-value will result in that being used as the callbackUrl path. Setting this to `true` will result in the blocked original target path being chosen (if it can be determined).
+   */
+  addDefaultCallbackUrl: boolean | string
+  /**
    * Options of the global middleware. They will only apply if `enableGlobalAppMiddleware` is set to `true`.
    */
   globalMiddlewareOptions: GlobalMiddlewareOptions
@@ -104,8 +117,10 @@ const defaults: ModuleOptions & { basePath: string } = {
   enableSessionRefreshOnWindowFocus: true,
   enableGlobalAppMiddleware: false,
   defaultProvider: undefined,
+  addDefaultCallbackUrl: true,
   globalMiddlewareOptions: {
-    allow404WithoutAuth: true
+    allow404WithoutAuth: true,
+    addDefaultCallbackUrl: true
   }
 }
 export default defineNuxtModule<ModuleOptions>({
