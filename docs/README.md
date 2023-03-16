@@ -28,7 +28,7 @@ yarn dev
 
 Can be deployed to Vercel Functions, Netlify Functions, AWS, and most Node-compatible environments.
 
-Look at all the available presets [here](https://v3.nuxtjs.org/guide/deploy/presets).
+Look at all the available presets [here](https://nuxt.com/docs/getting-started/deployment#presets).
 
 ```bash
 yarn build
