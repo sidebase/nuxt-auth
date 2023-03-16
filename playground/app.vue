@@ -40,6 +40,14 @@
         -> API endpoint protected middleware
       </nuxt-link>
       <br>
+      <nuxt-link to="/api/serverSession" external>
+        -> API endpoint get server session
+      </nuxt-link>
+      <br>
+      <nuxt-link to="/api/serverSessionExternal" external>
+        -> API endpoint get server session external
+      </nuxt-link>
+      <br>
     </div>
     <hr>
     <p>The page content of "{{ route.path }}"</p>
@@ -48,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { useSession, useRoute, useFetch, useRequestHeaders } from '#imports'
+import { useFetch, useRequestHeaders, useRoute, useSession } from '#imports'
 
 const { data, status, lastRefreshedAt, getCsrfToken, getProviders } = useSession()
 
