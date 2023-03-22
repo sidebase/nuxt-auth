@@ -76,7 +76,13 @@ export const getServerOrigin = (event?: H3Event): string => {
     return runtimeConfigOrigin
   }
 
-  // Prio 3: Try to infer the origin if we're not in production
+  // Prio 3: Check for outdated NextAuth Origin (needed in Netlify deployments)
+  const nextAuthEnvOrigin = process.env.NEXTAUTH_URL
+  if (nextAuthEnvOrigin) {
+    return nextAuthEnvOrigin
+  }
+
+  // Prio 4: Try to infer the origin if we're not in production
   if (event && process.env.NODE_ENV !== 'production') {
     return getURL(event.node.req)
   }
