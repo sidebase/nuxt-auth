@@ -27,7 +27,7 @@ Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting
     - ✔️ Custom OAuth (write it yourself)
     - ✔️ Credentials (password + username)
     - ✔️ Email Magic URLs
-- ✔️ Isomorphic / Universal Auth Composable `useSession` supports:
+- ✔️ Isomorphic / Universal Auth Composable `useAuth` supports:
     - actions: `getSession`, `getCsrfToken`, `getProviders`, `signIn`, `signOut`
     - getters: `status`, `data`, `lastRefreshedAt`
     - full typescript support for all methods and property
