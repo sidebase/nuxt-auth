@@ -1,10 +1,10 @@
-import { defineNuxtRouteMiddleware, useRuntimeConfig } from '#app'
+import { navigateTo, defineNuxtRouteMiddleware, useRuntimeConfig } from '#app'
 import useAuth from '../composables/useAuth'
-import { navigateToAuthPages } from '../utils/url'
+import { navigateToAuthPages, determineCallbackUrl } from '../utils/url'
 
 declare module '#app' {
   interface PageMeta {
-    auth?: boolean
+    auth?: boolean | 'guest'
   }
 }
 
@@ -13,12 +13,16 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
+  const authConfig = useRuntimeConfig().public.auth
   const { status, signIn } = useAuth()
   if (status.value === 'authenticated') {
-    return
+    const isGuestMode = to.meta.auth === 'guest'
+    if (isGuestMode) {
+      return navigateTo(determineCallbackUrl(authConfig, () => to.path) ?? '/')
+    } else {
+      return
+    }
   }
-
-  const authConfig = useRuntimeConfig().public.auth
 
   /**
    * We do not want to enforce protection on `404` pages (unless the user opts out of it by setting `allow404WithoutAuth: false`).
@@ -36,28 +40,6 @@ export default defineNuxtRouteMiddleware((to) => {
     }
   }
 
-  /**
-   * We cannot directly call and/or return `signIn` here as `signIn` uses async composables under the hood, leading to "nuxt instance undefined errors", see https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
-   *
-   * For this reason we need to use `callWithNuxt`.
-   *
-   */
-  const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired' }
-
-  const callbackUrl = authConfig.globalMiddlewareOptions?.addDefaultCallbackUrl
-  if (typeof callbackUrl !== 'undefined') {
-    // If string was set, always callback to that string
-    if (typeof callbackUrl === 'string') {
-      signInOptions.callbackUrl = callbackUrl
-    }
-
-    // If boolean was set, set to current path if set to true
-    if (typeof callbackUrl === 'boolean') {
-      if (callbackUrl) {
-        signInOptions.callbackUrl = to.path
-      }
-    }
-  }
-
+  const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.path) }
   return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
 })
