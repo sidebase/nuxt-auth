@@ -26,23 +26,23 @@
     "start:playground": "node playground/.output/server/index.mjs"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.1.2",
-    "defu": "^6.1.1",
-    "nitropack": "^2.1.1",
+    "@nuxt/kit": "^3.3.3",
+    "defu": "^6.1.2",
+    "nitropack": "^2.3.2",
     "requrl": "^3.0.2",
-    "ufo": "^1.0.1"
+    "ufo": "^1.1.1"
   },
   "peerDependencies": {
-    "next-auth": "^4.18.8"
+    "next-auth": "^4.21.1"
   },
   "devDependencies": {
     "@nuxt/module-builder": "^0.2.1",
-    "@nuxt/schema": "^3.1.2",
+    "@nuxt/schema": "^3.3.3",
     "@nuxtjs/eslint-config-typescript": "^12.0.0",
     "@types/node": "^18.13.0",
     "eslint": "^8.34.0",
-    "nuxt": "^3.1.2",
-    "ofetch": "^1.0.0"
+    "nuxt": "^3.3.3",
+    "ofetch": "^1.0.1"
   },
   "overrides": {
     "@nuxt/kit": {
@@ -52,5 +52,4 @@
       "json5": ">=1.0.2"
     }
   }
-
 }
