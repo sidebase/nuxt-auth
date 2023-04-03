@@ -1,5 +1,5 @@
 import { defineNuxtRouteMiddleware, useRuntimeConfig } from '#app'
-import useSession from '../composables/useSession'
+import useAuth from '../composables/useAuth'
 import { navigateToAuthPages } from '../utils/url'
 
 declare module '#app' {
@@ -13,7 +13,7 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
-  const { status, signIn } = useSession()
+  const { status, signIn } = useAuth()
   if (status.value === 'authenticated') {
     return
   }

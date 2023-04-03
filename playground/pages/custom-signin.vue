@@ -19,14 +19,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { definePageMeta, useSession, navigateTo } from '#imports'
+import { definePageMeta, useAuth, navigateTo } from '#imports'
 
 definePageMeta({ auth: false })
 
 const username = ref('')
 const password = ref('')
 
-const { signIn } = useSession()
+const { signIn } = useAuth()
 
 const mySignInHandler = async ({ username, password, callbackUrl }: { username: string, password: string, callbackUrl: string }) => {
   const { error, url } = await signIn('credentials', { username, password, callbackUrl, redirect: false })

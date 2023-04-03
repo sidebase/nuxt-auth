@@ -1,13 +1,13 @@
 import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig } from '#app'
-import useSessionState from './composables/useSessionState'
-import useSession from './composables/useSession'
+import useAuthState from './composables/useAuthState'
+import useAuth from './composables/useAuth'
 import authMiddleware from './middleware/auth'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   const { enableSessionRefreshOnWindowFocus, enableSessionRefreshPeriodically, enableGlobalAppMiddleware } = useRuntimeConfig().public.auth
 
-  const { data, lastRefreshedAt } = useSessionState()
-  const { getSession } = useSession()
+  const { data, lastRefreshedAt } = useAuthState()
+  const { getSession } = useAuth()
 
   // Only fetch session if it was not yet initialized server-side
   if (typeof data.value === 'undefined') {
