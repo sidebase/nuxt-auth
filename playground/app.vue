@@ -1,7 +1,8 @@
 <template>
   <div>
     <h3>Authentication Overview</h3>
-    <p>See all available authentication & session information below. Navigate to different sub-pages to test out the app.
+    <p>
+      See all available authentication & session information below. Navigate to different sub-pages to test out the app.
     </p>
     <pre>Status: {{ status }}</pre>
     <pre>Data: {{ data || 'no session data present, are you logged in?' }}</pre>
