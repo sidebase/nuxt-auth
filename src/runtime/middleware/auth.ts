@@ -1,27 +1,37 @@
 import { navigateTo, defineNuxtRouteMiddleware, useRuntimeConfig } from '#app'
+import { normalizeURL } from 'ufo'
 import useAuth from '../composables/useAuth'
 import { navigateToAuthPages, determineCallbackUrl } from '../utils/url'
 
+type MiddlewareMeta = boolean | {
+  allowUnauthenticatedOnly: true,
+  navigateAuthenticatedTo?: string,
+}
+
 declare module '#app' {
   interface PageMeta {
-    auth?: boolean | 'guest'
+    auth?: MiddlewareMeta
   }
 }
 
 export default defineNuxtRouteMiddleware((to) => {
-  if (to.meta.auth === false) {
+  const metaAuth = to.meta.auth as MiddlewareMeta
+  if (metaAuth === false) {
     return
   }
 
   const authConfig = useRuntimeConfig().public.auth
   const { status, signIn } = useAuth()
-  if (status.value === 'authenticated') {
-    const isGuestMode = to.meta.auth === 'guest'
-    if (isGuestMode) {
-      return navigateTo(determineCallbackUrl(authConfig, () => to.path) ?? '/')
-    } else {
+  if (status.value === 'unauthenticated' && typeof metaAuth === 'object' && metaAuth.allowUnauthenticatedOnly) {
+    const guestModeTargetNormalized = normalizeURL(metaAuth.navigateAuthenticatedTo ?? '/')
+    if (to.path === guestModeTargetNormalized) {
       return
     }
+    return navigateTo(guestModeTargetNormalized)
+  }
+
+  if (status.value === 'authenticated') {
+    return
   }
 
   /**
