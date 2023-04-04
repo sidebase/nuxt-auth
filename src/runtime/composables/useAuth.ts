@@ -1,11 +1,11 @@
 import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
 import { defu } from 'defu'
-import { callWithNuxt } from '#app'
 import { readonly } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
-import type { NuxtApp } from '#app'
 import { appendHeader } from 'h3'
-import { getRequestURL, joinPathToApiURL, navigateToAuthPages } from '../utils/url'
+import type { NuxtApp } from '#app'
+import { callWithNuxt } from '#app'
+import { getRequestURL, joinPathToApiURL, navigateToAuthPages, determineCallbackUrl } from '../utils/url'
 import { _fetch } from '../utils/fetch'
 import { isNonEmptyObject } from '../utils/checkSessionResult'
 import useAuthState from './useAuthState'
@@ -114,21 +114,9 @@ const signIn = async (
   const { redirect = true } = options ?? {}
 
   let { callbackUrl } = options ?? {}
-  if (typeof callbackUrl === 'undefined' && runtimeConfig.public.auth.addDefaultCallbackUrl) {
-    const addDefaultCallbackUrl = runtimeConfig.public.auth.addDefaultCallbackUrl
-    if (typeof addDefaultCallbackUrl !== 'undefined') {
-      // If string was set, always callback to that string
-      if (typeof addDefaultCallbackUrl === 'string') {
-        callbackUrl = addDefaultCallbackUrl
-      }
 
-      // If boolean was set, set to current path if set to true
-      if (typeof addDefaultCallbackUrl === 'boolean') {
-        if (addDefaultCallbackUrl) {
-          callbackUrl = await getRequestURLWithNuxt(nuxt)
-        }
-      }
-    }
+  if (typeof callbackUrl === 'undefined' && runtimeConfig.public.auth.addDefaultCallbackUrl) {
+    callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWithNuxt(nuxt))
   }
 
   const signinUrl = await joinPathToApiURLWithNuxt(nuxt, 'signin')

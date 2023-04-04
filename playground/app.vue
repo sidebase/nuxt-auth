@@ -34,6 +34,10 @@
         -> page that is always unprotected
       </nuxt-link>
       <br>
+      <nuxt-link to="/guest" external>
+        -> guest mode
+      </nuxt-link>
+      <br>
       <nuxt-link to="/api/protected/inline" external>
         -> API endpoint protected inline
       </nuxt-link>
