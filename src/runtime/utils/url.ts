@@ -1,7 +1,7 @@
 import { joinURL } from 'ufo'
 import _getURL from 'requrl'
-import { useRequestEvent, useNuxtApp } from '#app'
 import { sendRedirect } from 'h3'
+import { useRequestEvent, useNuxtApp } from '#app'
 import { useRuntimeConfig } from '#imports'
 
 const getApiURL = () => {
