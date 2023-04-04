@@ -22,11 +22,19 @@ export default defineNuxtRouteMiddleware((to) => {
   const authConfig = useRuntimeConfig().public.auth
   const { status, signIn } = useAuth()
   const isGuestMode = typeof metaAuth === 'object' && metaAuth.unauthenticatedOnly
+
+  // Guest mode happy path 1: Unauthenticated user is allowed to view page
   if (isGuestMode && status.value === 'unauthenticated') {
     return
   }
 
+  // Guest mode edge-case: Developer used guest-mode config style but set `unauthenticatedOnly` to `false`
+  if (typeof metaAuth === 'object' && !metaAuth.unauthenticatedOnly) {
+    return
+  }
+
   if (status.value === 'authenticated') {
+    // Guest mode happy path 2: Authenticated user should be directed to another page
     if (isGuestMode) {
       return navigateTo(metaAuth.navigateAuthenticatedTo ?? '/')
     }

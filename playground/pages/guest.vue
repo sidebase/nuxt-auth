@@ -3,7 +3,7 @@ import { definePageMeta } from '#imports'
 
 definePageMeta({
   auth: {
-    unauthenticatedOnly: true,
+    unauthenticatedOnly: false,
     navigateAuthenticatedTo: '/protected/globally'
   }
 })
@@ -14,4 +14,3 @@ definePageMeta({
     <p>Hey!</p>
   </div>
 </template>
-``
