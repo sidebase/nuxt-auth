@@ -12,28 +12,35 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - name: Use Node.js 16.14.2
         uses: actions/setup-node@v3
         with:
           node-version: 16.14.2
 
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 8
+
       # Install locked dependencies and prepare types
-      - run: npm ci
-      - run: npm run dev:prepare
+      - run: pnpm i
+      - run: pnpm dev:prepare
 
       # Check if build and package artifacts can still be generated
-      - run: npm run prepack
+      - run: pnpm prepack
 
       # Check linting and typing
-      - run: npm run lint
-      - run: npm run types
+      - run: pnpm lint
+      - run: pnpm typecheck
 
       # Check building
-      - run: npm run build:module
-      - run: npm run build:playground
+      - run: pnpm build:module
+      - run: pnpm build:playground
 
       # start dev-app and curl from it
-      - run: "timeout 30 npm run dev & (sleep 10 && curl --fail localhost:3000)"
+      - run: "timeout 30 pnpm dev & (sleep 10 && curl --fail localhost:3000)"
 
       # start prod-app and curl from it
-      - run: "timeout 30 npm run start:playground & (sleep 10 && curl --fail localhost:3000)"
+      - run: "timeout 30 pnpm start:playground & (sleep 10 && curl --fail localhost:3000)"
