@@ -1,19 +1,19 @@
 import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
 import { defu } from 'defu'
-import { callWithNuxt } from '#app'
 import { readonly } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
-import type { NuxtApp } from '#app'
 import { appendHeader } from 'h3'
-import { getRequestURL, joinPathToApiURL, navigateToAuthPages } from '../utils/url'
+import type { NuxtApp } from '#app'
+import { callWithNuxt } from '#app'
+import { getRequestURL, joinPathToApiURL, navigateToAuthPages, determineCallbackUrl } from '../utils/url'
 import { _fetch } from '../utils/fetch'
 import { isNonEmptyObject } from '../utils/checkSessionResult'
-import useSessionState from './useSessionState'
+import useAuthState from './useAuthState'
 import type {
   SessionData,
   SessionLastRefreshedAt,
   SessionStatus
-} from './useSessionState'
+} from './useAuthState'
 import { createError, useNuxtApp, useRuntimeConfig, useRequestHeaders } from '#imports'
 
 /**
@@ -54,7 +54,7 @@ interface SignOutOptions {
 /**
  * Utilities to make nested async composable calls play nicely with nuxt.
  *
- * Calling nested async composable can lead to "nuxt instance unavailable" errors. See more details here: https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529. To resolve this we can manually ensure that the nuxt-context is set. This module contains `callWithNuxt` helpers for some of the methods that are frequently called in nested `useSession` composable calls.
+ * Calling nested async composable can lead to "nuxt instance unavailable" errors. See more details here: https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529. To resolve this we can manually ensure that the nuxt-context is set. This module contains `callWithNuxt` helpers for some of the methods that are frequently called in nested `useAuth` composable calls.
  *
  */
 const getRequestCookies = async (nuxt: NuxtApp): Promise<{ cookie: string } | {}> => {
@@ -114,21 +114,9 @@ const signIn = async (
   const { redirect = true } = options ?? {}
 
   let { callbackUrl } = options ?? {}
-  if (typeof callbackUrl === 'undefined' && runtimeConfig.public.auth.addDefaultCallbackUrl) {
-    const addDefaultCallbackUrl = runtimeConfig.public.auth.addDefaultCallbackUrl
-    if (typeof addDefaultCallbackUrl !== 'undefined') {
-      // If string was set, always callback to that string
-      if (typeof addDefaultCallbackUrl === 'string') {
-        callbackUrl = addDefaultCallbackUrl
-      }
 
-      // If boolean was set, set to current path if set to true
-      if (typeof addDefaultCallbackUrl === 'boolean') {
-        if (addDefaultCallbackUrl) {
-          callbackUrl = await getRequestURLWithNuxt(nuxt)
-        }
-      }
-    }
+  if (typeof callbackUrl === 'undefined' && runtimeConfig.public.auth.addDefaultCallbackUrl) {
+    callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWithNuxt(nuxt))
   }
 
   const signinUrl = await joinPathToApiURLWithNuxt(nuxt, 'signin')
@@ -216,7 +204,7 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
     })
   })
 
-  const { data, status, loading, lastRefreshedAt } = await callWithNuxt(nuxt, useSessionState)
+  const { data, status, loading, lastRefreshedAt } = await callWithNuxt(nuxt, useAuthState)
   const onError = () => {
     loading.value = false
   }
@@ -299,7 +287,7 @@ const signOut = async (options?: SignOutOptions) => {
   return signoutData
 }
 
-export interface UseSessionReturn {
+export interface useAuthReturn {
   data: Readonly<Ref<SessionData>>
   lastRefreshedAt: Readonly<Ref<SessionLastRefreshedAt>>
   status: ComputedRef<SessionStatus>
@@ -310,12 +298,12 @@ export interface UseSessionReturn {
   signOut: typeof signOut
 }
 
-export default (): UseSessionReturn => {
+export default (): useAuthReturn => {
   const {
     data,
     status,
     lastRefreshedAt
-  } = useSessionState()
+  } = useAuthState()
 
   const actions = {
     getSession,

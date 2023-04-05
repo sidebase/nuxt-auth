@@ -1,7 +1,7 @@
 import { joinURL } from 'ufo'
 import _getURL from 'requrl'
-import { useRequestEvent, useNuxtApp } from '#app'
 import { sendRedirect } from 'h3'
+import { useRequestEvent, useNuxtApp } from '#app'
 import { useRuntimeConfig } from '#imports'
 
 const getApiURL = () => {
@@ -45,4 +45,30 @@ export const navigateToAuthPages = (href: string) => {
   // Wait for the `window.location.href` navigation from above to complete to avoid showing content. If that doesn't work fast enough, delegate navigation back to the `vue-router` (risking a vue-router 404 warning in the console, but still avoiding content-flashes of the protected target page)
   const waitForNavigationWithFallbackToRouter = new Promise(resolve => setTimeout(resolve, 60 * 1000)).then(() => router.push(href))
   return waitForNavigationWithFallbackToRouter as Promise<void | undefined>
+}
+
+/**
+ * Determins the desired callback url based on the users desires. Either:
+ * - uses a hardcoded path the user provided,
+ * - determines the callback based on the target the user wanted to reach
+ *
+ * @param authConfig Authentication runtime module config
+ * @param getOriginalTargetPath Function that returns the original location the user wanted to reach
+ */
+export const determineCallbackUrl = <T extends string | Promise<string>>(authConfig: ReturnType<typeof useRuntimeConfig>['public']['auth'], getOriginalTargetPath: () => T): T | string | undefined => {
+  const authConfigCallbackUrl = authConfig.globalMiddlewareOptions?.addDefaultCallbackUrl
+
+  if (typeof authConfigCallbackUrl !== 'undefined') {
+    // If string was set, always callback to that string
+    if (typeof authConfigCallbackUrl === 'string') {
+      return authConfigCallbackUrl
+    }
+
+    // If boolean was set, set to current path if set to true
+    if (typeof authConfigCallbackUrl === 'boolean') {
+      if (authConfigCallbackUrl) {
+        return getOriginalTargetPath()
+      }
+    }
+  }
 }

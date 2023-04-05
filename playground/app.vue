@@ -1,7 +1,9 @@
 <template>
   <div>
     <h3>Authentication Overview</h3>
-    <p>See all available authentication & session information below. Navigate to different sub-pages to test out the app.</p>
+    <p>
+      See all available authentication & session information below. Navigate to different sub-pages to test out the app.
+    </p>
     <pre>Status: {{ status }}</pre>
     <pre>Data: {{ data || 'no session data present, are you logged in?' }}</pre>
     <pre>Last refreshed at: {{ lastRefreshedAt || 'no refresh happened' }}</pre>
@@ -32,6 +34,10 @@
         -> page that is always unprotected
       </nuxt-link>
       <br>
+      <nuxt-link to="/guest" external>
+        -> guest mode
+      </nuxt-link>
+      <br>
       <nuxt-link to="/api/protected/inline" external>
         -> API endpoint protected inline
       </nuxt-link>
@@ -48,9 +54,9 @@
 </template>
 
 <script setup lang="ts">
-import { useSession, useRoute, useFetch, useRequestHeaders } from '#imports'
+import { useAuth, useRoute, useFetch, useRequestHeaders } from '#imports'
 
-const { data, status, lastRefreshedAt, getCsrfToken, getProviders } = useSession()
+const { data, status, lastRefreshedAt, getCsrfToken, getProviders } = useAuth()
 
 const providers = await getProviders()
 const csrfToken = await getCsrfToken()

@@ -8,20 +8,20 @@ export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 export type SessionLastRefreshedAt = Date | undefined
 export type SessionData = Session | undefined | null
 
-export interface UseSessionStateReturn {
+export interface useAuthStateReturn {
   data: Ref<SessionData>
   loading: Ref<boolean>
   lastRefreshedAt: Ref<SessionLastRefreshedAt>
   status: ComputedRef<SessionStatus>
 }
 
-export default (): UseSessionStateReturn => {
-  const data = useState<SessionData>('session:data', () => undefined)
+export default (): useAuthStateReturn => {
+  const data = useState<SessionData>('auth:data', () => undefined)
 
   const hasInitialSession = data.value !== undefined
 
   // If session exists, initialize as already synced
-  const lastRefreshedAt = useState<SessionLastRefreshedAt>('session:lastRefreshedAt', () => {
+  const lastRefreshedAt = useState<SessionLastRefreshedAt>('auth:lastRefreshedAt', () => {
     if (hasInitialSession) {
       return new Date()
     }
@@ -30,7 +30,7 @@ export default (): UseSessionStateReturn => {
   })
 
   // If session exists, initialize as not loading
-  const loading = useState<boolean>('session:loading', () => !hasInitialSession)
+  const loading = useState<boolean>('auth:loading', () => !hasInitialSession)
 
   const status = computed<SessionStatus>(() => {
     if (loading.value) {

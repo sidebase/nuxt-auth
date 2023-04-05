@@ -27,7 +27,7 @@ Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting
     - ✔️ Custom OAuth (write it yourself)
     - ✔️ Credentials (password + username)
     - ✔️ Email Magic URLs
-- ✔️ Isomorphic / Universal Auth Composable `useSession` supports:
+- ✔️ Isomorphic / Universal Auth Composable `useAuth` supports:
     - actions: `getSession`, `getCsrfToken`, `getProviders`, `signIn`, `signOut`
     - getters: `status`, `data`, `lastRefreshedAt`
     - full typescript support for all methods and property
@@ -58,11 +58,13 @@ You can find the [demo source-code here](https://github.com/sidebase/nuxt-auth-e
 
 ## Development
 
-- Run `npm run dev:prepare` to generate type stubs.
-- Use `npm run dev` to start [the module playground](./playground) in development mode.
-- Run `npm run lint` to run eslint
-- Run `npm run types` to run typescheck via tsc
-- Run `npm publish --access public` to publish (bump version before)
+This project uses `pnpm` for development.
+
+- Run `pnpm dev:prepare` to generate type stubs.
+- Use `pnpm dev` to start [the module playground](./playground) in development mode.
+- Run `pnpm lint` to run eslint
+- Run `pnpm typecheck` to run typescheck via tsc
+- Run `pnpm publish --access public` to publish (bump version before)
 
 <!-- Badges -->
 [npm-version-src]: https://img.shields.io/npm/v/@sidebase/nuxt-auth/latest.svg
@@ -84,11 +86,11 @@ This module also has it's own playground:
 
 # **OPEN THE `~/playground/server/api/auth/[...].ts` and configure your own auth-provider
 
-> npm i
+> pnpm i
 
-> npm run dev:prepare
+> pnpm dev:prepare
 
-> npm run dev
+> pnpm dev
 
 # -> open http://localhost:3000
 ```
