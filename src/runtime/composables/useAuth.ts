@@ -66,7 +66,6 @@ const getRequestCookies = async (nuxt: NuxtApp): Promise<{ cookie: string } | {}
   return {}
 }
 const navigateToAuthPageWithNuxt = (nuxt: NuxtApp, href: string) => callWithNuxt(nuxt, navigateToAuthPages, [href])
-const joinPathToApiURLWithNuxt = (nuxt: NuxtApp, path: string) => callWithNuxt(nuxt, joinPathToApiURL, [path])
 const getRequestURLWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getRequestURL)
 const getCsrfTokenWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getCsrfToken)
 const getSessionWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getSession)
@@ -79,7 +78,7 @@ const getSessionWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getSession)
 const getCsrfToken = async () => {
   const nuxt = useNuxtApp()
   const headers = await getRequestCookies(nuxt)
-  return _fetch<{ csrfToken: string }>(nuxt, 'csrf', { headers }).then(response => response.csrfToken)
+  return _fetch<{ csrfToken: string }>('csrf', { headers }).then(response => response.csrfToken)
 }
 
 /**
@@ -100,14 +99,14 @@ const signIn = async (
   // 1. Lead to error page if no providers are available
   const configuredProviders = await getProviders()
   if (!configuredProviders) {
-    const errorUrl = await joinPathToApiURLWithNuxt(nuxt, 'error')
+    const errorUrl = joinPathToApiURL('error')
     return navigateToAuthPageWithNuxt(nuxt, errorUrl)
   }
 
   // 2. If no `provider` was given, either use the configured `defaultProvider` or `undefined` (leading to a forward to the `/login` page with all providers)
   const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
   if (typeof provider === 'undefined') {
-    provider = runtimeConfig.public.auth.defaultProvider
+    provider = runtimeConfig.public.auth.backend.defaultProvider
   }
 
   // 3. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
@@ -115,11 +114,11 @@ const signIn = async (
 
   let { callbackUrl } = options ?? {}
 
-  if (typeof callbackUrl === 'undefined' && runtimeConfig.public.auth.addDefaultCallbackUrl) {
+  if (typeof callbackUrl === 'undefined' && runtimeConfig.public.auth.backend.addDefaultCallbackUrl) {
     callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWithNuxt(nuxt))
   }
 
-  const signinUrl = await joinPathToApiURLWithNuxt(nuxt, 'signin')
+  const signinUrl = joinPathToApiURL('signin')
 
   const queryParams = callbackUrl ? `?${new URLSearchParams({ callbackUrl })}` : ''
   const hrefSignInAllProviderPage = `${signinUrl}${queryParams}`
@@ -157,7 +156,7 @@ const signIn = async (
     json: true
   })
 
-  const fetchSignIn = () => _fetch<{ url: string }>(nuxt, `${action}/${provider}`, {
+  const fetchSignIn = () => _fetch<{ url: string }>(`${action}/${provider}`, {
     method: 'post',
     params: authorizationParams,
     headers,
@@ -185,7 +184,7 @@ const signIn = async (
 /**
  * Get all configured providers from the backend. You can use this method to build your own sign-in page.
  */
-const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, 'options'> | undefined>>(useNuxtApp(), 'providers')
+const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, 'options'> | undefined>>('providers')
 
 /**
  * Refresh and get the current session data.
@@ -211,7 +210,7 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
 
   const headers = await getRequestCookies(nuxt)
 
-  return _fetch<SessionData>(nuxt, 'session', {
+  return _fetch<SessionData>('session', {
     onResponse: ({ response }) => {
       const sessionData = response._data
 
@@ -264,7 +263,7 @@ const signOut = async (options?: SignOutOptions) => {
   }
 
   const callbackUrlFallback = requestURL
-  const signoutData = await _fetch<{ url: string }>(nuxt, 'signout', {
+  const signoutData = await _fetch<{ url: string }>('signout', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'

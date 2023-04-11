@@ -26,6 +26,8 @@
     "start:playground": "node playground/.output/server/index.mjs"
   },
   "dependencies": {
+    "@auth/core": "^0.5.1",
+    "@hattip/adapter-node": "^0.0.33",
     "@nuxt/kit": "^3.3.3",
     "defu": "^6.1.2",
     "nitropack": "^2.3.2",

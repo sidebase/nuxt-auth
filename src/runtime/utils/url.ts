@@ -1,16 +1,11 @@
 import { joinURL } from 'ufo'
-import _getURL from 'requrl'
+import getURL from 'requrl'
 import { sendRedirect } from 'h3'
 import { useRequestEvent, useNuxtApp } from '#app'
-import { useRuntimeConfig } from '#imports'
+import { useAuthState, useRuntimeConfig } from '#imports'
 
-const getApiURL = () => {
-  const origin = useRuntimeConfig().public.auth.origin ?? (process.env.NODE_ENV !== 'production' ? getRequestURL(false) : '')
-  return joinURL(origin, useRuntimeConfig().public.auth.basePath)
-}
-
-export const getRequestURL = (includePath = true) => _getURL(useRequestEvent()?.node.req, includePath)
-export const joinPathToApiURL = (path: string) => joinURL(getApiURL(), path)
+export const getRequestURL = (includePath = true) => getURL(useRequestEvent()?.node.req, includePath)
+export const joinPathToApiURL = (path: string) => joinURL(useAuthState()._internal.baseURL ?? '', path)
 
 /**
  * Function to correctly navigate to auth-routes, necessary as the auth-routes are not part of the nuxt-app itself, so unknown to nuxt / vue-router.
@@ -56,7 +51,7 @@ export const navigateToAuthPages = (href: string) => {
  * @param getOriginalTargetPath Function that returns the original location the user wanted to reach
  */
 export const determineCallbackUrl = <T extends string | Promise<string>>(authConfig: ReturnType<typeof useRuntimeConfig>['public']['auth'], getOriginalTargetPath: () => T): T | string | undefined => {
-  const authConfigCallbackUrl = authConfig.globalMiddlewareOptions?.addDefaultCallbackUrl
+  const authConfigCallbackUrl = authConfig.globalAppMiddleware?.addDefaultCallbackUrl
 
   if (typeof authConfigCallbackUrl !== 'undefined') {
     // If string was set, always callback to that string

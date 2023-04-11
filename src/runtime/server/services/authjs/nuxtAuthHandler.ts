@@ -7,10 +7,11 @@ import type { RequestInternal } from 'next-auth/core'
 import type { AuthAction, AuthOptions, Session } from 'next-auth'
 import type { GetTokenParams } from 'next-auth/jwt'
 
-import getURL from 'requrl'
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
-import { isNonEmptyObject } from '../../utils/checkSessionResult'
+import { ERROR_MESSAGES } from '../errors'
+import { isNonEmptyObject } from '../../../utils/checkSessionResult'
+import { getServerOrigin, getRequestURLFromRequest, useBackendOptions } from '../utils'
 
 import { useRuntimeConfig } from '#imports'
 
@@ -18,10 +19,7 @@ let preparedAuthHandler: ReturnType<typeof eventHandler> | undefined
 let usedSecret: string | undefined
 const SUPPORTED_ACTIONS: AuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
 
-export const ERROR_MESSAGES = {
-  NO_SECRET: 'AUTH_NO_SECRET: No `secret` - this is an error in production, see https://sidebase.io/nuxt-auth/resources/errors. You can ignore this during development',
-  NO_ORIGIN: 'AUTH_NO_ORIGIN: No `origin` - this is an error in production, see https://sidebase.io/nuxt-auth/resources/errors. You can ignore this during development'
-}
+const useConfig = useBackendOptions('authjs')
 
 /**
  * Parse a body if the request method is supported, return `undefined` otherwise.
@@ -60,51 +58,6 @@ const parseActionAndProvider = ({ context }: H3Event): { action: AuthAction, pro
   return { action, providerId }
 }
 
-/**
- * Get `origin` and fallback to `x-forwarded-host` or `host` headers if not in production.
- */
-export const getServerOrigin = (event?: H3Event): string => {
-  // Prio 1: Environment variable
-  const envOrigin = process.env.AUTH_ORIGIN
-  if (envOrigin) {
-    return envOrigin
-  }
-
-  // Prio 2: Runtime configuration
-  const runtimeConfigOrigin = useRuntimeConfig().auth.origin
-  if (runtimeConfigOrigin) {
-    return runtimeConfigOrigin
-  }
-
-  // Prio 3: Try to infer the origin if we're not in production
-  if (event && process.env.NODE_ENV !== 'production') {
-    return getURL(event.node.req)
-  }
-
-  throw new Error(ERROR_MESSAGES.NO_ORIGIN)
-}
-
-/** Extract the host from the environment */
-const detectHost = (
-  event: H3Event,
-  { trusted, basePath }: { trusted: boolean, basePath: string }
-): string | undefined => {
-  if (trusted) {
-    const forwardedValue = getURL(event.node.req)
-    if (forwardedValue) {
-      return Array.isArray(forwardedValue) ? forwardedValue[0] : forwardedValue
-    }
-  }
-
-  let origin
-  try {
-    origin = getServerOrigin(event)
-  } catch (error) {
-    return undefined
-  }
-  return joinURL(origin, basePath)
-}
-
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
 export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
   const isProduction = process.env.NODE_ENV === 'production'
@@ -124,7 +77,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
     secret: usedSecret,
     logger: undefined,
     providers: [],
-    trustHost: useRuntimeConfig().auth.trustHost
+    trustHost: useConfig().trustHost
   })
 
   /**
@@ -138,7 +91,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
    */
   const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
     const nextRequest: Omit<RequestInternal, 'action'> = {
-      host: detectHost(event, { trusted: useRuntimeConfig().auth.trustHost, basePath: useRuntimeConfig().auth.basePath }),
+      host: getRequestURLFromRequest(event, { trustHost: useConfig().trustHost }),
       body: undefined,
       cookies: parseCookies(event),
       query: undefined,
@@ -231,7 +184,8 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
 }
 
 export const getServerSession = async (event: H3Event) => {
-  const authBasePath = useRuntimeConfig().public.auth.basePath
+  const authBasePath = useRuntimeConfig().auth.computed.pathname
+
   // avoid running auth middleware on auth middleware (see #186)
   if (event.path && event.path.startsWith(authBasePath)) {
     return null
@@ -240,9 +194,7 @@ export const getServerSession = async (event: H3Event) => {
     const headers = getHeaders(event) as HeadersInit
 
     // Edge-case: If no auth-endpoint was called yet, `preparedAuthHandler`-initialization was also not attempted as Nuxt lazily loads endpoints in production-mode. This call gives it a chance to load + initialize the variable. If it fails we still throw. This edge-case has happened to user matijao#7025 on discord.
-    await $fetch(joinURL(authBasePath, '/session'), {
-      headers
-    }).catch(error => error.data)
+    await $fetch(joinURL(authBasePath, '/session'), { headers }).catch(error => error.data)
     if (!preparedAuthHandler) {
       throw createError({ statusCode: 500, statusMessage: 'Tried to get server session without setting up an endpoint to handle authentication (see https://github.com/sidebase/nuxt-auth#quick-start)' })
     }

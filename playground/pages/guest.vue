@@ -3,7 +3,7 @@ import { definePageMeta } from '#imports'
 
 definePageMeta({
   auth: {
-    unauthenticatedOnly: false,
+    unauthenticatedOnly: true,
     navigateAuthenticatedTo: '/protected/globally'
   }
 })
