@@ -1,19 +1,15 @@
 import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
 import { defu } from 'defu'
 import { readonly } from 'vue'
-import type { ComputedRef, Ref } from 'vue'
 import { appendHeader } from 'h3'
 import type { NuxtApp } from '#app'
 import { callWithNuxt } from '#app'
-import { getRequestURL, joinPathToApiURL, navigateToAuthPages, determineCallbackUrl } from '../utils/url'
-import { _fetch } from '../utils/fetch'
-import { isNonEmptyObject } from '../utils/checkSessionResult'
-import useAuthState from './useAuthState'
-import type {
-  SessionData,
-  SessionLastRefreshedAt,
-  SessionStatus
-} from './useAuthState'
+import { getRequestURL, joinPathToApiURL, navigateToAuthPages, determineCallbackUrl } from '../../utils/url'
+import { _fetch } from '../../utils/fetch'
+import { isNonEmptyObject } from '../../utils/checkSessionResult'
+import { useAuthState } from '../useAuthState'
+import type { SessionData } from '../useAuthState'
+import { CommonUseAuthReturn } from '../../../types'
 import { createError, useNuxtApp, useRuntimeConfig, useRequestHeaders } from '#imports'
 
 /**
@@ -69,7 +65,7 @@ const navigateToAuthPageWithNuxt = (nuxt: NuxtApp, href: string) => callWithNuxt
 const getRequestURLWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getRequestURL)
 const getCsrfTokenWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getCsrfToken)
 const getSessionWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getSession)
-
+const joinPathToApiURLWithNuxt = (nuxt: NuxtApp, path: string) => callWithNuxt(nuxt, joinPathToApiURL, [path])
 /**
  * Get the current Cross-Site Request Forgery token.
  *
@@ -78,7 +74,7 @@ const getSessionWithNuxt = (nuxt: NuxtApp) => callWithNuxt(nuxt, getSession)
 const getCsrfToken = async () => {
   const nuxt = useNuxtApp()
   const headers = await getRequestCookies(nuxt)
-  return _fetch<{ csrfToken: string }>('csrf', { headers }).then(response => response.csrfToken)
+  return _fetch<{ csrfToken: string }>(nuxt, 'csrf', { headers }).then(response => response.csrfToken)
 }
 
 /**
@@ -99,7 +95,7 @@ const signIn = async (
   // 1. Lead to error page if no providers are available
   const configuredProviders = await getProviders()
   if (!configuredProviders) {
-    const errorUrl = joinPathToApiURL('error')
+    const errorUrl = joinPathToApiURLWithNuxt(nuxt, 'error')
     return navigateToAuthPageWithNuxt(nuxt, errorUrl)
   }
 
@@ -118,7 +114,7 @@ const signIn = async (
     callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWithNuxt(nuxt))
   }
 
-  const signinUrl = joinPathToApiURL('signin')
+  const signinUrl = joinPathToApiURLWithNuxt(nuxt, 'signin')
 
   const queryParams = callbackUrl ? `?${new URLSearchParams({ callbackUrl })}` : ''
   const hrefSignInAllProviderPage = `${signinUrl}${queryParams}`
@@ -156,7 +152,7 @@ const signIn = async (
     json: true
   })
 
-  const fetchSignIn = () => _fetch<{ url: string }>(`${action}/${provider}`, {
+  const fetchSignIn = () => _fetch<{ url: string }>(nuxt, `${action}/${provider}`, {
     method: 'post',
     params: authorizationParams,
     headers,
@@ -184,7 +180,7 @@ const signIn = async (
 /**
  * Get all configured providers from the backend. You can use this method to build your own sign-in page.
  */
-const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, 'options'> | undefined>>('providers')
+const getProviders = () => _fetch<Record<SupportedProviders, Omit<AppProvider, 'options'> | undefined>>(useNuxtApp(), 'providers')
 
 /**
  * Refresh and get the current session data.
@@ -210,7 +206,7 @@ const getSession = async (getSessionOptions?: GetSessionOptions) => {
 
   const headers = await getRequestCookies(nuxt)
 
-  return _fetch<SessionData>('session', {
+  return _fetch<SessionData>(nuxt, 'session', {
     onResponse: ({ response }) => {
       const sessionData = response._data
 
@@ -263,7 +259,7 @@ const signOut = async (options?: SignOutOptions) => {
   }
 
   const callbackUrlFallback = requestURL
-  const signoutData = await _fetch<{ url: string }>('signout', {
+  const signoutData = await _fetch<{ url: string }>(nuxt, 'signout', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -286,23 +282,22 @@ const signOut = async (options?: SignOutOptions) => {
   return signoutData
 }
 
-export interface useAuthReturn {
-  data: Readonly<Ref<SessionData>>
-  lastRefreshedAt: Readonly<Ref<SessionLastRefreshedAt>>
-  status: ComputedRef<SessionStatus>
-  getSession: typeof getSession
+interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOut, typeof getSession> {
   getCsrfToken: typeof getCsrfToken
   getProviders: typeof getProviders
-  signIn: typeof signIn
-  signOut: typeof signOut
 }
-
-export default (): useAuthReturn => {
+export const useAuth = (): UseAuthReturn => {
   const {
     data,
     status,
     lastRefreshedAt
   } = useAuthState()
+
+  const getters = {
+    status,
+    data: readonly(data),
+    lastRefreshedAt: readonly(lastRefreshedAt)
+  }
 
   const actions = {
     getSession,
@@ -312,14 +307,9 @@ export default (): useAuthReturn => {
     signOut
   }
 
-  const getters = {
-    status,
-    data: readonly(data),
-    lastRefreshedAt: readonly(lastRefreshedAt)
-  }
-
   return {
     ...actions,
     ...getters
   }
 }
+export default useAuth

@@ -1,6 +1,9 @@
-import { SupportedProviders } from './runtime/composables/useAuth'
+import type { Ref, ComputedRef } from 'vue'
+import { RouterMethod } from 'h3'
+import type { SessionData, SessionLastRefreshedAt, SessionStatus } from './runtime/composables/useAuthState'
+import { SupportedProviders } from './runtime/composables/providers/authjs'
 
-export type SupportedAuthBackends = 'authjs' | 'external'
+export type SupportedAuthBackends = 'authjs' | 'local'
 
 interface GlobalMiddlewareOptions {
   // TODO: Write docstring
@@ -52,13 +55,14 @@ type BackendRemoteCommon = {
 }
 
 // TODO: Write docstrings
-type BackendExternal = {
+type BackendLocal = {
   // TODO: COME UP WITH BETTER NAME
-  type: Extract<SupportedAuthBackends, 'external'>
+  type: Extract<SupportedAuthBackends, 'local'>
   endpoints: {
-    login: { url: '/login', method: 'post' },
-    logout: { url: '/logout', method: 'post' },
-    user: { url: '/user', method: 'get' }
+    signIn: { url: string, method: RouterMethod },
+    signOut: { url: string, method: RouterMethod },
+    signUp: { url: string, method: RouterMethod },
+    getSession: { url: string, method: RouterMethod },
   },
 } & BackendRemoteCommon
 
@@ -88,7 +92,7 @@ export type BackendAuthJS = {
   addDefaultCallbackUrl: boolean | string
 } & BackendRemoteCommon
 
-export type AuthBackends = BackendAuthJS | BackendExternal
+export type AuthBackends = BackendAuthJS | BackendLocal
 
 type SessionConfig = {
   /**
@@ -136,4 +140,13 @@ export interface ModuleOptions {
    * @default false
    */
   globalAppMiddleware?: GlobalMiddlewareOptions
+}
+
+export interface CommonUseAuthReturn<SignIn, SignOut, GetSession> {
+  data: Readonly<Ref<SessionData>>
+  lastRefreshedAt: Readonly<Ref<SessionLastRefreshedAt>>
+  status: ComputedRef<SessionStatus>
+  signIn: SignIn
+  signOut: SignOut
+  getSession: GetSession
 }

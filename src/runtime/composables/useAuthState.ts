@@ -12,6 +12,7 @@ export type SessionLastRefreshedAt = Date | undefined
 export type SessionData = Session | undefined | null
 
 export interface useAuthStateReturn {
+  // TODO: Make this generic for different providers
   data: Ref<SessionData>
   loading: Ref<boolean>
   lastRefreshedAt: Ref<SessionLastRefreshedAt>
@@ -21,7 +22,7 @@ export interface useAuthStateReturn {
   }
 }
 
-export default (): useAuthStateReturn => {
+export const useAuthState = (): useAuthStateReturn => {
   const data = useState<SessionData>('auth:data', () => undefined)
 
   const hasInitialSession = data.value !== undefined
@@ -72,3 +73,5 @@ export default (): useAuthStateReturn => {
     }
   }
 }
+
+export default useAuthState

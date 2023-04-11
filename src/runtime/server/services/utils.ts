@@ -1,19 +1,9 @@
 import { H3Event } from 'h3'
 import getURL from 'requrl'
 import { joinURL } from 'ufo'
-import { SupportedAuthBackends, AuthBackends } from '../../../types'
 import { isProduction } from '../../../utils'
 import { ERROR_MESSAGES } from './errors'
 import { useRuntimeConfig } from '#imports'
-
-// TODO: Wrtie docstring
-export const useBackendOptions = <T extends SupportedAuthBackends>(type: T): () => Extract<AuthBackends, { type: T }> => {
-  const backendConfig = useRuntimeConfig().auth.backend
-  if (backendConfig.type === type) {
-    return () => backendConfig as Extract<AuthBackends, { type: T }>
-  }
-  throw new Error('RuntimeError: Type must match at this point')
-}
 
 /**
  * Get `origin` and fallback to `x-forwarded-host` or `host` headers if not in production.

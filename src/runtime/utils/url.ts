@@ -5,7 +5,7 @@ import { useRequestEvent, useNuxtApp } from '#app'
 import { useAuthState, useRuntimeConfig } from '#imports'
 
 export const getRequestURL = (includePath = true) => getURL(useRequestEvent()?.node.req, includePath)
-export const joinPathToApiURL = (path: string) => joinURL(useAuthState()._internal.baseURL ?? '', path)
+export const joinPathToApiURL = (path: string) => joinURL(useAuthState()._internal.baseURL, path)
 
 /**
  * Function to correctly navigate to auth-routes, necessary as the auth-routes are not part of the nuxt-app itself, so unknown to nuxt / vue-router.

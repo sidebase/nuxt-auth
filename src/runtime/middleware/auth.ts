@@ -1,6 +1,6 @@
 import { navigateTo, defineNuxtRouteMiddleware, useRuntimeConfig } from '#app'
-import useAuth from '../composables/useAuth'
 import { navigateToAuthPages, determineCallbackUrl } from '../utils/url'
+import { useAuth } from '#imports'
 
 type MiddlewareMeta = boolean | {
   unauthenticatedOnly: true,

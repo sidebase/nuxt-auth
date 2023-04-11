@@ -11,7 +11,8 @@ import { defu } from 'defu'
 import { joinURL } from 'ufo'
 import { ERROR_MESSAGES } from '../errors'
 import { isNonEmptyObject } from '../../../utils/checkSessionResult'
-import { getServerOrigin, getRequestURLFromRequest, useBackendOptions } from '../utils'
+import { getServerOrigin, getRequestURLFromRequest } from '../utils'
+import { useTypedBackendConfig } from '../../../../utils'
 
 import { useRuntimeConfig } from '#imports'
 
@@ -19,7 +20,7 @@ let preparedAuthHandler: ReturnType<typeof eventHandler> | undefined
 let usedSecret: string | undefined
 const SUPPORTED_ACTIONS: AuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
 
-const useConfig = useBackendOptions('authjs')
+const useConfig = () => useTypedBackendConfig(useRuntimeConfig(), 'authjs')
 
 /**
  * Parse a body if the request method is supported, return `undefined` otherwise.

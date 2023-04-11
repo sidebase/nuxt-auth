@@ -1,19 +1,11 @@
-import { defineNuxtModule, useLogger, addImportsDir, createResolver, addTemplate, addPlugin, addServerPlugin } from '@nuxt/kit'
+import { defineNuxtModule, useLogger, createResolver, addTemplate, addPlugin, addServerPlugin, addImports } from '@nuxt/kit'
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
 import { getOriginAndPathnameFromURL, isProduction } from './utils'
-import type { ModuleOptions } from './types'
+import type { ModuleOptions, SupportedAuthBackends, AuthBackends } from './types'
 
-const PACKAGE_NAME = 'nuxt-auth'
-const defaults = {
+const topLevelDefaults = {
   isEnabled: true,
-  backend: {
-    type: 'authjs',
-    baseURL: undefined,
-    trustHost: false,
-    defaultProvider: undefined,
-    addDefaultCallbackUrl: true
-  },
   session: {
     enableRefreshPeriodically: false,
     enableRefreshOnWindowFocus: true
@@ -25,6 +17,28 @@ const defaults = {
   }
 } satisfies ModuleOptions
 
+const defaultsByBackend: { [key in SupportedAuthBackends]: Extract<AuthBackends, { type: key }> } = {
+  local: {
+    type: 'local',
+    baseURL: '/api/auth',
+    endpoints: {
+      signIn: { url: '/login', method: 'post' },
+      signOut: { url: '/logout', method: 'post' },
+      signUp: { url: '/register', method: 'post' },
+      getSession: { url: '/session', method: 'get' }
+    }
+  },
+  authjs: {
+    type: 'authjs',
+    baseURL: undefined,
+    trustHost: false,
+    defaultProvider: undefined,
+    addDefaultCallbackUrl: true
+  }
+}
+
+const PACKAGE_NAME = 'nuxt-auth'
+
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: PACKAGE_NAME,
@@ -33,17 +47,21 @@ export default defineNuxtModule<ModuleOptions>({
   setup (userOptions, nuxt) {
     const logger = useLogger(PACKAGE_NAME)
 
-    // 0. Load all options
-
+    // 0. Assemble all options
     const { origin, pathname = '/api/auth' } = getOriginAndPathnameFromURL(userOptions.backend?.baseURL ?? '')
 
-    const options = defu(userOptions, defaults, {
-      computed: {
-        origin,
-        pathname,
-        fullBaseUrl: joinURL(origin ?? '', pathname)
-      }
-    })
+    const options = defu(
+      userOptions,
+      topLevelDefaults,
+      // TODO: Change default to local??
+      { backend: defaultsByBackend[userOptions.backend?.type ?? 'authjs'] },
+      {
+        computed: {
+          origin,
+          pathname,
+          fullBaseUrl: joinURL(origin ?? '', pathname)
+        }
+      })
 
     // 1. Check if module should be enabled at all
     if (!options.isEnabled) {
@@ -68,9 +86,17 @@ export default defineNuxtModule<ModuleOptions>({
     // 3. Locate runtime directory
     const { resolve } = createResolver(import.meta.url)
 
-    // 4. Add nuxt-auth composables
-    const composables = resolve('./runtime/composables')
-    addImportsDir(composables)
+    // 4. Add the correct nuxt-auth app composable, for the desired backend
+    addImports([
+      {
+        name: 'useAuth',
+        from: resolve(`./runtime/composables/providers/${options.backend.type}`)
+      },
+      {
+        name: 'useAuthState',
+        from: resolve('./runtime/composables/useAuthState')
+      }
+    ])
 
     // 5. Create virtual imports for server-side
     nuxt.hook('nitro:config', (nitroConfig) => {

@@ -1,7 +1,6 @@
 import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig } from '#app'
-import useAuthState from './composables/useAuthState'
-import useAuth from './composables/useAuth'
 import authMiddleware from './middleware/auth'
+import { useAuth, useAuthState } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
