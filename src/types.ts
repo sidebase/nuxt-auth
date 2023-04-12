@@ -1,7 +1,6 @@
 import type { Ref, ComputedRef } from 'vue'
 import { RouterMethod } from 'h3'
-import type { SessionData, SessionLastRefreshedAt, SessionStatus } from './runtime/composables/useAuthState'
-import { SupportedProviders } from './runtime/composables/providers/authjs'
+import { SupportedProviders } from './runtime/composables/authjs/useAuth'
 
 export type SupportedAuthBackends = 'authjs' | 'local'
 
@@ -59,11 +58,19 @@ type BackendLocal = {
   // TODO: COME UP WITH BETTER NAME
   type: Extract<SupportedAuthBackends, 'local'>
   endpoints: {
-    signIn: { url: string, method: RouterMethod },
-    signOut: { url: string, method: RouterMethod },
-    signUp: { url: string, method: RouterMethod },
-    getSession: { url: string, method: RouterMethod },
+    signIn: { path: string, method: RouterMethod },
+    signOut: { path: string, method: RouterMethod },
+    signUp: { path: string, method: RouterMethod },
+    getSession: { path: string, method: RouterMethod },
   },
+  token: {
+    signInResponseJsonPointerToToken: string
+    type: string,
+    headerName: string,
+    maxAge: number,
+    storagePrefix: string,
+    storageExpirationPrefix: string
+  }
 } & BackendRemoteCommon
 
 export type BackendAuthJS = {
@@ -142,11 +149,24 @@ export interface ModuleOptions {
   globalAppMiddleware?: GlobalMiddlewareOptions
 }
 
-export interface CommonUseAuthReturn<SignIn, SignOut, GetSession> {
-  data: Readonly<Ref<SessionData>>
+export type SessionLastRefreshedAt = Date | undefined
+export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
+type WrappedSessionData<SessionData> = Ref<SessionData | null | undefined>
+export interface CommonUseAuthReturn<SignIn, SignOut, GetSession, SessionData> {
+  data: Readonly<WrappedSessionData<SessionData>>
   lastRefreshedAt: Readonly<Ref<SessionLastRefreshedAt>>
   status: ComputedRef<SessionStatus>
   signIn: SignIn
   signOut: SignOut
   getSession: GetSession
+}
+
+export interface CommonUseAuthStateReturn<SessionData> {
+  data: WrappedSessionData<SessionData>
+  loading: Ref<boolean>
+  lastRefreshedAt: Ref<SessionLastRefreshedAt>
+  status: ComputedRef<SessionStatus>,
+  _internal: {
+    baseURL: string
+  }
 }

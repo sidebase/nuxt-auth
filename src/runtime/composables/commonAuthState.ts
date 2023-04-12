@@ -1,29 +1,12 @@
 import { computed } from 'vue'
-import type { ComputedRef, Ref } from 'vue'
-import type { Session } from 'next-auth'
 import getURL from 'requrl'
-import { joinURL } from 'ufo'
 import { useRuntimeConfig, useRequestEvent } from '#app'
+import { joinURL } from 'ufo'
+import { SessionLastRefreshedAt, SessionStatus } from '../../types'
 import { useState } from '#imports'
 
-export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
-
-export type SessionLastRefreshedAt = Date | undefined
-export type SessionData = Session | undefined | null
-
-export interface useAuthStateReturn {
-  // TODO: Make this generic for different providers
-  data: Ref<SessionData>
-  loading: Ref<boolean>
-  lastRefreshedAt: Ref<SessionLastRefreshedAt>
-  status: ComputedRef<SessionStatus>,
-  _internal: {
-    baseURL: string
-  }
-}
-
-export const useAuthState = (): useAuthStateReturn => {
-  const data = useState<SessionData>('auth:data', () => undefined)
+export const makeCommonAuthState = <SessionData>() => {
+  const data = useState<SessionData | undefined | null>('auth:data', () => undefined)
 
   const hasInitialSession = data.value !== undefined
 
@@ -73,5 +56,3 @@ export const useAuthState = (): useAuthStateReturn => {
     }
   }
 }
-
-export default useAuthState

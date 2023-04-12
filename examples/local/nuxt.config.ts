@@ -1,9 +1,18 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['../../src/module.ts'],
+  build: {
+    transpile: ['jsonwebtoken']
+  },
+  modules: ['../src/module.ts'],
   auth: {
     backend: {
-      type: 'local'
+      type: 'local',
+      endpoints: {
+        getSession: { path: '/user' }
+      },
+      token: {
+        signInResponseJsonPointerToToken: '/token/accessToken'
+      }
     },
     globalAppMiddleware: {
       isEnabled: true

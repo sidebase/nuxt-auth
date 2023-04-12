@@ -7,10 +7,9 @@ import { callWithNuxt } from '#app'
 import { getRequestURL, joinPathToApiURL, navigateToAuthPages, determineCallbackUrl } from '../../utils/url'
 import { _fetch } from '../../utils/fetch'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
-import { useAuthState } from '../useAuthState'
-import type { SessionData } from '../useAuthState'
 import { CommonUseAuthReturn } from '../../../types'
-import { createError, useNuxtApp, useRuntimeConfig, useRequestHeaders } from '#imports'
+import type { SessionData } from './useAuthState'
+import { createError, useNuxtApp, useRuntimeConfig, useRequestHeaders, useAuthState } from '#imports'
 
 /**
  * Utility type that allows autocompletion for a mix of literal, primitiva and non-primitive values.
@@ -95,7 +94,7 @@ const signIn = async (
   // 1. Lead to error page if no providers are available
   const configuredProviders = await getProviders()
   if (!configuredProviders) {
-    const errorUrl = joinPathToApiURLWithNuxt(nuxt, 'error')
+    const errorUrl = await joinPathToApiURLWithNuxt(nuxt, 'error')
     return navigateToAuthPageWithNuxt(nuxt, errorUrl)
   }
 
@@ -282,7 +281,7 @@ const signOut = async (options?: SignOutOptions) => {
   return signoutData
 }
 
-interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOut, typeof getSession> {
+interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOut, typeof getSession, SessionData> {
   getCsrfToken: typeof getCsrfToken
   getProviders: typeof getProviders
 }

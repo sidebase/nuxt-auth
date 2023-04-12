@@ -22,10 +22,18 @@ const defaultsByBackend: { [key in SupportedAuthBackends]: Extract<AuthBackends,
     type: 'local',
     baseURL: '/api/auth',
     endpoints: {
-      signIn: { url: '/login', method: 'post' },
-      signOut: { url: '/logout', method: 'post' },
-      signUp: { url: '/register', method: 'post' },
-      getSession: { url: '/session', method: 'get' }
+      signIn: { path: '/login', method: 'post' },
+      signOut: { path: '/logout', method: 'post' },
+      signUp: { path: '/register', method: 'post' },
+      getSession: { path: '/session', method: 'get' }
+    },
+    token: {
+      signInResponseJsonPointerToToken: '/token',
+      type: 'Bearer',
+      headerName: 'Authorization',
+      maxAge: 1800,
+      storagePrefix: '_token.',
+      storageExpirationPrefix: '_token_expiration.'
     }
   },
   authjs: {
@@ -90,11 +98,11 @@ export default defineNuxtModule<ModuleOptions>({
     addImports([
       {
         name: 'useAuth',
-        from: resolve(`./runtime/composables/providers/${options.backend.type}`)
+        from: resolve(`./runtime/composables/${options.backend.type}/useAuth`)
       },
       {
         name: 'useAuthState',
-        from: resolve('./runtime/composables/useAuthState')
+        from: resolve(`./runtime/composables/${options.backend.type}/useAuthState`)
       }
     ])
 
