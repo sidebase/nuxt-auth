@@ -30,7 +30,7 @@ const signIn = async (credentials: Credentials) => {
     return
   }
 
-  useAuthState().token.value = config.token.type.length > 0 ? `${config.token.type.length} ${extractedToken}` : extractedToken
+  useAuthState().token.value = config.token.type.length > 0 ? `${config.token.type} ${extractedToken}` : extractedToken
   return getSession()
 }
 
@@ -50,7 +50,7 @@ const getSession = async <SessionData extends {}>() => {
 
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
   const { path, method } = config.endpoints.getSession
-  const { data, loading, lastRefreshedAt, token } = await callWithNuxt(nuxt, useAuthState)
+  const { data, loading, lastRefreshedAt, token } = useAuthState()
 
   const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
 
