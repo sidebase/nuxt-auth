@@ -1,5 +1,4 @@
 import { readonly } from 'vue'
-import { callWithNuxt } from '#app'
 import { CommonUseAuthReturn } from '../../../types'
 import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../../utils'
