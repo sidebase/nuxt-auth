@@ -68,7 +68,6 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
     if (isProduction) {
       throw new Error(ERROR_MESSAGES.NO_SECRET)
     } else {
-    // eslint-disable-next-line no-console
       console.info(ERROR_MESSAGES.NO_SECRET)
       usedSecret = 'secret'
     }
@@ -177,7 +176,6 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
 
   // Save handler so that it can be used in other places
   if (preparedAuthHandler) {
-    // eslint-disable-next-line no-console
     console.warn('You setup the auth handler for a second time - this is likely undesired. Make sure that you only call `NuxtAuthHandler( ... )` once')
   }
   preparedAuthHandler = handler

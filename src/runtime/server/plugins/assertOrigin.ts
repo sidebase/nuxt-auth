@@ -20,7 +20,6 @@ export default defineNitroPlugin(() => {
     // getServerOrigin()
   } catch (error) {
     if (!isProduction) {
-      // eslint-disable-next-line no-console
       console.info(ERROR_MESSAGES.NO_ORIGIN)
     } else {
       throw error
