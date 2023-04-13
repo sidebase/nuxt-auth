@@ -1,9 +1,10 @@
 import { readonly } from 'vue'
+import { callWithNuxt } from '#app'
 import { CommonUseAuthReturn } from '../../../types'
 import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../../utils'
 import type { SessionData } from './useAuthState'
-import { useNuxtApp, useRuntimeConfig, useAuthState } from '#imports'
+import { useNuxtApp, useRuntimeConfig, useAuthState, nextTick } from '#imports'
 
 interface Credentials {
   username: string
@@ -29,19 +30,22 @@ const signIn = async (credentials: Credentials) => {
     return
   }
 
-  useAuthState().token.value = config.token.type.length > 0 ? `${config.token.type} ${extractedToken}` : extractedToken
-  return getSession()
+  const { rawToken } = useAuthState()
+  rawToken.value = extractedToken
+
+  return nextTick(getSession)
 }
 
 const signOut = async () => {
   const nuxt = useNuxtApp()
 
-  const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signOut
-  await _fetch(nuxt, path, { method })
-
-  const { data, token } = useAuthState()
+  const { data, rawToken } = await callWithNuxt(nuxt, useAuthState)
   data.value = null
-  token.value = null
+  rawToken.value = null
+
+  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const { path, method } = useTypedBackendConfig(runtimeConfig, 'local').endpoints.signOut
+  return _fetch(nuxt, path, { method })
 }
 
 const getSession = async <SessionData extends {}>() => {
@@ -53,26 +57,31 @@ const getSession = async <SessionData extends {}>() => {
 
   const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
 
-  let sessionData
   loading.value = true
   try {
-    sessionData = await _fetch<SessionData>(nuxt, path, { method, headers })
-  } catch (error) {
-    sessionData = null
+    data.value = await _fetch<SessionData>(nuxt, path, { method, headers })
+  } catch {
+    data.value = null
   }
   loading.value = false
   lastRefreshedAt.value = new Date()
-  data.value = sessionData
+
+  if (data.value === null) {
+    return callWithNuxt(nuxt, signOut)
+  }
+
+  return data.value
 }
 
-const signUp = (credentials: Credentials) => {
+const signUp = async (credentials: Credentials) => {
   const nuxt = useNuxtApp()
 
   const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signUp
-  return _fetch(nuxt, path, {
+  await _fetch(nuxt, path, {
     method,
     body: credentials
-  }).then(() => signIn(credentials))
+  })
+  return await signIn(credentials)
 }
 
 interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOut, typeof getSession, SessionData> {

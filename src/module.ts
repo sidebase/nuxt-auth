@@ -31,9 +31,7 @@ const defaultsByBackend: { [key in SupportedAuthBackends]: Extract<AuthBackends,
       signInResponseJsonPointerToToken: '/token',
       type: 'Bearer',
       headerName: 'Authorization',
-      maxAge: 1800,
-      storagePrefix: '_token.',
-      storageExpirationPrefix: '_token_expiration.'
+      maxAgeInSeconds: 30 * 60
     }
   },
   authjs: {

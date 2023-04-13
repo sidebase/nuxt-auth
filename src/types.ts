@@ -67,9 +67,7 @@ type BackendLocal = {
     signInResponseJsonPointerToToken: string
     type: string,
     headerName: string,
-    maxAge: number,
-    storagePrefix: string,
-    storageExpirationPrefix: string
+    maxAgeInSeconds: number,
   }
 } & BackendRemoteCommon
 

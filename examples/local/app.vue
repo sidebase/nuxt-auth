@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useAuth } from '#imports'
+import { useAuth, useAuthState } from '#imports'
 
 const { signIn, token, data, status, lastRefreshedAt, signOut, getSession } = useAuth()
+const { rawToken } = useAuthState()
 
 const username = ref('')
 const password = ref('')
