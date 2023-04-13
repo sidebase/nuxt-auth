@@ -57,6 +57,10 @@ export default defineNuxtRouteMiddleware((to) => {
     }
   }
 
-  const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.path) }
-  return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
+  if (authConfig.backend.type === 'authjs') {
+    const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.path) }
+    return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
+  } else {
+    return navigateTo(authConfig.backend.pages.login)
+  }
 })

@@ -10,6 +10,9 @@ export default defineNuxtConfig({
       endpoints: {
         getSession: { path: '/user' }
       },
+      pages: {
+        login: '/'
+      },
       token: {
         signInResponseJsonPointerToToken: '/token/accessToken'
       }

@@ -63,6 +63,9 @@ type BackendLocal = {
     signUp: { path: string, method: RouterMethod },
     getSession: { path: string, method: RouterMethod },
   },
+  pages: {
+    login: string
+  },
   token: {
     signInResponseJsonPointerToToken: string
     type: string,
@@ -147,6 +150,8 @@ export interface ModuleOptions {
   globalAppMiddleware?: GlobalMiddlewareOptions
 }
 
+// Common useAuthStatus & useAuth return-types
+
 export type SessionLastRefreshedAt = Date | undefined
 export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 type WrappedSessionData<SessionData> = Ref<SessionData | null | undefined>
@@ -168,3 +173,33 @@ export interface CommonUseAuthStateReturn<SessionData> {
     baseURL: string
   }
 }
+
+// Common `useAuth` method-types
+
+// TODO: Remove next-auth reference from here
+export interface SecondarySignInOptions extends Record<string, unknown> {
+  /**
+   * Specify to which URL the user will be redirected after signing in. Defaults to the page URL the sign-in is initiated from.
+   *
+   * [Documentation](https://next-auth.js.org/getting-started/client#specifying-a-callbackurl)
+   */
+  callbackUrl?: string
+  /** [Documentation](https://next-auth.js.org/getting-started/client#using-the-redirect-false-option) */
+  redirect?: boolean
+}
+
+export interface SignOutOptions {
+  callbackUrl?: string
+  redirect?: boolean
+}
+
+export type GetSessionOptions = Partial<{
+  required?: boolean
+  callbackUrl?: string
+  onUnauthenticated?: () => void
+}>
+
+// TODO: These types could be nicer and more general, or located withing `useAuth` files and more specific
+export type SignOutFunc = (options?: SignOutOptions) => Promise<any>
+export type GetSessionFunc<SessionData> = (getSessionOptions?: GetSessionOptions) => Promise<SessionData>
+export type SignInFunc<PrimarySignInOptions, SignInResult> = (primaryOptions: PrimarySignInOptions, signInOptions?: SecondarySignInOptions, paramsOptions?: Record<string, string>) => Promise<SignInResult>

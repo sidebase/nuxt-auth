@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useAuth, useAuthState } from '#imports'
+import { useAuth } from '#imports'
 
 const { signIn, token, data, status, lastRefreshedAt, signOut, getSession } = useAuth()
-const { rawToken } = useAuthState()
 
 const username = ref('')
 const password = ref('')
@@ -23,7 +22,7 @@ const password = ref('')
       </button>
     </form>
     <br>
-    <button @click="signIn({ username, password }, { callbackUrl: '/protected/named' })">
+    <button @click="signIn({ username, password }, { callbackUrl: '/protected/globally' })">
       sign in (with redirect to protected page)
     </button>
     <br>
@@ -32,7 +31,12 @@ const password = ref('')
     </button>
     <br>
     <button @click="getSession({ required: false })">
-      refresh session
+      refresh session (required: false)
     </button>
+    <br>
+    <button @click="getSession({ required: true, callbackUrl: '/' })">
+      refresh session (required: true)
+    </button>
+    <NuxtPage />
   </div>
 </template>

@@ -1,27 +1,29 @@
-import { readonly } from 'vue'
+import { readonly, Ref } from 'vue'
 import { callWithNuxt } from '#app'
-import { CommonUseAuthReturn } from '../../../types'
+import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc } from '../../../types'
 import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../../utils'
+import { getRequestURLWN } from '../../utils/callWithNuxt'
 import type { SessionData } from './useAuthState'
-import { useNuxtApp, useRuntimeConfig, useAuthState, nextTick } from '#imports'
+import { useNuxtApp, useRuntimeConfig, useAuthState, nextTick, navigateTo } from '#imports'
 
 interface Credentials {
   username: string
   password: string
 }
 
-// TODO:
-// - Add sign in options like redirect
-// - check if errors on sign in are handled correctly
-const signIn = async (credentials: Credentials) => {
+const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, signInParams) => {
   const nuxt = useNuxtApp()
 
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
   const { path, method } = config.endpoints.signIn
   const response = await _fetch<Record<string, any>>(nuxt, path, {
     method,
-    body: credentials
+    body: {
+      ...credentials,
+      ...(signInOptions ?? {})
+    },
+    params: signInParams ?? {}
   })
 
   const extractedToken = jsonPointerGet(response, config.token.signInResponseJsonPointerToToken)
@@ -33,22 +35,35 @@ const signIn = async (credentials: Credentials) => {
   const { rawToken } = useAuthState()
   rawToken.value = extractedToken
 
-  return nextTick(getSession)
+  await nextTick(getSession)
+
+  const { callbackUrl, redirect = true } = signInOptions ?? {}
+  if (redirect) {
+    const urlToNavigateTo = callbackUrl ?? await getRequestURLWN(nuxt)
+    return navigateTo(urlToNavigateTo)
+  }
 }
 
-const signOut = async () => {
+const signOut: SignOutFunc = async (signOutOptions) => {
   const nuxt = useNuxtApp()
-
   const { data, rawToken } = await callWithNuxt(nuxt, useAuthState)
   data.value = null
   rawToken.value = null
 
   const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
   const { path, method } = useTypedBackendConfig(runtimeConfig, 'local').endpoints.signOut
-  return _fetch(nuxt, path, { method })
+
+  const res = await _fetch(nuxt, path, { method })
+
+  const { callbackUrl, redirect = true } = signOutOptions ?? {}
+  if (redirect) {
+    await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt))
+  }
+
+  return res
 }
 
-const getSession = async <SessionData extends {}>() => {
+const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionOptions) => {
   const nuxt = useNuxtApp()
 
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
@@ -66,8 +81,13 @@ const getSession = async <SessionData extends {}>() => {
   loading.value = false
   lastRefreshedAt.value = new Date()
 
-  if (data.value === null) {
-    return callWithNuxt(nuxt, signOut)
+  const { required = false, callbackUrl, onUnauthenticated } = getSessionOptions ?? {}
+  if (required && data.value === null) {
+    if (onUnauthenticated) {
+      return onUnauthenticated()
+    } else {
+      await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt))
+    }
   }
 
   return data.value
@@ -86,7 +106,7 @@ const signUp = async (credentials: Credentials) => {
 
 interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOut, typeof getSession, SessionData> {
   signUp: typeof signUp
-  token: Readonly<ReturnType<typeof useAuthState>['token']>
+  token: Readonly<Ref<string | null>>
 }
 export const useAuth = (): UseAuthReturn => {
 // todo: can we reduce code-repetition here and in the authjs composable provider?

@@ -21,6 +21,9 @@ const defaultsByBackend: { [key in SupportedAuthBackends]: Extract<AuthBackends,
   local: {
     type: 'local',
     baseURL: '/api/auth',
+    pages: {
+      login: '/login'
+    },
     endpoints: {
       signIn: { path: '/login', method: 'post' },
       signOut: { path: '/logout', method: 'post' },
