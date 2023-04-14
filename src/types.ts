@@ -5,7 +5,12 @@ import { SupportedProviders } from './runtime/composables/authjs/useAuth'
 export type SupportedAuthBackends = 'authjs' | 'local'
 
 interface GlobalMiddlewareOptions {
-  // TODO: Write docstring
+  /**
+   * Whether to add a global authentication middleware that protects all pages.
+   *
+   * @example true
+   * @default false
+   */
   isEnabled: boolean
   /**
    * Whether to enforce authentication if the target-route does not exist. Per default the middleware redirects
@@ -107,13 +112,13 @@ export interface ModuleOptions {
    */
   isEnabled?: boolean
   /**
-   * Configuration of the authentication backend. Different backends are supported:
-   * - [auth.js](https://authjs.dev/)
-   * - TODO
+   * Configuration of the authentication provider. Different providers are supported:
+   * - [auth.js](https://authjs.dev/): OAuth focused provider for non-static Nuxt 3 applications
+   * - [local](TODO: Link to sidebase nuxt auth local docs): Provider for credentials & token based backends, e.g., written by yourself or provided by something like Laraval
    */
   backend?: AuthBackends
   /**
-   * TODO: Write extended docstring
+   * Configuration of the application-side session.
    */
   session?: SessionConfig
   // TODO: Can we merge origin and basePath?
@@ -172,15 +177,17 @@ export interface CommonUseAuthStateReturn<SessionData> {
 
 // Common `useAuth` method-types
 
-// TODO: Remove next-auth reference from here
 export interface SecondarySignInOptions extends Record<string, unknown> {
   /**
    * Specify to which URL the user will be redirected after signing in. Defaults to the page URL the sign-in is initiated from.
    *
-   * [Documentation](https://next-auth.js.org/getting-started/client#specifying-a-callbackurl)
+   * @default undefined Inferred from the current route
    */
   callbackUrl?: string
-  /** [Documentation](https://next-auth.js.org/getting-started/client#using-the-redirect-false-option) */
+  /** Whether to redirect users after the method succeeded.
+   *
+   * @default true
+   */
   redirect?: boolean
 }
 

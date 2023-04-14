@@ -110,7 +110,6 @@ interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOu
   token: Readonly<Ref<string | null>>
 }
 export const useAuth = (): UseAuthReturn => {
-// todo: can we reduce code-repetition here and in the authjs composable provider?
   const {
     data,
     status,

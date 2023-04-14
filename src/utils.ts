@@ -19,18 +19,25 @@ export const getOriginAndPathnameFromURL = (url: string) => {
   }
 }
 
-// TODO: Wrtie docstring
-export const useTypedBackendConfig = <T extends SupportedAuthBackends>(config: ReturnType<typeof useRuntimeConfig>, type: T): Extract<DeepRequired<AuthBackends>, { type: T }> => {
-  if (config.auth.backend.type === type) {
-    return config.auth.backend as Extract<DeepRequired<AuthBackends>, { type: T }>
+/**
+ * Get the backend configuration from the runtime config in a typed manner.
+ *
+ * @param runtimeConfig The runtime config of the application
+ * @param type Backend type to be enforced (e.g.: `local` or `authjs`)
+ */
+export const useTypedBackendConfig = <T extends SupportedAuthBackends>(runtimeConfig: ReturnType<typeof useRuntimeConfig>, type: T): Extract<DeepRequired<AuthBackends>, { type: T }> => {
+  if (runtimeConfig.auth.backend.type === type) {
+    return runtimeConfig.auth.backend as Extract<DeepRequired<AuthBackends>, { type: T }>
   }
   throw new Error('RuntimeError: Type must match at this point')
 }
 
 /**
- * TODO: Write docstring
+ * Get a property from an object following the JSON Pointer spec.
  *
- * Adapted from https://github.com/manuelstofer/json-pointer/blob/931b0f9c7178ca09778087b4b0ac7e4f505620c2/index.js#L48-L59
+ * RFC / Standard: https://www.rfc-editor.org/rfc/rfc6901
+ *
+ * Implementation adapted from https://github.com/manuelstofer/json-pointer/blob/931b0f9c7178ca09778087b4b0ac7e4f505620c2/index.js#L48-L59
  *
  * @param obj
  * @param path

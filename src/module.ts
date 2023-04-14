@@ -72,7 +72,7 @@ export default defineNuxtModule<ModuleOptions>({
           }
         }),
       // We use `as` to infer backend types correclty for runtime-usage (everything is set, although for user everything was optional)
-      backend: defu(userOptions.backend, defaultsByBackend[selectedBackend]) as DeepRequired<Extract<AuthBackends, { type: typeof selectedBackend }>>
+      backend: defu(userOptions.backend, defaultsByBackend[selectedBackend]) as DeepRequired<AuthBackends>
     }
 
     // 1. Check if module should be enabled at all
