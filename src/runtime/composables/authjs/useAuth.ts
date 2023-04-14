@@ -1,6 +1,6 @@
 import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
 import { defu } from 'defu'
-import { readonly } from 'vue'
+import { readonly, Ref } from 'vue'
 import { appendHeader } from 'h3'
 import type { NuxtApp } from '#app'
 import { callWithNuxt } from '#app'
@@ -9,6 +9,7 @@ import { makeCWN, joinPathToApiURLWN, navigateToAuthPageWN, getRequestURLWN } fr
 import { _fetch } from '../../utils/fetch'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
 import { CommonUseAuthReturn, SignOutFunc, GetSessionFunc, SignInFunc } from '../../../types'
+import { useTypedBackendConfig } from '../../../utils'
 import type { SessionData } from './useAuthState'
 import { createError, useNuxtApp, useRuntimeConfig, useRequestHeaders, useAuthState } from '#imports'
 
@@ -68,8 +69,10 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 
   // 2. If no `provider` was given, either use the configured `defaultProvider` or `undefined` (leading to a forward to the `/login` page with all providers)
   const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+
+  const backendConfig = useTypedBackendConfig(runtimeConfig, 'authjs')
   if (typeof provider === 'undefined') {
-    provider = runtimeConfig.public.auth.backend.defaultProvider
+    provider = backendConfig.defaultProvider
   }
 
   // 3. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
@@ -77,7 +80,7 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 
   let { callbackUrl } = options ?? {}
 
-  if (typeof callbackUrl === 'undefined' && runtimeConfig.public.auth.backend.addDefaultCallbackUrl) {
+  if (typeof callbackUrl === 'undefined' && backendConfig.addDefaultCallbackUrl) {
     callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
   }
 
@@ -263,7 +266,7 @@ export const useAuth = (): UseAuthReturn => {
 
   const getters = {
     status,
-    data: readonly(data),
+    data: readonly(data) as Readonly<Ref<SessionData | null | undefined>>,
     lastRefreshedAt: readonly(lastRefreshedAt)
   }
 

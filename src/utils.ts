@@ -1,4 +1,5 @@
 import { parseURL } from 'ufo'
+import { DeepRequired } from 'ts-essentials'
 import { SupportedAuthBackends, AuthBackends } from './types'
 
 export const isProduction = process.env.NODE_ENV === 'production'
@@ -19,9 +20,9 @@ export const getOriginAndPathnameFromURL = (url: string) => {
 }
 
 // TODO: Wrtie docstring
-export const useTypedBackendConfig = <T extends SupportedAuthBackends>(config: ReturnType<typeof useRuntimeConfig>, type: T): Extract<AuthBackends, { type: T }> => {
+export const useTypedBackendConfig = <T extends SupportedAuthBackends>(config: ReturnType<typeof useRuntimeConfig>, type: T): Extract<DeepRequired<AuthBackends>, { type: T }> => {
   if (config.auth.backend.type === type) {
-    return config.auth.backend as Extract<AuthBackends, { type: T }>
+    return config.auth.backend as Extract<DeepRequired<AuthBackends>, { type: T }>
   }
   throw new Error('RuntimeError: Type must match at this point')
 }

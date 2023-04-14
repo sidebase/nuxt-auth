@@ -1,6 +1,7 @@
 import { defineNuxtModule, useLogger, createResolver, addTemplate, addPlugin, addServerPlugin, addImports } from '@nuxt/kit'
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
+import type { DeepRequired } from 'ts-essentials'
 import { getOriginAndPathnameFromURL, isProduction } from './utils'
 import type { ModuleOptions, SupportedAuthBackends, AuthBackends } from './types'
 
@@ -17,10 +18,9 @@ const topLevelDefaults = {
   }
 } satisfies ModuleOptions
 
-const defaultsByBackend: { [key in SupportedAuthBackends]: Extract<AuthBackends, { type: key }> } = {
+const defaultsByBackend: { [key in SupportedAuthBackends]: DeepRequired<Extract<AuthBackends, { type: key }>> } = {
   local: {
     type: 'local',
-    baseURL: '/api/auth',
     pages: {
       login: '/login'
     },
@@ -39,7 +39,6 @@ const defaultsByBackend: { [key in SupportedAuthBackends]: Extract<AuthBackends,
   },
   authjs: {
     type: 'authjs',
-    baseURL: undefined,
     trustHost: false,
     defaultProvider: undefined,
     addDefaultCallbackUrl: true
@@ -57,20 +56,24 @@ export default defineNuxtModule<ModuleOptions>({
     const logger = useLogger(PACKAGE_NAME)
 
     // 0. Assemble all options
-    const { origin, pathname = '/api/auth' } = getOriginAndPathnameFromURL(userOptions.backend?.baseURL ?? '')
+    const { origin, pathname = '/api/auth' } = getOriginAndPathnameFromURL(userOptions.baseURL ?? '')
 
-    const options = defu(
-      userOptions,
-      topLevelDefaults,
-      // TODO: Change default to local??
-      { backend: defaultsByBackend[userOptions.backend?.type ?? 'authjs'] },
-      {
-        computed: {
-          origin,
-          pathname,
-          fullBaseUrl: joinURL(origin ?? '', pathname)
-        }
-      })
+    const selectedBackend = userOptions.backend?.type ?? 'authjs'
+
+    const options = {
+      ...defu(
+        userOptions,
+        topLevelDefaults,
+        {
+          computed: {
+            origin,
+            pathname,
+            fullBaseUrl: joinURL(origin ?? '', pathname)
+          }
+        }),
+      // We use `as` to infer backend types correclty for runtime-usage (everything is set, although for user everything was optional)
+      backend: defu(userOptions.backend, defaultsByBackend[selectedBackend]) as DeepRequired<Extract<AuthBackends, { type: typeof selectedBackend }>>
+    }
 
     // 1. Check if module should be enabled at all
     if (!options.isEnabled) {
@@ -82,13 +85,14 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 2. Set up runtime configuration
     if (!isProduction) {
-      logger.info(`Auth API location is \`${options.backend.baseURL}\`, ensure that \`NuxtAuthHandler({ ... })\` is there, see https://sidebase.io/nuxt-auth/configuration/nuxt-auth-handler`)
+      logger.info(`Auth API location is \`${options.baseURL}\`, ensure that \`NuxtAuthHandler({ ... })\` is there, see https://sidebase.io/nuxt-auth/configuration/nuxt-auth-handler`)
     }
 
     nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }
 
     // @ts-expect-error
     nuxt.options.runtimeConfig.auth = options
+
     // @ts-expect-error
     nuxt.options.runtimeConfig.public.auth = options
 

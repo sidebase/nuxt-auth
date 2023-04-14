@@ -1,6 +1,6 @@
 import { readonly, Ref } from 'vue'
 import { callWithNuxt } from '#app'
-import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc } from '../../../types'
+import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions } from '../../../types'
 import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../../utils'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
@@ -93,7 +93,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   return data.value
 }
 
-const signUp = async (credentials: Credentials) => {
+const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInOptions) => {
   const nuxt = useNuxtApp()
 
   const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signUp
@@ -101,7 +101,8 @@ const signUp = async (credentials: Credentials) => {
     method,
     body: credentials
   })
-  return await signIn(credentials)
+
+  return signIn(credentials, signInOptions)
 }
 
 interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOut, typeof getSession, SessionData> {

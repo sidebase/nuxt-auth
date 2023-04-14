@@ -30,49 +30,26 @@ interface GlobalMiddlewareOptions {
   addDefaultCallbackUrl?: boolean | string
 }
 
-// TODO: Come up with better name for this
-type BackendRemoteCommon = {
-  // TODO: Can we merge origin and basePath?
-  // TODO: Improve docstrings here ->> we want to be clear that this is merged origin and path
-  /**
-   * Full url at which the app will run and path to authentication.
-   * The path to the endpoint that you've added `NuxtAuth` at via `export default NuxtAuthHandler({ ... })`. See the getting started for more: https://github.com/sidebase/nuxt-auth#quick-start
-   *
-   * Can be `undefined` during development but _must_ be set for production. This is the origin-part of the NEXTAUTH_URL. The origin consists out of:
-   * - `scheme`: http / https
-   * - `host`: e.g., localhost, example.org, google.com
-   * - `port`: _empty_ (implies `:80`), :3000, :8888
-   *
-   * See https://next-auth.js.org/configuration/options#nextauth_url for more on this. Note that nextauth uses the full url as one.
-   *
-   * @example undefined
-   * @example http://localhost:3000
-   * @example https://example.org/_auth
-   * @default http://localhost:3000/api/auth
-   */
-  baseURL: string | undefined
-}
-
 // TODO: Write docstrings
 type BackendLocal = {
   // TODO: COME UP WITH BETTER NAME
   type: Extract<SupportedAuthBackends, 'local'>
-  endpoints: {
-    signIn: { path: string, method: RouterMethod },
-    signOut: { path: string, method: RouterMethod },
-    signUp: { path: string, method: RouterMethod },
-    getSession: { path: string, method: RouterMethod },
+  endpoints?: {
+    signIn?: { path?: string, method?: RouterMethod },
+    signOut?: { path?: string, method?: RouterMethod },
+    signUp?: { path?: string, method?: RouterMethod },
+    getSession?: { path?: string, method?: RouterMethod },
   },
-  pages: {
-    login: string
+  pages?: {
+    login?: string
   },
-  token: {
-    signInResponseJsonPointerToToken: string
-    type: string,
-    headerName: string,
-    maxAgeInSeconds: number,
+  token?: {
+    signInResponseJsonPointerToToken?: string
+    type?: string,
+    headerName?: string,
+    maxAgeInSeconds?: number,
   }
-} & BackendRemoteCommon
+}
 
 export type BackendAuthJS = {
   type: Extract<SupportedAuthBackends, 'authjs'>
@@ -98,7 +75,7 @@ export type BackendAuthJS = {
    * Whether to add a callbackUrl to sign in requests. Setting this to a string-value will result in that being used as the callbackUrl path. Setting this to `true` will result in the blocked original target path being chosen (if it can be determined).
    */
   addDefaultCallbackUrl: boolean | string
-} & BackendRemoteCommon
+}
 
 export type AuthBackends = BackendAuthJS | BackendLocal
 
@@ -139,6 +116,25 @@ export interface ModuleOptions {
    * TODO: Write extended docstring
    */
   session?: SessionConfig
+  // TODO: Can we merge origin and basePath?
+  // TODO: Improve docstrings here ->> we want to be clear that this is merged origin and path
+  /**
+   * Full url at which the app will run and path to authentication.
+   * The path to the endpoint that you've added `NuxtAuth` at via `export default NuxtAuthHandler({ ... })`. See the getting started for more: https://github.com/sidebase/nuxt-auth#quick-start
+   *
+   * Can be `undefined` during development but _must_ be set for production. This is the origin-part of the NEXTAUTH_URL. The origin consists out of:
+   * - `scheme`: http / https
+   * - `host`: e.g., localhost, example.org, google.com
+   * - `port`: _empty_ (implies `:80`), :3000, :8888
+   *
+   * See https://next-auth.js.org/configuration/options#nextauth_url for more on this. Note that nextauth uses the full url as one.
+   *
+   * @example undefined
+   * @example http://localhost:3000
+   * @example https://example.org/_auth
+   * @default http://localhost:3000/api/auth
+   */
+  baseURL?: string
   /**
    * Whether to add a global authentication middleware that protects all pages. Can be either `false` to disable, `true` to enabled
    * or an object to enable and apply extended configuration.
