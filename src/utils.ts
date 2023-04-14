@@ -1,6 +1,6 @@
 import { parseURL } from 'ufo'
 import { DeepRequired } from 'ts-essentials'
-import { SupportedAuthBackends, AuthBackends } from './types'
+import { SupportedAuthProviders, AuthProviders } from './types'
 
 export const isProduction = process.env.NODE_ENV === 'production'
 
@@ -25,9 +25,9 @@ export const getOriginAndPathnameFromURL = (url: string) => {
  * @param runtimeConfig The runtime config of the application
  * @param type Backend type to be enforced (e.g.: `local` or `authjs`)
  */
-export const useTypedBackendConfig = <T extends SupportedAuthBackends>(runtimeConfig: ReturnType<typeof useRuntimeConfig>, type: T): Extract<DeepRequired<AuthBackends>, { type: T }> => {
-  if (runtimeConfig.auth.backend.type === type) {
-    return runtimeConfig.auth.backend as Extract<DeepRequired<AuthBackends>, { type: T }>
+export const useTypedBackendConfig = <T extends SupportedAuthProviders>(runtimeConfig: ReturnType<typeof useRuntimeConfig>, type: T): Extract<DeepRequired<AuthProviders>, { type: T }> => {
+  if (runtimeConfig.auth.provider.type === type) {
+    return runtimeConfig.auth.provider as Extract<DeepRequired<AuthProviders>, { type: T }>
   }
   throw new Error('RuntimeError: Type must match at this point')
 }

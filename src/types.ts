@@ -2,7 +2,7 @@ import type { Ref, ComputedRef } from 'vue'
 import { RouterMethod } from 'h3'
 import { SupportedProviders } from './runtime/composables/authjs/useAuth'
 
-export type SupportedAuthBackends = 'authjs' | 'local'
+export type SupportedAuthProviders = 'authjs' | 'local'
 
 interface GlobalMiddlewareOptions {
   /**
@@ -36,9 +36,9 @@ interface GlobalMiddlewareOptions {
 }
 
 // TODO: Write docstrings
-type BackendLocal = {
+type ProviderLocal = {
   // TODO: COME UP WITH BETTER NAME
-  type: Extract<SupportedAuthBackends, 'local'>
+  type: Extract<SupportedAuthProviders, 'local'>
   endpoints?: {
     signIn?: { path?: string, method?: RouterMethod },
     signOut?: { path?: string, method?: RouterMethod },
@@ -56,8 +56,8 @@ type BackendLocal = {
   }
 }
 
-export type BackendAuthJS = {
-  type: Extract<SupportedAuthBackends, 'authjs'>
+export type ProviderAuthjs = {
+  type: Extract<SupportedAuthProviders, 'authjs'>
   // TODO: This is not nuxt auth, but rather authjs specific -> update docstring in that regard
   /**
    * If set to `true`, `NuxtAuth` will use either the `x-forwarded-host` or `host` headers,
@@ -82,7 +82,7 @@ export type BackendAuthJS = {
   addDefaultCallbackUrl: boolean | string
 }
 
-export type AuthBackends = BackendAuthJS | BackendLocal
+export type AuthProviders = ProviderAuthjs | ProviderLocal
 
 type SessionConfig = {
   /**
@@ -116,7 +116,7 @@ export interface ModuleOptions {
    * - [auth.js](https://authjs.dev/): OAuth focused provider for non-static Nuxt 3 applications
    * - [local](TODO: Link to sidebase nuxt auth local docs): Provider for credentials & token based backends, e.g., written by yourself or provided by something like Laraval
    */
-  backend?: AuthBackends
+  provider?: AuthProviders
   /**
    * Configuration of the application-side session.
    */

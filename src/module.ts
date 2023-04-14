@@ -3,7 +3,7 @@ import { defu } from 'defu'
 import { joinURL } from 'ufo'
 import type { DeepRequired } from 'ts-essentials'
 import { getOriginAndPathnameFromURL, isProduction } from './utils'
-import type { ModuleOptions, SupportedAuthBackends, AuthBackends } from './types'
+import type { ModuleOptions, SupportedAuthProviders, AuthProviders } from './types'
 
 const topLevelDefaults = {
   isEnabled: true,
@@ -18,7 +18,7 @@ const topLevelDefaults = {
   }
 } satisfies ModuleOptions
 
-const defaultsByBackend: { [key in SupportedAuthBackends]: DeepRequired<Extract<AuthBackends, { type: key }>> } = {
+const defaultsByBackend: { [key in SupportedAuthProviders]: DeepRequired<Extract<AuthProviders, { type: key }>> } = {
   local: {
     type: 'local',
     pages: {
@@ -58,7 +58,7 @@ export default defineNuxtModule<ModuleOptions>({
     // 0. Assemble all options
     const { origin, pathname = '/api/auth' } = getOriginAndPathnameFromURL(userOptions.baseURL ?? '')
 
-    const selectedBackend = userOptions.backend?.type ?? 'authjs'
+    const selectedBackend = userOptions.provider?.type ?? 'authjs'
 
     const options = {
       ...defu(
@@ -72,7 +72,7 @@ export default defineNuxtModule<ModuleOptions>({
           }
         }),
       // We use `as` to infer backend types correclty for runtime-usage (everything is set, although for user everything was optional)
-      backend: defu(userOptions.backend, defaultsByBackend[selectedBackend]) as DeepRequired<AuthBackends>
+      provider: defu(userOptions.provider, defaultsByBackend[selectedBackend]) as DeepRequired<AuthProviders>
     }
 
     // 1. Check if module should be enabled at all
@@ -103,11 +103,11 @@ export default defineNuxtModule<ModuleOptions>({
     addImports([
       {
         name: 'useAuth',
-        from: resolve(`./runtime/composables/${options.backend.type}/useAuth`)
+        from: resolve(`./runtime/composables/${options.provider.type}/useAuth`)
       },
       {
         name: 'useAuthState',
-        from: resolve(`./runtime/composables/${options.backend.type}/useAuthState`)
+        from: resolve(`./runtime/composables/${options.provider.type}/useAuthState`)
       }
     ])
 
