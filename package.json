@@ -23,7 +23,8 @@
     "typecheck": "tsc --noEmit",
     "build:module": "nuxi build",
     "build:playground": "nuxi build playground",
-    "start:playground": "node playground/.output/server/index.mjs"
+    "generate:playground": "nuxi generate playground",
+    "start:playground": "nuxi preview playground"
   },
   "dependencies": {
     "@nuxt/kit": "^3.4.1",

@@ -1,9 +1,9 @@
-import { computed, watch } from 'vue'
+import { computed, watch, ComputedRef } from 'vue'
 import { CookieRef } from '#app'
 import { CommonUseAuthStateReturn } from '../../../types'
 import { makeCommonAuthState } from '../commonAuthState'
 import { useTypedBackendConfig } from '../../../utils'
-import { useRuntimeConfig, ComputedRef, useCookie, useState } from '#imports'
+import { useRuntimeConfig, useCookie, useState } from '#imports'
 
 // TODO: Improve typing of sessiondata
 export type SessionData = Record<string, any>
@@ -20,7 +20,7 @@ export const useAuthState = (): UseAuthStateReturn => {
   // Re-construct state from cookie, also setup a cross-component sync via a useState hack, see https://github.com/nuxt/nuxt/issues/13020#issuecomment-1397282717
   const tokenStateName = 'auth:token'
   const _rawTokenCookie = useCookie<string | null>(tokenStateName, { default: () => null, maxAge: config.token.maxAgeInSeconds, sameSite: 'lax' })
-  const rawToken = useState(tokenStateName, () => _rawTokenCookie.value)
+  const rawToken = useState(String(new Date()), () => _rawTokenCookie.value)
   watch(rawToken, () => { _rawTokenCookie.value = rawToken.value })
 
   const token = computed(() => {
