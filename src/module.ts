@@ -31,7 +31,7 @@ const defaultsByBackend: { [key in SupportedAuthProviders]: DeepRequired<Extract
       getSession: { path: '/session', method: 'get' }
     },
     token: {
-      signInResponseJsonPointerToToken: '/token',
+      signInResponseTokenPointer: '/token',
       type: 'Bearer',
       headerName: 'Authorization',
       maxAgeInSeconds: 30 * 60
@@ -58,7 +58,7 @@ export default defineNuxtModule<ModuleOptions>({
     // 0. Assemble all options
     const { origin, pathname = '/api/auth' } = getOriginAndPathnameFromURL(userOptions.baseURL ?? '')
 
-    const selectedBackend = userOptions.provider?.type ?? 'authjs'
+    const selectedProvider = userOptions.provider?.type ?? 'authjs'
 
     const options = {
       ...defu(
@@ -72,7 +72,7 @@ export default defineNuxtModule<ModuleOptions>({
           }
         }),
       // We use `as` to infer backend types correclty for runtime-usage (everything is set, although for user everything was optional)
-      provider: defu(userOptions.provider, defaultsByBackend[selectedBackend]) as DeepRequired<AuthProviders>
+      provider: defu(userOptions.provider, defaultsByBackend[selectedProvider]) as DeepRequired<AuthProviders>
     }
 
     // 1. Check if module should be enabled at all
@@ -85,7 +85,8 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 2. Set up runtime configuration
     if (!isProduction) {
-      logger.info(`Auth API location is \`${options.baseURL}\`, ensure that \`NuxtAuthHandler({ ... })\` is there, see https://sidebase.io/nuxt-auth/configuration/nuxt-auth-handler`)
+      const authjsAddition = selectedProvider === 'authjs' ? ', ensure that `NuxtAuthHandler({ ... })` is there, see https://sidebase.io/nuxt-auth/configuration/nuxt-auth-handler' : ''
+      logger.info(`Selected provider: ${selectedProvider}. Auth API location is \`${options.baseURL}\`${authjsAddition}`)
     }
 
     nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }

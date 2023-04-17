@@ -1,11 +1,10 @@
-// todo: remove this whole plugin?
-
 /**
- * Due to an upstream bug in Nuxt 3 we need to stub the plugin here, track:https://github.com/nuxt/nuxt/issues/18556
+ * Due to an upstream bug in Nuxt 3 we need to stub the plugin here, track: https://github.com/nuxt/nuxt/issues/18556
  * */
 import type { NitroApp } from 'nitropack'
 import { ERROR_MESSAGES } from '../services/errors'
 import { isProduction } from '../../../utils'
+import { getServerOrigin } from '../services/utils'
 
 // type stub
 type NitroAppPlugin = (nitro: NitroApp) => void
@@ -17,7 +16,7 @@ function defineNitroPlugin (def: NitroAppPlugin): NitroAppPlugin {
 // Export runtime plugin
 export default defineNitroPlugin(() => {
   try {
-    // getServerOrigin()
+    getServerOrigin()
   } catch (error) {
     if (!isProduction) {
       console.info(ERROR_MESSAGES.NO_ORIGIN)

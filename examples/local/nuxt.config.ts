@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   build: {
     transpile: ['jsonwebtoken']
@@ -15,7 +14,7 @@ export default defineNuxtConfig({
         login: '/'
       },
       token: {
-        signInResponseJsonPointerToToken: '/token/accessToken'
+        signInResponseTokenPointer: '/token/accessToken'
       }
     },
     globalAppMiddleware: {

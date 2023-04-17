@@ -2,8 +2,6 @@ import type { Ref, ComputedRef } from 'vue'
 import { RouterMethod } from 'h3'
 import { SupportedProviders } from './runtime/composables/authjs/useAuth'
 
-export type SupportedAuthProviders = 'authjs' | 'local'
-
 interface GlobalMiddlewareOptions {
   /**
    * Whether to add a global authentication middleware that protects all pages.
@@ -35,33 +33,116 @@ interface GlobalMiddlewareOptions {
   addDefaultCallbackUrl?: boolean | string
 }
 
-// TODO: Write docstrings
+export type SupportedAuthProviders = 'authjs' | 'local'
+
 type ProviderLocal = {
-  // TODO: COME UP WITH BETTER NAME
+  /**
+   * Uses the `local` provider to facilitate autnetication. Currently, two providers exclusive are supported:
+   * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
+   * - `local`: Username and password provider with support for static-applications
+   *
+   * Read more here: https://sidebase.io/nuxt-auth/next/getting-started
+   */
   type: Extract<SupportedAuthProviders, 'local'>
+  /**
+   * Endpoints to use for the different methods. `nuxt-auth` will use this and the root-level `baseURL` to create the final request. E.g.:
+   * - `baseURL=/api/auth`, `path=/login` will result in a request to `/api/auth/login`
+   * - `baseURL=http://localhost:5000/_authenticate`, `path=/sign-in` will result in a request to `http://localhost:5000/_authenticate/sign-in`
+   */
   endpoints?: {
+    /**
+     * What method and path to call to perform the sign-in. This endpoint must return a token that can be used to authenticate subsequent requests.
+     *
+     * @default { path: '/login', method: 'post' }
+     */
     signIn?: { path?: string, method?: RouterMethod },
+    /**
+     * What method and path to call to perform the sign-out.
+     *
+     * @default { path: '/logout', method: 'post' }
+     */
     signOut?: { path?: string, method?: RouterMethod },
+    /**
+     * What method and path to call to perform the sign-up.
+     *
+     * @default { path: '/register', method: 'post' }
+     */
     signUp?: { path?: string, method?: RouterMethod },
+    /**
+     * What method and path to call to fetch user / session data from. `nuxt-auth` will send the token received upon sign-in as a header along this request to authenticate.
+     *
+     * Refer to the `token` configuration to configure how `nuxt-auth` uses the token in this request. By default it will be send as a bearer-authentication header like so: `Authentication: Bearer eyNDSNJDASNMDSA....`
+     *
+     * @default { path: '/session', method: 'get' }
+     * @example { path: '/user', method: 'get' }
+     */
     getSession?: { path?: string, method?: RouterMethod },
   },
+  /**
+   * Pages that `nuxt-auth` needs to know the location off for redirects.
+   */
   pages?: {
+    /**
+     * Path of the login-page that the user should be redirected to, when they try to access a protected page without being logged in.
+     *
+     * @default '/login'
+     */
     login?: string
   },
+  /**
+   * Settings for the authentication-token that `nuxt-auth` receives from the `signIn` endpoint and that can be used to authenticate subsequent requests.
+   */
   token?: {
-    signInResponseJsonPointerToToken?: string
+    /**
+     * How to extract the authentication-token from the sign-in response.
+     *
+     * E.g., setting this to `/token/bearer` and returning an object like `{ token: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `signIn` endpoint will
+     * result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
+     *
+     * This follows the JSON Pointer standard, see it's RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+     *
+     * @default /token  Access the `token` property of the sign-in response object
+     * @example /       Access the root of the sign-in response object, useful when your endpoint returns a plain, non-object string as the token
+     */
+    signInResponseTokenPointer?: string
+    /**
+     * Header type to be used in requests. This in combination with `headerName` is used to construct the final authentication-header `nuxt-auth` uses, e.g, for requests via `getSession`.
+     *
+     * @default Bearer
+     * @exmaple Beer
+     */
     type?: string,
+    /**
+     * Header name to be used in requests that need to be authenticated, e.g., to be used in the `getSession` request.
+     *
+     * @default Authorization
+     * @exmaple Auth
+     */
     headerName?: string,
+    /**
+     * Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
+     *
+     * Note: Your backend may reject / expire the token earlier / differently.
+     */
     maxAgeInSeconds?: number,
   }
 }
 
+/**
+ * Configuration for the `authjs`-provider.
+ */
 export type ProviderAuthjs = {
-  type: Extract<SupportedAuthProviders, 'authjs'>
-  // TODO: This is not nuxt auth, but rather authjs specific -> update docstring in that regard
   /**
-   * If set to `true`, `NuxtAuth` will use either the `x-forwarded-host` or `host` headers,
-   * instead of `auth.origin`
+   * Uses the `authjs` provider to facilitate autnetication. Currently, two providers exclusive are supported:
+   * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
+   * - `local`: Username and password provider with support for static-applications
+   *
+   * Read more here: https://sidebase.io/nuxt-auth/next/getting-started
+   */
+  type: Extract<SupportedAuthProviders, 'authjs'>
+  /**
+   * If set to `true`, `authjs` will use either the `x-forwarded-host` or `host` headers instead of `auth.baseURL`.
+   *
    * Make sure that reading `x-forwarded-host` on your hosting platform can be trusted.
    * - ⚠ **This is an advanced option.** Advanced options are passed the same way as basic options,
    * but **may have complex implications** or side effects.
@@ -112,43 +193,63 @@ export interface ModuleOptions {
    */
   isEnabled?: boolean
   /**
+   * Full url at which the app will run combined with the path to authentication. You can set this differently depending on your selected authentication-provider:
+   * - `authjs`: You must set the full URL, with origin and path in production. You can leave this empty in development
+   * - `local`: You can set a full URL, but can also leave this empty to fallback to the default value of `/api/auth` or set only the path.
+   *
+   * ### `authjs`
+   *
+   * `baseURL` can be `undefined` during development but _must_ be set to the combination of origin + path that points to your `NuxtAuthHandler` for production. The origin consists out of:
+   * - `scheme`: http / https
+   * - `host`: e.g., localhost, example.org, google.com
+   * - `port`: _empty_ (implies `:80`), :3000, :8888
+   *
+   * The path then is a string like `/path/to/auth/api/endpoint/root`.
+   *
+   * ### `local`
+   *
+   * Defaults to `/api/auth` for both development and production. Setting this is optional, if you set it you can set it to either:
+   * - just a path: Will lead to `nuxt-auth` using `baseURL` as a relative path appended to the origin you deploy to. Example: `/backend/auth`
+   * - an origin and a path: Will leav to `nuxt-auth` using `baseURL` as an absolute request path to perform requests to. Example: `https://example.com/auth`
+   *
+   * Note: If you point to a different origin than the one you deploy to you likely have to take care of CORS: Allowing cross origin requests.
+   *
+   * @example undefined
+   * @example http://localhost:3000
+   * @example https://example.org/_auth
+   * @example https://my-cool-site.com/api/authentication
+   * @default http://localhost:3000/api/auth Default for `authjs` provider in development
+   * @default undefined                      Default for `authjs` in production, will result in an error
+   * @default /api/auth                      Default for `local` for both production and development
+   */
+  baseURL?: string
+  /**
    * Configuration of the authentication provider. Different providers are supported:
-   * - [auth.js](https://authjs.dev/): OAuth focused provider for non-static Nuxt 3 applications
-   * - [local](TODO: Link to sidebase nuxt auth local docs): Provider for credentials & token based backends, e.g., written by yourself or provided by something like Laraval
+   * - auth.js: OAuth focused provider for non-static Nuxt 3 applications
+   * - local: Provider for credentials & token based backends, e.g., written by yourself or provided by something like Laraval
+   *
+   * Find more about supported providers here: https://sidebase.io/nuxt-auth/next/getting-started
+   *
    */
   provider?: AuthProviders
   /**
    * Configuration of the application-side session.
    */
   session?: SessionConfig
-  // TODO: Can we merge origin and basePath?
-  // TODO: Improve docstrings here ->> we want to be clear that this is merged origin and path
-  /**
-   * Full url at which the app will run and path to authentication.
-   * The path to the endpoint that you've added `NuxtAuth` at via `export default NuxtAuthHandler({ ... })`. See the getting started for more: https://github.com/sidebase/nuxt-auth#quick-start
-   *
-   * Can be `undefined` during development but _must_ be set for production. This is the origin-part of the NEXTAUTH_URL. The origin consists out of:
-   * - `scheme`: http / https
-   * - `host`: e.g., localhost, example.org, google.com
-   * - `port`: _empty_ (implies `:80`), :3000, :8888
-   *
-   * See https://next-auth.js.org/configuration/options#nextauth_url for more on this. Note that nextauth uses the full url as one.
-   *
-   * @example undefined
-   * @example http://localhost:3000
-   * @example https://example.org/_auth
-   * @default http://localhost:3000/api/auth
-   */
-  baseURL?: string
   /**
    * Whether to add a global authentication middleware that protects all pages. Can be either `false` to disable, `true` to enabled
    * or an object to enable and apply extended configuration.
+   *
+   * If you enable this, everything is going to be protected and you can selectively disable protection for some pages by specifying `definePageMeta({ auth: false })`
+   * If you disable this, everything is going to be public and you can selectively enable protection for some pages by specifying `definePageMeta({ auth: true })`
+   *
+   * Read more on this topic [in the page protection docs](https://sidebase.io/nuxt-auth/next/application-side/protecting-pages#global-middleware).
    *
    * @example true
    * @example { allow404WithoutAuth: true }
    * @default false
    */
-  globalAppMiddleware?: GlobalMiddlewareOptions
+  globalAppMiddleware?: GlobalMiddlewareOptions | boolean
 }
 
 // Common useAuthStatus & useAuth return-types
