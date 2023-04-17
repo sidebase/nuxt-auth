@@ -12,7 +12,7 @@ import { joinURL } from 'ufo'
 import { ERROR_MESSAGES } from '../errors'
 import { isNonEmptyObject } from '../../../utils/checkSessionResult'
 import { getServerOrigin, getRequestURLFromRequest } from '../utils'
-import { useTypedBackendConfig } from '../../../../utils'
+import { useTypedBackendConfig } from '../../../helpers'
 
 import { useRuntimeConfig } from '#imports'
 

@@ -2,7 +2,7 @@ import { computed, watch, ComputedRef } from 'vue'
 import { CookieRef } from '#app'
 import { CommonUseAuthStateReturn } from '../../../types'
 import { makeCommonAuthState } from '../commonAuthState'
-import { useTypedBackendConfig } from '../../../utils'
+import { useTypedBackendConfig } from '../../helpers'
 import { useRuntimeConfig, useCookie, useState } from '#imports'
 
 // TODO: Improve typing of sessiondata

@@ -9,7 +9,7 @@ import { makeCWN, joinPathToApiURLWN, navigateToAuthPageWN, getRequestURLWN } fr
 import { _fetch } from '../../utils/fetch'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
 import { CommonUseAuthReturn, SignOutFunc, GetSessionFunc, SignInFunc } from '../../../types'
-import { useTypedBackendConfig } from '../../../utils'
+import { useTypedBackendConfig } from '../../helpers'
 import type { SessionData } from './useAuthState'
 import { createError, useNuxtApp, useRuntimeConfig, useRequestHeaders, useAuthState } from '#imports'
 

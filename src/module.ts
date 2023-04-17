@@ -2,7 +2,7 @@ import { defineNuxtModule, useLogger, createResolver, addTemplate, addPlugin, ad
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
 import type { DeepRequired } from 'ts-essentials'
-import { getOriginAndPathnameFromURL, isProduction } from './utils'
+import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
 import type { ModuleOptions, SupportedAuthProviders, AuthProviders } from './types'
 
 const topLevelDefaults = {
