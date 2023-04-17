@@ -1,7 +1,7 @@
 import { H3Event } from 'h3'
 import getURL from 'requrl'
 import { joinURL } from 'ufo'
-import { isProduction } from '../../../utils'
+import { isProduction } from '../../helpers'
 import { ERROR_MESSAGES } from './errors'
 import { useRuntimeConfig } from '#imports'
 

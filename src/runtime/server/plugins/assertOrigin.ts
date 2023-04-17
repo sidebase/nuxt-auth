@@ -3,7 +3,7 @@
  * */
 import type { NitroApp } from 'nitropack'
 import { ERROR_MESSAGES } from '../services/errors'
-import { isProduction } from '../../../utils'
+import { isProduction } from '../../helpers'
 import { getServerOrigin } from '../services/utils'
 
 // type stub
