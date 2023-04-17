@@ -28,6 +28,9 @@ jobs:
       - run: pnpm i
       - run: pnpm dev:prepare
 
+      # start dev-app and curl from it
+      - run: "timeout 240 pnpm dev & (sleep 200 && curl --fail localhost:3000)"
+
       # Check if build and package artifacts can still be generated
       - run: pnpm prepack
 
@@ -39,8 +42,5 @@ jobs:
       - run: pnpm build:module
       - run: pnpm build:playground
 
-      # start dev-app and curl from it
-      - run: "timeout 120 pnpm dev & (sleep 100 && curl --fail localhost:3000)"
-
       # start prod-app and curl from it
-      - run: "timeout 120 pnpm start:playground & (sleep 100 && curl --fail localhost:3000)"
+      - run: "timeout 240 pnpm start:playground & (sleep 200 && curl --fail localhost:3000)"
