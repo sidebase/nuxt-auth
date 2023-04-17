@@ -10,6 +10,7 @@
 [![Join our Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/NDDgQkcv3s)
 
 > `nuxt-auth` is a feature-packed, open-source authentication module for Nuxt 3 applications.
+> Starting with v0.6 `nuxt-auth` also supports static Nuxt applications
 
 ## Quick Start
 
@@ -17,11 +18,17 @@
 npm i -D @sidebase/nuxt-auth
 ```
 
-Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting-started/quick-start) to setup the module.
+Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting-started/quick-start) to setup the module for <= v0.5.
+
+Visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/0.6/getting-started/quick-start) to setup the module for >= v0.6.
 
 ## Features
 
-`nuxt-auth` wraps [NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 12k star library to the nuxt 3 ecosystem with a native developer experience (DX). Features of `nuxt-auth` include:
+`nuxt-auth` is a library with the goal of supporting authentication for any universal Nuxt 3 application. At the moment two providers are supported:
+- [Auth.js / NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 12k star library to the nuxt 3 ecosystem with a native developer experience (DX)
+- `local` for static pages that rely on an external backend with a credential flow for authentication. `local` is supported starting with v0.6 of the module
+
+Features of the `authjs`-provider of `nuxt-auth` include:
 - ✔️ Authentication providers:
     - ✔️ OAuth (e.g., Github, Google, Twitter, Azure, ...)
     - ✔️ Custom OAuth (write it yourself)
@@ -48,6 +55,8 @@ Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting
     - `GET /session`,
     - `GET /csrf`,
     - `GET /providers`
+
+You can find a feature-table of all starting with v0.6 in the [nuxt-auth "next"-version-docs](https://sidebase.io/nuxt-auth/0.6/getting-started).
 
 ## Demo Page
 
@@ -94,3 +103,23 @@ This module also has it's own playground:
 
 # -> open http://localhost:3000
 ```
+
+#### Testing different Providers
+
+We make use of the Nuxt 3 layers feature to quickly test different authentication providers. [Read the docs for more on the layers-feature](https://nuxt.com/docs/getting-started/layers). To use one of the layers edit the `playground/nuxt.config.ts` file. E.g., to test the `local` provider use:
+```ts
+export default defineNuxtConfig({
+  modules: ['../src/module.ts'],
+  extends: ['../examples/local']
+})
+```
+
+To test the `authjs` provider use:
+```ts
+export default defineNuxtConfig({
+  modules: ['../src/module.ts'],
+  extends: ['../examples/authjs']
+})
+```
+
+Both will automatically provide different backends and configuration!
