@@ -18,9 +18,9 @@
 npm i -D @sidebase/nuxt-auth
 ```
 
-Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting-started/quick-start) to setup the module for <= v0.5.
+Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting-started/quick-start) to setup the module for <= v0.5 - the current stable version.
 
-Visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/0.6/getting-started/quick-start) to setup the module for >= v0.6.
+Visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/0.6/getting-started/quick-start) to setup the module for >= v0.6 - the "future" experimental version with support for static Nuxt 3 apps and the `local` provider.
 
 ## Features
 
