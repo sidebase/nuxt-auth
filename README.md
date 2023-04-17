@@ -20,7 +20,7 @@ npm i -D @sidebase/nuxt-auth
 
 Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting-started/quick-start) to setup the module for <= v0.5 - the current stable version.
 
-Visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/0.6/getting-started/quick-start) to setup the module for >= v0.6 - the "future" experimental version with support for static Nuxt 3 apps and the `local` provider.
+Visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/v0.6/getting-started/quick-start) to setup the module for >= v0.6 - the "future" experimental version with support for static Nuxt 3 apps and the `local` provider.
 
 ## Features
 
@@ -56,7 +56,7 @@ Features of the `authjs`-provider of `nuxt-auth` include:
     - `GET /csrf`,
     - `GET /providers`
 
-You can find a feature-table of all starting with v0.6 in the [nuxt-auth "next"-version-docs](https://sidebase.io/nuxt-auth/0.6/getting-started).
+You can find a feature-table of all starting with v0.6 in the [nuxt-auth "next"-version-docs](https://sidebase.io/nuxt-auth/v0.6/getting-started).
 
 ## Demo Page
 
