@@ -86,7 +86,7 @@ export default defineNuxtModule<ModuleOptions>({
     // 2. Set up runtime configuration
     if (!isProduction) {
       const authjsAddition = selectedProvider === 'authjs' ? ', ensure that `NuxtAuthHandler({ ... })` is there, see https://sidebase.io/nuxt-auth/configuration/nuxt-auth-handler' : ''
-      logger.info(`Selected provider: ${selectedProvider}. Auth API location is \`${options.baseURL}\`${authjsAddition}`)
+      logger.info(`Selected provider: ${selectedProvider}. Auth API location is \`${options.computed.fullBaseUrl}\`${authjsAddition}`)
     }
 
     nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }
