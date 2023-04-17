@@ -40,4 +40,5 @@ jobs:
       - run: pnpm build:playground
 
       # start prod-app and curl from it
-      - run: "timeout 240 pnpm start:playground & (sleep 200 && curl --fail localhost:3000)"
+      - run: "echo AUTH_ORIGIN=http://localhost:3000 > .env"
+      - run: "timeout 60 pnpm start:playground & (sleep 45 && curl --fail localhost:3000)"
