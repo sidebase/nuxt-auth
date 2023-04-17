@@ -123,3 +123,13 @@ export default defineNuxtConfig({
 ```
 
 Both will automatically provide different backends and configuration!
+
+**How to test static Nuxt 3 apps?**
+
+To test static Nuxt 3 apps:
+1. `playground/nuxt.config.ts`: Extend the playground from `extends: ['../examples/local']`
+2. `playground/nuxt.config.ts`: Add `baseURL: 'http://localhost:3001'` to the `auth`-config
+3. Run `pnpm generate:playground`
+4. Run `pnpm start:playground` -> should start static app at `http://localhost:3000`
+5. Run `pnpm dev` -> should start dev-version _with auth-backend_  on `http://localhost:3001`
+6. Visit [http://localhost:3000](http://localhost:3000) -> this should open the static application. Performing any auth-related actions, the app should send requests to the backend running on port `3001`
