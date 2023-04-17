@@ -2,6 +2,9 @@ import type { Ref, ComputedRef } from 'vue'
 import { RouterMethod } from 'h3'
 import { SupportedProviders } from './runtime/composables/authjs/useAuth'
 
+/**
+ * Configuration for the global application-side authentication-middleware.
+ */
 interface GlobalMiddlewareOptions {
   /**
    * Whether to add a global authentication middleware that protects all pages.
@@ -33,8 +36,14 @@ interface GlobalMiddlewareOptions {
   addDefaultCallbackUrl?: boolean | string
 }
 
+/**
+ * Available `nuxt-auth` authentication providers.
+ */
 export type SupportedAuthProviders = 'authjs' | 'local'
 
+/**
+ * Configuration for the `local`-provider.
+ */
 type ProviderLocal = {
   /**
    * Uses the `local` provider to facilitate autnetication. Currently, two providers exclusive are supported:
@@ -165,6 +174,9 @@ export type ProviderAuthjs = {
 
 export type AuthProviders = ProviderAuthjs | ProviderLocal
 
+/**
+ * Configuration for the application-side session.
+ */
 type SessionConfig = {
   /**
    * Whether to refresh the session every `X` milliseconds. Set this to `false` to turn it off. The session will only be refreshed if a session already exists.
@@ -187,6 +199,9 @@ type SessionConfig = {
   enableRefreshOnWindowFocus: boolean
 }
 
+/**
+ * Configuration for the whole module.
+ */
 export interface ModuleOptions {
   /**
    * Whether the module is enabled at all
