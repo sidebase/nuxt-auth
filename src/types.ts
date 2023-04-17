@@ -50,7 +50,7 @@ type ProviderLocal = {
    * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
    * - `local`: Username and password provider with support for static-applications
    *
-   * Read more here: https://sidebase.io/nuxt-auth/0.6/getting-started
+   * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
    */
   type: Extract<SupportedAuthProviders, 'local'>
   /**
@@ -146,7 +146,7 @@ export type ProviderAuthjs = {
    * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
    * - `local`: Username and password provider with support for static-applications
    *
-   * Read more here: https://sidebase.io/nuxt-auth/0.6/getting-started
+   * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
    */
   type: Extract<SupportedAuthProviders, 'authjs'>
   /**
@@ -243,7 +243,7 @@ export interface ModuleOptions {
    * - auth.js: OAuth focused provider for non-static Nuxt 3 applications
    * - local: Provider for credentials & token based backends, e.g., written by yourself or provided by something like Laraval
    *
-   * Find more about supported providers here: https://sidebase.io/nuxt-auth/0.6/getting-started
+   * Find more about supported providers here: https://sidebase.io/nuxt-auth/v0.6/getting-started
    *
    */
   provider?: AuthProviders
@@ -258,7 +258,7 @@ export interface ModuleOptions {
    * If you enable this, everything is going to be protected and you can selectively disable protection for some pages by specifying `definePageMeta({ auth: false })`
    * If you disable this, everything is going to be public and you can selectively enable protection for some pages by specifying `definePageMeta({ auth: true })`
    *
-   * Read more on this topic [in the page protection docs](https://sidebase.io/nuxt-auth/0.6/application-side/protecting-pages#global-middleware).
+   * Read more on this topic [in the page protection docs](https://sidebase.io/nuxt-auth/v0.6/application-side/protecting-pages#global-middleware).
    *
    * @example true
    * @example { allow404WithoutAuth: true }
