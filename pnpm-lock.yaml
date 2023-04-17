@@ -13,6 +13,9 @@ importers:
       defu:
         specifier: ^6.1.2
         version: 6.1.2
+      h3:
+        specifier: ^1.6.4
+        version: 1.6.4
       next-auth:
         specifier: ^4.21.1
         version: 4.21.1(next@13.2.4)(react-dom@18.2.0)(react@18.2.0)
