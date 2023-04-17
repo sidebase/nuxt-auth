@@ -1,11 +1,9 @@
 import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig } from '#app'
-import useAuthState from './composables/useAuthState'
-import useAuth from './composables/useAuth'
 import authMiddleware from './middleware/auth'
+import { useAuth, useAuthState } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  const { enableSessionRefreshOnWindowFocus, enableSessionRefreshPeriodically, enableGlobalAppMiddleware } = useRuntimeConfig().public.auth
-
+  // 1. Initialize authentication state, potentially fetch current session
   const { data, lastRefreshedAt } = useAuthState()
   const { getSession } = useAuth()
 
@@ -14,11 +12,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     await getSession()
   }
 
+  // 2. Setup session maintanence, e.g., auto refreshing or refreshing on foux
+  const { enableRefreshOnWindowFocus, enableRefreshPeriodically } = useRuntimeConfig().public.auth.session
+
   // Listen for when the page is visible, if the user switches tabs
   // and makes our tab visible again, re-fetch the session, but only if
   // this feature is not disabled.
   const visibilityHandler = () => {
-    if (enableSessionRefreshOnWindowFocus && document.visibilityState === 'visible') {
+    if (enableRefreshOnWindowFocus && document.visibilityState === 'visible') {
       getSession()
     }
   }
@@ -29,8 +30,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   nuxtApp.hook('app:mounted', () => {
     document.addEventListener('visibilitychange', visibilityHandler, false)
 
-    if (enableSessionRefreshPeriodically !== false) {
-      const intervalTime = enableSessionRefreshPeriodically === true ? 1000 : enableSessionRefreshPeriodically
+    if (enableRefreshPeriodically !== false) {
+      const intervalTime = enableRefreshPeriodically === true ? 1000 : enableRefreshPeriodically
       refetchIntervalTimer = setInterval(() => {
         if (data.value) {
           getSession()
@@ -55,7 +56,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     _unmount()
   }
 
+  // 3. Enable the middleware, either globally or as a named `auth` option
+  const { globalAppMiddleware } = useRuntimeConfig().public.auth
   addRouteMiddleware('auth', authMiddleware, {
-    global: enableGlobalAppMiddleware
+    global: globalAppMiddleware.isEnabled
   })
 })

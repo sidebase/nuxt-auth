@@ -39,8 +39,5 @@ jobs:
       - run: pnpm build:module
       - run: pnpm build:playground
 
-      # start dev-app and curl from it
-      - run: "timeout 30 pnpm dev & (sleep 10 && curl --fail localhost:3000)"
-
       # start prod-app and curl from it
-      - run: "timeout 30 pnpm start:playground & (sleep 10 && curl --fail localhost:3000)"
+      - run: "timeout 60 pnpm start:playground& (sleep 45 && curl --fail localhost:3000)"

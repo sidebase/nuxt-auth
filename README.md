@@ -10,6 +10,7 @@
 [![Join our Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/NDDgQkcv3s)
 
 > `nuxt-auth` is a feature-packed, open-source authentication module for Nuxt 3 applications.
+> Starting with v0.6 `nuxt-auth` also supports static Nuxt applications
 
 ## Quick Start
 
@@ -17,11 +18,17 @@
 npm i -D @sidebase/nuxt-auth
 ```
 
-Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting-started/quick-start) to setup the module.
+Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting-started/quick-start) to setup the module for <= v0.5 - the current stable version.
+
+Visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/0.6/getting-started/quick-start) to setup the module for >= v0.6 - the "future" experimental version with support for static Nuxt 3 apps and the `local` provider.
 
 ## Features
 
-`nuxt-auth` wraps [NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 12k star library to the nuxt 3 ecosystem with a native developer experience (DX). Features of `nuxt-auth` include:
+`nuxt-auth` is a library with the goal of supporting authentication for any universal Nuxt 3 application. At the moment two providers are supported:
+- [Auth.js / NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 12k star library to the nuxt 3 ecosystem with a native developer experience (DX)
+- `local` for static pages that rely on an external backend with a credential flow for authentication. `local` is supported starting with v0.6 of the module
+
+Features of the `authjs`-provider of `nuxt-auth` include:
 - ✔️ Authentication providers:
     - ✔️ OAuth (e.g., Github, Google, Twitter, Azure, ...)
     - ✔️ Custom OAuth (write it yourself)
@@ -48,6 +55,8 @@ Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting
     - `GET /session`,
     - `GET /csrf`,
     - `GET /providers`
+
+You can find a feature-table of all starting with v0.6 in the [nuxt-auth "next"-version-docs](https://sidebase.io/nuxt-auth/0.6/getting-started).
 
 ## Demo Page
 
@@ -94,3 +103,33 @@ This module also has it's own playground:
 
 # -> open http://localhost:3000
 ```
+
+#### Testing different Providers
+
+We make use of the Nuxt 3 layers feature to quickly test different authentication providers. [Read the docs for more on the layers-feature](https://nuxt.com/docs/getting-started/layers). To use one of the layers edit the `playground/nuxt.config.ts` file. E.g., to test the `local` provider use:
+```ts
+export default defineNuxtConfig({
+  modules: ['../src/module.ts'],
+  extends: ['../examples/local']
+})
+```
+
+To test the `authjs` provider use:
+```ts
+export default defineNuxtConfig({
+  modules: ['../src/module.ts'],
+  extends: ['../examples/authjs']
+})
+```
+
+Both will automatically provide different backends and configuration!
+
+**How to test static Nuxt 3 apps?**
+
+To test static Nuxt 3 apps:
+1. `playground/nuxt.config.ts`: Extend the playground from `extends: ['../examples/local']`
+2. `playground/nuxt.config.ts`: Add `baseURL: 'http://localhost:3001'` to the `auth`-config
+3. Run `pnpm generate:playground`
+4. Run `pnpm start:playground` -> should start static app at `http://localhost:3000`
+5. Run `pnpm dev` -> should start dev-version _with auth-backend_  on `http://localhost:3001`
+6. Visit [http://localhost:3000](http://localhost:3000) -> this should open the static application. Performing any auth-related actions, the app should send requests to the backend running on port `3001`

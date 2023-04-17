@@ -1,34 +1,31 @@
+<script setup lang="ts">
+import { definePageMeta } from '#imports'
+
+definePageMeta({ auth: false })
+</script>
+
 <template>
   <div>
-    <button @click="signIn(undefined, { callbackUrl: '/' })">
-      sign in
-    </button>
+    <nuxt-link to="/">
+      -> manual login, logout, refresh button
+    </nuxt-link>
     <br>
-    <button @click="signIn('credentials', { callbackUrl: '/', username: 'jsmith', password: 'hunter2' })">
-      sign in (credential)
-    </button>
+    <nuxt-link to="/protected/globally">
+      -> globally protected page
+    </nuxt-link>
     <br>
-    <button @click="signIn('github', { callbackUrl: '/' })">
-      sign in (github)
-    </button>
+    <nuxt-link to="/protected/locally">
+      -> locally protected page (only works if global middleware disabled)
+    </nuxt-link>
     <br>
-    <button @click="signIn(undefined, { callbackUrl: '/protected/named' })">
-      sign in (with redirect to protected page)
-    </button>
+    <nuxt-link to="/always-unprotected">
+      -> page that is always unprotected
+    </nuxt-link>
     <br>
-    <button @click="signOut({ callbackUrl: '/signout' })">
-      sign out
-    </button>
+    <nuxt-link to="/guest">
+      -> guest mode
+    </nuxt-link>
     <br>
-    <button @click="getSession({ required: false })">
-      refresh session
-    </button>
+    <div>select one of the above actions to get started.</div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { definePageMeta, useAuth } from '#imports'
-definePageMeta({ auth: false })
-
-const { getSession, signIn, signOut } = useAuth()
-</script>

@@ -1,0 +1,20 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.1",
+    "nuxt": "^3.4.0"
+  },
+  "dependencies": {
+    "@sidebase/nuxt-auth": "link:../..",
+    "jsonwebtoken": "^9.0.0",
+    "zod": "^3.21.4"
+  }
+}

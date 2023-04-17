@@ -23,11 +23,14 @@
     "typecheck": "tsc --noEmit",
     "build:module": "nuxi build",
     "build:playground": "nuxi build playground",
-    "start:playground": "node playground/.output/server/index.mjs"
+    "generate:playground": "nuxi generate playground",
+    "start:playground": "nuxi preview playground"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.3.3",
+    "@nuxt/kit": "^3.4.1",
+    "@vueuse/core": "^9.13.0",
     "defu": "^6.1.2",
+    "h3": "^1.6.4",
     "nitropack": "^2.3.2",
     "requrl": "^3.0.2",
     "ufo": "^1.1.1"
@@ -36,13 +39,14 @@
     "next-auth": "^4.21.1"
   },
   "devDependencies": {
-    "@nuxt/module-builder": "^0.2.1",
-    "@nuxt/schema": "^3.3.3",
+    "@nuxt/module-builder": "^0.3.0",
+    "@nuxt/schema": "^3.4.1",
     "@nuxtjs/eslint-config-typescript": "^12.0.0",
     "@types/node": "^18.15.11",
     "eslint": "^8.37.0",
     "nuxt": "^3.3.3",
     "ofetch": "^1.0.1",
+    "ts-essentials": "^9.3.1",
     "typescript": "^5.0.3",
     "vue-tsc": "^1.2.0"
   },

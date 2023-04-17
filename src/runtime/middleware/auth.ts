@@ -1,6 +1,6 @@
 import { navigateTo, defineNuxtRouteMiddleware, useRuntimeConfig } from '#app'
-import useAuth from '../composables/useAuth'
 import { navigateToAuthPages, determineCallbackUrl } from '../utils/url'
+import { useAuth } from '#imports'
 
 type MiddlewareMeta = boolean | {
   unauthenticatedOnly: true,
@@ -49,7 +49,7 @@ export default defineNuxtRouteMiddleware((to) => {
    * - avoid the `Error [ERR_HTTP_HEADERS_SENT]`-error that occurs when we redirect to the sign-in page when the original to-page does not exist. Likely related to https://github.com/nuxt/framework/issues/9438
    *
    */
-  if (authConfig.globalMiddlewareOptions.allow404WithoutAuth) {
+  if (authConfig.globalAppMiddleware.allow404WithoutAuth) {
     const matchedRoute = to.matched.length > 0
     if (!matchedRoute) {
       // Hands control back to `vue-router`, which will direct to the `404` page
@@ -57,6 +57,11 @@ export default defineNuxtRouteMiddleware((to) => {
     }
   }
 
-  const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.path) }
-  return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
+  if (authConfig.provider.type === 'authjs') {
+    const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.path) }
+    // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
+    return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
+  } else {
+    return navigateTo(authConfig.provider.pages.login)
+  }
 })
