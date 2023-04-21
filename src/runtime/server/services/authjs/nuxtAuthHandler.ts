@@ -60,7 +60,7 @@ const parseActionAndProvider = ({ context }: H3Event): { action: AuthAction, pro
 }
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
-export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions | ((event: H3Event, req: any, res: any) => AuthOptions)) => {
+export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions | ((event: H3Event, nextRequest: RequestInternal) => AuthOptions)) => {
   const isProduction = process.env.NODE_ENV === 'production'
 
   usedSecret = nuxtAuthOptions?.secret
@@ -127,11 +127,11 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions | ((event: H3Event
     }
   }
 
-  let _cachedStaticOptions: any = null;
+  let _cachedStaticOptions: any = null
 
-  const getOptions = (event: H3Event, req: any, res: any): any => {
+  const getOptions = (event: H3Event, nextRequest: RequestInternal): any => {
     if (typeof nuxtAuthOptions === 'function') {
-      return defu(nuxtAuthOptions(event,req, res), {
+      return defu(nuxtAuthOptions(event, nextRequest), {
         secret: usedSecret,
         logger: undefined,
         providers: [],
@@ -146,7 +146,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions | ((event: H3Event
           trustHost: useConfig().trustHost
         })
       }
-      return _cachedStaticOptions;
+      return _cachedStaticOptions
     }
   }
 
@@ -158,7 +158,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions | ((event: H3Event
 
     const nextResult = await AuthHandler({
       req: nextRequest,
-      options: getOptions(event, nextRequest, res)
+      options: getOptions(event, nextRequest)
     })
 
     // 2. Set response status, headers, cookies
