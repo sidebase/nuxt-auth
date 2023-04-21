@@ -128,23 +128,18 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions | ((event: H3Event
   }
 
   let _cachedStaticOptions: any = null
-
+  const defaultOption = {
+    secret: usedSecret,
+    logger: undefined,
+    providers: [],
+    trustHost: useConfig().trustHost
+  }
   const getOptions = (event: H3Event, nextRequest: RequestInternal): any => {
     if (typeof nuxtAuthOptions === 'function') {
-      return defu(nuxtAuthOptions(event, nextRequest), {
-        secret: usedSecret,
-        logger: undefined,
-        providers: [],
-        trustHost: useConfig().trustHost
-      })
+      return defu(nuxtAuthOptions(event, nextRequest), defaultOption)
     } else {
       if (_cachedStaticOptions == null) {
-        _cachedStaticOptions = defu(nuxtAuthOptions, {
-          secret: usedSecret,
-          logger: undefined,
-          providers: [],
-          trustHost: useConfig().trustHost
-        })
+        _cachedStaticOptions = defu(nuxtAuthOptions, defaultOption)
       }
       return _cachedStaticOptions
     }
