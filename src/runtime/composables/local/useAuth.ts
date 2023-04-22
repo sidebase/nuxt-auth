@@ -47,15 +47,17 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
 
 const signOut: SignOutFunc = async (signOutOptions) => {
   const nuxt = useNuxtApp()
-  const { data, rawToken } = await callWithNuxt(nuxt, useAuthState)
+  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const config = useTypedBackendConfig(runtimeConfig, 'local')
+  const { data, rawToken, token } = await callWithNuxt(nuxt, useAuthState)
 
+  const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
   data.value = null
   rawToken.value = null
 
-  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
-  const { path, method } = useTypedBackendConfig(runtimeConfig, 'local').endpoints.signOut
+  const { path, method } = config.endpoints.signOut
 
-  const res = await _fetch(nuxt, path, { method })
+  const res = await _fetch(nuxt, path, { method, headers })
 
   const { callbackUrl, redirect = true } = signOutOptions ?? {}
   if (redirect) {
