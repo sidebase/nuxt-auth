@@ -1,5 +1,5 @@
 {
-  "extends": "./playground/.nuxt/tsconfig.json",
+  "extends": "./playground-authjs/.nuxt/tsconfig.json",
   "exclude": [
     "./docs"
   ]

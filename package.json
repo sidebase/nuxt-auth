@@ -16,15 +16,18 @@
   ],
   "scripts": {
     "prepack": "nuxt-module-build",
-    "dev": "nuxi dev playground",
-    "dev:build": "nuxi build playground",
-    "dev:prepare": "nuxt-module-build --stub && nuxi prepare playground",
+    "build": "nuxi build",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "build:module": "nuxi build",
-    "build:playground": "nuxi build playground",
-    "generate:playground": "nuxi generate playground",
-    "start:playground": "nuxi preview playground"
+    "clean": "rm -rf playground-authjs/.nuxt playground-local/.nuxt dist .nuxt",
+    "dev:prepare": "nuxt-module-build --stub",
+    "authjs:dev": "nuxi prepare playground-local && nuxi dev playground-authjs",
+    "authjs:build": "nuxi build playground-authjs",
+    "authjs:start": "nuxi preview playground-authjs",
+    "local:dev": "nuxi prepare playground-local && nuxi dev playground-local",
+    "local:build": "nuxi build playground-local",
+    "local:start": "nuxi preview playground-local",
+    "local:generate": "nuxi generate playground-local"
   },
   "dependencies": {
     "@nuxt/kit": "^3.4.1",
