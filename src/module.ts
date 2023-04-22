@@ -3,7 +3,7 @@ import { defu } from 'defu'
 import { joinURL } from 'ufo'
 import type { DeepRequired } from 'ts-essentials'
 import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
-import type { ModuleOptions, SupportedAuthProviders, AuthProviders } from './types'
+import type { ModuleOptions, SupportedAuthProviders, AuthProviders } from './runtime/types'
 
 const topLevelDefaults = {
   isEnabled: true,

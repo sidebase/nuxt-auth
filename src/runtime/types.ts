@@ -1,6 +1,6 @@
 import type { Ref, ComputedRef } from 'vue'
 import { RouterMethod } from 'h3'
-import { SupportedProviders } from './runtime/composables/authjs/useAuth'
+import { SupportedProviders } from './composables/authjs/useAuth'
 
 /**
  * Configuration for the global application-side authentication-middleware.
