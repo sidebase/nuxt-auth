@@ -16,18 +16,14 @@
   ],
   "scripts": {
     "prepack": "nuxt-module-build",
-    "dev": "nuxi dev playground",
-    "dev:build": "nuxi build playground",
-    "dev:prepare": "nuxt-module-build --stub && nuxi prepare playground",
+    "build": "nuxi build",
     "lint": "eslint . --max-warnings=0",
-    "typecheck": "tsc --noEmit",
-    "build:module": "nuxi build",
-    "build:playground": "nuxi build playground",
-    "generate:playground": "nuxi generate playground",
-    "start:playground": "nuxi preview playground"
+    "clean": "rm -rf playground-authjs/.nuxt playground-local/.nuxt dist .nuxt",
+    "typecheck": "nuxi prepare playground-local && tsc --noEmit",
+    "dev:prepare": "nuxt-module-build --stub"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.4.1",
+    "@nuxt/kit": "^3.4.2",
     "@vueuse/core": "^9.13.0",
     "defu": "^6.1.2",
     "h3": "^1.6.4",
@@ -40,11 +36,11 @@
   },
   "devDependencies": {
     "@nuxt/module-builder": "^0.3.0",
-    "@nuxt/schema": "^3.4.1",
+    "@nuxt/schema": "^3.4.2",
     "@nuxtjs/eslint-config-typescript": "^12.0.0",
     "@types/node": "^18.15.11",
     "eslint": "^8.37.0",
-    "nuxt": "^3.3.3",
+    "nuxt": "^3.4.2",
     "ofetch": "^1.0.1",
     "ts-essentials": "^9.3.1",
     "typescript": "^5.0.3",

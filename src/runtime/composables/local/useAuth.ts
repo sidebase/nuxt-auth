@@ -1,11 +1,12 @@
 import { readonly, Ref } from 'vue'
 import { callWithNuxt } from '#app'
-import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions } from '../../../types'
+import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions } from '../../types'
 import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
 import type { SessionData } from './useAuthState'
-import { useNuxtApp, useRuntimeConfig, useAuthState, nextTick, navigateTo } from '#imports'
+import { useAuthState } from './useAuthState'
+import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
 
 interface Credentials {
   username: string
@@ -46,14 +47,17 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
 
 const signOut: SignOutFunc = async (signOutOptions) => {
   const nuxt = useNuxtApp()
-  const { data, rawToken } = await callWithNuxt(nuxt, useAuthState)
+  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const config = useTypedBackendConfig(runtimeConfig, 'local')
+  const { data, rawToken, token } = await callWithNuxt(nuxt, useAuthState)
+
+  const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
   data.value = null
   rawToken.value = null
 
-  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
-  const { path, method } = useTypedBackendConfig(runtimeConfig, 'local').endpoints.signOut
+  const { path, method } = config.endpoints.signOut
 
-  const res = await _fetch(nuxt, path, { method })
+  const res = await _fetch(nuxt, path, { method, headers })
 
   const { callbackUrl, redirect = true } = signOutOptions ?? {}
   if (redirect) {
@@ -68,7 +72,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
 
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
   const { path, method } = config.endpoints.getSession
-  const { data, loading, lastRefreshedAt, token } = useAuthState()
+  const { data, loading, lastRefreshedAt, token, rawToken } = useAuthState()
 
   const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
 
@@ -76,7 +80,9 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   try {
     data.value = await _fetch<SessionData>(nuxt, path, { method, headers })
   } catch {
+    // Clear all data: Request failed so we must not be authenticated
     data.value = null
+    rawToken.value = null
   }
   loading.value = false
   lastRefreshedAt.value = new Date()
