@@ -19,6 +19,7 @@ const ensureAuth = (event: H3Event) => {
   try {
     return verify(extractedToken, SECRET)
   } catch (error) {
+    console.error('Login failed: ', error)
     throw createError({ statusCode: 403, statusMessage: 'You must be logged in to use this endpoint' })
   }
 }

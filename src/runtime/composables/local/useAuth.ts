@@ -69,7 +69,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
 
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
   const { path, method } = config.endpoints.getSession
-  const { data, loading, lastRefreshedAt, token } = useAuthState()
+  const { data, loading, lastRefreshedAt, token, rawToken } = useAuthState()
 
   const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
 
@@ -78,6 +78,9 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
     data.value = await _fetch<SessionData>(nuxt, path, { method, headers })
   } catch {
     data.value = null
+
+    // Clear token: Request failed so we must not be authenticated
+    rawToken.value = null
   }
   loading.value = false
   lastRefreshedAt.value = new Date()

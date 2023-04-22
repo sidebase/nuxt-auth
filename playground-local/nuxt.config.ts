@@ -4,8 +4,8 @@ export default defineNuxtConfig({
     transpile: ['jsonwebtoken']
   },
   auth: {
+    baseURL: 'http://localhost:3001',
     provider: {
-      // @ts-ignore This layer will show a runtime-error when the other layer is loaded, as then type === 'local' is selected
       type: 'local',
       endpoints: {
         getSession: { path: '/user' }
