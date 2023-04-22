@@ -158,18 +158,18 @@ export type ProviderAuthjs = {
    * You should **try to avoid using advanced options** unless you are very comfortable using them.
    * @default false
    */
-  trustHost: boolean
+  trustHost?: boolean
   /**
    * Select the default-provider to use when `signIn` is called. Setting this here will also effect the global middleware behavior: E.g., when you set it to `github` and the user is unauthorized, they will be directly forwarded to the Github OAuth page instead of seeing the app-login page.
    *
    * @example "github"
    * @default undefined
    */
-  defaultProvider: SupportedProviders | undefined
+  defaultProvider?: SupportedProviders
   /**
    * Whether to add a callbackUrl to sign in requests. Setting this to a string-value will result in that being used as the callbackUrl path. Setting this to `true` will result in the blocked original target path being chosen (if it can be determined).
    */
-  addDefaultCallbackUrl: boolean | string
+  addDefaultCallbackUrl?: boolean | string
 }
 
 export type AuthProviders = ProviderAuthjs | ProviderLocal
