@@ -48,6 +48,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
 const signOut: SignOutFunc = async (signOutOptions) => {
   const nuxt = useNuxtApp()
   const { data, rawToken } = await callWithNuxt(nuxt, useAuthState)
+
   data.value = null
   rawToken.value = null
 
@@ -77,9 +78,8 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   try {
     data.value = await _fetch<SessionData>(nuxt, path, { method, headers })
   } catch {
+    // Clear all data: Request failed so we must not be authenticated
     data.value = null
-
-    // Clear token: Request failed so we must not be authenticated
     rawToken.value = null
   }
   loading.value = false
