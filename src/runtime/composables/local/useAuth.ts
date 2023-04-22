@@ -5,7 +5,8 @@ import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
 import type { SessionData } from './useAuthState'
-import { useNuxtApp, useRuntimeConfig, useAuthState, nextTick, navigateTo } from '#imports'
+import { useAuthState } from './useAuthState'
+import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
 
 interface Credentials {
   username: string

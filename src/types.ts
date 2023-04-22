@@ -165,7 +165,7 @@ export type ProviderAuthjs = {
    * @example "github"
    * @default undefined
    */
-  defaultProvider?: SupportedProviders
+  defaultProvider?: undefined | SupportedProviders
   /**
    * Whether to add a callbackUrl to sign in requests. Setting this to a string-value will result in that being used as the callbackUrl path. Setting this to `true` will result in the blocked original target path being chosen (if it can be determined).
    */

@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import getURL from 'requrl'
-import { useRuntimeConfig, useRequestEvent } from '#app'
 import { joinURL } from 'ufo'
+import { useRuntimeConfig, useRequestEvent } from '#app'
 import { SessionLastRefreshedAt, SessionStatus } from '../../types'
 import { useState } from '#imports'
 

@@ -2,6 +2,7 @@
 import { parseURL } from 'ufo'
 import { DeepRequired } from 'ts-essentials'
 import { SupportedAuthProviders, AuthProviders } from '../types'
+import { useRuntimeConfig } from '#imports'
 
 export const isProduction = process.env.NODE_ENV === 'production'
 

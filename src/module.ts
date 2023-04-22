@@ -40,6 +40,7 @@ const defaultsByBackend: { [key in SupportedAuthProviders]: DeepRequired<Extract
   authjs: {
     type: 'authjs',
     trustHost: false,
+    // @ts-expect-error
     defaultProvider: undefined,
     addDefaultCallbackUrl: true
   }
@@ -91,10 +92,10 @@ export default defineNuxtModule<ModuleOptions>({
 
     nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }
 
-    // @ts-expect-error
+    // @ts-ignore
     nuxt.options.runtimeConfig.auth = options
 
-    // @ts-expect-error
+    // @ts-ignore
     nuxt.options.runtimeConfig.public.auth = options
 
     // 3. Locate runtime directory

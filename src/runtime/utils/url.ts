@@ -38,7 +38,9 @@ export const navigateToAuthPages = (href: string) => {
   const router = nuxtApp.$router
 
   // Wait for the `window.location.href` navigation from above to complete to avoid showing content. If that doesn't work fast enough, delegate navigation back to the `vue-router` (risking a vue-router 404 warning in the console, but still avoiding content-flashes of the protected target page)
-  const waitForNavigationWithFallbackToRouter = new Promise(resolve => setTimeout(resolve, 60 * 1000)).then(() => router.push(href))
+  const waitForNavigationWithFallbackToRouter = new Promise(resolve => setTimeout(resolve, 60 * 1000))
+    // @ts-expect-error router is `unknown` here, as it is not officially exposed
+    .then(() => router.push(href))
   return waitForNavigationWithFallbackToRouter as Promise<void | undefined>
 }
 

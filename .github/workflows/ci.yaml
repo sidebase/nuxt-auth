@@ -24,7 +24,7 @@ jobs:
         with:
           version: 8
 
-      # Install locked dependencies and prepare types
+      # Install deps and prepare types
       - run: pnpm i
       - run: pnpm dev:prepare
 
@@ -36,10 +36,13 @@ jobs:
       - run: pnpm typecheck
 
       # Check building
-      - run: pnpm build:module
+      - run: pnpm build
 
   test-playground-local:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./playground-local
 
     steps:
       - uses: actions/checkout@v3
@@ -59,14 +62,18 @@ jobs:
       - run: pnpm i
 
       # Check building
-      - run: pnpm local:build
+      - run: pnpm build
 
       # start prod-app and curl from it
-      - run: "timeout 60 pnpm local:start & (sleep 45 && curl --fail localhost:3000)"
+      - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:3000)"
+
+
 
   test-playground-authjs:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: ./playground-authjs
     steps:
       - uses: actions/checkout@v3
 
@@ -85,10 +92,10 @@ jobs:
       - run: pnpm i
 
       # Check building
-      - run: pnpm authjs:build
+      - run: pnpm build
 
       # start prod-app and curl from it
-      - run: "timeout 60 pnpm authjs:start & (sleep 45 && curl --fail localhost:$PORT)"
+      - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"
         env:
           AUTH_ORIGIN: 'http://localhost:3001'
           PORT: 3001

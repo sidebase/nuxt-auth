@@ -1,6 +1,19 @@
 {
   "private": true,
-  "name": "nuxt-auth-playground",
-  "dependencies": {},
-  "devDependencies": {}
+  "name": "nuxt-auth-playground-authjs",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "dev": "nuxi prepare && nuxi dev",
+    "build": "nuxi build",
+    "start": "nuxi preview",
+    "generate": "nuxi generate",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "eslint": "^8.37.0",
+    "nuxt": "^3.4.2",
+    "typescript": "^5.0.3",
+    "vue-tsc": "^1.2.0"
+  }
 }
