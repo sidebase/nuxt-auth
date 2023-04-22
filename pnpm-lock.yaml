@@ -60,24 +60,10 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.0.4)
 
-  examples/authjs:
-    dependencies:
-      jsonwebtoken:
-        specifier: ^9.0.0
-        version: 9.0.0
-      zod:
-        specifier: ^3.21.4
-        version: 3.21.4
-    devDependencies:
-      '@types/jsonwebtoken':
-        specifier: ^9.0.1
-        version: 9.0.1
+  playground-authjs: {}
 
-  examples/local:
+  playground-local:
     dependencies:
-      '@sidebase/nuxt-auth':
-        specifier: link:../..
-        version: link:../..
       jsonwebtoken:
         specifier: ^9.0.0
         version: 9.0.0
@@ -88,9 +74,6 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.1
         version: 9.0.1
-      nuxt:
-        specifier: ^3.4.0
-        version: 3.4.1(@types/node@18.15.11)(eslint@8.38.0)(rollup@3.20.2)(typescript@5.0.4)(vue-tsc@1.2.0)
 
 packages:
 

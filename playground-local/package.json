@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "nuxt-auth-playground",
+  "name": "nuxt-auth-playground-local",
   "dependencies": {
     "jsonwebtoken": "^9.0.0",
     "zod": "^3.21.4"
