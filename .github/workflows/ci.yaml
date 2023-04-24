@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  test-module:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,7 +24,7 @@ jobs:
         with:
           version: 8
 
-      # Install locked dependencies and prepare types
+      # Install deps and prepare types
       - run: pnpm i
       - run: pnpm dev:prepare
 
@@ -36,8 +36,66 @@ jobs:
       - run: pnpm typecheck
 
       # Check building
-      - run: pnpm build:module
-      - run: pnpm build:playground
+      - run: pnpm build
+
+  test-playground-local:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./playground-local
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js 16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 8
+
+      # Install deps
+      - run: pnpm i
+
+      # Check building
+      - run: pnpm build
 
       # start prod-app and curl from it
-      - run: "timeout 60 pnpm start:playground& (sleep 45 && curl --fail localhost:3000)"
+      - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:3000)"
+
+
+
+  test-playground-authjs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./playground-authjs
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js 16.14.2
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 8
+
+      # Install deps
+      - run: pnpm i
+
+      # Check building
+      - run: pnpm build
+
+      # start prod-app and curl from it
+      - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"
+        env:
+          AUTH_ORIGIN: 'http://localhost:3001'
+          PORT: 3001
