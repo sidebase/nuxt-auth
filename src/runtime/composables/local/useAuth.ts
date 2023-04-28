@@ -74,8 +74,8 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   const { path, method } = config.endpoints.getSession
   const { data, loading, lastRefreshedAt, token, rawToken } = useAuthState()
 
-  if (!token.value){
-    return;
+  if (!token.value) {
+    return
   }
 
   const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
