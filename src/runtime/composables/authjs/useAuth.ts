@@ -84,7 +84,7 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
     callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
   }
 
-  const signinUrl = joinPathToApiURLWN(nuxt, 'signin')
+  const signinUrl = await joinPathToApiURLWN(nuxt, 'signin')
 
   const queryParams = callbackUrl ? `?${new URLSearchParams({ callbackUrl })}` : ''
   const hrefSignInAllProviderPage = `${signinUrl}${queryParams}`
