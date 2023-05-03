@@ -4,6 +4,7 @@ import { joinURL } from 'ufo'
 import type { DeepRequired } from 'ts-essentials'
 import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
 import type { ModuleOptions, SupportedAuthProviders, AuthProviders } from './runtime/types'
+import { setupDevToolsUI } from './devtools'
 
 const topLevelDefaults = {
   isEnabled: true,
@@ -146,6 +147,10 @@ export default defineNuxtModule<ModuleOptions>({
     if (selectedProvider === 'authjs') {
       addServerPlugin(resolve('./runtime/server/plugins/assertOrigin'))
     }
+
+    // 8. Start DevTools
+    const resolver = createResolver(import.meta.url)
+    setupDevToolsUI(nuxt, resolver)
 
     logger.success('`nuxt-auth` setup done')
   }
