@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url'
 import { defineNuxtModule, useLogger, createResolver, addTemplate, addPlugin, addServerPlugin, addImports } from '@nuxt/kit'
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
@@ -151,6 +152,10 @@ export default defineNuxtModule<ModuleOptions>({
     if (selectedProvider === 'authjs') {
       addServerPlugin(resolve('./runtime/server/plugins/assertOrigin'))
     }
+    // @ts-ignore
+    const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
+    nuxt.options.build.transpile.push(runtimeDir)
+    addPlugin(resolve(runtimeDir, 'plugin.client'))
 
     logger.success('`nuxt-auth` setup done')
   }

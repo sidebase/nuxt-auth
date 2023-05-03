@@ -3,7 +3,6 @@ import { ref } from 'vue'
 import { useAuth } from '#imports'
 
 const { signIn, token, data, status, lastRefreshedAt, signOut, getSession } = useAuth()
-
 const username = ref('')
 const password = ref('')
 </script>
