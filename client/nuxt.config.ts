@@ -1,4 +1,4 @@
-import { resolve } from "pathe";
+import { resolve } from 'pathe'
 
 export default defineNuxtConfig({
   ssr: false,
@@ -11,6 +11,6 @@ export default defineNuxtConfig({
     }
   },
   app: {
-    baseURL: '/__my-module',
-  },
+    baseURL: '/__nuxt-auth'
+  }
 })

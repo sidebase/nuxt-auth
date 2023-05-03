@@ -9,11 +9,35 @@ const client = useDevtoolsClient()
     <h1 class="text-3xl font-bold">
       @sidebase/nuxt-auth
     </h1>
-    <div class="opacity-50 mb-4">
+    <div class="opacity-50">
       Dashboard
     </div>
-
-    <div class="flex-auto" />
-    <ModuleAuthorNote class="mt-5 " />
+    <ExperimentalWarning class="mt-5 " />
+    <div v-if="client" class="my-4 grid grid-cols-4 gap-4">
+      <n-card class="p-3">
+        <p class="font-bold">
+          Selected provider:
+        </p>
+        {{ client.host.nuxt.$config.auth.provider.type }}
+      </n-card>
+      <n-card class="p-3">
+        <p class="font-bold">
+          Is global middleware enabled?
+        </p>
+        {{ client.host.nuxt.$config.auth.globalAppMiddleware.isEnabled }}
+      </n-card>
+      <n-card class="p-3">
+        <p class="font-bold">
+          Selected provider:
+        </p>
+        {{ client.host.nuxt.$config.auth.provider.type }}
+      </n-card>
+      <n-card class="p-3">
+        <p class="font-bold">
+          Selected provider:
+        </p>
+        {{ client.host.nuxt.$config.auth.provider.type }}
+      </n-card>
+    </div>
   </div>
 </template>

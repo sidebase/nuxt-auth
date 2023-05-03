@@ -2,7 +2,7 @@ import { existsSync } from 'fs'
 import { Nuxt } from 'nuxt/schema'
 import { Resolver } from '@nuxt/kit'
 
-const DEVTOOLS_UI_ROUTE = '/__my-module'
+const DEVTOOLS_UI_ROUTE = '/__nuxt-auth'
 const DEVTOOLS_UI_LOCAL_PORT = 3300
 
 export function setupDevToolsUI (nuxt: Nuxt, resolver: Resolver) {

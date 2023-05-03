@@ -102,6 +102,10 @@ export default defineNuxtModule<ModuleOptions>({
     // 3. Locate runtime directory
     const { resolve } = createResolver(import.meta.url)
 
+    // 8. Start DevTools
+    const resolver = createResolver(import.meta.url)
+    setupDevToolsUI(nuxt, resolver)
+
     // 4. Add the correct nuxt-auth app composable, for the desired backend
     addImports([
       {
@@ -147,10 +151,6 @@ export default defineNuxtModule<ModuleOptions>({
     if (selectedProvider === 'authjs') {
       addServerPlugin(resolve('./runtime/server/plugins/assertOrigin'))
     }
-
-    // 8. Start DevTools
-    const resolver = createResolver(import.meta.url)
-    setupDevToolsUI(nuxt, resolver)
 
     logger.success('`nuxt-auth` setup done')
   }
