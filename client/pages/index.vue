@@ -23,7 +23,7 @@ const { status, data } = client.value?.host.nuxt.vueApp.config.globalProperties?
     <div class="m-3">
       <NCard class="p-3">
         Status: {{ status }} <br>
-        Username : {{ data ? data.username : 'unknown' }}
+        Username : {{ data ? data.name : 'unknown' }}
       </NCard>
     </div>
   </div>

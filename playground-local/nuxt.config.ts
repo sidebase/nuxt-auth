@@ -19,8 +19,8 @@ export default defineNuxtConfig({
             cwd: resolve(__dirname, '../client')
           },
           {
-            id: 'my-module:client',
-            name: 'My Module Client Dev'
+            id: 'nuxt-auth:client',
+            name: 'Auth DevTools'
           }
         )
       }
