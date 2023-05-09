@@ -15,7 +15,7 @@ interface GlobalMiddlewareOptions {
   isEnabled: boolean
   /**
    * Whether to enforce authentication if the target-route does not exist. Per default the middleware redirects
-   * to Nuxts' default 404 page instead of forcing a sign-in if the target does not exist. This is to avoid a
+   * to Nuxt`s default 404 page instead of forcing a sign-in if the target does not exist. This is to avoid a
    * user-experience and developer-experience of having to sign-in only to see a 404 page afterwards.
    *
    * Note: Setting this to `false` this may lead to `vue-router` + node related warnings like: "Error [ERR_HTTP_HEADERS_SENT] ...",
@@ -39,16 +39,16 @@ interface GlobalMiddlewareOptions {
 /**
  * Available `nuxt-auth` authentication providers.
  */
-export type SupportedAuthProviders = 'authjs' | 'local'
+export type SupportedAuthProviders = 'authjs' | 'local' | 'refresh'
 
 /**
  * Configuration for the `local`-provider.
  */
 type ProviderLocal = {
   /**
-   * Uses the `local` provider to facilitate autnetication. Currently, two providers exclusive are supported:
+   * Uses the `local` provider to facilitate authentication. Currently, two providers exclusive are supported:
    * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
-   * - `local`: Username and password provider with support for static-applications
+   * - `local` or 'refresh': Username and password provider with support for static-applications
    *
    * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
    */
@@ -118,16 +118,58 @@ type ProviderLocal = {
      * Header type to be used in requests. This in combination with `headerName` is used to construct the final authentication-header `nuxt-auth` uses, e.g, for requests via `getSession`.
      *
      * @default Bearer
-     * @exmaple Beer
+     * @example Beer
      */
     type?: string,
     /**
      * Header name to be used in requests that need to be authenticated, e.g., to be used in the `getSession` request.
      *
      * @default Authorization
-     * @exmaple Auth
+     * @example Auth
      */
     headerName?: string,
+    /**
+     * Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
+     *
+     * Note: Your backend may reject / expire the token earlier / differently.
+     */
+    maxAgeInSeconds?: number,
+  }
+}
+
+/**
+ * Configuration for the `refresh`-provider an extended version of the local provider.
+ */
+type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
+    /**
+   * Uses the `authjs` provider to facilitate authentication. Currently, two providers exclusive are supported:
+   * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
+   * - `local` or 'refresh': Username and password provider with support for static-applications
+   *
+   * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
+   */
+  type: Extract<SupportedAuthProviders, 'refresh'>
+  endpoints?: {
+    /**
+   * What method and path to call to perform the sign-in. This endpoint must return a token that can be used to authenticate subsequent requests.
+   *
+   * @default { path: '/refresh', method: 'post' }
+   */
+    refresh?: { path?: string, method?: RouterMethod },
+  }
+  refreshToken?: {
+    /**
+     * How to extract the authentication-token from the sign-in response.
+     *
+     * E.g., setting this to `/refreshToken/bearer` and returning an object like `{ refreshToken: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `signIn` endpoint will
+     * result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
+     *
+     * This follows the JSON Pointer standard, see it's RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+     *
+     * @default /refreshToken  Access the `refreshToken` property of the sign-in response object
+     * @example /       Access the root of the sign-in response object, useful when your endpoint returns a plain, non-object string as the token
+     */
+    signInResponseRefreshTokenPointer?: string
     /**
      * Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
      *
@@ -142,9 +184,9 @@ type ProviderLocal = {
  */
 export type ProviderAuthjs = {
   /**
-   * Uses the `authjs` provider to facilitate autnetication. Currently, two providers exclusive are supported:
+   * Uses the `authjs` provider to facilitate authentication. Currently, two providers exclusive are supported:
    * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
-   * - `local`: Username and password provider with support for static-applications
+   * - `local` or 'refresh': Username and password provider with support for static-applications
    *
    * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
    */
@@ -172,7 +214,7 @@ export type ProviderAuthjs = {
   addDefaultCallbackUrl?: boolean | string
 }
 
-export type AuthProviders = ProviderAuthjs | ProviderLocal
+export type AuthProviders = ProviderAuthjs | ProviderLocal | ProviderLocalRefresh
 
 /**
  * Configuration for the application-side session.
@@ -225,7 +267,7 @@ export interface ModuleOptions {
    *
    * Defaults to `/api/auth` for both development and production. Setting this is optional, if you set it you can set it to either:
    * - just a path: Will lead to `nuxt-auth` using `baseURL` as a relative path appended to the origin you deploy to. Example: `/backend/auth`
-   * - an origin and a path: Will leav to `nuxt-auth` using `baseURL` as an absolute request path to perform requests to. Example: `https://example.com/auth`
+   * - an origin and a path: Will leave to `nuxt-auth` using `baseURL` as an absolute request path to perform requests to. Example: `https://example.com/auth`
    *
    * Note: If you point to a different origin than the one you deploy to you likely have to take care of CORS: Allowing cross origin requests.
    *

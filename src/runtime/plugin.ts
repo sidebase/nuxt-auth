@@ -6,14 +6,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
   const { data, lastRefreshedAt } = useAuthState()
   const { getSession } = useAuth()
-
+  const runtimeConfig = useRuntimeConfig().public.auth
   // Only fetch session if it was not yet initialized server-side
   if (typeof data.value === 'undefined') {
     await getSession()
   }
 
   // 2. Setup session maintanence, e.g., auto refreshing or refreshing on foux
-  const { enableRefreshOnWindowFocus, enableRefreshPeriodically } = useRuntimeConfig().public.auth.session
+  const { enableRefreshOnWindowFocus, enableRefreshPeriodically } = runtimeConfig.session
 
   // Listen for when the page is visible, if the user switches tabs
   // and makes our tab visible again, re-fetch the session, but only if
@@ -27,7 +27,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // Refetch interval
   let refetchIntervalTimer: NodeJS.Timer
 
-  nuxtApp.hook('app:mounted', () => {
+  // TODO: find more Generic method to start a Timer for the Refresh Token
+  // Refetch interval for local/refresh schema
+  let refreshTokenIntervalTimer: NodeJS.Timer
+
+  nuxtApp.hook('app:mounted', async () => {
     document.addEventListener('visibilitychange', visibilityHandler, false)
 
     if (enableRefreshPeriodically !== false) {
@@ -35,6 +39,19 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       refetchIntervalTimer = setInterval(() => {
         if (data.value) {
           getSession()
+        }
+      }, intervalTime)
+    }
+
+    if (runtimeConfig.provider.type === 'refresh') {
+      const intervalTime = runtimeConfig.provider.token.maxAgeInSeconds * 1000
+      const { refresh, refreshToken } = useAuth()
+      if (refreshToken.value) {
+        await refresh()
+      }
+      refreshTokenIntervalTimer = setInterval(() => {
+        if (refreshToken.value) {
+          refresh()
         }
       }, intervalTime)
     }
@@ -47,6 +64,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     // Clear refetch interval
     clearInterval(refetchIntervalTimer)
+
+    // Clear refetch interval
+    if (refreshTokenIntervalTimer) {
+      clearInterval(refreshTokenIntervalTimer)
+    }
 
     // Clear session
     lastRefreshedAt.value = undefined

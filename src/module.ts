@@ -37,6 +37,29 @@ const defaultsByBackend: { [key in SupportedAuthProviders]: DeepRequired<Extract
       maxAgeInSeconds: 30 * 60
     }
   },
+  refresh: {
+    type: 'refresh',
+    pages: {
+      login: '/login'
+    },
+    endpoints: {
+      signIn: { path: '/login', method: 'post' },
+      signOut: { path: '/logout', method: 'post' },
+      signUp: { path: '/register', method: 'post' },
+      getSession: { path: '/session', method: 'get' },
+      refresh: { path: '/refresh', method: 'post' }
+    },
+    token: {
+      signInResponseTokenPointer: '/token',
+      type: 'Bearer',
+      headerName: 'Authorization',
+      maxAgeInSeconds: 5 * 60 // 5 minutes
+    },
+    refreshToken: {
+      signInResponseRefreshTokenPointer: '/refreshToken',
+      maxAgeInSeconds: 60 * 60 * 24 * 7 // 7 days
+    }
+  },
   authjs: {
     type: 'authjs',
     trustHost: false,
@@ -72,7 +95,7 @@ export default defineNuxtModule<ModuleOptions>({
             fullBaseUrl: joinURL(origin ?? '', pathname)
           }
         }),
-      // We use `as` to infer backend types correclty for runtime-usage (everything is set, although for user everything was optional)
+      // We use `as` to infer backend types correctly for runtime-usage (everything is set, although for user everything was optional)
       provider: defu(userOptions.provider, defaultsByBackend[selectedProvider]) as DeepRequired<AuthProviders>
     }
 
