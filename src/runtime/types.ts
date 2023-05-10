@@ -36,6 +36,12 @@ interface GlobalMiddlewareOptions {
   addDefaultCallbackUrl?: boolean | string
 }
 
+type SessionDataObjectDataTypes = 'string' | 'number' | 'boolean' | 'null' | 'undefined';
+
+export type SessionDataObject = {
+  [key: string]: Omit<string, SessionDataObjectDataTypes> | SessionDataObject;
+};
+
 /**
  * Available `nuxt-auth` authentication providers.
  */
@@ -134,7 +140,14 @@ type ProviderLocal = {
      * Note: Your backend may reject / expire the token earlier / differently.
      */
     maxAgeInSeconds?: number,
-  }
+  },
+  /**
+   * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
+   *
+   * @default { id: string | number }
+   * @example { id: string, name: string, email: string }
+   */
+  sessionDataType?: SessionDataObject,
 }
 
 /**

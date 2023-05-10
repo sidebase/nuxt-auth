@@ -4,8 +4,9 @@ import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, Secondary
 import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
-import type { SessionData } from './useAuthState'
 import { useAuthState } from './useAuthState'
+// @ts-expect-error - #auth not defined
+import type { SessionData } from '#auth'
 import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
 
 interface Credentials {
