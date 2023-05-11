@@ -144,8 +144,8 @@ type ProviderLocal = {
   /**
    * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
    *
-   * @default { id: string | number }
-   * @example { id: string, name: string, email: string }
+   * @default { id: 'string | number' }
+   * @example { id: 'string', name: 'string', email: 'string' }
    */
   sessionDataType?: SessionDataObject,
 }
