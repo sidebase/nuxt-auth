@@ -36,10 +36,12 @@ interface GlobalMiddlewareOptions {
   addDefaultCallbackUrl?: boolean | string
 }
 
-type SessionDataObjectDataTypes = 'string' | 'number' | 'boolean' | 'null' | 'undefined';
+type DataObjectPrimitives = 'string' | 'number' | 'boolean' | 'any' | 'undefined' | 'function' | 'null'
+
+type DataObjectArray = `${string}[]`
 
 export type SessionDataObject = {
-  [key: string]: Omit<string, SessionDataObjectDataTypes> | SessionDataObject;
+  [key: string]: Omit<string, DataObjectPrimitives | DataObjectArray> | SessionDataObject
 };
 
 /**
@@ -146,6 +148,7 @@ type ProviderLocal = {
    *
    * @default { id: 'string | number' }
    * @example { id: 'string', name: 'string', email: 'string' }
+   * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
    */
   sessionDataType?: SessionDataObject,
 }

@@ -15,7 +15,7 @@ export default defineNuxtConfig({
       token: {
         signInResponseTokenPointer: '/token/accessToken'
       },
-      sessionDataType: { id: 'string', email: 'string', name: 'string' }
+      sessionDataType: { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
     },
     globalAppMiddleware: {
       isEnabled: true
