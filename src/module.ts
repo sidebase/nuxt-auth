@@ -165,9 +165,13 @@ export default defineNuxtModule<ModuleOptions>({
     // 6. Add plugin for initial load
     addPlugin(resolve('./runtime/plugin'))
 
-    // 7. Add a server-plugin to check the `origin` on production-startup
+    // 7.1 Add a server-plugin to check the `origin` on production-startup
     if (selectedProvider === 'authjs') {
       addServerPlugin(resolve('./runtime/server/plugins/assertOrigin'))
+    }
+    // 7.2 Add a server-plugin to refresh the token on production-startup
+    if (selectedProvider === 'refresh') {
+      addPlugin(resolve('./runtime/server/plugins/refresh-token.server'))
     }
 
     logger.success('`nuxt-auth` setup done')

@@ -31,7 +31,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // Refetch interval for local/refresh schema
   let refreshTokenIntervalTimer: NodeJS.Timer
 
-  nuxtApp.hook('app:mounted', async () => {
+  nuxtApp.hook('app:mounted', () => {
     document.addEventListener('visibilitychange', visibilityHandler, false)
 
     if (enableRefreshPeriodically !== false) {
@@ -46,9 +46,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     if (runtimeConfig.provider.type === 'refresh') {
       const intervalTime = runtimeConfig.provider.token.maxAgeInSeconds * 1000
       const { refresh, refreshToken } = useAuth()
-      if (refreshToken.value) {
-        await refresh()
-      }
       refreshTokenIntervalTimer = setInterval(() => {
         if (refreshToken.value) {
           refresh()
