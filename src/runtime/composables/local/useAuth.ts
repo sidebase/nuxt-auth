@@ -8,10 +8,7 @@ import type { SessionData } from './useAuthState'
 import { useAuthState } from './useAuthState'
 import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
 
-interface Credentials {
-  username: string
-  password: string
-}
+type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
 
 const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, signInParams) => {
   const nuxt = useNuxtApp()
