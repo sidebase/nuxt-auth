@@ -1,6 +1,7 @@
 import { defineNuxtModule, useLogger, createResolver, addTemplate, addPlugin, addServerPlugin, addImports } from '@nuxt/kit'
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
+import { genInterface } from 'knitwork'
 import type { DeepRequired } from 'ts-essentials'
 import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
 import type { ModuleOptions, SupportedAuthProviders, AuthProviders } from './runtime/types'
@@ -35,7 +36,8 @@ const defaultsByBackend: { [key in SupportedAuthProviders]: DeepRequired<Extract
       type: 'Bearer',
       headerName: 'Authorization',
       maxAgeInSeconds: 30 * 60
-    }
+    },
+    sessionDataType: { id: 'string | number' }
   },
   authjs: {
     type: 'authjs',
@@ -131,6 +133,7 @@ export default defineNuxtModule<ModuleOptions>({
         `  const getServerSession: typeof import('${resolve('./runtime/server/services')}').getServerSession`,
         `  const getToken: typeof import('${resolve('./runtime/server/services')}').getToken`,
         `  const NuxtAuthHandler: typeof import('${resolve('./runtime/server/services')}').NuxtAuthHandler`,
+        options.provider.type === 'local' ? genInterface('SessionData', (options.provider as any).sessionDataType) : '',
         '}'
       ].join('\n')
     })
