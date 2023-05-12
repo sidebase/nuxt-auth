@@ -36,7 +36,7 @@ export const makeCommonAuthState = <SessionData>() => {
 
   // Determine base url of app
   let baseURL
-  const { origin, pathname, fullBaseUrl } = useRuntimeConfig().auth.computed
+  const { origin, pathname, fullBaseUrl } = useRuntimeConfig().public.auth.computed
   if (origin) {
     // Case 1: An origin was supplied by the developer in the runtime-config. Use it by returning the already assembled full base url that contains it
     baseURL = fullBaseUrl
