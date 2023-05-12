@@ -4,9 +4,8 @@ import { CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
 import { useTypedBackendConfig } from '../../helpers'
 import { useRuntimeConfig, useCookie, useState } from '#imports'
-
-// TODO: Improve typing of sessiondata
-export type SessionData = Record<string, any>
+// @ts-expect-error - #auth not defined
+import type { SessionData } from '#auth'
 
 interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData> {
   token: ComputedRef<string | null>
