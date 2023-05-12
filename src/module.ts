@@ -60,7 +60,8 @@ const defaultsByBackend: { [key in SupportedAuthProviders]: DeepRequired<Extract
     refreshToken: {
       signInResponseRefreshTokenPointer: '/refreshToken',
       maxAgeInSeconds: 60 * 60 * 24 * 7 // 7 days
-    }
+    },
+    sessionDataType: { id: 'string | number' }
   },
   authjs: {
     type: 'authjs',
