@@ -73,12 +73,12 @@ jobs:
       run:
         working-directory: ./playground-refresh
     steps:
-      - uses: actions/checkout@v3+
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 16.14.2
         uses: actions/setup-node@v3
         with:
-          node-version: 16.14.2+
+          node-version: 16.14.2
 
       - uses: pnpm/action-setup@v2
         name: Install pnpm
@@ -87,10 +87,10 @@ jobs:
           version: 8
 
       # Install deps
-      - run: pnpm i+
+      - run: pnpm i
 
       # Check building
-      - run: pnpm build+
+      - run: pnpm build
 
       # start prod-app and curl from it
       - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"
