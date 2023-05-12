@@ -24,7 +24,7 @@ export default eventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'Unauthorized, refreshToken can`t be verified' })
   }
 
-  const expiresIn = 15
+  const expiresIn = 60 * 5 // 5 minutes
 
   const user: User = {
     username: decoded.username,

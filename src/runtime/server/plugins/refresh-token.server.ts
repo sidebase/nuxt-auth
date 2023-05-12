@@ -7,7 +7,7 @@ export default defineNuxtPlugin({
   async setup (nuxtApp) {
     // TODO: get rid of duplicate code
     const { rawToken, rawRefreshToken, refreshToken, lastRefreshedAt } = useAuthState()
-    if (refreshToken) {
+    if (refreshToken.value) {
       const config = nuxtApp.$config.auth
       const { path, method } = config.provider.endpoints.refresh
 

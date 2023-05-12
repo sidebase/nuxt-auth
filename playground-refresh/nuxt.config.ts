@@ -15,7 +15,7 @@ export default defineNuxtConfig({
       },
       token: {
         signInResponseTokenPointer: '/token/accessToken',
-        maxAgeInSeconds: 15
+        maxAgeInSeconds: 60 * 5 // 5 min
       },
       refreshToken: {
         signInResponseRefreshTokenPointer: '/token/refreshToken'
