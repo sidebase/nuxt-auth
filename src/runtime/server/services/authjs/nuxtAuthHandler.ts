@@ -183,7 +183,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
 }
 
 export const getServerSession = async (event: H3Event) => {
-  const authBasePath = useRuntimeConfig().auth.computed.pathname
+  const authBasePath = useRuntimeConfig().public.auth.computed.pathname
 
   // avoid running auth middleware on auth middleware (see #186)
   if (event.path && event.path.startsWith(authBasePath)) {
