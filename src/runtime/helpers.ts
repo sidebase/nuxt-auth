@@ -41,7 +41,7 @@ export const useTypedBackendConfig = <T extends SupportedAuthProviders>(runtimeC
  * Implementation adapted from https://github.com/manuelstofer/json-pointer/blob/931b0f9c7178ca09778087b4b0ac7e4f505620c2/index.js#L48-L59
  *
  * @param obj
- * @param path
+ * @param pointer
  */
 export const jsonPointerGet = (obj: Record<string, any>, pointer: string): string | Record<string, any> => {
   const unescape = (str: string) => str.replace(/~1/g, '/').replace(/~0/g, '~')
