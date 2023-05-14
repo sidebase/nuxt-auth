@@ -25,7 +25,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     params: signInParams ?? {}
   })
 
-  const extractedToken = jsonPointerGet(response, config.token.signInResponseTokenPointer)
+  const extractedToken = jsonPointerGet<string>(response, config.token.signInResponseTokenPointer)
   if (typeof extractedToken !== 'string') {
     console.error(`Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`)
     return
