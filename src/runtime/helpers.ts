@@ -44,8 +44,11 @@ export const useTypedBackendConfig = <T extends SupportedAuthProviders>(runtimeC
  * @param obj
  * @param pointer
  */
-export const jsonPointerGet = <TResult, T extends object = object>(obj: T, pointer: string): TResult => {
+export const extractObjectWithJsonPointer = <TResult, T extends object = object>(obj: T, pointer?: string): TResult => {
   let result: TResult = obj as unknown as TResult
+  if (!pointer || pointer === '/') {
+    return result
+  }
   const unescape = (str: string) => str.replace(/~1/g, '/').replace(/~0/g, '~')
   const parse = (pointer: string) => {
     if (pointer === '') { return [] }

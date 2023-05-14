@@ -2,7 +2,7 @@ import { readonly, Ref } from 'vue'
 import { callWithNuxt } from '#app'
 import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions } from '../../types'
 import { _fetch } from '../../utils/fetch'
-import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
+import { extractObjectWithJsonPointer, useTypedBackendConfig } from '../../helpers'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
 import { useAuthState } from './useAuthState'
 // @ts-expect-error - #auth not defined
@@ -25,7 +25,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     params: signInParams ?? {}
   })
 
-  const extractedToken = jsonPointerGet<string>(response, config.token.signInResponseTokenPointer)
+  const extractedToken = extractObjectWithJsonPointer<string>(response, config.token.signInResponseTokenPointer)
   if (typeof extractedToken !== 'string') {
     console.error(`Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`)
     return
@@ -80,7 +80,8 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
 
   loading.value = true
   try {
-    data.value = await _fetch<SessionData>(nuxt, path, { method, headers })
+    const result = await _fetch<any>(nuxt, path, { method, headers })
+    data.value = extractObjectWithJsonPointer<SessionData>(result, config.sessionDataResponseTokenPointer)
   } catch {
     // Clear all data: Request failed so we must not be authenticated
     data.value = null

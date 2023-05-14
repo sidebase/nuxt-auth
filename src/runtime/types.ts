@@ -15,7 +15,7 @@ interface GlobalMiddlewareOptions {
   isEnabled: boolean
   /**
    * Whether to enforce authentication if the target-route does not exist. Per default the middleware redirects
-   * to Nuxts' default 404 page instead of forcing a sign-in if the target does not exist. This is to avoid a
+   * to Nuxtjs default 404 page instead of forcing a sign-in if the target does not exist. This is to avoid a
    * user-experience and developer-experience of having to sign-in only to see a 404 page afterwards.
    *
    * Note: Setting this to `false` this may lead to `vue-router` + node related warnings like: "Error [ERR_HTTP_HEADERS_SENT] ...",
@@ -133,7 +133,7 @@ type ProviderLocal = {
      * Header name to be used in requests that need to be authenticated, e.g., to be used in the `getSession` request.
      *
      * @default Authorization
-     * @exmaple Auth
+     * @example Auth
      */
     headerName?: string,
     /**
@@ -151,8 +151,19 @@ type ProviderLocal = {
    * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
    */
   sessionDataType?: SessionDataObject,
+  /**
+   * How to extract the authentication-token from the sign-in response.
+   *
+   * E.g., setting this to `/data/user` and returning an object like `{ data: { user: { id:number, name: string } }, status: 'ok' }` from the `getSession` endpoint will
+   * storing the 'User' object typed as the type created via the 'sessionDataType' prop.
+   *
+   * This follows the JSON Pointer standard, see it's RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+   *
+   * @default / Access the root of the session response object
+   * @example /data/user  Access the `data/user` property of the session response object
+   */
+  sessionDataResponseTokenPointer?: string
 }
-
 /**
  * Configuration for the `authjs`-provider.
  */
