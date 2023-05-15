@@ -8,11 +8,11 @@ import { useState } from '#imports'
 export const makeCommonAuthState = <SessionData>() => {
   const data = useState<SessionData | undefined | null>('auth:data', () => undefined)
 
-  const hasInitialSession = data.value !== undefined
+  const hasInitialSession = computed(() => !!data.value)
 
   // If session exists, initialize as already synced
   const lastRefreshedAt = useState<SessionLastRefreshedAt>('auth:lastRefreshedAt', () => {
-    if (hasInitialSession) {
+    if (hasInitialSession.value) {
       return new Date()
     }
 
@@ -20,18 +20,15 @@ export const makeCommonAuthState = <SessionData>() => {
   })
 
   // If session exists, initialize as not loading
-  const loading = useState<boolean>('auth:loading', () => !hasInitialSession)
-
+  const loading = useState<boolean>('auth:loading', () => false)
   const status = computed<SessionStatus>(() => {
     if (loading.value) {
       return 'loading'
-    }
-
-    if (data.value) {
+    } else if (data.value) {
       return 'authenticated'
+    } else {
+      return 'unauthenticated'
     }
-
-    return 'unauthenticated'
   })
 
   // Determine base url of app

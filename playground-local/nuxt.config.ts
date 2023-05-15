@@ -18,6 +18,13 @@ export default defineNuxtConfig({
       sessionDataType: { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" },
       sessionDataResponseTokenPointer: '/data/user'
     },
+    session: {
+      // Whether to refresh the session every time the browser window is refocused.
+      enableRefreshOnWindowFocus: true,
+
+      // Whether to refresh the session every `X` milliseconds. Set this to `false` to turn it off. The session will only be refreshed if a session already exists.
+      enableRefreshPeriodically: 5000
+    },
     globalAppMiddleware: {
       isEnabled: true
     }
