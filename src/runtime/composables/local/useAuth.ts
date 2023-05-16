@@ -4,14 +4,12 @@ import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, Secondary
 import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
-import type { SessionData } from './useAuthState'
 import { useAuthState } from './useAuthState'
+// @ts-expect-error - #auth not defined
+import type { SessionData } from '#auth'
 import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
 
-interface Credentials {
-  username: string
-  password: string
-}
+type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
 
 const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, signInParams) => {
   const nuxt = useNuxtApp()
@@ -73,6 +71,10 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
   const { path, method } = config.endpoints.getSession
   const { data, loading, lastRefreshedAt, token, rawToken } = useAuthState()
+
+  if (!token.value) {
+    return
+  }
 
   const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
 

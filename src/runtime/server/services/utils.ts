@@ -44,5 +44,5 @@ export const getRequestURLFromRequest = (event: H3Event, { trustHost }: { trustH
   } catch (error) {
     return undefined
   }
-  return joinURL(origin, useRuntimeConfig().auth.computed.pathname)
+  return joinURL(origin, useRuntimeConfig().public.auth.computed.pathname)
 }

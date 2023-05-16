@@ -37,6 +37,10 @@ const password = ref('')
     <button @click="getSession({ required: true, callbackUrl: '/' })">
       refresh session (required: true)
     </button>
+    <br>
+    <NuxtLink to="/login">
+      navigate to Login Page
+    </NuxtLink>
     <NuxtPage />
   </div>
 </template>
