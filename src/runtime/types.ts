@@ -151,6 +151,8 @@ type ProviderLocal = {
    * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
    */
   sessionDataType?: SessionDataObject,
+  globalHeaders?: Headers
+
 }
 
 /**
@@ -321,17 +323,20 @@ export interface SecondarySignInOptions extends Record<string, unknown> {
    * @default true
    */
   redirect?: boolean
+  headers?: Headers
 }
 
 export interface SignOutOptions {
   callbackUrl?: string
   redirect?: boolean
+  headers?: Headers
 }
 
 export type GetSessionOptions = Partial<{
   required?: boolean
   callbackUrl?: string
   onUnauthenticated?: () => void
+  headers?: Headers
 }>
 
 // TODO: These types could be nicer and more general, or located withing `useAuth` files and more specific

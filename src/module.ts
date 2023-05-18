@@ -37,7 +37,8 @@ const defaultsByBackend: { [key in SupportedAuthProviders]: DeepRequired<Extract
       headerName: 'Authorization',
       maxAgeInSeconds: 30 * 60
     },
-    sessionDataType: { id: 'string | number' }
+    sessionDataType: { id: 'string | number' },
+    globalHeaders: {} as Headers
   },
   authjs: {
     type: 'authjs',

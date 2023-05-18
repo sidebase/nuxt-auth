@@ -16,12 +16,21 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
 
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
   const { path, method } = config.endpoints.signIn
+  const headers = new Headers((signInOptions?.headers ?? {}) as HeadersInit)
+
+  if (config.globalHeaders) {
+    Object.entries(config.globalHeaders).forEach(([key, value]) => {
+      headers.append(key, value + '')
+    })
+  }
+
   const response = await _fetch<Record<string, any>>(nuxt, path, {
     method,
     body: {
       ...credentials,
       ...(signInOptions ?? {})
     },
+    headers,
     params: signInParams ?? {}
   })
 
@@ -34,7 +43,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   const { rawToken } = useAuthState()
   rawToken.value = extractedToken
 
-  await nextTick(getSession)
+  await nextTick(() => getSession({ headers: signInOptions?.headers }))
 
   const { callbackUrl, redirect = true } = signInOptions ?? {}
   if (redirect) {
@@ -49,7 +58,15 @@ const signOut: SignOutFunc = async (signOutOptions) => {
   const config = useTypedBackendConfig(runtimeConfig, 'local')
   const { data, rawToken, token } = await callWithNuxt(nuxt, useAuthState)
 
-  const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
+  const headers = new Headers((signOutOptions?.headers || {})as HeadersInit)
+  if (config.globalHeaders) {
+    Object.entries(config.globalHeaders).forEach(([key, value]) => {
+      headers.append(key, value + '')
+    })
+  }
+
+  headers.append(config?.token.headerName, token.value ?? '')
+
   data.value = null
   rawToken.value = null
 
@@ -76,7 +93,14 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
     return
   }
 
-  const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
+  const headers = new Headers((getSessionOptions?.headers || {}) as HeadersInit)
+  if (config.globalHeaders) {
+    Object.entries(config.globalHeaders).forEach(([key, value]) => {
+      headers.append(key, value + '')
+    })
+  }
+
+  headers.append(config.token.headerName, token.value ?? '')
 
   loading.value = true
   try {
@@ -107,7 +131,8 @@ const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInO
   const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signUp
   await _fetch(nuxt, path, {
     method,
-    body: credentials
+    body: credentials,
+    headers: signInOptions?.headers ?? {}
   })
 
   return signIn(credentials, signInOptions)

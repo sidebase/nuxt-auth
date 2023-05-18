@@ -15,7 +15,10 @@ export default defineNuxtConfig({
       token: {
         signInResponseTokenPointer: '/token/accessToken'
       },
-      sessionDataType: { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
+      sessionDataType: { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" },
+      globalHeaders: {
+        'X-Header': '****'
+      }
     },
     session: {
       // Whether to refresh the session every time the browser window is refocused.
