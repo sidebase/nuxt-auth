@@ -51,7 +51,7 @@ const signOut: SignOutFunc = async (signOutOptions) => {
 
   const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
   data.value = null
-  rawToken.value = null
+  rawToken.value = undefined
 
   const { path, method } = config.endpoints.signOut
 
@@ -84,7 +84,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   } catch {
     // Clear all data: Request failed so we must not be authenticated
     data.value = null
-    rawToken.value = null
+    rawToken.value = undefined
   }
   loading.value = false
   lastRefreshedAt.value = new Date()
@@ -115,7 +115,7 @@ const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInO
 
 interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOut, typeof getSession, SessionData> {
   signUp: typeof signUp
-  token: Readonly<Ref<string | null>>
+  token: Readonly<Ref<string | undefined>>
 }
 export const useAuth = (): UseAuthReturn => {
   const {
