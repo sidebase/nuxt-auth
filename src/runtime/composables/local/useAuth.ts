@@ -76,7 +76,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
     return
   }
 
-  const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
+  const headers = new Headers(token.value ? { [config.token.headerName]: token.value } as HeadersInit : undefined)
 
   loading.value = true
   try {
