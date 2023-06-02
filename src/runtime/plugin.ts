@@ -58,7 +58,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   // 3. Enable the middleware, either globally or as a named `auth` option
   const { globalAppMiddleware } = useRuntimeConfig().public.auth
-  if (globalAppMiddleware.isEnabled) {
+  if (globalAppMiddleware === true || globalAppMiddleware.isEnabled) {
     addRouteMiddleware('auth', authMiddleware, {
       global: true
     })
