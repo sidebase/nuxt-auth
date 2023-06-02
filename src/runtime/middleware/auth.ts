@@ -5,6 +5,7 @@ import { useAuth } from '#imports'
 type MiddlewareMeta = boolean | {
   unauthenticatedOnly: true,
   navigateAuthenticatedTo?: string,
+  navigateUnauthenticatedTo?: string
 }
 
 declare module '#app/../pages/runtime/composables' {
@@ -61,6 +62,6 @@ export default defineNuxtRouteMiddleware((to) => {
     // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
     return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
   } else {
-    return navigateTo(authConfig.provider.pages.login)
+    return navigateTo(metaAuth.navigateUnauthenticatedTo ?? authConfig.provider.pages.login)
   }
 })
