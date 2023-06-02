@@ -332,6 +332,11 @@ export type GetSessionOptions = Partial<{
   required?: boolean
   callbackUrl?: string
   onUnauthenticated?: () => void
+  /** Whether to refetch the session even if the token returned by useAuthState is null.
+   *
+   * @default false
+   */
+  force?: boolean
 }>
 
 // TODO: These types could be nicer and more general, or located withing `useAuth` files and more specific
