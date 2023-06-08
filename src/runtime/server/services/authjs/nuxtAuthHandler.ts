@@ -137,7 +137,12 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
   const handler = eventHandler(async (event: H3Event) => {
     const { res } = event.node
 
-    // 1. Assemble and perform request to the NextAuth.js auth handler
+    // 1. Wrap all callback functions to pass the original H3Event
+    for (const [key, fn] of Object.entries(options.callbacks || {})) {
+      options.callbacks[key] = async (args) => await fn({ ...args, event });
+    }
+    
+    // 2. Assemble and perform request to the NextAuth.js auth handler
     const nextRequest = await getInternalNextAuthRequestData(event)
 
     const nextResult = await AuthHandler({
@@ -145,19 +150,19 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
       options
     })
 
-    // 2. Set response status, headers, cookies
+    // 3. Set response status, headers, cookies
     if (nextResult.status) {
       res.statusCode = nextResult.status
     }
     nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value, cookie.options))
     nextResult.headers?.forEach(header => appendHeader(event, header.key, header.value))
 
-    // 3. Return either:
-    // 3.1 the body directly if no redirect is set:
+    // 4. Return either:
+    // 4.1 the body directly if no redirect is set:
     if (!nextResult.redirect) {
       return nextResult.body
     }
-    // 3.2 a json-object with a redirect url if `json: true` is set by client:
+    // 4.2 a json-object with a redirect url if `json: true` is set by client:
     //      ```
     //      // quote from https://github.com/nextauthjs/next-auth/blob/261968b9bbf8f57dd34651f60580d078f0c8a2ef/packages/next-auth/src/react/index.tsx#L3-L7
     //      On signIn() and signOut() we pass 'json: true' to request a response in JSON
@@ -170,7 +175,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
       return { url: nextResult.redirect }
     }
 
-    // 3.3 via a redirect:
+    // 4.3 via a redirect:
     return sendRedirect(event, nextResult.redirect)
   })
 
