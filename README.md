@@ -106,7 +106,7 @@ This module also has it's own playground:
 
 #### Testing different Providers
 
-We have one playtground per provider:
+We have one playground per provider:
 - [`local`](./playground-local)
 - [`authjs`](./playground-authjs)
 
