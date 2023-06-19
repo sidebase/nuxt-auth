@@ -218,7 +218,7 @@ export const getServerSession = async (event: H3Event) => {
  *
  * @param eventAndOptions Omit<GetTokenParams, 'req'> & { event: H3Event } The event to get the cookie or authorization header from that contains the JWT Token and options you want to alter token getting behavior.
  */
-export const getToken = ({ event, secureCookie, secret, ...rest }: Omit<GetTokenParams, 'req'> & { event: H3Event }) => nextGetToken({
+export const getToken = <R extends boolean = false>({ event, secureCookie, secret, ...rest }: Omit<GetTokenParams<R>, 'req'> & { event: H3Event }) => nextGetToken({
   // @ts-expect-error As our request is not a real next-auth request, we pass down only what's required for the method, as per code from https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L68
   req: {
     cookies: parseCookies(event),
