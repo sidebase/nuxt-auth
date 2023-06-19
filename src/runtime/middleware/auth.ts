@@ -62,6 +62,9 @@ export default defineNuxtRouteMiddleware((to) => {
     // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
     return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
   } else {
-    return navigateTo(metaAuth.navigateUnauthenticatedTo ?? authConfig.provider.pages.login)
+    if(typeof metaAuth === 'object' && metaAuth.navigateUnauthenticatedTo)
+      return navigateTo(metaAuth.navigateUnauthenticatedTo)
+    else
+      return navigateTo(authConfig.provider.pages.login)
   }
 })
