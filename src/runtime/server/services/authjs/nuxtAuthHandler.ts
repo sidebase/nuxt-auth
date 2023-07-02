@@ -1,17 +1,27 @@
-import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError, isMethod, getMethod, getHeaders } from 'h3'
 import type { H3Event } from 'h3'
+import {
+  appendHeader,
+  createError,
+  eventHandler,
+  getHeaders,
+  getMethod,
+  getQuery,
+  isMethod,
+  parseCookies,
+  readBody,
+  sendRedirect,
+  setCookie
+} from 'h3'
 
-import { AuthHandler } from 'next-auth/core'
-import { getToken as nextGetToken } from 'next-auth/jwt'
 import type { RequestInternal } from 'next-auth/core'
-import type { AuthAction, AuthOptions, Session } from 'next-auth'
+import { AuthHandler } from 'next-auth/core'
 import type { GetTokenParams } from 'next-auth/jwt'
+import { getToken as nextGetToken } from 'next-auth/jwt'
+import type { AuthAction, AuthOptions } from 'next-auth'
 
 import { defu } from 'defu'
-import { joinURL } from 'ufo'
 import { ERROR_MESSAGES } from '../errors'
-import { isNonEmptyObject } from '../../../utils/checkSessionResult'
-import { getServerOrigin, getRequestURLFromRequest } from '../utils'
+import { getRequestURLFromRequest, getServerOrigin } from '../utils'
 import { useTypedBackendConfig } from '../../../helpers'
 
 import { useRuntimeConfig } from '#imports'
@@ -184,31 +194,16 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
 
 export const getServerSession = async (event: H3Event) => {
   const authBasePath = useRuntimeConfig().public.auth.computed.pathname
-
   // avoid running auth middleware on auth middleware (see #186)
+  // not sure if this is still necessary, so I'll leave it to you
   if (event.path && event.path.startsWith(authBasePath)) {
     return null
   }
-  if (!preparedAuthHandler) {
-    const headers = getHeaders(event) as HeadersInit
-
-    // Edge-case: If no auth-endpoint was called yet, `preparedAuthHandler`-initialization was also not attempted as Nuxt lazily loads endpoints in production-mode. This call gives it a chance to load + initialize the variable. If it fails we still throw. This edge-case has happened to user matijao#7025 on discord.
-    await $fetch(joinURL(authBasePath, '/session'), { headers }).catch(error => error.data)
-    if (!preparedAuthHandler) {
-      throw createError({ statusCode: 500, statusMessage: 'Tried to get server session without setting up an endpoint to handle authentication (see https://github.com/sidebase/nuxt-auth#quick-start)' })
-    }
-  }
-
-  // Run a session check on the event with an arbitrary target endpoint
-  event.context.checkSessionOnNonAuthRequest = true
-  const session = await preparedAuthHandler(event)
-  delete event.context.checkSessionOnNonAuthRequest
-
-  if (isNonEmptyObject(session)) {
-    return session as Session
-  }
-
-  return null
+  // maybe remove sub, iat and jti from the response?
+  return await getToken({
+    event,
+    cookieName: 'next-auth.session-token'
+  })
 }
 
 /**
