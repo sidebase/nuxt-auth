@@ -27,7 +27,7 @@ export const navigateToAuthPages = (href: string) => {
       return nuxtApp.callHook('app:redirected').then(() => {
         sendRedirect(nuxtApp.ssrContext!.event, href, 302)
 
-        return abortNavigation();
+        abortNavigation()
       })
     }
   }
