@@ -25,7 +25,7 @@ export const getOriginAndPathnameFromURL = (url: string) => {
  * Get the backend configuration from the runtime config in a typed manner.
  *
  * @param runtimeConfig The runtime config of the application
- * @param type Backend type to be enforced (e.g.: `local` or `authjs`)
+ * @param type Backend type to be enforced (e.g.: `local` or `authjs` or `cookie`)
  */
 export const useTypedBackendConfig = <T extends SupportedAuthProviders>(runtimeConfig: ReturnType<typeof useRuntimeConfig>, type: T): Extract<DeepRequired<AuthProviders>, { type: T }> => {
   if (runtimeConfig.public.auth.provider.type === type) {

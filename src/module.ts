@@ -39,6 +39,23 @@ const defaultsByBackend: { [key in SupportedAuthProviders]: DeepRequired<Extract
     },
     sessionDataType: { id: 'string | number' }
   },
+  cookie: {
+    type: 'cookie',
+    pages: {
+      login: '/login'
+    },
+    endpoints: {
+      signIn: { path: '/login', method: 'post' },
+      signOut: { path: '/logout', method: 'post' },
+      signUp: { path: '/register', method: 'post' },
+      getSession: { path: '/session', method: 'get' },
+      csrf: { path: '/session', method: 'get' }
+    },
+    cookie: {
+      name: ''
+    },
+    sessionDataType: { id: 'string | number' }
+  },
   authjs: {
     type: 'authjs',
     trustHost: false,

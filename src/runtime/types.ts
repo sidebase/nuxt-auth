@@ -47,7 +47,7 @@ export type SessionDataObject = {
 /**
  * Available `nuxt-auth` authentication providers.
  */
-export type SupportedAuthProviders = 'authjs' | 'local'
+export type SupportedAuthProviders = 'authjs' | 'local' | 'cookie'
 
 /**
  * Configuration for the `local`-provider.
@@ -57,6 +57,7 @@ type ProviderLocal = {
    * Uses the `local` provider to facilitate autnetication. Currently, two providers exclusive are supported:
    * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
    * - `local`: Username and password provider with support for static-applications
+   * - `cookie`: Cookie-based authentication for static applications
    *
    * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
    */
@@ -154,6 +155,78 @@ type ProviderLocal = {
 }
 
 /**
+ * Configuration for the `cookie`-provider.
+ */
+type ProviderCookie = {
+  /**
+   * Uses the `cookie` provider to facilitate authentication. Currently, two providers exclusive are supported:
+   * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
+   * - `local`: Username and password provider with support for static-applications
+   * - `cookie`: Cookie-based authentication for static applications
+   *
+   * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
+   */
+  type: Extract<SupportedAuthProviders, 'cookie'>
+  /**
+   * Endpoints to use for the different methods. `nuxt-auth` will use this and the root-level `baseURL` to create the final request. E.g.:
+   * - `baseURL=/api/auth`, `path=/login` will result in a request to `/api/auth/login`
+   * - `baseURL=http://localhost:5000/_authenticate`, `path=/sign-in` will result in a request to `http://localhost:5000/_authenticate/sign-in`
+   */
+  cookie: {
+    name: string
+  },
+  endpoints?: {
+    /**
+     * What method and path to call to perform the sign-in. This endpoint must return a token that can be used to authenticate subsequent requests.
+     *
+     * @default { path: '/login', method: 'post' }
+     */
+    signIn?: { path?: string, method?: RouterMethod },
+    /**
+     * What method and path to call to perform the sign-out.
+     *
+     * @default { path: '/logout', method: 'post' }
+     */
+    signOut?: { path?: string, method?: RouterMethod },
+    /**
+     * What method and path to call to perform the sign-up.
+     *
+     * @default { path: '/register', method: 'post' }
+     */
+    signUp?: { path?: string, method?: RouterMethod },
+    /**
+     * What method and path to call to fetch user / session data from. `nuxt-auth` will send the token received upon sign-in as a header along this request to authenticate.
+     *
+     * Refer to the `token` configuration to configure how `nuxt-auth` uses the token in this request. By default it will be send as a bearer-authentication header like so: `Authentication: Bearer eyNDSNJDASNMDSA....`
+     *
+     * @default { path: '/session', method: 'get' }
+     * @example { path: '/user', method: 'get' }
+     */
+    getSession?: { path?: string, method?: RouterMethod },
+    csrf?: { path?: string, method?: RouterMethod },
+  },
+  /**
+   * Pages that `nuxt-auth` needs to know the location off for redirects.
+   */
+  pages?: {
+    /**
+     * Path of the login-page that the user should be redirected to, when they try to access a protected page without being logged in.
+     *
+     * @default '/login'
+     */
+    login?: string
+  },
+  /**
+   * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
+   *
+   * @default { id: 'string | number' }
+   * @example { id: 'string', name: 'string', email: 'string' }
+   * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
+   */
+  sessionDataType?: SessionDataObject,
+}
+
+/**
  * Configuration for the `authjs`-provider.
  */
 export type ProviderAuthjs = {
@@ -161,6 +234,7 @@ export type ProviderAuthjs = {
    * Uses the `authjs` provider to facilitate autnetication. Currently, two providers exclusive are supported:
    * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
    * - `local`: Username and password provider with support for static-applications
+   * - `cookie`: Cookie-based authentication for static applications
    *
    * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
    */
@@ -188,7 +262,7 @@ export type ProviderAuthjs = {
   addDefaultCallbackUrl?: boolean | string
 }
 
-export type AuthProviders = ProviderAuthjs | ProviderLocal
+export type AuthProviders = ProviderAuthjs | ProviderLocal | ProviderCookie
 
 /**
  * Configuration for the application-side session.
@@ -227,6 +301,7 @@ export interface ModuleOptions {
    * Full url at which the app will run combined with the path to authentication. You can set this differently depending on your selected authentication-provider:
    * - `authjs`: You must set the full URL, with origin and path in production. You can leave this empty in development
    * - `local`: You can set a full URL, but can also leave this empty to fallback to the default value of `/api/auth` or set only the path.
+   * - `cookie`: You can set a full URL, but can also leave this empty to fallback to the default value of `/api/auth` or set only the path.
    *
    * ### `authjs`
    *
