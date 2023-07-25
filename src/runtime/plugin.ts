@@ -9,11 +9,16 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const { data, lastRefreshedAt } = useAuthState()
   const { getSession } = useAuth()
-  const nitroPrerender = getHeader(nuxtApp.ssrContext.event, "x-nitro-prerender");
+
+  // Skip auth if we're prerendering
+  let nitroPrerender
+  if (nuxtApp.ssrContext) {
+    nitroPrerender = getHeader(nuxtApp.ssrContext.event, "x-nitro-prerender")
+  }
 
   // Only fetch session if it was not yet initialized server-side
   if (typeof data.value === "undefined" && nitroPrerender !== undefined) {
-    await getSession();
+    await getSession()
   }
 
   // Listen for when the page is visible, if the user switches tabs
