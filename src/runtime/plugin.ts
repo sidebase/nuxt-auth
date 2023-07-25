@@ -2,16 +2,18 @@ import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig } from '#app'
 import useAuthState from './composables/useAuthState'
 import useAuth from './composables/useAuth'
 import authMiddleware from './middleware/auth'
+import { getHeader } from 'h3'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   const { enableSessionRefreshOnWindowFocus, enableSessionRefreshPeriodically, enableGlobalAppMiddleware } = useRuntimeConfig().public.auth
 
   const { data, lastRefreshedAt } = useAuthState()
   const { getSession } = useAuth()
+  const nitroPrerender = getHeader(nuxtApp.ssrContext.event, "x-nitro-prerender");
 
   // Only fetch session if it was not yet initialized server-side
-  if (typeof data.value === 'undefined') {
-    await getSession()
+  if (typeof data.value === "undefined" && nitroPrerender !== undefined) {
+    await getSession();
   }
 
   // Listen for when the page is visible, if the user switches tabs
