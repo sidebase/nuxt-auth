@@ -11,13 +11,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const { getSession } = useAuth()
 
   // Skip auth if we're prerendering
-  let nitroPrerender
+  let nitroPrerender = false
   if (nuxtApp.ssrContext) {
-    nitroPrerender = getHeader(nuxtApp.ssrContext.event, "x-nitro-prerender")
+    nitroPrerender = getHeader(nuxtApp.ssrContext.event, "x-nitro-prerender") !== undefined
   }
 
   // Only fetch session if it was not yet initialized server-side
-  if (typeof data.value === "undefined" && nitroPrerender !== undefined) {
+  if (typeof data.value === "undefined" && !nitroPrerender) {
     await getSession()
   }
 
