@@ -2,14 +2,24 @@
   "extends": [
     "@nuxtjs/eslint-config-typescript"
   ],
-  "overrides": [{
-    "files": [
-      "./playground/**/*.server.ts",
-      "./playground/server/**/*.ts",
-      "./playground/middleware/**.ts"
-    ],
-    "rules": {
-      "no-console": ["error", { "allow": ["info", "warn", "trace", "error"]}]
+  "overrides": [
+    {
+      "files": [
+        "./**/*"
+      ],
+      "rules": {
+        "no-console": [
+          "error",
+          {
+            "allow": [
+              "info",
+              "warn",
+              "trace",
+              "error"
+            ]
+          }
+        ]
+      }
     }
-  }]
+  ]
 }
