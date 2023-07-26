@@ -7,14 +7,14 @@ type MiddlewareMeta = boolean | {
   navigateAuthenticatedTo?: string,
 }
 
-declare module '#app' {
+declare module '#app/../pages/runtime/composables' {
   interface PageMeta {
     auth?: MiddlewareMeta
   }
 }
 
 export default defineNuxtRouteMiddleware((to) => {
-  const metaAuth = to.meta.auth as MiddlewareMeta
+  const metaAuth = to.meta.auth
   if (metaAuth === false) {
     return
   }

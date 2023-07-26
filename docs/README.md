@@ -15,13 +15,13 @@ npx nuxi init docs -t nuxt-themes/docus-starter
 Install dependencies:
 
 ```bash
-yarn install
+npm install
 ```
 
 ## Development
 
 ```bash
-yarn dev
+npm dev
 ```
 
 ## Edge Side Rendering
@@ -31,7 +31,7 @@ Can be deployed to Vercel Functions, Netlify Functions, AWS, and most Node-compa
 Look at all the available presets [here](https://nuxt.com/docs/getting-started/deployment#presets).
 
 ```bash
-yarn build
+npm build
 ```
 
 ## Static Generation
@@ -41,7 +41,7 @@ Use the `generate` command to build your application.
 The HTML files will be generated in the .output/public directory and ready to be deployed to any static compatible hosting.
 
 ```bash
-yarn generate
+npm generate
 ```
 
 ## Preview build
@@ -49,7 +49,7 @@ yarn generate
 You might want to preview the result of your build locally, to do so, run the following command:
 
 ```bash
-yarn preview
+npm preview
 ```
 
 ---
