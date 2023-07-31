@@ -16,7 +16,7 @@ export const getServerOrigin = (event?: H3Event): string => {
   }
 
   // Prio 2: Runtime configuration
-  const runtimeConfigOrigin = useRuntimeConfig().auth.computed.origin
+  const runtimeConfigOrigin = useRuntimeConfig().public.auth.computed.origin
   if (runtimeConfigOrigin) {
     return runtimeConfigOrigin
   }
