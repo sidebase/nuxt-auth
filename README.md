@@ -12,7 +12,7 @@
 > `nuxt-auth` is a feature-packed, open-source authentication module for Nuxt 3 applications.
 > Starting with v0.6 `nuxt-auth` also supports static Nuxt applications
 
-## Quick Start1
+## Quick Start
 
 ```sh
 npm i -D @sidebase/nuxt-auth
