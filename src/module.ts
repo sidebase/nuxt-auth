@@ -35,7 +35,8 @@ const defaultsByBackend: { [key in SupportedAuthProviders]: DeepRequired<Extract
       signInResponseTokenPointer: '/token',
       type: 'Bearer',
       headerName: 'Authorization',
-      maxAgeInSeconds: 30 * 60
+      maxAgeInSeconds: 30 * 60,
+      sameSiteAttribute: 'lax'
     },
     sessionDataType: { id: 'string | number' }
   },
