@@ -1,5 +1,4 @@
 import type { Ref, ComputedRef } from 'vue'
-import type { CookieSerializeOptions } from 'cookie-es'
 import { RouterMethod } from 'h3'
 import { SupportedProviders } from './composables/authjs/useAuth'
 
@@ -149,7 +148,7 @@ type ProviderLocal = {
      * @default 'lax'
      * @example 'strict'
      */
-     sameSiteAttribute?: CookieSerializeOptions['sameSite'],
+     sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined,
   },
   /**
    * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
