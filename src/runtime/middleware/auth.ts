@@ -29,7 +29,13 @@ declare module '#app/../pages/runtime/composables' {
 }
 
 export default defineNuxtRouteMiddleware((to) => {
-  const metaAuth = to.meta.auth
+  const metaAuth = typeof to.meta.auth === 'object'
+    ? {
+        unauthenticatedOnly: true,
+        ...to.meta.auth
+      }
+    : to.meta.auth
+
   if (metaAuth === false) {
     return
   }
