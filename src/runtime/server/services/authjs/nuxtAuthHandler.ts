@@ -77,7 +77,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
     secret: usedSecret,
     logger: undefined,
     providers: [],
-    trustHost: useConfig().trustHost
+    trustHost: useConfig().trustHost ?? false
   })
 
   /**
@@ -91,7 +91,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
    */
   const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
     const nextRequest: Omit<RequestInternal, 'action'> = {
-      host: getRequestURLFromRequest(event, { trustHost: useConfig().trustHost }),
+      host: getRequestURLFromRequest(event, { trustHost: useConfig().trustHost ?? false }),
       body: undefined,
       cookies: parseCookies(event),
       query: undefined,
