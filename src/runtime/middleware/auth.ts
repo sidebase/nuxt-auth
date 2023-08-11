@@ -75,5 +75,9 @@ export default defineNuxtRouteMiddleware((to) => {
     const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.path) }
     // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
     return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
-  } else if (typeof metaAuth === 'object' && metaAuth.navigateUnauthenticatedTo) { return navigateTo(metaAuth.navigateUnauthenticatedTo) } else { return navigateTo(authConfig.provider.pages.login) }
+  } else if (typeof metaAuth === 'object' && metaAuth.navigateUnauthenticatedTo) {
+    return navigateTo(metaAuth.navigateUnauthenticatedTo)
+  } else {
+    return navigateTo(authConfig.provider.pages.login)
+  }
 })
