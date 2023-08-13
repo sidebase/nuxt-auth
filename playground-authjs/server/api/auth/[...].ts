@@ -1,15 +1,45 @@
+import { DynamoDB, DynamoDBClientConfig } from '@aws-sdk/client-dynamodb'
+import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
+import { Adapter } from 'next-auth/adapters'
+import DiscordProvider from 'next-auth/providers/discord'
+import { DynamoDBAdapter } from '@auth/dynamodb-adapter'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GithubProvider from 'next-auth/providers/github'
 import { NuxtAuthHandler } from '#auth'
 
+const config: DynamoDBClientConfig = {
+  credentials: {
+    accessKeyId: 'your_aws_access_key_Id',
+    secretAccessKey: 'your_aws_secret_access_key'
+
+  },
+  region: 'your_aws_region'
+}
+
+const client = DynamoDBDocument.from(new DynamoDB(config), {
+  marshallOptions: {
+    convertEmptyValues: true,
+    removeUndefinedValues: true,
+    convertClassInstanceToMap: true
+  }
+})
+
 export default NuxtAuthHandler({
+
   // a) Never hardcode your secret in your code!! and b) use a secure secret, `test-123` is **not** secure!!
   secret: process.env.AUTH_SECRET ?? 'test-123',
+  adapter: DynamoDBAdapter(client) as Adapter<boolean>,
+
   providers: [
     // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
     GithubProvider.default({
       clientId: 'your-client-id',
       clientSecret: 'your-client-secret'
+    }),
+    // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
+    DiscordProvider.default({
+      clientId: 'your_discord_client_Id',
+      clientSecret: 'your_client_Secret'
     }),
     // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
     CredentialsProvider.default({

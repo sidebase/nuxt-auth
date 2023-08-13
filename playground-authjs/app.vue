@@ -52,6 +52,10 @@ const route = useRoute()
         sign in (github)
       </button>
       <br>
+      <button @click="signIn('discord', { callbackUrl: '/' })">
+        sign in (discord)
+      </button>
+      <br>
       <button @click="signIn(undefined, { callbackUrl: '/protected/named' })">
         sign in (with redirect to protected page)
       </button>
