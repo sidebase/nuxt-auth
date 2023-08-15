@@ -114,13 +114,13 @@ export const useAuth = (): UseAuthReturn => {
   const {
     data,
     status,
-    lastRefreshedAt,
+    lastRefreshedAt
   } = useAuthState()
 
   const getters = {
     status,
     data: readonly(data),
-    lastRefreshedAt: readonly(lastRefreshedAt),
+    lastRefreshedAt: readonly(lastRefreshedAt)
   }
 
   const actions = {

@@ -1,6 +1,6 @@
-import {H3Event} from 'h3'
-import {verify} from 'jsonwebtoken'
-import {SECRET} from '~/server/api/auth/login.post'
+import { H3Event } from 'h3'
+import { verify } from 'jsonwebtoken'
+import { SECRET } from '~/server/api/auth/login.post'
 
 const ensureAuth = (event: H3Event) => {
   const cookieValue = getCookie(event, 'ApplicationAuth')
