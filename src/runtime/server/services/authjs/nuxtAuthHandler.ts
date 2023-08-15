@@ -20,7 +20,8 @@ let preparedAuthHandler: ReturnType<typeof eventHandler> | undefined
 let usedSecret: string | undefined
 const SUPPORTED_ACTIONS: AuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
 
-const useConfig = () => useTypedBackendConfig(useRuntimeConfig(), useRuntimeConfig().public.auth.provider.type ?? 'authjs')
+const provider = useRuntimeConfig().public.auth.provider.type ?? 'authjs'
+const useConfig = () => useTypedBackendConfig(useRuntimeConfig(), provider)
 
 /**
  * Parse a body if the request method is supported, return `undefined` otherwise.
