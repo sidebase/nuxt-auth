@@ -92,7 +92,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
    */
   const getInternalNextAuthRequestData = async (event: H3Event): Promise<RequestInternal> => {
     const nextRequest: Omit<RequestInternal, 'action'> = {
-      host: getRequestURLFromRequest(event, { trustHost: useConfig()?.trustHost ?? false }),
+      host: getRequestURLFromRequest(event, { trustHost: (provider === 'authjs' ? useConfig().trustHost : false) }),
       body: undefined,
       cookies: parseCookies(event),
       query: undefined,
