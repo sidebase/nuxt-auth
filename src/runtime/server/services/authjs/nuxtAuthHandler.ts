@@ -78,7 +78,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
     secret: usedSecret,
     logger: undefined,
     providers: [],
-trustHost: provider === 'authjs' ? useConfig().trustHost : false
+    trustHost: provider === 'authjs' ? useConfig().trustHost : false
   })
 
   /**
