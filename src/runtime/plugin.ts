@@ -1,4 +1,5 @@
 import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig } from '#app'
+import { getHeader } from 'h3'
 import authMiddleware from './middleware/auth'
 import { useAuth, useAuthState } from '#imports'
 
@@ -7,8 +8,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const { data, lastRefreshedAt } = useAuthState()
   const { getSession } = useAuth()
 
+  // Skip auth if we're prerendering
+  let nitroPrerender = false
+  if (nuxtApp.ssrContext) {
+    nitroPrerender = getHeader(nuxtApp.ssrContext.event, 'x-nitro-prerender') !== undefined
+  }
+
   // Only fetch session if it was not yet initialized server-side
-  if (typeof data.value === 'undefined') {
+  if (typeof data.value === 'undefined' && !nitroPrerender) {
     await getSession()
   }
 
