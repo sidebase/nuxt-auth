@@ -3,8 +3,23 @@ import { navigateToAuthPages, determineCallbackUrl } from '../utils/url'
 import { useAuth } from '#imports'
 
 type MiddlewareMeta = boolean | {
-  unauthenticatedOnly: true,
+  /** Whether to only allow unauthenticated users to access this page.
+   *
+   * Authenticated users will be redirected to `/` or the route defined in `navigateAuthenticatedTo`
+   *
+   * @default undefined
+   */
+  unauthenticatedOnly?: boolean,
+  /** Where to redirect authenticated users if `unauthenticatedOnly` is set to true
+   *
+   * @default undefined
+   */
   navigateAuthenticatedTo?: string,
+  /** Where to redirect unauthenticated users if this page is protected
+   *
+   * @default undefined
+   */
+  navigateUnauthenticatedTo?: string
 }
 
 declare module '#app/../pages/runtime/composables' {
@@ -14,7 +29,13 @@ declare module '#app/../pages/runtime/composables' {
 }
 
 export default defineNuxtRouteMiddleware((to) => {
-  const metaAuth = to.meta.auth
+  const metaAuth = typeof to.meta.auth === 'object'
+    ? {
+        unauthenticatedOnly: true,
+        ...to.meta.auth
+      }
+    : to.meta.auth
+
   if (metaAuth === false) {
     return
   }
@@ -60,6 +81,8 @@ export default defineNuxtRouteMiddleware((to) => {
     const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.path) }
     // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
     return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
+  } else if (typeof metaAuth === 'object' && metaAuth.navigateUnauthenticatedTo) {
+    return navigateTo(metaAuth.navigateUnauthenticatedTo)
   } else {
     return navigateTo(authConfig.provider.pages.login)
   }
