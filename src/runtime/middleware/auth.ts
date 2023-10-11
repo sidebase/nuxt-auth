@@ -61,6 +61,14 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
+  // We do not want to block the login page when the local provider is used
+  if (authConfig.provider?.type === 'local') {
+    const loginRoute: string | null = authConfig.provider?.pages?.login
+    if (loginRoute && loginRoute === to.path) {
+      return
+    }
+  }
+
   /**
    * We do not want to enforce protection on `404` pages (unless the user opts out of it by setting `allow404WithoutAuth: false`).
    *
