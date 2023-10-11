@@ -1,5 +1,6 @@
 export default defineAppConfig({
+  // @ts-ignore
   docus: {
-    title: 'My Docs'
+    title: 'nuxt-auth'
   }
 })

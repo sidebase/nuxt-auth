@@ -142,6 +142,13 @@ type ProviderLocal = {
      * Note: Your backend may reject / expire the token earlier / differently.
      */
     maxAgeInSeconds?: number,
+    /**
+     * The cookie sameSite policy. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
+     *
+     * @default 'lax'
+     * @example 'strict'
+     */
+     sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined,
   },
   /**
    * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
@@ -343,6 +350,11 @@ export type GetSessionOptions = Partial<{
   required?: boolean
   callbackUrl?: string
   onUnauthenticated?: () => void
+  /** Whether to refetch the session even if the token returned by useAuthState is null.
+   *
+   * @default false
+   */
+  force?: boolean
 }>
 
 // TODO: These types could be nicer and more general, or located withing `useAuth` files and more specific

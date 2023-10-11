@@ -39,7 +39,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   const { callbackUrl, redirect = true } = signInOptions ?? {}
   if (redirect) {
     const urlToNavigateTo = callbackUrl ?? await getRequestURLWN(nuxt)
-    return navigateTo(urlToNavigateTo)
+    return navigateTo(urlToNavigateTo, { external: true })
   }
 }
 
@@ -59,7 +59,7 @@ const signOut: SignOutFunc = async (signOutOptions) => {
 
   const { callbackUrl, redirect = true } = signOutOptions ?? {}
   if (redirect) {
-    await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt))
+    await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external: true })
   }
 
   return res
@@ -72,11 +72,11 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   const { path, method } = config.endpoints.getSession
   const { data, loading, lastRefreshedAt, token, rawToken } = useAuthState()
 
-  if (!token.value) {
+  if (!token.value && !getSessionOptions?.force) {
     return
   }
 
-  const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
+  const headers = new Headers(token.value ? { [config.token.headerName]: token.value } as HeadersInit : undefined)
 
   loading.value = true
   try {
@@ -95,7 +95,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
     if (onUnauthenticated) {
       return onUnauthenticated()
     } else {
-      await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt))
+      await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external: true })
     }
   }
 
