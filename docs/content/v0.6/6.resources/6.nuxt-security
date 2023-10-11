@@ -1,0 +1,19 @@
+---
+description: "How to integrate nuxt-security with nuxt-auth"
+---
+
+In order to use the [NuxtSecurity](https://nuxt.com/modules/security) module with Nuxtauth, please use the following config, to disable the checks on the NuxtAuth routes:
+
+```js{}[nuxt.config.ts]
+export default defineNuxtConfig({
+  routeRules: {
+    "/api/auth/**": {
+      security: {
+        xssValidator: false,
+      },
+    },
+  }
+}
+```
+
+Solution provided by [tmlmt](https://github.com/tmlmt) in https://github.com/sidebase/nuxt-auth/issues/324#issuecomment-1757010620
