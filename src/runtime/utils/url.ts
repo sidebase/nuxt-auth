@@ -71,5 +71,7 @@ export const determineCallbackUrl = <T extends string | Promise<string>>(authCon
         return getOriginalTargetPath()
       }
     }
+  } else if (authConfig.globalAppMiddleware === true) {
+    return getOriginalTargetPath()
   }
 }
