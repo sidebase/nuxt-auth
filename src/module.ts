@@ -1,7 +1,7 @@
-import { fileURLToPath } from 'url'
-import { defineNuxtModule, useLogger, createResolver, addTemplate, addPlugin, addServerPlugin, addImports } from '@nuxt/kit'
+import { defineNuxtModule, useLogger, createResolver, addTemplate, addPlugin, addServerPlugin, addImports, addRouteMiddleware } from '@nuxt/kit'
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
+import { genInterface } from 'knitwork'
 import type { DeepRequired } from 'ts-essentials'
 import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
 import type { ModuleOptions, SupportedAuthProviders, AuthProviders } from './runtime/types'
@@ -36,8 +36,10 @@ const defaultsByBackend: { [key in SupportedAuthProviders]: DeepRequired<Extract
       signInResponseTokenPointer: '/token',
       type: 'Bearer',
       headerName: 'Authorization',
-      maxAgeInSeconds: 30 * 60
-    }
+      maxAgeInSeconds: 30 * 60,
+      sameSiteAttribute: 'lax'
+    },
+    sessionDataType: { id: 'string | number' }
   },
   authjs: {
     type: 'authjs',
@@ -95,9 +97,6 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }
 
     // @ts-ignore
-    nuxt.options.runtimeConfig.auth = options
-
-    // @ts-ignore
     nuxt.options.runtimeConfig.public.auth = options
 
     // 3. Locate runtime directory
@@ -137,6 +136,7 @@ export default defineNuxtModule<ModuleOptions>({
         `  const getServerSession: typeof import('${resolve('./runtime/server/services')}').getServerSession`,
         `  const getToken: typeof import('${resolve('./runtime/server/services')}').getToken`,
         `  const NuxtAuthHandler: typeof import('${resolve('./runtime/server/services')}').NuxtAuthHandler`,
+        options.provider.type === 'local' ? genInterface('SessionData', (options.provider as any).sessionDataType) : '',
         '}'
       ].join('\n')
     })
@@ -145,10 +145,16 @@ export default defineNuxtModule<ModuleOptions>({
       options.references.push({ path: resolve(nuxt.options.buildDir, 'types/auth.d.ts') })
     })
 
-    // 6. Add plugin for initial load
+    // 6. Register middleware for autocomplete in definePageMeta
+    addRouteMiddleware({
+      name: 'auth',
+      path: resolve('./runtime/middleware/auth')
+    })
+
+    // 7. Add plugin for initial load
     addPlugin(resolve('./runtime/plugin'))
 
-    // 7. Add a server-plugin to check the `origin` on production-startup
+    // 8. Add a server-plugin to check the `origin` on production-startup
     if (selectedProvider === 'authjs') {
       addServerPlugin(resolve('./runtime/server/plugins/assertOrigin'))
     }

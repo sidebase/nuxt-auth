@@ -36,6 +36,14 @@ interface GlobalMiddlewareOptions {
   addDefaultCallbackUrl?: boolean | string
 }
 
+type DataObjectPrimitives = 'string' | 'number' | 'boolean' | 'any' | 'undefined' | 'function' | 'null'
+
+type DataObjectArray = `${string}[]`
+
+export type SessionDataObject = {
+  [key: string]: Omit<string, DataObjectPrimitives | DataObjectArray> | SessionDataObject
+};
+
 /**
  * Available `nuxt-auth` authentication providers.
  */
@@ -134,7 +142,22 @@ type ProviderLocal = {
      * Note: Your backend may reject / expire the token earlier / differently.
      */
     maxAgeInSeconds?: number,
-  }
+    /**
+     * The cookie sameSite policy. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
+     *
+     * @default 'lax'
+     * @example 'strict'
+     */
+     sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined,
+  },
+  /**
+   * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
+   *
+   * @default { id: 'string | number' }
+   * @example { id: 'string', name: 'string', email: 'string' }
+   * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
+   */
+  sessionDataType?: SessionDataObject,
 }
 
 /**
@@ -316,6 +339,11 @@ export type GetSessionOptions = Partial<{
   required?: boolean
   callbackUrl?: string
   onUnauthenticated?: () => void
+  /** Whether to refetch the session even if the token returned by useAuthState is null.
+   *
+   * @default false
+   */
+  force?: boolean
 }>
 
 // TODO: These types could be nicer and more general, or located withing `useAuth` files and more specific

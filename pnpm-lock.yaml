@@ -19,6 +19,12 @@ importers:
       h3:
         specifier: ^1.6.4
         version: 1.6.4
+      knitwork:
+        specifier: ^1.0.0
+        version: 1.0.0
+      next-auth:
+        specifier: ^4.21.1
+        version: 4.21.1(next@13.2.4)(react-dom@18.2.0)(react@18.2.0)
       nitropack:
         specifier: ^2.3.2
         version: 2.3.3
