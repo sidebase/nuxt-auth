@@ -330,16 +330,23 @@ export interface SecondarySignInOptions extends Record<string, unknown> {
    * @default true
    */
   redirect?: boolean
+  /** Is this callback URL an external one. Setting this to true, allows you to redirect to external urls, however a hard refresh will be done.
+   *
+   * @default false
+   */
+  external?: boolean
 }
 
 export interface SignOutOptions {
   callbackUrl?: string
   redirect?: boolean
+  external?: boolean
 }
 
 export type GetSessionOptions = Partial<{
   required?: boolean
   callbackUrl?: string
+  external?: boolean,
   onUnauthenticated?: () => void
   /** Whether to refetch the session even if the token returned by useAuthState is null.
    *
