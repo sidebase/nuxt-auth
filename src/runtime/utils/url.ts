@@ -1,7 +1,7 @@
 import { joinURL } from 'ufo'
 import getURL from 'requrl'
 import { sendRedirect } from 'h3'
-import { useRequestEvent, useNuxtApp, abortNavigation } from '#app'
+import { useRequestEvent, useNuxtApp, abortNavigation } from '#imports'
 import { useAuthState, useRuntimeConfig } from '#imports'
 
 export const getRequestURL = (includePath = true) => getURL(useRequestEvent()?.node.req, includePath)

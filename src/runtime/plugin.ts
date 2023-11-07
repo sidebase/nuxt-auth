@@ -1,4 +1,4 @@
-import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig } from '#app'
+import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig } from '#imports'
 import { getHeader } from 'h3'
 import authMiddleware from './middleware/auth'
 import { useAuth, useAuthState } from '#imports'

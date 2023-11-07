@@ -1,5 +1,5 @@
 import type { NuxtApp } from '#app'
-import { callWithNuxt } from '#app'
+import { callWithNuxt } from '#imports'
 import { getRequestURL, joinPathToApiURL, navigateToAuthPages } from './url'
 
 export const navigateToAuthPageWN = (nuxt: NuxtApp, href: string) => callWithNuxt(nuxt, navigateToAuthPages, [href])

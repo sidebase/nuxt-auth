@@ -1,5 +1,5 @@
 import { readonly, Ref } from 'vue'
-import { callWithNuxt } from '#app'
+import { callWithNuxt } from '#imports'
 import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions } from '../../types'
 import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'

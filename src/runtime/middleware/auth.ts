@@ -1,4 +1,4 @@
-import { navigateTo, defineNuxtRouteMiddleware, useRuntimeConfig } from '#app'
+import { navigateTo, defineNuxtRouteMiddleware, useRuntimeConfig } from '#imports'
 import { navigateToAuthPages, determineCallbackUrl } from '../utils/url'
 import { useAuth } from '#imports'
 
