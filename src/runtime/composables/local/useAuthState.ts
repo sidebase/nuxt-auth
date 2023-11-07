@@ -1,5 +1,5 @@
 import { computed, watch, ComputedRef } from 'vue'
-import { CookieRef } from '#imports'
+import type { CookieRef } from '#app'
 import { CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
 import { useTypedBackendConfig } from '../../helpers'
