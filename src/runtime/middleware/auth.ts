@@ -1,6 +1,5 @@
-import { navigateTo, defineNuxtRouteMiddleware, useRuntimeConfig } from '#imports'
 import { navigateToAuthPages, determineCallbackUrl } from '../utils/url'
-import { useAuth } from '#imports'
+import { navigateTo, defineNuxtRouteMiddleware, useRuntimeConfig, useAuth } from '#imports'
 
 type MiddlewareMeta = boolean | {
   /** Whether to only allow unauthenticated users to access this page.
