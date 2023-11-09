@@ -1,22 +1,22 @@
 import {
-  defineNuxtModule,
-  useLogger,
-  createResolver,
-  addTemplate,
-  addPlugin,
-  addServerPlugin,
   addImports,
-  addRouteMiddleware
+  addPlugin,
+  addRouteMiddleware,
+  addServerPlugin,
+  addTemplate,
+  createResolver,
+  defineNuxtModule,
+  useLogger
 } from '@nuxt/kit'
 import { defu } from 'defu'
-import { joinURL } from 'ufo'
 import { genInterface } from 'knitwork'
 import type { DeepRequired } from 'ts-essentials'
+import { joinURL } from 'ufo'
 import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
 import type {
+  AuthProviders,
   ModuleOptions,
-  SupportedAuthProviders,
-  AuthProviders
+  SupportedAuthProviders
 } from './runtime/types'
 
 const topLevelDefaults = {
@@ -52,8 +52,11 @@ const defaultsByBackend: {
       signInResponseTokenPointer: '/token',
       type: 'Bearer',
       headerName: 'Authorization',
+      sameSiteAttribute: 'lax',
+      name: 'auth:token',
       maxAgeInSeconds: 30 * 60,
-      sameSiteAttribute: 'lax'
+      secure: false,
+      domain: undefined
     },
     sessionDataType: { id: 'string | number' }
   },

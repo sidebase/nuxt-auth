@@ -1,9 +1,9 @@
-import { computed, watch, ComputedRef } from 'vue'
-import type { CookieRef } from '#app'
+import type { CookieRef } from '#app/nuxt'
+import { ComputedRef, computed, watch } from 'vue'
+import { useTypedBackendConfig } from '../../helpers'
 import { CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
-import { useTypedBackendConfig } from '../../helpers'
-import { useRuntimeConfig, useCookie, useState } from '#imports'
+import { useCookie, useRuntimeConfig, useState } from '#imports'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
 
@@ -19,7 +19,7 @@ export const useAuthState = (): UseAuthStateReturn => {
   const commonAuthState = makeCommonAuthState<SessionData>()
 
   // Re-construct state from cookie, also setup a cross-component sync via a useState hack, see https://github.com/nuxt/nuxt/issues/13020#issuecomment-1397282717
-  const _rawTokenCookie = useCookie<string | null>('auth:token', { default: () => null, maxAge: config.token.maxAgeInSeconds, sameSite: config.token.sameSiteAttribute })
+  const _rawTokenCookie = useCookie<string | null>(config.token.name, { default: () => null, maxAge: config.token.maxAgeInSeconds, sameSite: config.token.sameSiteAttribute, secure: config.token.secure, domain: config.token.domain })
 
   const rawToken = useState('auth:raw-token', () => _rawTokenCookie.value)
   watch(rawToken, () => { _rawTokenCookie.value = rawToken.value })
@@ -28,7 +28,17 @@ export const useAuthState = (): UseAuthStateReturn => {
     if (rawToken.value === null) {
       return null
     }
-    return config.token.type.length > 0 ? `${config.token.type} ${rawToken.value}` : rawToken.value
+
+    if (config.token.type.length > 0) {
+      switch (config.token.type) {
+        case 'Cookie':
+          return `${config.token.name}=${rawToken.value}`
+        case 'Bearer':
+        default:
+          return `${config.token.type} ${rawToken.value}`
+      }
+    }
+    return rawToken.value
   })
 
   const setToken = (newToken: string | null) => {

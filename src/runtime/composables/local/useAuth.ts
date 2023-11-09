@@ -1,13 +1,13 @@
-import { readonly, Ref } from 'vue'
 import { callWithNuxt } from '#app/nuxt'
-import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions } from '../../types'
-import { _fetch } from '../../utils/fetch'
+import { readonly, Ref } from 'vue'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
+import { CommonUseAuthReturn, GetSessionFunc, SecondarySignInOptions, SignInFunc, SignOutFunc } from '../../types'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
+import { _fetch } from '../../utils/fetch'
 import { useAuthState } from './useAuthState'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
-import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
+import { navigateTo, nextTick, useNuxtApp, useRuntimeConfig } from '#imports'
 
 type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
 
@@ -49,7 +49,7 @@ const signOut: SignOutFunc = async (signOutOptions) => {
   const config = useTypedBackendConfig(runtimeConfig, 'local')
   const { data, rawToken, token } = await callWithNuxt(nuxt, useAuthState)
 
-  const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
+  const headers = new Headers(config.token.headerName ? { [config.token.headerName]: token.value } as HeadersInit : undefined)
   data.value = null
   rawToken.value = null
 
@@ -80,7 +80,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
     return
   }
 
-  const headers = new Headers(token.value ? { [config.token.headerName]: token.value } as HeadersInit : undefined)
+  const headers = new Headers(token.value && config.token.headerName ? { [config.token.headerName]: token.value } as HeadersInit : undefined)
 
   loading.value = true
   try {
@@ -114,7 +114,13 @@ const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInO
     body: credentials
   })
 
-  return signIn(credentials, signInOptions)
+  await nextTick(getSession)
+
+  const { callbackUrl, redirect = true, external } = signInOptions ?? {}
+  if (redirect) {
+    const urlToNavigateTo = callbackUrl ?? await getRequestURLWN(nuxt)
+    return navigateTo(urlToNavigateTo, { external })
+  }
 }
 
 interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOut, typeof getSession, SessionData> {

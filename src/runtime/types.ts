@@ -1,5 +1,5 @@
-import type { Ref, ComputedRef } from 'vue'
 import { RouterMethod } from 'h3'
+import type { ComputedRef, Ref } from 'vue'
 import { SupportedProviders } from './composables/authjs/useAuth'
 
 /**
@@ -120,6 +120,12 @@ type ProviderLocal = {
    */
   token?: {
     /**
+     * The name of the cookie to store the authentication-token in.
+     *
+     * @default auth:token  Access the cookie `auth:token` from session
+     */
+    name?: string,
+    /**
      * How to extract the authentication-token from the sign-in response.
      *
      * E.g., setting this to `/token/bearer` and returning an object like `{ token: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `signIn` endpoint will
@@ -142,14 +148,14 @@ type ProviderLocal = {
      * Header name to be used in requests that need to be authenticated, e.g., to be used in the `getSession` request.
      *
      * @default Authorization
-     * @example Auth
+     * @example Cookie
      */
     headerName?: string;
     /**
      * Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
      *
      * Note: Your backend may reject / expire the token earlier / differently.
-     * @default 1800
+     * @default undefined
      * @example 60 * 60 * 24
      */
     maxAgeInSeconds?: number;
@@ -159,8 +165,23 @@ type ProviderLocal = {
      * @default 'lax'
      * @example 'strict'
      */
-    sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
-  };
+    sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined,
+    /**
+     * Specifies the boolean value for the Secure Set-Cookie attribute. When truthy, the Secure attribute is set; otherwise it is not. By default, the Secure attribute is not set.
+     * Note: Be careful when setting this to true, as compliant clients will not allow client-side JavaScript to see the cookie in document.cookie.
+     * @default false
+     * @example true
+     */
+    secure?: boolean,
+    /**
+     * Specifies the value for the Domain Set-Cookie attribute. By default, no domain is set, and most clients will consider applying the cookie only to the current domain.
+     *
+     * @default undefined use
+     * @example 'domain.com'
+     */
+    domain?: boolean,
+
+  },
   /**
    * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
    *
