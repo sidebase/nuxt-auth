@@ -125,6 +125,8 @@ type ProviderLocal = {
      * @default auth:token  Access the cookie `auth:token` from session
      */
     name?: string,
+
+    default?: () => string | null
     /**
      * How to extract the authentication-token from the sign-in response.
      *
@@ -179,7 +181,7 @@ type ProviderLocal = {
      * @default undefined use
      * @example 'domain.com'
      */
-    domain?: boolean,
+    domain?: string,
 
   },
   /**
