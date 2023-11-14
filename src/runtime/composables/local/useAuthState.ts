@@ -29,15 +29,6 @@ export const useAuthState = (): UseAuthStateReturn => {
       return null
     }
 
-    if (config.token.type.length > 0) {
-      switch (config.token.type) {
-        case 'Cookie':
-          return `${config.token.name}=${rawToken.value}`
-        case 'Bearer':
-        default:
-          return `${config.token.type} ${rawToken.value}`
-      }
-    }
     return rawToken.value
   })
 

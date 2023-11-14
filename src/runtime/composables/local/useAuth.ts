@@ -43,13 +43,30 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   }
 }
 
+
+const addHeaders = (token: string | null, config: ReturnType<typeof useTypedBackendConfig>) => {
+  if (!(token && config.token.headerName)) {
+    return undefined
+  }
+
+  if (config.token.type.length > 0) {
+      switch (config.token.type) {
+        case 'Cookie':
+          return { [config.token.headerName]: `${config.token.name}=${token}` }
+        case 'Bearer':
+        default:
+          return { [config.token.headerName]: `${config.token.type} ${token}`}
+      }
+    }
+}
+
 const signOut: SignOutFunc = async (signOutOptions) => {
   const nuxt = useNuxtApp()
   const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
   const config = useTypedBackendConfig(runtimeConfig, 'local')
   const { data, rawToken, token } = await callWithNuxt(nuxt, useAuthState)
 
-  const headers = new Headers(config.token.headerName ? { [config.token.headerName]: token.value } as HeadersInit : undefined)
+  const headers = new Headers(addHeaders(token.value, config))
   data.value = null
   rawToken.value = null
 
@@ -80,7 +97,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
     return
   }
 
-  const headers = new Headers(token.value && config.token.headerName ? { [config.token.headerName]: token.value } as HeadersInit : undefined)
+  const headers = new Headers(addHeaders(token.value, config))
 
   loading.value = true
   try {
