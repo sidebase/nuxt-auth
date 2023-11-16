@@ -49,7 +49,7 @@ const defaultsByBackend: { [key in SupportedAuthProviders]: DeepRequired<Extract
   }
 }
 
-const PACKAGE_NAME = 'nuxt-auth'
+const PACKAGE_NAME = 'sidebase-auth'
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
