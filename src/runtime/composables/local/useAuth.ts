@@ -53,9 +53,13 @@ const signOut: SignOutFunc = async (signOutOptions) => {
   data.value = null
   rawToken.value = null
 
-  const { path, method } = config.endpoints.signOut
+  const signOutConfig = config.endpoints.signOut
+  let res
 
-  const res = await _fetch(nuxt, path, { method, headers })
+  if (signOutConfig) {
+    const { path, method } = signOutConfig
+    res = await _fetch(nuxt, path, { method, headers })
+  }
 
   const { callbackUrl, redirect = true, external } = signOutOptions ?? {}
   if (redirect) {
