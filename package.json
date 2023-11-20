@@ -23,7 +23,7 @@
     "dev:prepare": "nuxt-module-build --stub"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.4.2",
+    "@nuxt/kit": "^3.8.1",
     "@vueuse/core": "^9.13.0",
     "defu": "^6.1.2",
     "h3": "^1.6.4",
@@ -37,11 +37,11 @@
   },
   "devDependencies": {
     "@nuxt/module-builder": "^0.3.0",
-    "@nuxt/schema": "^3.4.2",
+    "@nuxt/schema": "^3.8.1",
     "@nuxtjs/eslint-config-typescript": "^12.0.0",
     "@types/node": "^18.15.11",
     "eslint": "^8.37.0",
-    "nuxt": "^3.4.2",
+    "nuxt": "^3.8.1",
     "ofetch": "^1.0.1",
     "ts-essentials": "^9.3.1",
     "typescript": "^5.0.3",

@@ -17,7 +17,7 @@
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.1",
     "eslint": "^8.37.0",
-    "nuxt": "^3.4.2",
+    "nuxt": "^3.8.1",
     "typescript": "^5.0.3",
     "vue-tsc": "^1.2.0"
   }
