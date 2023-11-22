@@ -74,7 +74,8 @@ const defaultsByBackend: {
       signInResponseTokenPointer: "/token",
       type: "Bearer",
       headerName: "Authorization",
-      maxAgeInSeconds: 5 * 60, // 5 minutes
+      maxAgeInSeconds: 5 * 60,
+      sameSiteAttribute: "none", // 5 minutes
     },
     refreshToken: {
       signInResponseRefreshTokenPointer: "/refreshToken",
