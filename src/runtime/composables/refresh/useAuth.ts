@@ -81,7 +81,8 @@ const refresh = async () => {
   const { path, method } = config.endpoints.refresh;
 
   const { getSession } = useLocalAuth();
-  const { refreshToken, token } = useAuthState();
+  const { refreshToken, token, rawToken, rawRefreshToken, lastRefreshedAt } =
+    useAuthState();
 
   const headers = new Headers({
     [config.token.headerName]: token.value,
@@ -110,25 +111,26 @@ const refresh = async () => {
     return;
   }
 
-  const extractedRefreshToken = jsonPointerGet(
-    response,
-    config.refreshToken.signInResponseRefreshTokenPointer
-  );
-  if (typeof extractedRefreshToken !== "string") {
-    console.error(
-      `Auth: string token expected, received instead: ${JSON.stringify(
-        extractedRefreshToken
-      )}. Tried to find token at ${
-        config.refreshToken.signInResponseRefreshTokenPointer
-      } in ${JSON.stringify(response)}`
+  if (!config.refreshOnlyToken) {
+    const extractedRefreshToken = jsonPointerGet(
+      response,
+      config.refreshToken.signInResponseRefreshTokenPointer
     );
-    return;
+    if (typeof extractedRefreshToken !== "string") {
+      console.error(
+        `Auth: string token expected, received instead: ${JSON.stringify(
+          extractedRefreshToken
+        )}. Tried to find token at ${
+          config.refreshToken.signInResponseRefreshTokenPointer
+        } in ${JSON.stringify(response)}`
+      );
+      return;
+    } else {
+      rawRefreshToken.value = extractedRefreshToken;
+    }
   }
 
-  const { rawToken, rawRefreshToken, lastRefreshedAt } = useAuthState();
   rawToken.value = extractedToken;
-  rawRefreshToken.value = extractedRefreshToken;
-
   lastRefreshedAt.value = new Date();
 
   await nextTick(getSession);

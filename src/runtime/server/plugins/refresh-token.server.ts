@@ -42,23 +42,27 @@ export default defineNuxtPlugin({
         return;
       }
 
-      const extractedRefreshToken = jsonPointerGet(
-        response,
-        config.provider.refreshToken.signInResponseRefreshTokenPointer
-      );
-      if (typeof extractedRefreshToken !== "string") {
-        console.error(
-          `Auth: string token expected, received instead: ${JSON.stringify(
-            extractedRefreshToken
-          )}. Tried to find token at ${
-            config.refreshToken.signInResponseRefreshTokenPointer
-          } in ${JSON.stringify(response)}`
+      // check if refereshTokenOnly
+      if (!configToken.refreshOnlyToken) {
+        const extractedRefreshToken = jsonPointerGet(
+          response,
+          config.provider.refreshToken.signInResponseRefreshTokenPointer
         );
-        return;
+        if (typeof extractedRefreshToken !== "string") {
+          console.error(
+            `Auth: string token expected, received instead: ${JSON.stringify(
+              extractedRefreshToken
+            )}. Tried to find token at ${
+              config.refreshToken.signInResponseRefreshTokenPointer
+            } in ${JSON.stringify(response)}`
+          );
+          return;
+        } else {
+          rawRefreshToken.value = extractedRefreshToken;
+        }
       }
 
       rawToken.value = extractedToken;
-      rawRefreshToken.value = extractedRefreshToken;
 
       lastRefreshedAt.value = new Date();
     }

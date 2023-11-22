@@ -191,6 +191,12 @@ type ProviderLocalRefresh = Omit<ProviderLocal, "type"> & {
      */
     refresh?: { path?: string; method?: RouterMethod };
   };
+  /**
+   *  When refreshOnlyToken is set, only the token will be refreshed
+   *
+   */
+  refreshOnlyToken?: true;
+
   refreshToken?: {
     /**
      * How to extract the authentication-token from the sign-in response.
