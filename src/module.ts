@@ -63,6 +63,7 @@ const defaultsByBackend: {
     pages: {
       login: "/login",
     },
+    refreshOnlyToken: true,
     endpoints: {
       signIn: { path: "/login", method: "post" },
       signOut: { path: "/logout", method: "post" },
