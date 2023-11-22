@@ -7,11 +7,13 @@ export default defineNuxtPlugin({
   async setup(nuxtApp) {
     const { rawToken, rawRefreshToken, refreshToken, token, lastRefreshedAt } =
       useAuthState();
-    if (refreshToken.value) {
+    if (refreshToken.value && token.value) {
       const config = nuxtApp.$config.public.auth;
       const configToken = useTypedBackendConfig(useRuntimeConfig(), "refresh");
 
       const { path, method } = config.provider.endpoints.refresh;
+
+      console.log(token.value, configToken.token.headerName);
 
       // include header in case of auth is required to avoid 403 rejection
       const headers = new Headers({
