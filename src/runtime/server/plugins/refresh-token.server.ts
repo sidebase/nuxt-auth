@@ -1,6 +1,6 @@
 import { _fetch } from "../../utils/fetch";
-import { jsonPointerGet } from "../../helpers";
-import { defineNuxtPlugin, useAuthState } from "#imports";
+import { jsonPointerGet, useTypedBackendConfig } from "../../helpers";
+import { defineNuxtPlugin, useAuthState, useRuntimeConfig } from "#imports";
 export default defineNuxtPlugin({
   name: "refresh-token-plugin",
   enforce: "pre",
@@ -9,12 +9,13 @@ export default defineNuxtPlugin({
       useAuthState();
     if (refreshToken.value) {
       const config = nuxtApp.$config.public.auth;
+      const configToken = useTypedBackendConfig(useRuntimeConfig(), "refresh");
 
       const { path, method } = config.provider.endpoints.refresh;
 
       // include header in case of auth is required to avoid 403 rejection
       const headers = new Headers({
-        [config.token.headerName]: token.value,
+        [configToken.token.headerName]: token.value,
       } as HeadersInit);
 
       const response = await _fetch<Record<string, any>>(nuxtApp, path, {
