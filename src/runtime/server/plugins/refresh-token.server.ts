@@ -13,8 +13,6 @@ export default defineNuxtPlugin({
 
       const { path, method } = config.provider.endpoints.refresh;
 
-      console.log(token.value, configToken.token.headerName);
-
       // include header in case of auth is required to avoid 403 rejection
       const headers = new Headers({
         [configToken.token.headerName]: token.value,
