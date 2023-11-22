@@ -5,18 +5,24 @@ export default defineNuxtPlugin({
   name: "refresh-token-plugin",
   enforce: "pre",
   async setup(nuxtApp) {
-    const { rawToken, rawRefreshToken, refreshToken, lastRefreshedAt } =
+    const { rawToken, rawRefreshToken, refreshToken, token, lastRefreshedAt } =
       useAuthState();
     if (refreshToken.value) {
       const config = nuxtApp.$config.public.auth;
 
       const { path, method } = config.provider.endpoints.refresh;
 
+      // include header in case of auth is required to avoid 403 rejection
+      const headers = new Headers({
+        [config.token.headerName]: token.value,
+      } as HeadersInit);
+
       const response = await _fetch<Record<string, any>>(nuxtApp, path, {
         method,
         body: {
           refreshToken: refreshToken.value,
         },
+        headers,
       });
 
       const extractedToken = jsonPointerGet(
