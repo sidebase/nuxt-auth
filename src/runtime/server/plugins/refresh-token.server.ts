@@ -7,6 +7,7 @@ export default defineNuxtPlugin({
   async setup(nuxtApp) {
     const { rawToken, rawRefreshToken, refreshToken, token, lastRefreshedAt } =
       useAuthState();
+
     if (refreshToken.value && token.value) {
       const config = nuxtApp.$config.public.auth;
       const configToken = useTypedBackendConfig(useRuntimeConfig(), "refresh");
