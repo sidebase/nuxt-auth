@@ -1,6 +1,6 @@
 {
-  "name": "@dommidev10/nuxt-auth",
-  "version": "0.6.7",
+  "name": "@sidebase/nuxt-auth",
+  "version": "0.6.1",
   "license": "MIT",
   "type": "module",
   "exports": {
