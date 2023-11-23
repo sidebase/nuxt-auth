@@ -1,4 +1,4 @@
-import { callWithNuxt } from '#app'
+import { callWithNuxt } from '#app/nuxt'
 import { joinPathToApiURL } from './url'
 import { useNuxtApp } from '#imports'
 
