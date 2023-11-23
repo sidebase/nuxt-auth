@@ -22,7 +22,7 @@ type MiddlewareMeta = boolean | {
   navigateUnauthenticatedTo?: string
 }
 
-declare module '#app/../pages/runtime/composables' {
+declare module '#app' {
   interface PageMeta {
     auth?: MiddlewareMeta
   }
