@@ -152,7 +152,19 @@ const signOut: SignOutFunc = async (signOutOptions) => {
   rawToken.value = null
   rawRefreshToken.value = null
 
-  const { path, method } = config.endpoints.signOut
+  const { path, method } = config.endpoints.signOut as {
+    path: string;
+    method:
+      | 'get'
+      | 'head'
+      | 'patch'
+      | 'post'
+      | 'put'
+      | 'delete'
+      | 'connect'
+      | 'options'
+      | 'trace';
+  }
 
   const res = await _fetch(nuxt, path, { method, headers })
 
