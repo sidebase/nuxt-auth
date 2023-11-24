@@ -1,25 +1,25 @@
 // TODO: This should be merged into `./utils`
-import { parseURL } from "ufo";
-import { DeepRequired } from "ts-essentials";
-import { SupportedAuthProviders, AuthProviders } from "./types";
-import { useRuntimeConfig } from "#imports";
+import { parseURL } from 'ufo'
+import { DeepRequired } from 'ts-essentials'
+import { SupportedAuthProviders, AuthProviders } from './types'
+import { useRuntimeConfig } from '#imports'
 
-export const isProduction = process.env.NODE_ENV === "production";
+export const isProduction = process.env.NODE_ENV === 'production'
 
 export const getOriginAndPathnameFromURL = (url: string) => {
-  const { protocol, host, pathname } = parseURL(url);
+  const { protocol, host, pathname } = parseURL(url)
 
-  let origin;
+  let origin
   if (host && protocol) {
-    origin = `${protocol}//${host}`;
+    origin = `${protocol}//${host}`
   }
 
-  const pathname_ = pathname.length > 0 ? pathname : undefined;
+  const pathname_ = pathname.length > 0 ? pathname : undefined
   return {
     origin,
-    pathname: pathname_,
-  };
-};
+    pathname: pathname_
+  }
+}
 
 /**
  * Get the backend configuration from the runtime config in a typed manner.
@@ -34,10 +34,10 @@ export const useTypedBackendConfig = <T extends SupportedAuthProviders>(
   return runtimeConfig.public.auth.provider as Extract<
     DeepRequired<AuthProviders>,
     { type: T }
-  >;
+  >
   // TODO: find better solution to throw errors, when using sub-configs
   // throw new Error('RuntimeError: Type must match at this point')
-};
+}
 
 /**
  * Get a property from an object following the JSON Pointer spec.
@@ -53,25 +53,25 @@ export const jsonPointerGet = (
   obj: Record<string, any>,
   pointer: string
 ): string | Record<string, any> => {
-  const unescape = (str: string) => str.replace(/~1/g, "/").replace(/~0/g, "~");
+  const unescape = (str: string) => str.replace(/~1/g, '/').replace(/~0/g, '~')
   const parse = (pointer: string) => {
-    if (pointer === "") {
-      return [];
+    if (pointer === '') {
+      return []
     }
-    if (pointer.charAt(0) !== "/") {
-      throw new Error("Invalid JSON pointer: " + pointer);
+    if (pointer.charAt(0) !== '/') {
+      throw new Error('Invalid JSON pointer: ' + pointer)
     }
-    return pointer.substring(1).split(/\//).map(unescape);
-  };
+    return pointer.substring(1).split(/\//).map(unescape)
+  }
 
-  const refTokens = Array.isArray(pointer) ? pointer : parse(pointer);
+  const refTokens = Array.isArray(pointer) ? pointer : parse(pointer)
 
   for (let i = 0; i < refTokens.length; ++i) {
-    const tok = refTokens[i];
-    if (!(typeof obj === "object" && tok in obj)) {
-      throw new Error("Invalid reference token: " + tok);
+    const tok = refTokens[i]
+    if (!(typeof obj === 'object' && tok in obj)) {
+      throw new Error('Invalid reference token: ' + tok)
     }
-    obj = obj[tok];
+    obj = obj[tok]
   }
-  return obj;
-};
+  return obj
+}

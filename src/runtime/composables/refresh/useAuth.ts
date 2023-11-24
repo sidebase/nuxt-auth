@@ -1,168 +1,168 @@
-import { Ref } from "vue";
-import { callWithNuxt } from "#app";
-import { jsonPointerGet, useTypedBackendConfig } from "../../helpers";
-import { useAuth as useLocalAuth } from "../local/useAuth";
-import { _fetch } from "../../utils/fetch";
-import { getRequestURLWN } from "../../utils/callWithNuxt";
-import { SignOutFunc } from "../../types";
-import { useAuthState } from "./useAuthState";
+import { Ref } from 'vue'
+import { callWithNuxt } from '#app'
+import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
+import { useAuth as useLocalAuth } from '../local/useAuth'
+import { _fetch } from '../../utils/fetch'
+import { getRequestURLWN } from '../../utils/callWithNuxt'
+import { SignOutFunc } from '../../types'
+import { useAuthState } from './useAuthState'
 import {
   navigateTo,
   nextTick,
   readonly,
   useNuxtApp,
-  useRuntimeConfig,
-} from "#imports";
+  useRuntimeConfig
+} from '#imports'
 
-const signIn: ReturnType<typeof useLocalAuth>["signIn"] = async (
+const signIn: ReturnType<typeof useLocalAuth>['signIn'] = async (
   credentials,
   signInOptions,
   signInParams
 ) => {
-  const nuxt = useNuxtApp();
-  const { getSession } = useLocalAuth();
-  const config = useTypedBackendConfig(useRuntimeConfig(), "refresh");
-  const { path, method } = config.endpoints.signIn;
+  const nuxt = useNuxtApp()
+  const { getSession } = useLocalAuth()
+  const config = useTypedBackendConfig(useRuntimeConfig(), 'refresh')
+  const { path, method } = config.endpoints.signIn
   const response = await _fetch<Record<string, any>>(nuxt, path, {
     method,
     body: {
       ...credentials,
-      ...(signInOptions ?? {}),
+      ...(signInOptions ?? {})
     },
-    params: signInParams ?? {},
-  });
+    params: signInParams ?? {}
+  })
 
   const extractedToken = jsonPointerGet(
     response,
     config.token.signInResponseTokenPointer
-  );
-  if (typeof extractedToken !== "string") {
+  )
+  if (typeof extractedToken !== 'string') {
     console.error(
       `Auth: string token expected, received instead: ${JSON.stringify(
         extractedToken
       )}. Tried to find token at ${
         config.token.signInResponseTokenPointer
       } in ${JSON.stringify(response)}`
-    );
-    return;
+    )
+    return
   }
 
   const extractedRefreshToken = jsonPointerGet(
     response,
     config.refreshToken.signInResponseRefreshTokenPointer
-  );
-  if (typeof extractedRefreshToken !== "string") {
+  )
+  if (typeof extractedRefreshToken !== 'string') {
     console.error(
       `Auth: string token expected, received instead: ${JSON.stringify(
         extractedRefreshToken
       )}. Tried to find token at ${
         config.refreshToken.signInResponseRefreshTokenPointer
       } in ${JSON.stringify(response)}`
-    );
-    return;
+    )
+    return
   }
 
-  const { rawToken, rawRefreshToken } = useAuthState();
-  rawToken.value = extractedToken;
-  rawRefreshToken.value = extractedRefreshToken;
+  const { rawToken, rawRefreshToken } = useAuthState()
+  rawToken.value = extractedToken
+  rawRefreshToken.value = extractedRefreshToken
 
-  await nextTick(getSession);
+  await nextTick(getSession)
 
-  const { callbackUrl, redirect = true } = signInOptions ?? {};
+  const { callbackUrl, redirect = true } = signInOptions ?? {}
   if (redirect) {
-    const urlToNavigateTo = callbackUrl ?? (await getRequestURLWN(nuxt));
-    return navigateTo(urlToNavigateTo);
+    const urlToNavigateTo = callbackUrl ?? (await getRequestURLWN(nuxt))
+    return navigateTo(urlToNavigateTo)
   }
-};
+}
 
 const refresh = async () => {
-  const nuxt = useNuxtApp();
-  const config = useTypedBackendConfig(useRuntimeConfig(), "refresh");
-  const { path, method } = config.endpoints.refresh;
+  const nuxt = useNuxtApp()
+  const config = useTypedBackendConfig(useRuntimeConfig(), 'refresh')
+  const { path, method } = config.endpoints.refresh
 
-  const { getSession } = useLocalAuth();
+  const { getSession } = useLocalAuth()
   const { refreshToken, token, rawToken, rawRefreshToken, lastRefreshedAt } =
-    useAuthState();
+    useAuthState()
 
   const headers = new Headers({
-    [config.token.headerName]: token.value,
-  } as HeadersInit);
+    [config.token.headerName]: token.value
+  } as HeadersInit)
 
   const response = await _fetch<Record<string, any>>(nuxt, path, {
     method,
     headers,
     body: {
-      refreshToken: refreshToken.value,
-    },
-  });
+      refreshToken: refreshToken.value
+    }
+  })
 
   const extractedToken = jsonPointerGet(
     response,
     config.token.signInResponseTokenPointer
-  );
-  if (typeof extractedToken !== "string") {
+  )
+  if (typeof extractedToken !== 'string') {
     console.error(
       `Auth: string token expected, received instead: ${JSON.stringify(
         extractedToken
       )}. Tried to find token at ${
         config.token.signInResponseTokenPointer
       } in ${JSON.stringify(response)}`
-    );
-    return;
+    )
+    return
   }
 
   if (!config.refreshOnlyToken) {
     const extractedRefreshToken = jsonPointerGet(
       response,
       config.refreshToken.signInResponseRefreshTokenPointer
-    );
-    if (typeof extractedRefreshToken !== "string") {
+    )
+    if (typeof extractedRefreshToken !== 'string') {
       console.error(
         `Auth: string token expected, received instead: ${JSON.stringify(
           extractedRefreshToken
         )}. Tried to find token at ${
           config.refreshToken.signInResponseRefreshTokenPointer
         } in ${JSON.stringify(response)}`
-      );
-      return;
+      )
+      return
     } else {
-      rawRefreshToken.value = extractedRefreshToken;
+      rawRefreshToken.value = extractedRefreshToken
     }
   }
 
-  rawToken.value = extractedToken;
-  lastRefreshedAt.value = new Date();
+  rawToken.value = extractedToken
+  lastRefreshedAt.value = new Date()
 
-  await nextTick(getSession);
-};
+  await nextTick(getSession)
+}
 
 const signOut: SignOutFunc = async (signOutOptions) => {
-  const nuxt = useNuxtApp();
-  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig);
-  const config = useTypedBackendConfig(runtimeConfig, "refresh");
+  const nuxt = useNuxtApp()
+  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const config = useTypedBackendConfig(runtimeConfig, 'refresh')
   const { data, rawToken, token, rawRefreshToken } = await callWithNuxt(
     nuxt,
     useAuthState
-  );
+  )
 
   const headers = new Headers({
-    [config.token.headerName]: token.value,
-  } as HeadersInit);
-  data.value = null;
-  rawToken.value = null;
-  rawRefreshToken.value = null;
+    [config.token.headerName]: token.value
+  } as HeadersInit)
+  data.value = null
+  rawToken.value = null
+  rawRefreshToken.value = null
 
-  const { path, method } = config.endpoints.signOut;
+  const { path, method } = config.endpoints.signOut
 
-  const res = await _fetch(nuxt, path, { method, headers });
+  const res = await _fetch(nuxt, path, { method, headers })
 
-  const { callbackUrl, redirect = true } = signOutOptions ?? {};
+  const { callbackUrl, redirect = true } = signOutOptions ?? {}
   if (redirect) {
-    await navigateTo(callbackUrl ?? (await getRequestURLWN(nuxt)));
+    await navigateTo(callbackUrl ?? (await getRequestURLWN(nuxt)))
   }
 
-  return res;
-};
+  return res
+}
 
 type UseAuthReturn = ReturnType<typeof useLocalAuth> & {
   refreshToken: Readonly<Ref<string | null>>;
@@ -170,16 +170,16 @@ type UseAuthReturn = ReturnType<typeof useLocalAuth> & {
 };
 
 export const useAuth = (): UseAuthReturn => {
-  const localAuth = useLocalAuth();
+  const localAuth = useLocalAuth()
   // overwrite the local signIn & signOut Function
-  localAuth.signIn = signIn;
-  localAuth.signOut = signOut;
+  localAuth.signIn = signIn
+  localAuth.signOut = signOut
 
-  const { refreshToken } = useAuthState();
+  const { refreshToken } = useAuthState()
 
   return {
     ...localAuth,
     refreshToken: readonly(refreshToken),
-    refresh,
-  };
-};
+    refresh
+  }
+}

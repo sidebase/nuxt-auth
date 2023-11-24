@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ref } from "vue";
-import { useAuth } from "#imports";
+import { ref } from 'vue'
+import { useAuth } from '#imports'
 const {
   signIn,
   token,
@@ -10,10 +10,10 @@ const {
   status,
   lastRefreshedAt,
   signOut,
-  getSession,
-} = useAuth();
-const username = ref("hunter");
-const password = ref("hunter2");
+  getSession
+} = useAuth()
+const username = ref('hunter')
+const password = ref('hunter2')
 </script>
 
 <template>
@@ -25,14 +25,15 @@ const password = ref("hunter2");
     <pre>
 JWT refreshToken: {{
         refreshToken || "no refreshToken present, are you logged in?"
-      }}</pre
-    >
+    }}</pre>
     <form @submit.prevent="signIn({ username, password })">
-      <input v-model="username" type="text" placeholder="Username" />
-      <input v-model="password" type="password" placeholder="Password" />
-      <button type="submit">sign in</button>
+      <input v-model="username" type="text" placeholder="Username">
+      <input v-model="password" type="password" placeholder="Password">
+      <button type="submit">
+        sign in
+      </button>
     </form>
-    <br />
+    <br>
     <button
       @click="
         signIn({ username, password }, { callbackUrl: '/protected/globally' })
@@ -40,18 +41,22 @@ JWT refreshToken: {{
     >
       sign in (with redirect to protected page)
     </button>
-    <br />
-    <button @click="signOut({ callbackUrl: '/signout' })">sign out</button>
-    <br />
+    <br>
+    <button @click="signOut({ callbackUrl: '/signout' })">
+      sign out
+    </button>
+    <br>
     <button @click="getSession({ required: false })">
       refresh session (required: false)
     </button>
-    <br />
+    <br>
     <button @click="getSession({ required: true, callbackUrl: '/' })">
       refresh session (required: true)
     </button>
-    <br />
-    <button @click="refresh()">refresh tokens</button>
+    <br>
+    <button @click="refresh()">
+      refresh tokens
+    </button>
     <NuxtPage />
   </div>
 </template>

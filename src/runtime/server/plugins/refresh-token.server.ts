@@ -1,45 +1,45 @@
-import { _fetch } from "../../utils/fetch";
-import { jsonPointerGet, useTypedBackendConfig } from "../../helpers";
-import { defineNuxtPlugin, useAuthState, useRuntimeConfig } from "#imports";
+import { _fetch } from '../../utils/fetch'
+import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
+import { defineNuxtPlugin, useAuthState, useRuntimeConfig } from '#imports'
 export default defineNuxtPlugin({
-  name: "refresh-token-plugin",
-  enforce: "pre",
-  async setup(nuxtApp) {
+  name: 'refresh-token-plugin',
+  enforce: 'pre',
+  async setup (nuxtApp) {
     const { rawToken, rawRefreshToken, refreshToken, token, lastRefreshedAt } =
-      useAuthState();
+      useAuthState()
 
     if (refreshToken.value && token.value) {
-      const config = nuxtApp.$config.public.auth;
-      const configToken = useTypedBackendConfig(useRuntimeConfig(), "refresh");
+      const config = nuxtApp.$config.public.auth
+      const configToken = useTypedBackendConfig(useRuntimeConfig(), 'refresh')
 
-      const { path, method } = config.provider.endpoints.refresh;
+      const { path, method } = config.provider.endpoints.refresh
 
       // include header in case of auth is required to avoid 403 rejection
       const headers = new Headers({
-        [configToken.token.headerName]: token.value,
-      } as HeadersInit);
+        [configToken.token.headerName]: token.value
+      } as HeadersInit)
 
       const response = await _fetch<Record<string, any>>(nuxtApp, path, {
         method,
         body: {
-          refreshToken: refreshToken.value,
+          refreshToken: refreshToken.value
         },
-        headers,
-      });
+        headers
+      })
 
       const extractedToken = jsonPointerGet(
         response,
         config.provider.token.signInResponseTokenPointer
-      );
-      if (typeof extractedToken !== "string") {
+      )
+      if (typeof extractedToken !== 'string') {
         console.error(
           `Auth: string token expected, received instead: ${JSON.stringify(
             extractedToken
           )}. Tried to find token at ${
             config.token.signInResponseTokenPointer
           } in ${JSON.stringify(response)}`
-        );
-        return;
+        )
+        return
       }
 
       // check if refereshTokenOnly
@@ -47,24 +47,24 @@ export default defineNuxtPlugin({
         const extractedRefreshToken = jsonPointerGet(
           response,
           config.provider.refreshToken.signInResponseRefreshTokenPointer
-        );
-        if (typeof extractedRefreshToken !== "string") {
+        )
+        if (typeof extractedRefreshToken !== 'string') {
           console.error(
             `Auth: string token expected, received instead: ${JSON.stringify(
               extractedRefreshToken
             )}. Tried to find token at ${
               config.refreshToken.signInResponseRefreshTokenPointer
             } in ${JSON.stringify(response)}`
-          );
-          return;
+          )
+          return
         } else {
-          rawRefreshToken.value = extractedRefreshToken;
+          rawRefreshToken.value = extractedRefreshToken
         }
       }
 
-      rawToken.value = extractedToken;
+      rawToken.value = extractedToken
 
-      lastRefreshedAt.value = new Date();
+      lastRefreshedAt.value = new Date()
     }
-  },
-});
+  }
+})

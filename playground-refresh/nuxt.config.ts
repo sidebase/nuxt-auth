@@ -1,30 +1,30 @@
 export default defineNuxtConfig({
-  modules: ["../src/module.ts"],
+  modules: ['../src/module.ts'],
   build: {
-    transpile: ["jsonwebtoken"],
+    transpile: ['jsonwebtoken']
   },
   auth: {
     provider: {
-      type: "refresh",
+      type: 'refresh',
       // refreshOnlyToken: true,
       endpoints: {
-        getSession: { path: "/user" },
-        refresh: { path: "/refresh", method: "post" },
+        getSession: { path: '/user' },
+        refresh: { path: '/refresh', method: 'post' }
       },
       pages: {
-        login: "/",
+        login: '/'
       },
       token: {
-        signInResponseTokenPointer: "/token/accessToken",
+        signInResponseTokenPointer: '/token/accessToken',
         maxAgeInSeconds: 60 * 5, // 5 min
-        sameSiteAttribute: "lax",
+        sameSiteAttribute: 'lax'
       },
       refreshToken: {
-        signInResponseRefreshTokenPointer: "/token/refreshToken",
-      },
+        signInResponseRefreshTokenPointer: '/token/refreshToken'
+      }
     },
     globalAppMiddleware: {
-      isEnabled: true,
-    },
-  },
-});
+      isEnabled: true
+    }
+  }
+})
