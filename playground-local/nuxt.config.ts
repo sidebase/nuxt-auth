@@ -4,7 +4,6 @@ export default defineNuxtConfig({
     transpile: ['jsonwebtoken']
   },
   auth: {
-    baseURL: 'http://localhost:3001/api/auth',
     provider: {
       type: 'local',
       endpoints: {
