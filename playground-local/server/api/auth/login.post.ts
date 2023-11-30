@@ -19,10 +19,10 @@ export default eventHandler(async (event) => {
     name: 'User ' + username
   }
 
-  const accessToken = sign({ data: { user }, scope: ['test', 'user'] }, SECRET, { expiresIn })
+  const accessToken = sign({ ...user, scope: ['test', 'user'] }, SECRET, { expiresIn })
   refreshTokens[refreshToken] = {
     accessToken,
-    data: { user }
+    user
   }
 
   return {
