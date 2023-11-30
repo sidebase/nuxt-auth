@@ -23,7 +23,9 @@ const topLevelDefaults = {
   isEnabled: true,
   session: {
     enableRefreshPeriodically: false,
-    enableRefreshOnWindowFocus: true
+    enableRefreshOnWindowFocus: true,
+    dataType: { id: 'string | number' },
+    dataResponsePointer: '/'
   },
   globalAppMiddleware: {
     isEnabled: false,
@@ -55,7 +57,6 @@ const defaultsByBackend: {
       maxAgeInSeconds: 30 * 60,
       sameSiteAttribute: 'lax'
     },
-    sessionDataType: { id: 'string | number' }
   },
 
   refresh: {
@@ -82,7 +83,6 @@ const defaultsByBackend: {
       signInResponseRefreshTokenPointer: '/refreshToken',
       maxAgeInSeconds: 60 * 60 * 24 * 7 // 7 days
     },
-    sessionDataType: { id: 'string | number' }
   },
 
   authjs: {
