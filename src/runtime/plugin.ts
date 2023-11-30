@@ -7,10 +7,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const { data, lastRefreshedAt } = useAuthState()
   const { getSession } = useAuth()
 
+  // use runtimeConfig
+  const runtimeConfig = useRuntimeConfig().public.auth
+
   // Skip auth if we're prerendering
   let nitroPrerender = false
   if (nuxtApp.ssrContext) {
-    nitroPrerender = getHeader(nuxtApp.ssrContext.event, 'x-nitro-prerender') !== undefined
+    nitroPrerender =
+      getHeader(nuxtApp.ssrContext.event, 'x-nitro-prerender') !== undefined
   }
 
   // Only fetch session if it was not yet initialized server-side
@@ -19,7 +23,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   // 2. Setup session maintanence, e.g., auto refreshing or refreshing on foux
-  const { enableRefreshOnWindowFocus, enableRefreshPeriodically } = useRuntimeConfig().public.auth.session
+  const { enableRefreshOnWindowFocus, enableRefreshPeriodically } =
+    runtimeConfig.session
 
   // Listen for when the page is visible, if the user switches tabs
   // and makes our tab visible again, re-fetch the session, but only if
@@ -33,14 +38,29 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // Refetch interval
   let refetchIntervalTimer: NodeJS.Timer
 
+  // TODO: find more Generic method to start a Timer for the Refresh Token
+  // Refetch interval for local/refresh schema
+  let refreshTokenIntervalTimer: NodeJS.Timer
+
   nuxtApp.hook('app:mounted', () => {
     document.addEventListener('visibilitychange', visibilityHandler, false)
 
     if (enableRefreshPeriodically !== false) {
-      const intervalTime = enableRefreshPeriodically === true ? 1000 : enableRefreshPeriodically
+      const intervalTime =
+        enableRefreshPeriodically === true ? 1000 : enableRefreshPeriodically
       refetchIntervalTimer = setInterval(() => {
         if (data.value) {
           getSession()
+        }
+      }, intervalTime)
+    }
+
+    if (runtimeConfig.provider.type === 'refresh') {
+      const intervalTime = runtimeConfig.provider.token.maxAgeInSeconds * 1000
+      const { refresh, refreshToken } = useAuth()
+      refreshTokenIntervalTimer = setInterval(() => {
+        if (refreshToken.value) {
+          refresh()
         }
       }, intervalTime)
     }
@@ -53,6 +73,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     // Clear refetch interval
     clearInterval(refetchIntervalTimer)
+
+    // Clear refetch interval
+    if (refreshTokenIntervalTimer) {
+      clearInterval(refreshTokenIntervalTimer)
+    }
 
     // Clear session
     lastRefreshedAt.value = undefined
