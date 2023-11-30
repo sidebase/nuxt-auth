@@ -1,9 +1,8 @@
 import { computed } from 'vue'
 import getURL from 'requrl'
 import { joinURL } from 'ufo'
-import { useRuntimeConfig, useRequestEvent } from '#app'
 import { SessionLastRefreshedAt, SessionStatus } from '../types'
-import { useState } from '#imports'
+import { useRuntimeConfig, useRequestEvent, useState } from '#imports'
 
 export const makeCommonAuthState = <SessionData>() => {
   const data = useState<SessionData | undefined | null>('auth:data', () => undefined)

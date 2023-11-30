@@ -1,5 +1,5 @@
 import { computed, watch, ComputedRef } from 'vue'
-import { CookieRef } from '#app'
+import type { CookieRef } from '#app'
 import { CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
 import { useTypedBackendConfig } from '../../helpers'
@@ -9,7 +9,9 @@ import type { SessionData } from '#auth'
 
 interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData> {
   token: ComputedRef<string | null>
-  rawToken: CookieRef<string | null>
+  rawToken: CookieRef<string | null>,
+  setToken: (newToken: string | null) => void
+  clearToken: () => void
 }
 
 export const useAuthState = (): UseAuthStateReturn => {
@@ -29,6 +31,14 @@ export const useAuthState = (): UseAuthStateReturn => {
     return config.token.type.length > 0 ? `${config.token.type} ${rawToken.value}` : rawToken.value
   })
 
+  const setToken = (newToken: string | null) => {
+    rawToken.value = newToken
+  }
+
+  const clearToken = () => {
+    setToken(null)
+  }
+
   const schemeSpecificState = {
     token,
     rawToken
@@ -36,7 +46,9 @@ export const useAuthState = (): UseAuthStateReturn => {
 
   return {
     ...commonAuthState,
-    ...schemeSpecificState
+    ...schemeSpecificState,
+    setToken,
+    clearToken
   }
 }
 export default useAuthState

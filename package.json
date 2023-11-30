@@ -1,6 +1,6 @@
 {
   "name": "@sidebase/nuxt-auth",
-  "version": "0.6.0-beta.6",
+  "version": "0.6.3-alpha.1",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -18,8 +18,9 @@
     "prepack": "nuxt-module-build",
     "build": "nuxi build",
     "lint": "eslint . --max-warnings=0",
-    "clean": "rm -rf playground-authjs/.nuxt playground-local/.nuxt dist .nuxt",
+    "clean": "rm -rf playground-authjs/.nuxt playground-local/.nuxt playground-refresh/.nuxt dist .nuxt",
     "typecheck": "nuxi prepare playground-local && tsc --noEmit",
+    "typecheck:refresh": "nuxi prepare playground-refresh && tsc --noEmit",
     "dev:prepare": "nuxt-module-build --stub"
   },
   "dependencies": {

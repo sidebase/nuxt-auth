@@ -1,5 +1,5 @@
 import { readonly, Ref } from 'vue'
-import { callWithNuxt } from '#app'
+import { callWithNuxt } from '#app/nuxt'
 import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions } from '../../types'
 import { _fetch } from '../../utils/fetch'
 import { extractObjectWithJsonPointer, useTypedBackendConfig } from '../../helpers'
@@ -37,10 +37,10 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
 
   await nextTick(getSession)
 
-  const { callbackUrl, redirect = true } = signInOptions ?? {}
+  const { callbackUrl, redirect = true, external } = signInOptions ?? {}
   if (redirect) {
     const urlToNavigateTo = callbackUrl ?? await getRequestURLWN(nuxt)
-    return navigateTo(urlToNavigateTo, { external: true })
+    return navigateTo(urlToNavigateTo, { external })
   }
 }
 
@@ -54,13 +54,17 @@ const signOut: SignOutFunc = async (signOutOptions) => {
   data.value = null
   rawToken.value = null
 
-  const { path, method } = config.endpoints.signOut
+  const signOutConfig = config.endpoints.signOut
+  let res
 
-  const res = await _fetch(nuxt, path, { method, headers })
+  if (signOutConfig) {
+    const { path, method } = signOutConfig
+    res = await _fetch(nuxt, path, { method, headers })
+  }
 
-  const { callbackUrl, redirect = true } = signOutOptions ?? {}
+  const { callbackUrl, redirect = true, external } = signOutOptions ?? {}
   if (redirect) {
-    await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external: true })
+    await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external })
   }
 
   return res
@@ -92,12 +96,12 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   loading.value = false
   lastRefreshedAt.value = new Date()
 
-  const { required = false, callbackUrl, onUnauthenticated } = getSessionOptions ?? {}
+  const { required = false, callbackUrl, onUnauthenticated, external } = getSessionOptions ?? {}
   if (required && data.value === null) {
     if (onUnauthenticated) {
       return onUnauthenticated()
     } else {
-      await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external: true })
+      await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external })
     }
   }
 
