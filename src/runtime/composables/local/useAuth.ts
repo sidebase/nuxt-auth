@@ -25,9 +25,10 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     params: signInParams ?? {}
   })
 
-  const extractedToken = extractObjectWithJsonPointer<string>(response, config.token.signInResponseTokenPointer)
+  const { dataResponsePointer: dataResponseSessionPointer } = useRuntimeConfig().public.auth.session
+  const extractedToken = extractObjectWithJsonPointer<string>(response, dataResponseSessionPointer)
   if (typeof extractedToken !== 'string') {
-    console.error(`Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`)
+    console.error(`Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. Tried to find token at ${dataResponseSessionPointer} in ${JSON.stringify(response)}`)
     return
   }
 
@@ -81,7 +82,8 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   loading.value = true
   try {
     const result = await _fetch<any>(nuxt, path, { method, headers })
-    data.value = extractObjectWithJsonPointer<SessionData>(result, config.sessionDataResponseTokenPointer)
+    const { dataType: sessionDataType } = useRuntimeConfig().public.auth.session
+    data.value = extractObjectWithJsonPointer<SessionData>(result, sessionDataType)
   } catch {
     // Clear all data: Request failed so we must not be authenticated
     data.value = null

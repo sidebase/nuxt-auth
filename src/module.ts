@@ -10,7 +10,9 @@ const topLevelDefaults = {
   isEnabled: true,
   session: {
     enableRefreshPeriodically: false,
-    enableRefreshOnWindowFocus: true
+    enableRefreshOnWindowFocus: true,
+    dataType: { id: 'string | number' },
+    dataResponsePointer: '/'
   },
   globalAppMiddleware: {
     isEnabled: false,
@@ -38,8 +40,6 @@ const defaultsByBackend: { [key in SupportedAuthProviders]: DeepRequired<Extract
       maxAgeInSeconds: 30 * 60,
       sameSiteAttribute: 'lax'
     },
-    sessionDataType: { id: 'string | number' },
-    sessionDataResponseTokenPointer: '/'
   },
   authjs: {
     type: 'authjs',
@@ -132,7 +132,7 @@ export default defineNuxtModule<ModuleOptions>({
         `  const getServerSession: typeof import('${resolve('./runtime/server/services')}').getServerSession`,
         `  const getToken: typeof import('${resolve('./runtime/server/services')}').getToken`,
         `  const NuxtAuthHandler: typeof import('${resolve('./runtime/server/services')}').NuxtAuthHandler`,
-        options.provider.type === 'local' ? genInterface('SessionData', (options.provider as any).sessionDataType) : '',
+        options.provider.type === 'local' ? genInterface('SessionData', (options.session as any).dataType) : '',
         '}'
       ].join('\n')
     })
