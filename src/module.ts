@@ -56,7 +56,7 @@ const defaultsByBackend: {
       headerName: 'Authorization',
       maxAgeInSeconds: 30 * 60,
       sameSiteAttribute: 'lax'
-    },
+    }
   },
 
   refresh: {
@@ -82,7 +82,7 @@ const defaultsByBackend: {
     refreshToken: {
       signInResponseRefreshTokenPointer: '/refreshToken',
       maxAgeInSeconds: 60 * 60 * 24 * 7 // 7 days
-    },
+    }
   },
 
   authjs: {

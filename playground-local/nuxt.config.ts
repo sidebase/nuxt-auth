@@ -14,7 +14,7 @@ export default defineNuxtConfig({
       },
       token: {
         signInResponseTokenPointer: '/token/accessToken'
-      },
+      }
     },
     session: {
       // Whether to refresh the session every time the browser window is refocused.
