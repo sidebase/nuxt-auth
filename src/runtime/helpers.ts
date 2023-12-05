@@ -78,6 +78,6 @@ export const jsonPointerGet = <TResult, T extends object = object>(
     }
     result = result[tok]
   }
-  
+
   return result
 }
