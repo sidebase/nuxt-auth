@@ -266,14 +266,14 @@ type SessionConfig = {
    * @default false
    *
    */
-  enableRefreshPeriodically: number | boolean;
+  enableRefreshPeriodically?: number | boolean;
   /**
    * Whether to refresh the session every time the browser window is refocused.
    *
    * @example false
    * @default true
    */
-  enableRefreshOnWindowFocus: boolean;
+  enableRefreshOnWindowFocus?: boolean;
   /**
    * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
    *
