@@ -6,7 +6,7 @@ import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
 import { useAuthState } from './useAuthState'
 // @ts-expect-error - #auth not defined
-import type { SessionData } from '#auth'
+import { SessionData } from '#auth'
 import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
 
 type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
@@ -25,10 +25,9 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     params: signInParams ?? {}
   })
 
-  const { dataResponsePointer: dataResponseSessionPointer } = useRuntimeConfig().public.auth.session
-  const extractedToken = jsonPointerGet<string>(response, dataResponseSessionPointer)
+  const extractedToken = jsonPointerGet<string>(response, config.token.signInResponseTokenPointer)
   if (typeof extractedToken !== 'string') {
-    console.error(`Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. Tried to find token at ${dataResponseSessionPointer} in ${JSON.stringify(response)}`)
+    console.error(`Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`)
     return
   }
 
@@ -86,9 +85,13 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   loading.value = true
   try {
     const result = await _fetch<any>(nuxt, path, { method, headers })
-    const { dataType: sessionDataType } = useRuntimeConfig().public.auth.session
-    data.value = jsonPointerGet<SessionData>(result, sessionDataType)
-  } catch {
+    const { dataResponsePointer: sessionDataResponsePointer } = useRuntimeConfig().public.auth.session
+    data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
+  } catch (err) {
+    if (!data.value && err instanceof Error) {
+      console.error(`Session: unable to extract session, ${err.message}`)
+    }
+
     // Clear all data: Request failed so we must not be authenticated
     data.value = null
     rawToken.value = null
