@@ -6,7 +6,7 @@ import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
 import { useAuthState } from './useAuthState'
 // @ts-expect-error - #auth not defined
-import { SessionData } from '#auth'
+import type { SessionData } from '#auth'
 import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
 
 type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
