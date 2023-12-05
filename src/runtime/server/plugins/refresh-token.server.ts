@@ -27,7 +27,7 @@ export default defineNuxtPlugin({
         headers
       })
 
-      const extractedToken = jsonPointerGet(
+      const extractedToken = jsonPointerGet<string>(
         response,
         config.provider.token.signInResponseTokenPointer
       )
@@ -44,7 +44,7 @@ export default defineNuxtPlugin({
 
       // check if refereshTokenOnly
       if (!configToken.refreshOnlyToken) {
-        const extractedRefreshToken = jsonPointerGet(
+        const extractedRefreshToken = jsonPointerGet<string>(
           response,
           config.provider.refreshToken.signInResponseRefreshTokenPointer
         )
