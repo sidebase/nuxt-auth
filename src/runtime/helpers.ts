@@ -49,12 +49,23 @@ export const useTypedBackendConfig = <T extends SupportedAuthProviders>(
  * @param obj
  * @param pointer
  */
-export const jsonPointerGet = <TResult, T extends object = object>(obj: T, pointer: string): TResult => {
-  let result: TResult = obj as unknown as TResult
+export const jsonPointerGet = <TResult, T extends object = object>(
+  obj: T,
+  pointer: string
+): TResult => {
+  let result = obj as unknown as TResult
+  if (pointer === '/') {
+    return result
+  }
+
   const unescape = (str: string) => str.replace(/~1/g, '/').replace(/~0/g, '~')
   const parse = (pointer: string) => {
-    if (pointer === '') { return [] }
-    if (pointer.charAt(0) !== '/') { throw new Error('Invalid JSON pointer: ' + pointer) }
+    if (pointer === '') {
+      return []
+    }
+    if (pointer.charAt(0) !== '/') {
+      throw new Error('Invalid JSON pointer: ' + pointer)
+    }
     return pointer.substring(1).split(/\//).map(unescape)
   }
 
@@ -62,11 +73,11 @@ export const jsonPointerGet = <TResult, T extends object = object>(obj: T, point
 
   for (let i = 0; i < refTokens.length; ++i) {
     const tok = refTokens[i]
-    if (!(typeof result === 'object' && result && tok in result)) {
+    if (!(typeof result === 'object' && tok in result)) {
       throw new Error('Invalid reference token: ' + tok)
     }
-    result = (result as any)[tok]
+    result = result[tok]
   }
-
+  
   return result
 }
