@@ -8,6 +8,7 @@ import type { ModuleOptions, SupportedAuthProviders, AuthProviders } from './run
 
 const topLevelDefaults = {
   isEnabled: true,
+  disableServerSideAuth: false,
   session: {
     enableRefreshPeriodically: false,
     enableRefreshOnWindowFocus: true

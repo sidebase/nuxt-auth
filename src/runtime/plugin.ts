@@ -5,7 +5,7 @@ import { useAuth, useAuthState } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
-  const { data, lastRefreshedAt } = useAuthState()
+  const { data, lastRefreshedAt, loading } = useAuthState()
   const { getSession } = useAuth()
 
   // Skip auth if we're prerendering
@@ -14,8 +14,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     nitroPrerender = getHeader(nuxtApp.ssrContext.event, 'x-nitro-prerender') !== undefined
   }
 
+  // Skip auth if the developer chooses
+  const { disableServerSideAuth } = useRuntimeConfig().public.auth
+  if (disableServerSideAuth) {
+    loading.value = true;
+  }
+
   // Only fetch session if it was not yet initialized server-side
-  if (typeof data.value === 'undefined' && !nitroPrerender) {
+  if (typeof data.value === 'undefined' && !nitroPrerender && !disableServerSideAuth) {
     await getSession()
   }
 
@@ -35,6 +41,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   let refetchIntervalTimer: NodeJS.Timer
 
   nuxtApp.hook('app:mounted', () => {
+    if (disableServerSideAuth) {
+      getSession()
+    }
+
     document.addEventListener('visibilitychange', visibilityHandler, false)
 
     if (enableRefreshPeriodically !== false) {
