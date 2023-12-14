@@ -25,13 +25,18 @@ export const getOriginAndPathnameFromURL = (url: string) => {
  * Get the backend configuration from the runtime config in a typed manner.
  *
  * @param runtimeConfig The runtime config of the application
- * @param type Backend type to be enforced (e.g.: `local` or `authjs`)
+ * @param type Backend type to be enforced (e.g.: `local`,`refresh` or `authjs`)
  */
-export const useTypedBackendConfig = <T extends SupportedAuthProviders>(runtimeConfig: ReturnType<typeof useRuntimeConfig>, type: T): Extract<DeepRequired<AuthProviders>, { type: T }> => {
-  if (runtimeConfig.public.auth.provider.type === type) {
-    return runtimeConfig.public.auth.provider as Extract<DeepRequired<AuthProviders>, { type: T }>
-  }
-  throw new Error('RuntimeError: Type must match at this point')
+export const useTypedBackendConfig = <T extends SupportedAuthProviders>(
+  runtimeConfig: ReturnType<typeof useRuntimeConfig>,
+  _type: T
+): Extract<DeepRequired<AuthProviders>, { type: T }> => {
+  return runtimeConfig.public.auth.provider as Extract<
+    DeepRequired<AuthProviders>,
+    { type: T }
+  >
+  // TODO: find better solution to throw errors, when using sub-configs
+  // throw new Error('RuntimeError: Type must match at this point')
 }
 
 /**
@@ -44,11 +49,18 @@ export const useTypedBackendConfig = <T extends SupportedAuthProviders>(runtimeC
  * @param obj
  * @param pointer
  */
-export const jsonPointerGet = (obj: Record<string, any>, pointer: string): string | Record<string, any> => {
+export const jsonPointerGet = (
+  obj: Record<string, any>,
+  pointer: string
+): string | Record<string, any> => {
   const unescape = (str: string) => str.replace(/~1/g, '/').replace(/~0/g, '~')
   const parse = (pointer: string) => {
-    if (pointer === '') { return [] }
-    if (pointer.charAt(0) !== '/') { throw new Error('Invalid JSON pointer: ' + pointer) }
+    if (pointer === '') {
+      return []
+    }
+    if (pointer.charAt(0) !== '/') {
+      throw new Error('Invalid JSON pointer: ' + pointer)
+    }
     return pointer.substring(1).split(/\//).map(unescape)
   }
 

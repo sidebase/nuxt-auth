@@ -1,5 +1,5 @@
 import { readonly, Ref } from 'vue'
-import { callWithNuxt } from '#app'
+import { callWithNuxt } from '#app/nuxt'
 import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions } from '../../types'
 import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
@@ -53,9 +53,13 @@ const signOut: SignOutFunc = async (signOutOptions) => {
   data.value = null
   rawToken.value = null
 
-  const { path, method } = config.endpoints.signOut
+  const signOutConfig = config.endpoints.signOut
+  let res
 
-  const res = await _fetch(nuxt, path, { method, headers })
+  if (signOutConfig) {
+    const { path, method } = signOutConfig
+    res = await _fetch(nuxt, path, { method, headers })
+  }
 
   const { callbackUrl, redirect = true, external } = signOutOptions ?? {}
   if (redirect) {

@@ -1,6 +1,6 @@
 {
   // Note: we need to explicitly extend one of the playgrounds here in order to have a nice and working typecheckk, otherwise `nuxt`-types are going to be unknown
-  "extends": "./playground-local/.nuxt/tsconfig.json",
+  "extends": "./playground-refresh/.nuxt/tsconfig.json",
   "exclude": ["../docs"],
   "include": ["src/"]
 }
