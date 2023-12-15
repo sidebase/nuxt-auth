@@ -20,7 +20,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // Skip auth if the developer chooses
   const { disableServerSideAuth } = useRuntimeConfig().public.auth
   if (disableServerSideAuth) {
-    loading.value = true;
+    loading.value = true
   }
 
   // Only fetch session if it was not yet initialized server-side
