@@ -129,7 +129,6 @@ export default defineNuxtModule<ModuleOptions>({
     // 1. Check if module should be enabled at all
     if (!options.isEnabled) {
       logger.info(`Skipping ${PACKAGE_NAME} setup, as module is disabled`)
-      return
     }
 
     logger.info('`nuxt-auth` setup starting')
@@ -154,18 +153,32 @@ export default defineNuxtModule<ModuleOptions>({
     const { resolve } = createResolver(import.meta.url)
 
     // 4. Add the correct nuxt-auth app composable, for the desired backend
-    addImports([
-      {
-        name: 'useAuth',
-        from: resolve(`./runtime/composables/${options.provider.type}/useAuth`)
-      },
-      {
-        name: 'useAuthState',
-        from: resolve(
-          `./runtime/composables/${options.provider.type}/useAuthState`
-        )
-      }
-    ])
+    if (options.isEnabled) {
+      addImports([
+        {
+          name: 'useAuth',
+          from: resolve(`./runtime/composables/${options.provider.type}/useAuth`)
+        },
+        {
+          name: 'useAuthState',
+          from: resolve(
+            `./runtime/composables/${options.provider.type}/useAuthState`
+          )
+        }
+      ])
+    } else {
+      // In case nuxt-auth is disabled, we add stubs for the imports
+      addImports([
+        {
+          name: 'useAuth',
+          from: resolve('./runtime/composables/stub/useAuth')
+        },
+        {
+          name: 'useAuthState',
+          from: resolve('./runtime/composables/stub/useAuthState')
+        }
+      ])
+    }
 
     // 5. Create virtual imports for server-side
     nuxt.hook('nitro:config', (nitroConfig) => {
