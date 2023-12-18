@@ -395,6 +395,11 @@ export interface SecondarySignInOptions extends Record<string, unknown> {
    * @default false
    */
   external?: boolean;
+  /** Prevent the signIn flow during registration and return the signUp response
+   *
+   * @default false
+   */
+  stopLogin?: boolean;
 }
 
 export interface SignOutOptions {
