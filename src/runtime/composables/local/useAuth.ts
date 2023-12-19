@@ -114,7 +114,7 @@ const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInO
     body: credentials
   })
 
-  if(signInOptions.stopLogin) {
+  if(signInOptions?.stopLogin) {
     return response
   }
 
