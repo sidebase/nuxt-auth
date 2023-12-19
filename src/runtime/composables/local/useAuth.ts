@@ -1,6 +1,6 @@
 import { readonly, Ref } from 'vue'
 import { callWithNuxt } from '#app/nuxt'
-import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions } from '../../types'
+import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions, RegisterOptions } from '../../types'
 import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
@@ -105,17 +105,17 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   return data.value
 }
 
-const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInOptions) => {
+const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInOptions, registerOptions?: RegisterOptions) => {
   const nuxt = useNuxtApp()
 
   const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signUp
-  const response = await _fetch<Record<string, any>>(nuxt, path, {
+  await _fetch<Record<string, any>>(nuxt, path, {
     method,
     body: credentials
   })
 
-  if(signInOptions?.stopLogin) {
-    return response
+  if(registerOptions?.preventLoginFlow) {
+    return
   }
 
   return signIn(credentials, signInOptions)
