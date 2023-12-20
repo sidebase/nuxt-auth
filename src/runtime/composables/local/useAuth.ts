@@ -109,7 +109,7 @@ const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInO
   const nuxt = useNuxtApp()
 
   const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signUp
-  await _fetch<Record<string, any>>(nuxt, path, {
+  await _fetch(nuxt, path, {
     method,
     body: credentials
   })
