@@ -114,7 +114,7 @@ const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInO
     body: credentials
   })
 
-  if(registerOptions?.preventLoginFlow) {
+  if (registerOptions?.preventLoginFlow) {
     return
   }
 
