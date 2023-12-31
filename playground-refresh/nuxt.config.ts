@@ -26,5 +26,16 @@ export default defineNuxtConfig({
     globalAppMiddleware: {
       isEnabled: true
     }
+  },
+  routeRules: {
+    '/': {
+      swr: 86400000
+    },
+    '/with-caching': {
+      swr: 86400000,
+      auth: {
+        disableServerSideAuth: true
+      }
+    }
   }
 })
