@@ -1,5 +1,6 @@
 import { getHeader } from 'h3'
 import authMiddleware from './middleware/auth'
+import { createNitroRouteRuleMatcher } from './utils/kit'
 import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig, useAuth, useAuthState } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
@@ -10,6 +11,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // use runtimeConfig
   const runtimeConfig = useRuntimeConfig().public.auth
 
+  const routeRuleMatcher = createNitroRouteRuleMatcher()
+  const routeRules = routeRuleMatcher(nuxtApp._route.path)
+
   // Skip auth if we're prerendering
   let nitroPrerender = false
   if (nuxtApp.ssrContext) {
@@ -17,8 +21,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       getHeader(nuxtApp.ssrContext.event, 'x-nitro-prerender') !== undefined
   }
 
-  // Skip auth if the developer chooses
-  const { disableServerSideAuth } = useRuntimeConfig().public.auth
+  // Prioritize `routeRules` setting over `runtimeConfig` settings, fallback to false
+  let disableServerSideAuth = routeRules.auth?.disableServerSideAuth
+  disableServerSideAuth ??= runtimeConfig?.disableServerSideAuth
+  disableServerSideAuth ??= false
+
   if (disableServerSideAuth) {
     loading.value = true
   }
