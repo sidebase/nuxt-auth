@@ -65,7 +65,10 @@ jobs:
       - run: pnpm build
 
       # start prod-app and curl from it
-      - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:3000)"
+      - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"
+        env:
+          AUTH_ORIGIN: "http://localhost:3001"
+          PORT: 3001
 
   test-playground-refresh:
     runs-on: ubuntu-latest
@@ -126,5 +129,5 @@ jobs:
       # start prod-app and curl from it
       - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"
         env:
-          AUTH_ORIGIN: "http://localhost:3001"
-          PORT: 3001
+          AUTH_ORIGIN: "http://localhost:3000"
+          PORT: 3000
