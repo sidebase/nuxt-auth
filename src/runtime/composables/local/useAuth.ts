@@ -1,13 +1,13 @@
 import { readonly, Ref } from 'vue'
-import { callWithNuxt } from '#app/nuxt'
-import { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions } from '../../types'
-import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
+import { CommonUseAuthReturn, GetSessionFunc, SecondarySignInOptions, SignInFunc, SignOutFunc } from '../../types'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
+import { _fetch } from '../../utils/fetch'
 import { useAuthState } from './useAuthState'
+import { callWithNuxt } from '#app/nuxt'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
-import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
+import { navigateTo, nextTick, useNuxtApp, useRuntimeConfig } from '#imports'
 
 type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
 
@@ -43,13 +43,29 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   }
 }
 
+const addHeaders = (token: string | null, config: ReturnType<typeof useTypedBackendConfig>) => {
+  if (!(token && config.token.headerName)) {
+    return undefined
+  }
+
+  if (config.token.type.length > 0) {
+    switch (config.token.type) {
+      case 'Cookie':
+        return { [config.token.headerName]: `${config.token.name}=${token}` }
+      case 'Bearer':
+      default:
+        return { [config.token.headerName]: `${config.token.type} ${token}` }
+    }
+  }
+}
+
 const signOut: SignOutFunc = async (signOutOptions) => {
   const nuxt = useNuxtApp()
   const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
   const config = useTypedBackendConfig(runtimeConfig, 'local')
   const { data, rawToken, token } = await callWithNuxt(nuxt, useAuthState)
 
-  const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
+  const headers = new Headers(addHeaders(token.value, config))
   data.value = null
   rawToken.value = null
 
@@ -80,7 +96,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
     return
   }
 
-  const headers = new Headers(token.value ? { [config.token.headerName]: token.value } as HeadersInit : undefined)
+  const headers = new Headers(addHeaders(token.value, config))
 
   loading.value = true
   try {
