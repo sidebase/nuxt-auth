@@ -397,7 +397,7 @@ export interface SecondarySignInOptions extends Record<string, unknown> {
   external?: boolean;
 }
 
-export interface RegisterOptions extends SecondarySignInOptions {
+export interface SignUpOptions extends SecondarySignInOptions {
   /** Prevent the signIn flow during registration
    *
    * @default false
