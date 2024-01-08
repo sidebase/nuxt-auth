@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "nuxt-auth-playground-local",
+  "name": "nuxt-auth-playground-refresh",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
