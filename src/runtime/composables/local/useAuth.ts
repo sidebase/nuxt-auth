@@ -85,7 +85,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   loading.value = true
   try {
     const result = await _fetch<any>(nuxt, path, { method, headers })
-    const { dataResponsePointer: sessionDataResponsePointer } = useRuntimeConfig().public.provider.session
+    const { dataResponsePointer: sessionDataResponsePointer } = config.session
     data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
   } catch (err) {
     if (!data.value && err instanceof Error) {
