@@ -23,9 +23,7 @@ const topLevelDefaults = {
   isEnabled: true,
   session: {
     enableRefreshPeriodically: false,
-    enableRefreshOnWindowFocus: true,
-    dataType: { id: 'string | number' },
-    dataResponsePointer: '/'
+    enableRefreshOnWindowFocus: true
   },
   globalAppMiddleware: {
     isEnabled: false,
@@ -56,6 +54,10 @@ const defaultsByBackend: {
       headerName: 'Authorization',
       maxAgeInSeconds: 30 * 60,
       sameSiteAttribute: 'lax'
+    },
+    session: {
+      dataType: { id: 'string | number' },
+      dataResponsePointer: '/'
     }
   },
 
@@ -82,6 +84,10 @@ const defaultsByBackend: {
     refreshToken: {
       signInResponseRefreshTokenPointer: '/refreshToken',
       maxAgeInSeconds: 60 * 60 * 24 * 7 // 7 days
+    },
+    session: {
+      dataType: { id: 'string | number' },
+      dataResponsePointer: '/'
     }
   },
 
@@ -198,7 +204,7 @@ export default defineNuxtModule<ModuleOptions>({
           options.provider.type === 'local'
             ? genInterface(
               'SessionData',
-              (options.session as any).dataType
+              (options.provider.session as any).dataType
             )
             : '',
           '}'
