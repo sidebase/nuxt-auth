@@ -19,7 +19,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   const response = await _fetch<Record<string, any>>(nuxt, path, {
     method,
     body: {
-      ...credentials,
+      credentials:credentials,
       ...(signInOptions ?? {})
     },
     params: signInParams ?? {}
