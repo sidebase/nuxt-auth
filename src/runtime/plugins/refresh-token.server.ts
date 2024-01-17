@@ -1,5 +1,5 @@
-import { _fetch } from '../../utils/fetch'
-import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
+import { _fetch } from '../utils/fetch'
+import { jsonPointerGet, useTypedBackendConfig } from '../helpers'
 import { defineNuxtPlugin, useAuthState, useRuntimeConfig } from '#imports'
 export default defineNuxtPlugin({
   name: 'refresh-token-plugin',
