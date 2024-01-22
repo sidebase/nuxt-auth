@@ -85,10 +85,6 @@ export default defineNuxtRouteMiddleware((to) => {
   }
 
   if (authConfig.provider.type === 'authjs') {
-    // If the middleware runs on a pre-render of the route, do not call signIn, as this is a client method
-    if (process.server) {
-      return
-    }
     const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.fullPath) }
     // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
     return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
