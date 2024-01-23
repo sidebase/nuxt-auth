@@ -1,5 +1,5 @@
 import { navigateToAuthPages, determineCallbackUrl } from '../utils/url'
-import { navigateTo, defineNuxtRouteMiddleware, useRuntimeConfig, useAuth } from '#imports'
+import { navigateTo, defineNuxtRouteMiddleware, useRuntimeConfig, useAuth, abortNavigation } from '#imports'
 
 type MiddlewareMeta = boolean | {
   /** Whether to only allow unauthenticated users to access this page.
@@ -27,7 +27,7 @@ declare module '#app' {
   }
 }
 
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware(async (to) => {
   const metaAuth = typeof to.meta.auth === 'object'
     ? {
         unauthenticatedOnly: true,
@@ -85,6 +85,18 @@ export default defineNuxtRouteMiddleware((to) => {
   }
 
   if (authConfig.provider.type === 'authjs') {
+    if (process.server) {
+      // @ts-ignore This is valid for fetching the providers, as we already know this middelware only runs for authjs
+      const { getProviders } = useAuth()
+      const providers = await getProviders()
+      const defaultProvider = providers[authConfig.provider.defaultProvider] ?? providers[Object.keys(providers)[0]]
+      if (defaultProvider) {
+        return navigateTo(defaultProvider.signinUrl, { external: true })
+      }
+      // Fallback, if no provider signin url can be found, throw error page
+      return abortNavigation({ message: 'Please authenticate', statusCode: 403 })
+    }
+
     const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.fullPath) }
     // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
     return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
