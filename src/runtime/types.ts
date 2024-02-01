@@ -49,8 +49,8 @@ type DataObjectArray = `${string}[]`;
 
 export type SessionDataObject = {
   [key: string]:
-  | Omit<string, DataObjectPrimitives | DataObjectArray>
-  | SessionDataObject;
+    | Omit<string, DataObjectPrimitives | DataObjectArray>
+    | SessionDataObject;
 };
 
 /**
