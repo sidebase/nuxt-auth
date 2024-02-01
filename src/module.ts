@@ -55,7 +55,8 @@ const defaultsByBackend: {
       maxAgeInSeconds: 30 * 60,
       sameSiteAttribute: 'lax'
     },
-    sessionDataType: { id: 'string | number' }
+    sessionDataType: { id: 'string | number' },
+    prefix: 'auth'
   },
 
   refresh: {
@@ -82,7 +83,8 @@ const defaultsByBackend: {
       signInResponseRefreshTokenPointer: '/refreshToken',
       maxAgeInSeconds: 60 * 60 * 24 * 7 // 7 days
     },
-    sessionDataType: { id: 'string | number' }
+    sessionDataType: { id: 'string | number' },
+    prefix: 'auth'
   },
 
   authjs: {

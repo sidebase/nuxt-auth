@@ -49,8 +49,8 @@ type DataObjectArray = `${string}[]`;
 
 export type SessionDataObject = {
   [key: string]:
-    | Omit<string, DataObjectPrimitives | DataObjectArray>
-    | SessionDataObject;
+  | Omit<string, DataObjectPrimitives | DataObjectArray>
+  | SessionDataObject;
 };
 
 /**
@@ -169,6 +169,13 @@ type ProviderLocal = {
    * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
    */
   sessionDataType?: SessionDataObject;
+  /**
+   * Prefix of the token to be read/written to the cookie.
+   *
+   * @default auth
+   * @example _auth
+   */
+  prefix?: string;
 };
 
 /**
