@@ -139,6 +139,13 @@ export type ProviderLocal = {
      */
     type?: string;
     /**
+     * It refers to the name of the property when it is stored in a cookie.
+     *
+     * @default auth:token
+     * @example auth.token
+     */
+    cookieName?: string;
+    /**
      * Header name to be used in requests that need to be authenticated, e.g., to be used in the `getSession` request.
      *
      * @default Authorization
@@ -210,6 +217,13 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
      * @example /       Access the root of the sign-in response object, useful when your endpoint returns a plain, non-object string as the token
      */
     signInResponseRefreshTokenPointer?: string;
+    /**
+     * It refers to the name of the property when it is stored in a cookie.
+     *
+     * @default auth:refresh-token
+     * @example auth.refresh-token
+     */
+    cookieName?: string;
     /**
      * Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
      *
