@@ -28,9 +28,6 @@ export default defineNuxtConfig({
     }
   },
   routeRules: {
-    '/': {
-      swr: 86400000
-    },
     '/with-caching': {
       swr: 86400000,
       auth: {
