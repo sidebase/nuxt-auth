@@ -1,6 +1,8 @@
 import { _fetch } from '../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../helpers'
+import type { ProviderLocalRefresh } from '../types'
 import { defineNuxtPlugin, useAuthState, useRuntimeConfig } from '#imports'
+
 export default defineNuxtPlugin({
   name: 'refresh-token-plugin',
   enforce: 'pre',
@@ -12,7 +14,9 @@ export default defineNuxtPlugin({
       const config = nuxtApp.$config.public.auth
       const configToken = useTypedBackendConfig(useRuntimeConfig(), 'refresh')
 
-      const { path, method } = config.provider.endpoints.refresh
+      const provider = config.provider as ProviderLocalRefresh
+
+      const { path, method } = provider.endpoints.refresh
 
       // include header in case of auth is required to avoid 403 rejection
       const headers = new Headers({
@@ -29,7 +33,7 @@ export default defineNuxtPlugin({
 
       const extractedToken = jsonPointerGet(
         response,
-        config.provider.token.signInResponseTokenPointer
+        provider.token.signInResponseTokenPointer
       )
       if (typeof extractedToken !== 'string') {
         console.error(
@@ -46,7 +50,7 @@ export default defineNuxtPlugin({
       if (!configToken.refreshOnlyToken) {
         const extractedRefreshToken = jsonPointerGet(
           response,
-          config.provider.refreshToken.signInResponseRefreshTokenPointer
+          provider.refreshToken.signInResponseRefreshTokenPointer
         )
         if (typeof extractedRefreshToken !== 'string') {
           console.error(
