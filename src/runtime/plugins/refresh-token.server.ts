@@ -1,3 +1,4 @@
+import type { DeepRequired } from 'ts-essentials'
 import { _fetch } from '../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../helpers'
 import type { ProviderLocalRefresh } from '../types'
@@ -14,7 +15,7 @@ export default defineNuxtPlugin({
       const config = nuxtApp.$config.public.auth
       const configToken = useTypedBackendConfig(useRuntimeConfig(), 'refresh')
 
-      const provider = config.provider as ProviderLocalRefresh
+      const provider = config.provider as DeepRequired<ProviderLocalRefresh>
 
       const { path, method } = provider.endpoints.refresh
 
@@ -40,7 +41,7 @@ export default defineNuxtPlugin({
           `Auth: string token expected, received instead: ${JSON.stringify(
             extractedToken
           )}. Tried to find token at ${
-            config.token.signInResponseTokenPointer
+            provider.token.signInResponseTokenPointer
           } in ${JSON.stringify(response)}`
         )
         return
@@ -57,7 +58,7 @@ export default defineNuxtPlugin({
             `Auth: string token expected, received instead: ${JSON.stringify(
               extractedRefreshToken
             )}. Tried to find token at ${
-              config.refreshToken.signInResponseRefreshTokenPointer
+              provider.refreshToken.signInResponseRefreshTokenPointer
             } in ${JSON.stringify(response)}`
           )
           return

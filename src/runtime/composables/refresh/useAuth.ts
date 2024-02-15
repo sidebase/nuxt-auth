@@ -1,10 +1,10 @@
-import { Ref } from 'vue'
+import type { Ref } from 'vue'
 import { callWithNuxt } from '#app'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
 import { useAuth as useLocalAuth } from '../local/useAuth'
 import { _fetch } from '../../utils/fetch'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
-import { SignOutFunc } from '../../types'
+import type { SignOutFunc } from '../../types'
 import { useAuthState } from './useAuthState'
 import {
   navigateTo,

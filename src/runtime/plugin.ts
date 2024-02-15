@@ -56,7 +56,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
 
     if (runtimeConfig.provider.type === 'refresh') {
-      const intervalTime = runtimeConfig.provider.token.maxAgeInSeconds * 1000
+      const intervalTime = runtimeConfig.provider.token.maxAgeInSeconds! * 1000
       const { refresh, refreshToken } = useAuth()
       refreshTokenIntervalTimer = setInterval(() => {
         if (refreshToken.value) {

@@ -434,9 +434,23 @@ export type SignInFunc<PrimarySignInOptions, SignInResult> = (
   paramsOptions?: Record<string, string>
 ) => Promise<SignInResult>;
 
+export interface ModuleOptionsNormalized extends ModuleOptions {
+  isEnabled: boolean
+  // Cannot use `DeepRequired` here because it leads to build issues
+  provider: Required<NonNullable<ModuleOptions['provider']>>
+  session: NonNullable<ModuleOptions['session']>
+  globalAppMiddleware: NonNullable<ModuleOptions['globalAppMiddleware']>
+
+  computed: {
+    origin: string | undefined
+    pathname: string
+    fullBaseUrl: string
+  }
+}
+
 // Augment types
 declare module 'nuxt/schema' {
   interface PublicRuntimeConfig {
-    auth: Required<ModuleOptions>
+    auth: ModuleOptionsNormalized
   }
 }

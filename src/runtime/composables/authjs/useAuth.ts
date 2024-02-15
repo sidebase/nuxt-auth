@@ -1,4 +1,4 @@
-import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
+import type { AppProvider, BuiltInProviderType } from 'next-auth/providers/index'
 import { defu } from 'defu'
 import { readonly, type Ref } from 'vue'
 import { appendHeader } from 'h3'
@@ -72,6 +72,7 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 
   const backendConfig = useTypedBackendConfig(runtimeConfig, 'authjs')
   if (typeof provider === 'undefined') {
+    // NOTE: `provider` might be an empty string
     provider = backendConfig.defaultProvider
   }
 
