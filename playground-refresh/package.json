@@ -11,14 +11,14 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "jsonwebtoken": "^9.0.0",
-    "zod": "^3.21.4"
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.1",
-    "eslint": "^8.37.0",
-    "nuxt": "^3.4.2",
-    "typescript": "^5.0.3",
-    "vue-tsc": "^1.2.0"
+    "@types/jsonwebtoken": "^9.0.5",
+    "eslint": "^8.56.0",
+    "nuxt": "^3.10.1",
+    "typescript": "^5.3.3",
+    "vue-tsc": "^1.8.27"
   }
 }

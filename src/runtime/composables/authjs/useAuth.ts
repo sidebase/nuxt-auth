@@ -1,6 +1,6 @@
-import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
+import type { AppProvider, BuiltInProviderType } from 'next-auth/providers/index'
 import { defu } from 'defu'
-import { readonly, Ref } from 'vue'
+import { readonly, type Ref } from 'vue'
 import { appendHeader } from 'h3'
 import { callWithNuxt } from '#app/nuxt'
 import type { NuxtApp } from '#app/nuxt'
@@ -8,7 +8,7 @@ import { determineCallbackUrl } from '../../utils/url'
 import { makeCWN, joinPathToApiURLWN, navigateToAuthPageWN, getRequestURLWN } from '../../utils/callWithNuxt'
 import { _fetch } from '../../utils/fetch'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
-import { CommonUseAuthReturn, SignOutFunc, GetSessionFunc, SignInFunc } from '../../types'
+import type { CommonUseAuthReturn, SignOutFunc, GetSessionFunc, SignInFunc } from '../../types'
 import { useTypedBackendConfig } from '../../helpers'
 import type { SessionData } from './useAuthState'
 import { createError, useNuxtApp, useRuntimeConfig, useRequestHeaders, useAuthState } from '#imports'
@@ -72,6 +72,7 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 
   const backendConfig = useTypedBackendConfig(runtimeConfig, 'authjs')
   if (typeof provider === 'undefined') {
+    // NOTE: `provider` might be an empty string
     provider = backendConfig.defaultProvider
   }
 

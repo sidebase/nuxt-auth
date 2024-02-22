@@ -12,6 +12,7 @@ import { defu } from 'defu'
 import { joinURL } from 'ufo'
 import { genInterface } from 'knitwork'
 import type { DeepRequired } from 'ts-essentials'
+import type { NuxtModule } from 'nuxt/schema'
 import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
 import type {
   ModuleOptions,
@@ -88,8 +89,7 @@ const defaultsByBackend: {
   authjs: {
     type: 'authjs',
     trustHost: false,
-    // @ts-expect-error
-    defaultProvider: undefined,
+    defaultProvider: '', // this satisfies Required and also gets caught at `!provider` check
     addDefaultCallbackUrl: true
   }
 }
@@ -146,8 +146,6 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }
-
-    // @ts-ignore
     nuxt.options.runtimeConfig.public.auth = options
 
     // 3. Locate runtime directory
@@ -232,4 +230,4 @@ export default defineNuxtModule<ModuleOptions>({
 
     logger.success('`nuxt-auth` setup done')
   }
-})
+}) satisfies NuxtModule<ModuleOptions>

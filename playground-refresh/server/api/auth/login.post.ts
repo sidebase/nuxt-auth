@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from 'zod'
 import { sign } from 'jsonwebtoken'
 
 export const SECRET = 'dummy'
