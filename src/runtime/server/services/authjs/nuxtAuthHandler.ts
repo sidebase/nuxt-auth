@@ -1,3 +1,4 @@
+import type { IncomingHttpHeaders } from 'http'
 import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError, isMethod, getMethod, getHeaders } from 'h3'
 import type { H3Event } from 'h3'
 
@@ -222,7 +223,7 @@ export const getToken = <R extends boolean = false>({ event, secureCookie, secre
   // @ts-expect-error As our request is not a real next-auth request, we pass down only what's required for the method, as per code from https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L68
   req: {
     cookies: parseCookies(event),
-    headers: getHeaders(event)
+    headers: getHeaders(event) as IncomingHttpHeaders
   },
   // see https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L73
   secureCookie: secureCookie || getServerOrigin(event).startsWith('https://'),

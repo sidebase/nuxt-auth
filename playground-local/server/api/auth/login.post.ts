@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from 'zod'
 import { sign } from 'jsonwebtoken'
 
 const refreshTokens: Record<number, Record<string, any>> = {}
