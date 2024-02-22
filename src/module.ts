@@ -52,7 +52,7 @@ const defaultsByBackend: {
     token: {
       signInResponseTokenPointer: '/token',
       type: 'Bearer',
-      cookieName: 'auth:token',
+      cookieName: 'auth.token',
       headerName: 'Authorization',
       maxAgeInSeconds: 30 * 60,
       sameSiteAttribute: 'lax'
@@ -76,14 +76,14 @@ const defaultsByBackend: {
     token: {
       signInResponseTokenPointer: '/token',
       type: 'Bearer',
-      cookieName: 'auth:token',
+      cookieName: 'auth.token',
       headerName: 'Authorization',
       maxAgeInSeconds: 5 * 60,
       sameSiteAttribute: 'none' // 5 minutes
     },
     refreshToken: {
       signInResponseRefreshTokenPointer: '/refreshToken',
-      cookieName: 'auth:refresh-token',
+      cookieName: 'auth.refresh-token',
       maxAgeInSeconds: 60 * 60 * 24 * 7 // 7 days
     },
     sessionDataType: { id: 'string | number' }

@@ -141,8 +141,8 @@ export type ProviderLocal = {
     /**
      * It refers to the name of the property when it is stored in a cookie.
      *
-     * @default auth:token
-     * @example auth.token
+     * @default auth.token
+     * @example auth._token
      */
     cookieName?: string;
     /**
@@ -220,8 +220,8 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
     /**
      * It refers to the name of the property when it is stored in a cookie.
      *
-     * @default auth:refresh-token
-     * @example auth.refresh-token
+     * @default auth.refresh-token
+     * @example auth._refresh-token
      */
     cookieName?: string;
     /**
