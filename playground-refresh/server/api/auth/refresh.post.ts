@@ -1,3 +1,4 @@
+import { createError, eventHandler, readBody } from 'h3'
 import { sign, verify } from 'jsonwebtoken'
 
 export const SECRET = 'dummy'
