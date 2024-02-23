@@ -4,5 +4,5 @@ contact_links:
     url: https://sidebase.io/nuxt-auth
     about: Check the documentation for usage of nuxt-auth
   - name: 🚀 Feature request
-    url: https://github.com/sidebase/nuxt-auth/discussions
+    url: https://github.com/sidebase/nuxt-auth/discussions/new?category=feature-requests
     about: Suggest a feature to improve this project
