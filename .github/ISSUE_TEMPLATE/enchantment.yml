@@ -1,0 +1,49 @@
+name: "🚀 Enchantment"
+description: Suggest an enchantment that will improve NuxtAuth
+labels: ["pending", "enchantment"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill out this feature request!
+
+        Please note: Only post enchanments that you have properly considered. This means:
+        - You have properly determined what problem your enchanment fixes
+        - How you would recommend implementing your enchancement
+        - How this change would impact NuxtAuth
+
+        If you are still unsure about your implementation or would like to discuss it prior, open a discussion first:
+        👉 https://github.com/sidebase/nuxt-auth/discussions/new?category=feature-requests
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Describe the feature
+      description: A clear and concise description of what you think would be a helpful addition to NuxtAuth, including the possible use cases and alternatives you have considered.
+      placeholder: Feature description
+    validations:
+      required: true
+  - type: textarea
+    id: feature-implementation
+    attributes:
+      label: How would you implement this?
+      description: For this, please outline how this feature would work. This could be in the form of a textual description, or a walkthrough of what would be adjusted inside the code.
+      placeholder: Feature description
+    validations:
+      required: true
+  - type: checkboxes
+    id: additional-info
+    attributes:
+      label: Additional information
+      description: Additional information that helps us decide how to proceed.
+      options:
+        - label: Would you be willing to help implement this feature?
+  - type: checkboxes
+    id: provider-selection
+    attributes:
+      label: Provider
+      description: Please check the provider this feature targets.
+      options:
+        - label: AuthJS
+        - label: Local
+        - label: Refresh
+        - label: New Provider
