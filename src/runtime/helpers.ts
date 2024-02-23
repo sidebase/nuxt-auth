@@ -1,7 +1,7 @@
 // TODO: This should be merged into `./utils`
 import { parseURL } from 'ufo'
-import { DeepRequired } from 'ts-essentials'
-import { SupportedAuthProviders, AuthProviders } from './types'
+import type { DeepRequired } from 'ts-essentials'
+import type { SupportedAuthProviders, AuthProviders } from './types'
 import { useRuntimeConfig } from '#imports'
 
 export const isProduction = process.env.NODE_ENV === 'production'

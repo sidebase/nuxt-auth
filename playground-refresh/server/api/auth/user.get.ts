@@ -1,4 +1,4 @@
-import { H3Event } from 'h3'
+import { createError, eventHandler, getRequestHeader, H3Event } from 'h3'
 import { verify } from 'jsonwebtoken'
 import { SECRET } from './login.post'
 

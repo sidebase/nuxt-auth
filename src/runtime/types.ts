@@ -1,6 +1,6 @@
 import type { Ref, ComputedRef } from 'vue'
-import { RouterMethod } from 'h3'
-import { SupportedProviders } from './composables/authjs/useAuth'
+import type { RouterMethod } from 'h3'
+import type { SupportedProviders } from './composables/authjs/useAuth'
 
 /**
  * Configuration for the global application-side authentication-middleware.
@@ -61,7 +61,7 @@ export type SupportedAuthProviders = 'authjs' | 'local' | 'refresh';
 /**
  * Configuration for the `local`-provider.
  */
-type ProviderLocal = {
+export type ProviderLocal = {
   /**
    * Uses the `local` provider to facilitate authentication. Currently, two providers exclusive are supported:
    * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
@@ -174,7 +174,7 @@ type ProviderLocal = {
 /**
  * Configuration for the `refresh`-provider an extended version of the local provider.
  */
-type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
+export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
   /**
    * Uses the `authjs` provider to facilitate authentication. Currently, two providers exclusive are supported:
    * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
@@ -433,3 +433,24 @@ export type SignInFunc<PrimarySignInOptions, SignInResult> = (
   signInOptions?: SecondarySignInOptions,
   paramsOptions?: Record<string, string>
 ) => Promise<SignInResult>;
+
+export interface ModuleOptionsNormalized extends ModuleOptions {
+  isEnabled: boolean
+  // Cannot use `DeepRequired` here because it leads to build issues
+  provider: Required<NonNullable<ModuleOptions['provider']>>
+  session: NonNullable<ModuleOptions['session']>
+  globalAppMiddleware: NonNullable<ModuleOptions['globalAppMiddleware']>
+
+  computed: {
+    origin: string | undefined
+    pathname: string
+    fullBaseUrl: string
+  }
+}
+
+// Augment types
+declare module 'nuxt/schema' {
+  interface PublicRuntimeConfig {
+    auth: ModuleOptionsNormalized
+  }
+}
