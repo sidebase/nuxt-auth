@@ -1,5 +1,5 @@
-import { computed, watch, ComputedRef } from 'vue'
-import { CookieRef } from '#app'
+import { computed, watch, type ComputedRef } from 'vue'
+import { type CookieRef } from '#app'
 import { useTypedBackendConfig } from '../../helpers'
 import { useAuthState as useLocalAuthState } from '../local/useAuthState'
 import { useRuntimeConfig, useCookie, useState } from '#imports'
