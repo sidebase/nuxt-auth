@@ -1,5 +1,5 @@
 import type { IncomingHttpHeaders } from 'http'
-import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError, isMethod, getMethod, getHeaders } from 'h3'
+import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError, isMethod, getHeaders } from 'h3'
 import type { H3Event } from 'h3'
 
 import { AuthHandler } from 'next-auth/core'
@@ -31,7 +31,7 @@ const useConfig = () => useTypedBackendConfig(useRuntimeConfig(), 'authjs')
 const readBodyForNext = async (event: H3Event) => {
   let body: any
 
-  if (isMethod(event, 'PATCH') || isMethod(event, 'POST') || isMethod(event, 'PUT') || isMethod(event, 'DELETE')) {
+  if (isMethod(event, ['PATCH', 'POST', 'PUT', 'DELETE'])) {
     body = await readBody(event)
   }
   return body
@@ -54,7 +54,7 @@ const parseActionAndProvider = ({ context }: H3Event): { action: AuthAction, pro
   // Get TS to correctly infer the type of `unvalidatedAction`
   const action = SUPPORTED_ACTIONS.find(action => action === unvalidatedAction)
   if (!action) {
-    throw createError({ statusCode: 400, statusMessage: `Called endpoint with unsupported action ${unvalidatedAction!}. Only the following actions are supported: ${SUPPORTED_ACTIONS.join(', ')}` })
+    throw createError({ statusCode: 400, statusMessage: `Called endpoint with unsupported action ${unvalidatedAction}. Only the following actions are supported: ${SUPPORTED_ACTIONS.join(', ')}` })
   }
 
   return { action, providerId }
@@ -97,7 +97,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
       cookies: parseCookies(event),
       query: undefined,
       headers: getHeaders(event),
-      method: getMethod(event),
+      method: event.method,
       providerId: undefined,
       error: undefined
     }
