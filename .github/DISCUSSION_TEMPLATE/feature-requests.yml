@@ -18,7 +18,7 @@ body:
     id: provider
     attributes:
       label: Which provider would this enchantment improve?
-      description: We currently offer three providers: authjs, local and refresh. If the enchanment is a general one, please select all three.
+      description: "We currently offer three providers: authjs, local and refresh. If the enchanment is a general one, please select all three."
       options:
         - label: AuthJS
         - label: Local
