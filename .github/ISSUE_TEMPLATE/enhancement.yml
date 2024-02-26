@@ -7,6 +7,11 @@ body:
       value: |
         Thank you for taking the time to fill out this feature request!
 
+        Please note: Only post enhancements that you have properly considered. This means:
+        - You have properly determined what problem your enhancements fixes
+        - How you would recommend implementing your enhancements
+        - How this change would impact NuxtAuth
+
         Please carefully read the Nuxt contribution docs before suggesting a new feature
         👉 https://nuxt.com/docs/community/contribution/#creating-an-issue
   - type: textarea
