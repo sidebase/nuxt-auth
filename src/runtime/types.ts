@@ -216,6 +216,12 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
      * Note: Your backend may reject / expire the token earlier / differently.
      */
     maxAgeInSeconds?: number;
+    /**
+     * Refresh request body key 
+     * 
+     * @default 'refreshToken'
+     */
+    requestbodyKey: string
   };
 };
 

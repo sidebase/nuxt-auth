@@ -81,7 +81,8 @@ const defaultsByBackend: {
     },
     refreshToken: {
       signInResponseRefreshTokenPointer: '/refreshToken',
-      maxAgeInSeconds: 60 * 60 * 24 * 7 // 7 days
+      maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days,
+      requestbodyKey : "refreshToken"
     },
     sessionDataType: { id: 'string | number' }
   },
