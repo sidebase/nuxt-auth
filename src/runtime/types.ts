@@ -219,7 +219,7 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
     /**
      * Refresh request body key 
      * 
-     * @default 'refreshToken'
+     * @default refreshToken
      */
     requestbodyKey: string
   };
