@@ -1,6 +1,7 @@
 import type { IncomingHttpHeaders } from 'http'
-import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError, isMethod, getHeaders } from 'h3'
+import { getQuery, setCookie, readBody, sendRedirect, eventHandler, parseCookies, createError, isMethod, getHeaders, getResponseHeader, setResponseHeader } from 'h3'
 import type { H3Event } from 'h3'
+import type { CookieSerializeOptions } from 'cookie-es'
 
 import { AuthHandler } from 'next-auth/core'
 import { getToken as nextGetToken } from 'next-auth/jwt'
@@ -150,8 +151,8 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
     if (nextResult.status) {
       res.statusCode = nextResult.status
     }
-    nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value, cookie.options))
-    nextResult.headers?.forEach(header => appendHeader(event, header.key, header.value))
+    nextResult.cookies?.forEach(cookie => setCookieDeduped(event, cookie.name, cookie.value, cookie.options))
+    nextResult.headers?.forEach(header => appendHeaderDeduped(event, header.key, header.value))
 
     // 3. Return either:
     // 3.1 the body directly if no redirect is set:
@@ -230,3 +231,47 @@ export const getToken = <R extends boolean = false>({ event, secureCookie, secre
   secret: secret || usedSecret,
   ...rest
 })
+
+/** Adapted from `h3` to fix https://github.com/sidebase/nuxt-auth/issues/523 */
+function appendHeaderDeduped (event: H3Event, name: string, value: string) {
+  let current = getResponseHeader(event, name)
+  if (!current) {
+    setResponseHeader(event, name, value)
+    return
+  }
+
+  if (!Array.isArray(current)) {
+    current = [current.toString()]
+  }
+
+  // Check existence of a header value and avoid adding it again
+  if (current.includes(value)) {
+    return
+  }
+
+  current.push(value)
+  setResponseHeader(event, name, current)
+}
+
+/**
+ * Adds a cookie, overriding its previous value.
+ * Related to https://github.com/sidebase/nuxt-auth/issues/523
+ */
+function setCookieDeduped (event: H3Event, name: string, value: string, serializeOptions: CookieSerializeOptions) {
+  // Deduplicate by removing the same name cookie
+  let setCookiesHeader = getResponseHeader(event, 'set-cookie')
+  if (setCookiesHeader) {
+    if (!Array.isArray(setCookiesHeader)) {
+      setCookiesHeader = [setCookiesHeader.toString()]
+    }
+
+    // Safety: `cookie-es` builds up the cookie by using `name + '=' + encodedValue`
+    // https://github.com/unjs/cookie-es/blob/a3495860248b98e7015c9a3ade8c6c47ad3403df/src/index.ts#L102
+    const filterBy = `${name}=`
+    setCookiesHeader = setCookiesHeader.filter(cookie => !cookie.startsWith(filterBy))
+
+    setResponseHeader(event, 'set-cookie', setCookiesHeader)
+  }
+
+  setCookie(event, name, value, serializeOptions)
+}
