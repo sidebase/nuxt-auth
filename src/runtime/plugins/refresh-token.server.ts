@@ -1,6 +1,9 @@
+import type { DeepRequired } from 'ts-essentials'
 import { _fetch } from '../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../helpers'
+import type { ProviderLocalRefresh } from '../types'
 import { defineNuxtPlugin, useAuthState, useRuntimeConfig } from '#imports'
+
 export default defineNuxtPlugin({
   name: 'refresh-token-plugin',
   enforce: 'pre',
@@ -12,7 +15,9 @@ export default defineNuxtPlugin({
       const config = nuxtApp.$config.public.auth
       const configToken = useTypedBackendConfig(useRuntimeConfig(), 'refresh')
 
-      const { path, method } = config.provider.endpoints.refresh
+      const provider = config.provider as DeepRequired<ProviderLocalRefresh>
+
+      const { path, method } = provider.endpoints.refresh
 
       // include header in case of auth is required to avoid 403 rejection
       const headers = new Headers({
@@ -30,14 +35,14 @@ export default defineNuxtPlugin({
 
         const extractedToken = jsonPointerGet(
           response,
-          config.provider.token.signInResponseTokenPointer
+          provider.token.signInResponseTokenPointer
         )
         if (typeof extractedToken !== 'string') {
           console.error(
             `Auth: string token expected, received instead: ${JSON.stringify(
               extractedToken
             )}. Tried to find token at ${
-              config.token.signInResponseTokenPointer
+              provider.token.signInResponseTokenPointer
             } in ${JSON.stringify(response)}`
           )
           return
@@ -47,14 +52,14 @@ export default defineNuxtPlugin({
         if (!configToken.refreshOnlyToken) {
           const extractedRefreshToken = jsonPointerGet(
             response,
-            config.provider.refreshToken.signInResponseRefreshTokenPointer
+            provider.refreshToken.signInResponseRefreshTokenPointer
           )
           if (typeof extractedRefreshToken !== 'string') {
             console.error(
               `Auth: string token expected, received instead: ${JSON.stringify(
                 extractedRefreshToken
               )}. Tried to find token at ${
-                config.refreshToken.signInResponseRefreshTokenPointer
+                provider.refreshToken.signInResponseRefreshTokenPointer
               } in ${JSON.stringify(response)}`
             )
             return
@@ -66,7 +71,7 @@ export default defineNuxtPlugin({
         rawToken.value = extractedToken
 
         lastRefreshedAt.value = new Date()
-      } catch (error) {
+      } catch (err) {
         rawRefreshToken.value = null
         rawToken.value = null
       }

@@ -1,5 +1,5 @@
-import { computed, watch, ComputedRef } from 'vue'
-import { CookieRef } from '#app'
+import { computed, watch, type ComputedRef } from 'vue'
+import { type CookieRef } from '#app'
 import { useTypedBackendConfig } from '../../helpers'
 import { useAuthState as useLocalAuthState } from '../local/useAuthState'
 import { useRuntimeConfig, useCookie, useState } from '#imports'
@@ -14,7 +14,7 @@ export const useAuthState = (): UseAuthStateReturn => {
   const localAuthState = useLocalAuthState()
   // Re-construct state from cookie, also setup a cross-component sync via a useState hack, see https://github.com/nuxt/nuxt/issues/13020#issuecomment-1397282717
   const _rawRefreshTokenCookie = useCookie<string | null>(
-    'auth:refresh-token',
+    config.refreshToken.cookieName,
     {
       default: () => null,
       maxAge: config.refreshToken.maxAgeInSeconds,

@@ -1,5 +1,7 @@
-import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError, isMethod, getMethod, getHeaders } from 'h3'
+import type { IncomingHttpHeaders } from 'http'
+import { getQuery, setCookie, readBody, sendRedirect, eventHandler, parseCookies, createError, isMethod, getHeaders, getResponseHeader, setResponseHeader } from 'h3'
 import type { H3Event } from 'h3'
+import type { CookieSerializeOptions } from 'cookie-es'
 
 import { AuthHandler } from 'next-auth/core'
 import { getToken as nextGetToken } from 'next-auth/jwt'
@@ -30,7 +32,7 @@ const useConfig = () => useTypedBackendConfig(useRuntimeConfig(), 'authjs')
 const readBodyForNext = async (event: H3Event) => {
   let body: any
 
-  if (isMethod(event, 'PATCH') || isMethod(event, 'POST') || isMethod(event, 'PUT') || isMethod(event, 'DELETE')) {
+  if (isMethod(event, ['PATCH', 'POST', 'PUT', 'DELETE'])) {
     body = await readBody(event)
   }
   return body
@@ -53,7 +55,7 @@ const parseActionAndProvider = ({ context }: H3Event): { action: AuthAction, pro
   // Get TS to correctly infer the type of `unvalidatedAction`
   const action = SUPPORTED_ACTIONS.find(action => action === unvalidatedAction)
   if (!action) {
-    throw createError({ statusCode: 400, statusMessage: `Called endpoint with unsupported action ${unvalidatedAction!}. Only the following actions are supported: ${SUPPORTED_ACTIONS.join(', ')}` })
+    throw createError({ statusCode: 400, statusMessage: `Called endpoint with unsupported action ${unvalidatedAction}. Only the following actions are supported: ${SUPPORTED_ACTIONS.join(', ')}` })
   }
 
   return { action, providerId }
@@ -96,7 +98,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
       cookies: parseCookies(event),
       query: undefined,
       headers: getHeaders(event),
-      method: getMethod(event),
+      method: event.method,
       providerId: undefined,
       error: undefined
     }
@@ -149,8 +151,8 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
     if (nextResult.status) {
       res.statusCode = nextResult.status
     }
-    nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value, cookie.options))
-    nextResult.headers?.forEach(header => appendHeader(event, header.key, header.value))
+    nextResult.cookies?.forEach(cookie => setCookieDeduped(event, cookie.name, cookie.value, cookie.options))
+    nextResult.headers?.forEach(header => appendHeaderDeduped(event, header.key, header.value))
 
     // 3. Return either:
     // 3.1 the body directly if no redirect is set:
@@ -222,10 +224,54 @@ export const getToken = <R extends boolean = false>({ event, secureCookie, secre
   // @ts-expect-error As our request is not a real next-auth request, we pass down only what's required for the method, as per code from https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L68
   req: {
     cookies: parseCookies(event),
-    headers: getHeaders(event)
+    headers: getHeaders(event) as IncomingHttpHeaders
   },
   // see https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L73
   secureCookie: secureCookie || getServerOrigin(event).startsWith('https://'),
   secret: secret || usedSecret,
   ...rest
 })
+
+/** Adapted from `h3` to fix https://github.com/sidebase/nuxt-auth/issues/523 */
+function appendHeaderDeduped (event: H3Event, name: string, value: string) {
+  let current = getResponseHeader(event, name)
+  if (!current) {
+    setResponseHeader(event, name, value)
+    return
+  }
+
+  if (!Array.isArray(current)) {
+    current = [current.toString()]
+  }
+
+  // Check existence of a header value and avoid adding it again
+  if (current.includes(value)) {
+    return
+  }
+
+  current.push(value)
+  setResponseHeader(event, name, current)
+}
+
+/**
+ * Adds a cookie, overriding its previous value.
+ * Related to https://github.com/sidebase/nuxt-auth/issues/523
+ */
+function setCookieDeduped (event: H3Event, name: string, value: string, serializeOptions: CookieSerializeOptions) {
+  // Deduplicate by removing the same name cookie
+  let setCookiesHeader = getResponseHeader(event, 'set-cookie')
+  if (setCookiesHeader) {
+    if (!Array.isArray(setCookiesHeader)) {
+      setCookiesHeader = [setCookiesHeader.toString()]
+    }
+
+    // Safety: `cookie-es` builds up the cookie by using `name + '=' + encodedValue`
+    // https://github.com/unjs/cookie-es/blob/a3495860248b98e7015c9a3ade8c6c47ad3403df/src/index.ts#L102
+    const filterBy = `${name}=`
+    setCookiesHeader = setCookiesHeader.filter(cookie => !cookie.startsWith(filterBy))
+
+    setResponseHeader(event, 'set-cookie', setCookiesHeader)
+  }
+
+  setCookie(event, name, value, serializeOptions)
+}
