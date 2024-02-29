@@ -1,5 +1,5 @@
 import type { IncomingHttpHeaders } from 'http'
-import { getQuery, setCookie, readBody, appendHeader, sendRedirect, eventHandler, parseCookies, createError, isMethod, getHeaders } from 'h3'
+import { getQuery, setCookie, readBody, sendRedirect, eventHandler, parseCookies, createError, isMethod, getHeaders, getResponseHeader, setResponseHeader } from 'h3'
 import type { H3Event } from 'h3'
 
 import { AuthHandler } from 'next-auth/core'
@@ -151,7 +151,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
       res.statusCode = nextResult.status
     }
     nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value, cookie.options))
-    nextResult.headers?.forEach(header => appendHeader(event, header.key, header.value))
+    nextResult.headers?.forEach(header => appendHeaderDeduped(event, header.key, header.value))
 
     // 3. Return either:
     // 3.1 the body directly if no redirect is set:
@@ -230,3 +230,24 @@ export const getToken = <R extends boolean = false>({ event, secureCookie, secre
   secret: secret || usedSecret,
   ...rest
 })
+
+/** Adapted from `h3` to fix https://github.com/sidebase/nuxt-auth/issues/523 */
+function appendHeaderDeduped (event: H3Event, name: string, value: string) {
+  let current = getResponseHeader(event, name)
+  if (!current) {
+    setResponseHeader(event, name, value)
+    return
+  }
+
+  if (!Array.isArray(current)) {
+    current = [current.toString()]
+  }
+
+  // Check existence of a header value and avoid adding it again
+  if (current.includes(value)) {
+    return
+  }
+
+  current.push(value)
+  setResponseHeader(event, name, current)
+}
