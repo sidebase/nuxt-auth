@@ -1,6 +1,7 @@
 import type { IncomingHttpHeaders } from 'http'
 import { getQuery, setCookie, readBody, sendRedirect, eventHandler, parseCookies, createError, isMethod, getHeaders, getResponseHeader, setResponseHeader } from 'h3'
 import type { H3Event } from 'h3'
+import type { CookieSerializeOptions } from 'cookie-es'
 
 import { AuthHandler } from 'next-auth/core'
 import { getToken as nextGetToken } from 'next-auth/jwt'
@@ -150,7 +151,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
     if (nextResult.status) {
       res.statusCode = nextResult.status
     }
-    nextResult.cookies?.forEach(cookie => setCookie(event, cookie.name, cookie.value, cookie.options))
+    nextResult.cookies?.forEach(cookie => setCookieDeduped(event, cookie.name, cookie.value, cookie.options))
     nextResult.headers?.forEach(header => appendHeaderDeduped(event, header.key, header.value))
 
     // 3. Return either:
@@ -250,4 +251,27 @@ function appendHeaderDeduped (event: H3Event, name: string, value: string) {
 
   current.push(value)
   setResponseHeader(event, name, current)
+}
+
+/**
+ * Adds a cookie, overriding its previous value.
+ * Related to https://github.com/sidebase/nuxt-auth/issues/523
+ */
+function setCookieDeduped (event: H3Event, name: string, value: string, serializeOptions: CookieSerializeOptions) {
+  // Deduplicate by removing the same name cookie
+  let setCookiesHeader = getResponseHeader(event, 'set-cookie')
+  if (setCookiesHeader) {
+    if (!Array.isArray(setCookiesHeader)) {
+      setCookiesHeader = [setCookiesHeader.toString()]
+    }
+
+    // Safety: `cookie-es` builds up the cookie by using `name + '=' + encodedValue`
+    // https://github.com/unjs/cookie-es/blob/a3495860248b98e7015c9a3ade8c6c47ad3403df/src/index.ts#L102
+    const filterBy = `${name}=`
+    setCookiesHeader = setCookiesHeader.filter(cookie => !cookie.startsWith(filterBy))
+
+    setResponseHeader(event, 'set-cookie', setCookiesHeader)
+  }
+
+  setCookie(event, name, value, serializeOptions)
 }
