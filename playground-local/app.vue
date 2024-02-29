@@ -10,17 +10,19 @@ const password = ref('')
 
 <template>
   <div>
-    <pre>Status: {{ status }}</pre>
+    <pre>Status: <span data-testid="status">{{ status }}</span></pre>
     <pre>Data: {{ data || 'no session data present, are you logged in?' }}</pre>
     <pre>Last refreshed at: {{ lastRefreshedAt || 'no refresh happened' }}</pre>
     <pre>JWT token: {{ token || 'no token present, are you logged in?' }}</pre>
+
     <form @submit.prevent="signIn({ username, password })">
-      <input v-model="username" type="text" placeholder="Username">
-      <input v-model="password" type="password" placeholder="Password">
-      <button type="submit">
+      <input v-model="username" type="text" placeholder="Username" data-testid="username">
+      <input v-model="password" type="password" placeholder="Password" data-testid="password">
+      <button type="submit" data-testid="submit">
         sign in
       </button>
     </form>
+
     <br>
     <button @click="signIn({ username, password }, { callbackUrl: '/protected/globally' })">
       sign in (with redirect to protected page)
