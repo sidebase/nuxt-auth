@@ -1,8 +1,8 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: 📚 nuxt-auth documentation
+  - name: 📚 Documentation
     url: https://sidebase.io/nuxt-auth
-    about: Check the documentation for usage of nuxt-auth
-  - name: 💬 Discussions
-    url: https://github.com/sidebase/nuxt-auth/discussions
-    about: Use discussions if you have another issue, an idea for improvement or for asking questions.
+    about: Check the documentation for usage of nuxt-auth!
+  - name: ⭐ Other projects
+    url: https://sidebase.io
+    about: Supercharge your Nuxt application with more of our projects!
