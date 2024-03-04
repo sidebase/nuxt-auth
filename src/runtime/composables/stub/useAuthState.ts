@@ -1,5 +1,5 @@
 import { ref, readonly } from 'vue'
-import { CommonUseAuthStateReturn } from '../../types'
+import type { CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
 
 export const useAuthState = (): CommonUseAuthStateReturn<null> & {

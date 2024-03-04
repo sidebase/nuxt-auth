@@ -1,9 +1,8 @@
 import { ref, readonly } from 'vue'
-import {
+import type {
   CommonUseAuthStateReturn,
   SignOutFunc,
   SignInFunc,
-  // SessionStatus,
   GetSessionFunc
 } from '../../types'
 import { useAuthState } from './useAuthState'
