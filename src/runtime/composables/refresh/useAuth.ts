@@ -1,10 +1,10 @@
-import { Ref } from 'vue'
+import type { Ref } from 'vue'
 import { callWithNuxt } from '#app'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
 import { useAuth as useLocalAuth } from '../local/useAuth'
 import { _fetch } from '../../utils/fetch'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
-import { SignOutFunc } from '../../types'
+import type { SignOutFunc } from '../../types'
 import { useAuthState } from './useAuthState'
 import {
   navigateTo,
@@ -152,21 +152,25 @@ const signOut: SignOutFunc = async (signOutOptions) => {
   rawToken.value = null
   rawRefreshToken.value = null
 
-  const { path, method } = config.endpoints.signOut as {
-    path: string;
-    method:
-      | 'get'
-      | 'head'
-      | 'patch'
-      | 'post'
-      | 'put'
-      | 'delete'
-      | 'connect'
-      | 'options'
-      | 'trace';
-  }
+  const signOutConfig = config.endpoints.signOut
+  let res
 
-  const res = await _fetch(nuxt, path, { method, headers })
+  if (signOutConfig) {
+    const { path, method } = config.endpoints.signOut as {
+      path: string;
+      method:
+        | 'get'
+        | 'head'
+        | 'patch'
+        | 'post'
+        | 'put'
+        | 'delete'
+        | 'connect'
+        | 'options'
+        | 'trace';
+    }
+    res = await _fetch(nuxt, path, { method, headers })
+  }
 
   const { callbackUrl, redirect = true } = signOutOptions ?? {}
   if (redirect) {

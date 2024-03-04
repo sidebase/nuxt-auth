@@ -27,6 +27,12 @@ declare module '#app' {
   }
 }
 
+declare module 'vue-router' {
+  interface RouteMeta {
+    auth?: MiddlewareMeta
+  }
+}
+
 export default defineNuxtRouteMiddleware((to) => {
   const metaAuth = typeof to.meta.auth === 'object'
     ? {
@@ -62,7 +68,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
   // We do not want to block the login page when the local provider is used
   if (authConfig.provider?.type === 'local') {
-    const loginRoute: string | null = authConfig.provider?.pages?.login
+    const loginRoute: string | undefined = authConfig.provider?.pages?.login
     if (loginRoute && loginRoute === to.path) {
       return
     }
@@ -76,7 +82,8 @@ export default defineNuxtRouteMiddleware((to) => {
    * - avoid the `Error [ERR_HTTP_HEADERS_SENT]`-error that occurs when we redirect to the sign-in page when the original to-page does not exist. Likely related to https://github.com/nuxt/framework/issues/9438
    *
    */
-  if (authConfig.globalAppMiddleware.allow404WithoutAuth || authConfig.globalAppMiddleware === true) {
+  const globalAppMiddleware = authConfig.globalAppMiddleware
+  if (globalAppMiddleware === true || (typeof globalAppMiddleware === 'object' && globalAppMiddleware.allow404WithoutAuth)) {
     const matchedRoute = to.matched.length > 0
     if (!matchedRoute) {
       // Hands control back to `vue-router`, which will direct to the `404` page
@@ -85,7 +92,7 @@ export default defineNuxtRouteMiddleware((to) => {
   }
 
   if (authConfig.provider.type === 'authjs') {
-    const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.path) }
+    const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.fullPath) }
     // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
     return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
   } else if (typeof metaAuth === 'object' && metaAuth.navigateUnauthenticatedTo) {

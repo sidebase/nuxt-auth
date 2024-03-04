@@ -1,7 +1,8 @@
 import { joinURL } from 'ufo'
 import getURL from 'requrl'
 import { sendRedirect } from 'h3'
-import { useRequestEvent, useNuxtApp, abortNavigation, useAuthState, useRuntimeConfig } from '#imports'
+import type { ModuleOptionsNormalized } from '../types'
+import { useRequestEvent, useNuxtApp, abortNavigation, useAuthState } from '#imports'
 
 export const getRequestURL = (includePath = true) => getURL(useRequestEvent()?.node.req, includePath)
 export const joinPathToApiURL = (path: string) => joinURL(useAuthState()._internal.baseURL, path)
@@ -38,11 +39,10 @@ export const navigateToAuthPages = (href: string) => {
   }
 
   // TODO: Sadly, we cannot directly import types from `vue-router` as it leads to build failures. Typing the router about should help us to avoid manually typing `route` below
-  const router = nuxtApp.$router
+  const router = nuxtApp.$router as { push(href: string): void }
 
   // Wait for the `window.location.href` navigation from above to complete to avoid showing content. If that doesn't work fast enough, delegate navigation back to the `vue-router` (risking a vue-router 404 warning in the console, but still avoiding content-flashes of the protected target page)
   const waitForNavigationWithFallbackToRouter = new Promise(resolve => setTimeout(resolve, 60 * 1000))
-    // @ts-expect-error router is `unknown` here, as it is not officially exposed
     .then(() => router.push(href))
   return waitForNavigationWithFallbackToRouter as Promise<void | undefined>
 }
@@ -55,8 +55,10 @@ export const navigateToAuthPages = (href: string) => {
  * @param authConfig Authentication runtime module config
  * @param getOriginalTargetPath Function that returns the original location the user wanted to reach
  */
-export const determineCallbackUrl = <T extends string | Promise<string>>(authConfig: ReturnType<typeof useRuntimeConfig>['public']['auth'], getOriginalTargetPath: () => T): T | string | undefined => {
-  const authConfigCallbackUrl = authConfig.globalAppMiddleware?.addDefaultCallbackUrl
+export const determineCallbackUrl = <T extends string | Promise<string>>(authConfig: ModuleOptionsNormalized, getOriginalTargetPath: () => T): T | string | undefined => {
+  const authConfigCallbackUrl = typeof authConfig.globalAppMiddleware === 'object'
+    ? authConfig.globalAppMiddleware.addDefaultCallbackUrl
+    : undefined
 
   if (typeof authConfigCallbackUrl !== 'undefined') {
     // If string was set, always callback to that string
