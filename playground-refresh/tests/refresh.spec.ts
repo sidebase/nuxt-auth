@@ -11,7 +11,7 @@ describe('Refresh Provider', async () => {
     browser: true
   })
 
-  test('it works', async () => {
+  test('load, sign in, reload, refresh, sign out', async () => {
     const page = await createPage('/')
     const [
       usernameInput,
