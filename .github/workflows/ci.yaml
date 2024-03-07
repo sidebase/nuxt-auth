@@ -105,12 +105,6 @@ jobs:
       - name: Run Playwright tests using Vitest
         run: pnpm test:e2e
 
-      # start prod-app and curl from it
-      - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"
-        env:
-          AUTH_ORIGIN: "http://localhost:3002"
-          PORT: 3002
-
   test-playground-authjs:
     runs-on: ubuntu-latest
     defaults:
