@@ -227,7 +227,7 @@ export const getToken = <R extends boolean = false>({ event, secureCookie, secre
     headers: getHeaders(event) as IncomingHttpHeaders
   },
   // see https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L73
-  secureCookie: secureCookie || getServerOrigin(event).startsWith('https://'),
+  secureCookie: secureCookie ?? getServerOrigin(event).startsWith('https://'),
   secret: secret || usedSecret,
   ...rest
 })
