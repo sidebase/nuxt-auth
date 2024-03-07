@@ -28,15 +28,15 @@ const password = ref('')
       sign in (with redirect to protected page)
     </button>
     <br>
-    <button @click="signOut({ callbackUrl: '/signout' })">
+    <button data-testid="signout" @click="signOut({ callbackUrl: '/signout' })">
       sign out
     </button>
     <br>
-    <button @click="getSession({ required: false })">
+    <button data-testid="refresh-required-false" @click="getSession({ required: false })">
       refresh session (required: false)
     </button>
     <br>
-    <button @click="getSession({ required: true, callbackUrl: '/' })">
+    <button data-testid="refresh-required-true" @click="getSession({ required: true, callbackUrl: '/' })">
       refresh session (required: true)
     </button>
     <br>
