@@ -32,7 +32,7 @@ const signIn: ReturnType<typeof useLocalAuth>['signIn'] = async (
     params: signInParams ?? {}
   })
 
-  const extractedToken = jsonPointerGet(
+  const extractedToken = jsonPointerGet<string>(
     response,
     config.token.signInResponseTokenPointer
   )
@@ -47,7 +47,7 @@ const signIn: ReturnType<typeof useLocalAuth>['signIn'] = async (
     return
   }
 
-  const extractedRefreshToken = jsonPointerGet(
+  const extractedRefreshToken = jsonPointerGet<string>(
     response,
     config.refreshToken.signInResponseRefreshTokenPointer
   )
@@ -96,7 +96,7 @@ const refresh = async () => {
     }
   })
 
-  const extractedToken = jsonPointerGet(
+  const extractedToken = jsonPointerGet<string>(
     response,
     config.token.signInResponseTokenPointer
   )
@@ -112,7 +112,7 @@ const refresh = async () => {
   }
 
   if (!config.refreshOnlyToken) {
-    const extractedRefreshToken = jsonPointerGet(
+    const extractedRefreshToken = jsonPointerGet<string>(
       response,
       config.refreshToken.signInResponseRefreshTokenPointer
     )
