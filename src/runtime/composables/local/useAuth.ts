@@ -9,7 +9,7 @@ import { formatToken } from '../../utils/local'
 import { useAuthState } from './useAuthState'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
-import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
+import { useCookie, useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
 
 type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
 
@@ -91,12 +91,21 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   if (getSessionConfig) {
     const headers = new Headers(token ? { [config.token.headerName]: token } as HeadersInit : undefined)
     const { path, method } = getSessionConfig
+    const sessionCookie = useCookie<Object | null>('auth:sessionCookie', {
+      default: () => null,
+      maxAge: config.token.maxAgeInSeconds,
+      sameSite: config.token.sameSiteAttribute
+    })
 
     loading.value = true
     try {
       const result = await _fetch<any>(nuxt, path, { method, headers })
       const { dataResponsePointer: sessionDataResponsePointer } = config.session
       data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
+      sessionCookie.value = {
+        lastRefreshedAt: lastRefreshedAt.value,
+        data: data.value
+      }
     } catch (err) {
       if (!data.value && err instanceof Error) {
         console.error(`Session: unable to extract session, ${err.message}`)
@@ -105,6 +114,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
       // Clear all data: Request failed so we must not be authenticated
       data.value = null
       rawToken.value = null
+      sessionCookie.value = null
     }
     loading.value = false
     lastRefreshedAt.value = new Date()

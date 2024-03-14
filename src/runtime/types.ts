@@ -573,3 +573,14 @@ export interface ModuleOptionsNormalized extends ModuleOptions {
     fullBaseUrl: string
   }
 }
+export interface SessionCookie {
+  lastRefreshedAt?: SessionLastRefreshedAt
+  data?: SessionDataObject
+}
+
+// Augment types
+declare module 'nuxt/schema' {
+  interface PublicRuntimeConfig {
+    auth: ModuleOptionsNormalized
+  }
+}
