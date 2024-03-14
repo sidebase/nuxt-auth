@@ -66,12 +66,15 @@ const signIn: ReturnType<typeof useLocalAuth>['signIn'] = async (
   rawToken.value = extractedToken
   rawRefreshToken.value = extractedRefreshToken
 
-  await nextTick(getSession)
+  const { callbackUrl, redirect = true, external, withGetSession = true } = signInOptions ?? {}
 
-  const { callbackUrl, redirect = true } = signInOptions ?? {}
+  if (withGetSession) {
+    await nextTick(getSession)
+  }
+
   if (redirect) {
     const urlToNavigateTo = callbackUrl ?? (await getRequestURLWN(nuxt))
-    return navigateTo(urlToNavigateTo)
+    return navigateTo(urlToNavigateTo, { external })
   }
 }
 
