@@ -1,5 +1,7 @@
 import { getHeader } from 'h3'
 import authMiddleware from './middleware/auth'
+import { useTypedBackendConfig } from './helpers'
+import type { SessionCookie } from './types'
 import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig, useAuth, useAuthState, useCookie } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
@@ -20,10 +22,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // Only fetch session if it was not yet initialized server-side
   if (typeof data.value === 'undefined' && !nitroPrerender) {
     // Restore the session data from the cookie
-    const sessionCookie = useCookie<Object | null>('auth:sessionCookie')
-    const cookieToken = useCookie<string | null>(
-      runtimeConfig.provider.token.cookieName
-    )
+    const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
+    const sessionCookie = useCookie<SessionCookie | null>('auth:sessionCookie')
+    const cookieToken = useCookie<string | null>(config.token.cookieName)
     if (sessionCookie.value && !rawToken.value && cookieToken.value) {
       try {
         loading.value = true
