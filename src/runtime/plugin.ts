@@ -1,10 +1,10 @@
 import { getHeader } from 'h3'
 import authMiddleware from './middleware/auth'
-import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig, useAuth, useAuthState } from '#imports'
+import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig, useAuth, useAuthState, useCookie } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
-  const { data, lastRefreshedAt } = useAuthState()
+  const { data, lastRefreshedAt, rawToken, loading } = useAuthState()
   const { getSession } = useAuth()
 
   // use runtimeConfig
@@ -19,6 +19,28 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   // Only fetch session if it was not yet initialized server-side
   if (typeof data.value === 'undefined' && !nitroPrerender) {
+    // Restore the session data from the cookie
+    const sessionCookie = useCookie<Object | null>("auth:sessionCookie");
+    const cookieToken = useCookie<string | null>(
+      runtimeConfig.provider.token.cookieName
+    );
+    if (sessionCookie.value && !rawToken.value && cookieToken.value) {
+      try {
+        loading.value = true;
+        const sessionData = sessionCookie.value;
+        lastRefreshedAt.value = sessionData?.lastRefreshedAt;
+        data.value = sessionData?.data;
+        rawToken.value = cookieToken.value;
+      } catch (error) {
+        console.error("Failed to parse session data from cookie:", error);
+      } finally {
+        loading.value = false;
+      }
+    }
+
+    if (!data.value) {
+      await getSession();
+    }
     await getSession()
   }
 
