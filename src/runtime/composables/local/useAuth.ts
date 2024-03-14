@@ -82,26 +82,26 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
 
   const headers = new Headers(token.value ? { [config.token.headerName]: token.value } as HeadersInit : undefined)
 
-  const sessionCookie = useCookie<Object | null>("auth:sessionCookie", {
+  const sessionCookie = useCookie<Object | null>('auth:sessionCookie', {
     default: () => null,
     maxAge: config.token.maxAgeInSeconds,
-    sameSite: config.token.sameSiteAttribute,
-  });
+    sameSite: config.token.sameSiteAttribute
+  })
 
   loading.value = true
   try {
     data.value = await _fetch<SessionData>(nuxt, path, { method, headers })
     // Store the session data as a cookie
-    lastRefreshedAt.value = new Date();
+    lastRefreshedAt.value = new Date()
     sessionCookie.value = {
       lastRefreshedAt: lastRefreshedAt.value,
-      data: data.value,
-    };
+      data: data.value
+    }
   } catch {
     // Clear all data: Request failed so we must not be authenticated
     data.value = null
     rawToken.value = null
-    sessionCookie.value = null;
+    sessionCookie.value = null
   }
   loading.value = false
 
