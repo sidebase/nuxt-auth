@@ -49,11 +49,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   // Refetch interval
-  let refetchIntervalTimer: NodeJS.Timer
+  let refetchIntervalTimer: ReturnType<typeof setInterval>
 
   // TODO: find more Generic method to start a Timer for the Refresh Token
   // Refetch interval for local/refresh schema
-  let refreshTokenIntervalTimer: NodeJS.Timer
+  let refreshTokenIntervalTimer: typeof refetchIntervalTimer
 
   nuxtApp.hook('app:mounted', () => {
     if (disableServerSideAuth) {
@@ -73,7 +73,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
 
     if (runtimeConfig.provider.type === 'refresh') {
-      const intervalTime = runtimeConfig.provider.token.maxAgeInSeconds * 1000
+      const intervalTime = runtimeConfig.provider.token.maxAgeInSeconds! * 1000
       const { refresh, refreshToken } = useAuth()
       refreshTokenIntervalTimer = setInterval(() => {
         if (refreshToken.value) {
@@ -106,7 +106,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   // 3. Enable the middleware, either globally or as a named `auth` option
   const { globalAppMiddleware } = useRuntimeConfig().public.auth
-  if (globalAppMiddleware === true || globalAppMiddleware.isEnabled) {
+  if (
+    globalAppMiddleware === true ||
+    (typeof globalAppMiddleware === 'object' && globalAppMiddleware.isEnabled)
+  ) {
     addRouteMiddleware('auth', authMiddleware, {
       global: true
     })

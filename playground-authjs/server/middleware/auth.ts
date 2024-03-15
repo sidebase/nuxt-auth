@@ -1,3 +1,4 @@
+import { createError, eventHandler } from 'h3'
 import { getServerSession } from '#auth'
 
 export default eventHandler(async (event) => {

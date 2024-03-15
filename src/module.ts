@@ -12,6 +12,7 @@ import { defu } from 'defu'
 import { joinURL } from 'ufo'
 import { genInterface } from 'knitwork'
 import type { DeepRequired } from 'ts-essentials'
+import type { NuxtModule } from 'nuxt/schema'
 import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
 import type {
   ModuleOptions,
@@ -52,6 +53,7 @@ const defaultsByBackend: {
     token: {
       signInResponseTokenPointer: '/token',
       type: 'Bearer',
+      cookieName: 'auth.token',
       headerName: 'Authorization',
       maxAgeInSeconds: 30 * 60,
       sameSiteAttribute: 'lax'
@@ -75,12 +77,14 @@ const defaultsByBackend: {
     token: {
       signInResponseTokenPointer: '/token',
       type: 'Bearer',
+      cookieName: 'auth.token',
       headerName: 'Authorization',
       maxAgeInSeconds: 5 * 60,
       sameSiteAttribute: 'none' // 5 minutes
     },
     refreshToken: {
       signInResponseRefreshTokenPointer: '/refreshToken',
+      cookieName: 'auth.refresh-token',
       maxAgeInSeconds: 60 * 60 * 24 * 7 // 7 days
     },
     sessionDataType: { id: 'string | number' }
@@ -89,8 +93,7 @@ const defaultsByBackend: {
   authjs: {
     type: 'authjs',
     trustHost: false,
-    // @ts-expect-error
-    defaultProvider: undefined,
+    defaultProvider: '', // this satisfies Required and also gets caught at `!provider` check
     addDefaultCallbackUrl: true
   }
 }
@@ -147,8 +150,6 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }
-
-    // @ts-ignore
     nuxt.options.runtimeConfig.public.auth = options
 
     // 3. Locate runtime directory
@@ -242,4 +243,4 @@ export default defineNuxtModule<ModuleOptions>({
 
     logger.success('`nuxt-auth` setup done')
   }
-})
+}) satisfies NuxtModule<ModuleOptions>
