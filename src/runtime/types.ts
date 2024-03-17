@@ -313,27 +313,7 @@ export type RefreshHandler = {
 /**
  * Configuration for the application-side session.
  */
-type SessionConfig = {
-  /**
-   * Whether to refresh the session every `X` milliseconds. Set this to `false` to turn it off. The session will only be refreshed if a session already exists.
-   *
-   * Setting this to `true` will refresh the session every second.
-   * Setting this to `false` will turn off session refresh.
-   * Setting this to a number `X` will refresh the session every `X` milliseconds.
-   *
-   * @example 1000
-   * @default false
-   *
-   */
-  enableRefreshPeriodically: number | boolean;
-  /**
-   * Whether to refresh the session every time the browser window is refocused.
-   *
-   * @example false
-   * @default true
-   */
-  enableRefreshOnWindowFocus: boolean;
-
+type SessionConfig = RefreshHandlerConfig & {
   /**
    * A custom refresh handler to use. This can be used to implement custom session refresh logic. If not set, the default refresh handler will be used.
    *
