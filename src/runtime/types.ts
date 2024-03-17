@@ -273,6 +273,43 @@ export type AuthProviders =
   | ProviderLocal
   | ProviderLocalRefresh;
 
+export type RefreshHandlerConfig = {
+    /**
+   * Whether to refresh the session every `X` milliseconds. Set this to `false` to turn it off. The session will only be refreshed if a session already exists.
+   *
+   * Setting this to `true` will refresh the session every second.
+   * Setting this to `false` will turn off session refresh.
+   * Setting this to a number `X` will refresh the session every `X` milliseconds.
+   *
+   * @example 1000
+   * @default false
+   *
+   */
+  enableRefreshPeriodically: number | boolean;
+  /**
+   * Whether to refresh the session every time the browser window is refocused.
+   *
+   * @example false
+   * @default true
+   */
+  enableRefreshOnWindowFocus: boolean;
+};
+
+export type RefreshHandler = {
+  /**
+   * Initializes the refresh handler with the given configuration.
+   * init will be called inside app:mouted lifecycle hook.
+   *
+   * @param config The configuration to use for the refresh handler.
+   */
+  init: (config: RefreshHandlerConfig) => void;
+
+  /**
+   * Handles cleanup of the refresh handler. This method will be called when the app is destroyed.
+   */
+  destroy: () => void;
+};
+
 /**
  * Configuration for the application-side session.
  */
@@ -296,6 +333,14 @@ type SessionConfig = {
    * @default true
    */
   enableRefreshOnWindowFocus: boolean;
+
+  /**
+   * A custom refresh handler to use. This can be used to implement custom session refresh logic. If not set, the default refresh handler will be used.
+   *
+   * @example MyCustomRefreshHandler
+   * @default undefined
+   */
+  refreshHandler?: RefreshHandler;
 };
 
 /**
