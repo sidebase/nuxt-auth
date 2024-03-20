@@ -92,7 +92,7 @@ const refresh = async () => {
     method,
     headers,
     body: {
-      refreshToken: refreshToken.value
+      [config.refreshToken.requestbodyKey]: refreshToken.value
     }
   })
 
