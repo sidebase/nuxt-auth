@@ -4,6 +4,7 @@ import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
 import { useAuth as useLocalAuth } from '../local/useAuth'
 import { _fetch } from '../../utils/fetch'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
+import { determineCallbackUrl } from '../../utils/url'
 import type { SignOutFunc } from '../../types'
 import { useAuthState } from './useAuthState'
 import {
@@ -21,7 +22,8 @@ const signIn: ReturnType<typeof useLocalAuth>['signIn'] = async (
 ) => {
   const nuxt = useNuxtApp()
   const { getSession } = useLocalAuth()
-  const config = useTypedBackendConfig(useRuntimeConfig(), 'refresh')
+  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const config = useTypedBackendConfig(runtimeConfig, 'refresh')
   const { path, method } = config.endpoints.signIn
   const response = await _fetch<Record<string, any>>(nuxt, path, {
     method,
@@ -68,10 +70,13 @@ const signIn: ReturnType<typeof useLocalAuth>['signIn'] = async (
 
   await nextTick(getSession)
 
-  const { callbackUrl, redirect = true } = signInOptions ?? {}
+  const { redirect = true } = signInOptions ?? {}
+  let { callbackUrl } = signInOptions ?? {}
+  if (typeof callbackUrl === 'undefined') {
+    callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
+  }
   if (redirect) {
-    const urlToNavigateTo = callbackUrl ?? (await getRequestURLWN(nuxt))
-    return navigateTo(urlToNavigateTo)
+    return navigateTo(callbackUrl)
   }
 }
 
