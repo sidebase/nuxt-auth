@@ -25,7 +25,7 @@ definePageMeta({ auth: false })
     <p v-else>
       This page was not cached.
     </p>
-    <p>Cached At: {{ enteredAt?.toISOString() }}.</p>
+    <p>Cached At: {{ cachedAt?.toISOString() }}.</p>
     <p>Created At: {{ enteredAt?.toISOString() }}.</p>
   </div>
 </template>
