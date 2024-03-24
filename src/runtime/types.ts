@@ -309,7 +309,14 @@ export interface ModuleOptions {
   /**
    * Forces your server to send a "loading" status on all requests, prompting the client to fetch on the client. If your website has caching, this prevents the server from caching someone's authentication status.
    *
-   * This effects the entire site, for route-specific rules, add `disableServerSideAuth` on `routeRules`.
+   * This affects the entire site. For route-specific rules add `disableServerSideAuth` on `routeRules` instead:
+      ```ts
+      defineNuxtConfig({
+        routeRules: {
+          '/': { disableServerSideAuth: true }
+        }
+      })
+      ```
    *
    * @default false
    */
