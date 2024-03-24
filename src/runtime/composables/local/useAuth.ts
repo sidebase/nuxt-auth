@@ -78,7 +78,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   const { data, loading, lastRefreshedAt, rawToken, token: tokenState, _internal } = useAuthState()
 
   let token = tokenState.value
-  // For cached responses, return the token directly from the token
+  // For cached responses, return the token directly from the cookie
   token ??= formatToken(_internal.rawTokenCookie.value)
 
   if (!token && !getSessionOptions?.force) {
