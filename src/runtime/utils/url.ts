@@ -22,7 +22,7 @@ export const joinPathToApiURL = (path: string) => joinURL(useAuthState()._intern
 export const navigateToAuthPages = (href: string) => {
   const nuxtApp = useNuxtApp()
 
-  if (process.server) {
+  if (import.meta.server) {
     if (nuxtApp.ssrContext && nuxtApp.ssrContext.event) {
       return nuxtApp.callHook('app:redirected').then(() => {
         sendRedirect(nuxtApp.ssrContext!.event, href, 302)
