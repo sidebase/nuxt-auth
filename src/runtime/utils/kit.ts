@@ -1,7 +1,7 @@
 import { withoutBase, withoutTrailingSlash } from 'ufo'
 import { createRouter, toRouteMatcher, type RouteMatcher } from 'radix3'
 import { type RouteOptions } from '../types'
-import { useRuntimeConfig } from '~/.nuxt/imports'
+import { useRuntimeConfig } from '#imports'
 
 /**
  * Removes query params from url path.

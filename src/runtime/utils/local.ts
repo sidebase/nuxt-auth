@@ -1,5 +1,5 @@
 import { useTypedBackendConfig } from '../helpers'
-import { useRuntimeConfig } from '~/.nuxt/imports'
+import { useRuntimeConfig } from '#imports'
 
 export const formatToken = (token: string | null) => {
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
