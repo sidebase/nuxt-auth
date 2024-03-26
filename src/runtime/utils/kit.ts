@@ -38,7 +38,7 @@ export const getNitroRouteRules = (path: string): Partial<RouteOptions> => {
   ).reverse()
 
   for (const match of matches) {
-    options.disableServerSideAuth ??= match.disableServerSideAuth
+    options.disableServerSideAuth ??= match.auth.disableServerSideAuth
   }
 
   return options
