@@ -6,6 +6,15 @@ export default defineNuxtConfig({
     },
     globalAppMiddleware: {
       isEnabled: true
+    },
+    baseURL: `http://localhost:${process.env.PORT || 3000}`
+  },
+  routeRules: {
+    '/with-caching': {
+      swr: 86400000,
+      auth: {
+        disableServerSideAuth: true
+      }
     }
   }
 })
