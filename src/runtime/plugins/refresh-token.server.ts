@@ -1,6 +1,6 @@
 import type { DeepRequired } from 'ts-essentials'
 import { _fetch } from '../utils/fetch'
-import { jsonPointerGet, useTypedBackendConfig } from '../helpers'
+import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '../helpers'
 import type { ProviderLocalRefresh } from '../types'
 import { defineNuxtPlugin, useAuthState, useRuntimeConfig } from '#imports'
 
@@ -18,6 +18,7 @@ export default defineNuxtPlugin({
       const provider = config.provider as DeepRequired<ProviderLocalRefresh>
 
       const { path, method } = provider.endpoints.refresh
+      const refreshRequestTokenPointer = provider.refreshToken.refreshRequestTokenPointer
 
       // include header in case of auth is required to avoid 403 rejection
       const headers = new Headers({
@@ -27,9 +28,7 @@ export default defineNuxtPlugin({
       try {
         const response = await _fetch<Record<string, any>>(nuxtApp, path, {
           method,
-          body: {
-            refreshToken: refreshToken.value
-          },
+          body: objectFromJsonPointer(refreshRequestTokenPointer, refreshToken.value),
           headers
         })
 
