@@ -201,8 +201,9 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
   /**
    *  When refreshOnlyToken is set, only the token will be refreshed
    *
+   * @default true
    */
-  refreshOnlyToken?: true;
+  refreshOnlyToken?: boolean;
 
   refreshToken?: {
     /**
