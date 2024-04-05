@@ -201,8 +201,9 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
   /**
    *  When refreshOnlyToken is set, only the token will be refreshed
    *
+   * @default true
    */
-  refreshOnlyToken?: true;
+  refreshOnlyToken?: boolean;
 
   refreshToken?: {
     /**
@@ -211,12 +212,26 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
      * E.g., setting this to `/refreshToken/bearer` and returning an object like `{ refreshToken: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `signIn` endpoint will
      * result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
      *
-     * This follows the JSON Pointer standard, see it's RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+     * This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
      *
-     * @default /refreshToken  Access the `refreshToken` property of the sign-in response object
+     * @default '/refreshToken'  Access the `refreshToken` property of the sign-in response object
      * @example /       Access the root of the sign-in response object, useful when your endpoint returns a plain, non-object string as the token
      */
     signInResponseRefreshTokenPointer?: string;
+    /**
+     * How to do a fetch for the refresh token.
+     *
+     * This is especially useful when you have an external backend signing tokens. Refer to this issue to get more information: https://github.com/sidebase/nuxt-auth/issues/635.
+     *
+     * ### Example
+     * Setting this to `/refresh/token` would make Nuxt Auth send the `POST /api/auth/refresh` with the following BODY: `{ "refresh": { "token": "..." } }
+     *
+     * ### Notes
+     * This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+     *
+     * @default '/refreshToken'
+     */
+    refreshRequestTokenPointer?: string;
     /**
      * It refers to the name of the property when it is stored in a cookie.
      *
