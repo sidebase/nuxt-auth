@@ -7,8 +7,8 @@ export const _fetch = async <T>(
   path: string,
   fetchOptions?: Parameters<typeof $fetch>[1]
 ): Promise<T> => {
-  const joinedPath = await callWithNuxt(nuxt, () => joinPathToApiURL(path))
   try {
+    const joinedPath = await callWithNuxt(nuxt, () => joinPathToApiURL(path))
     return $fetch(joinedPath, fetchOptions)
   } catch (error) {
     // TODO: Adapt this error to be more generic
