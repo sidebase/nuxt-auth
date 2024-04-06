@@ -81,7 +81,7 @@ const defaultsByBackend: {
       headerName: 'Authorization',
       maxAgeInSeconds: 5 * 60, // 5 minutes
       sameSiteAttribute: 'none',
-      secureCookieAttribute: true
+      secureCookieAttribute: false
     },
     refreshToken: {
       signInResponseRefreshTokenPointer: '/refreshToken',
