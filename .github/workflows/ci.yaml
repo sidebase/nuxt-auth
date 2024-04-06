@@ -71,11 +71,6 @@ jobs:
       # Check building
       - run: pnpm build
 
-      # start prod-app and curl from it
-      - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"
-        env:
-          AUTH_ORIGIN: "http://localhost:3001"
-          PORT: 3001
       - name: Run Playwright tests using Vitest
         run: pnpm test:e2e
 
@@ -138,5 +133,5 @@ jobs:
       # start prod-app and curl from it
       - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"
         env:
-          AUTH_ORIGIN: "http://localhost:3000"
-          PORT: 3000
+          AUTH_ORIGIN: "http://localhost:3001"
+          PORT: 3001
