@@ -20,7 +20,8 @@ export default defineNuxtConfig({
         sameSiteAttribute: 'lax'
       },
       refreshToken: {
-        signInResponseRefreshTokenPointer: '/token/refreshToken'
+        signInResponseRefreshTokenPointer: '/token/refreshToken',
+        refreshRequestTokenPointer: '/refreshToken'
       }
     },
     globalAppMiddleware: {
