@@ -19,7 +19,15 @@ export const useAuthState = (): UseAuthStateReturn => {
   const commonAuthState = makeCommonAuthState<SessionData>()
 
   // Re-construct state from cookie, also setup a cross-component sync via a useState hack, see https://github.com/nuxt/nuxt/issues/13020#issuecomment-1397282717
-  const _rawTokenCookie = useCookie<string | null>(config.token.cookieName, { default: () => null, maxAge: config.token.maxAgeInSeconds, sameSite: config.token.sameSiteAttribute })
+  const _rawTokenCookie = useCookie<string | null>(
+    config.token.cookieName,
+    {
+      default: () => null,
+      maxAge: config.token.maxAgeInSeconds,
+      sameSite: config.token.sameSiteAttribute,
+      secure: config.token.secureCookieAttribute
+    }
+  )
 
   const rawToken = useState('auth:raw-token', () => _rawTokenCookie.value)
   watch(rawToken, () => { _rawTokenCookie.value = rawToken.value })

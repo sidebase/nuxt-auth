@@ -167,6 +167,13 @@ export type ProviderLocal = {
      * @example 'strict'
      */
     sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
+    /**
+     * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+     *
+     * @default false
+     * @example true
+     */
+    secureCookieAttribute?: boolean;
   };
   /**
    * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
@@ -230,6 +237,13 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
      * Note: Your backend may reject / expire the token earlier / differently.
      */
     maxAgeInSeconds?: number;
+    /**
+     * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+     *
+     * @default false
+     * @example true
+     */
+    secureCookieAttribute?: boolean;
   };
 };
 
