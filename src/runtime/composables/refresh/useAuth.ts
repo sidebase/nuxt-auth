@@ -139,7 +139,7 @@ const signOut: SignOutFunc = async (signOutOptions) => {
   const nuxt = useNuxtApp()
   const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
   const config = useTypedBackendConfig(runtimeConfig, 'refresh')
-  const { data, rawToken, token, rawRefreshToken } = await callWithNuxt(
+  const { data, rawToken, token, rawRefreshToken, refreshToken } = await callWithNuxt(
     nuxt,
     useAuthState
   )
@@ -147,6 +147,10 @@ const signOut: SignOutFunc = async (signOutOptions) => {
   const headers = new Headers({
     [config.token.headerName]: token.value
   } as HeadersInit)
+
+  const refreshRequestTokenPointer = config.refreshToken.refreshRequestTokenPointer
+  const body = objectFromJsonPointer(refreshRequestTokenPointer, refreshToken.value)
+
   data.value = null
   rawToken.value = null
   rawRefreshToken.value = null
@@ -168,7 +172,7 @@ const signOut: SignOutFunc = async (signOutOptions) => {
         | 'options'
         | 'trace';
     }
-    res = await _fetch(nuxt, path, { method, headers })
+    res = await _fetch(nuxt, path, { method, headers, body: method === 'post' ? body : undefined })
   }
 
   const { callbackUrl, redirect = true } = signOutOptions ?? {}
