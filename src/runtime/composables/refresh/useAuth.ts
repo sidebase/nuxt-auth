@@ -172,7 +172,7 @@ const signOut: SignOutFunc = async (signOutOptions) => {
         | 'options'
         | 'trace';
     }
-    res = await _fetch(nuxt, path, { method, headers, body: method === 'post' ? body : undefined })
+    res = await _fetch(nuxt, path, { method, headers, body: method.toLowerCase() === 'post' ? body : undefined })
   }
 
   const { callbackUrl, redirect = true } = signOutOptions ?? {}
