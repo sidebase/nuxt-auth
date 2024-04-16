@@ -16,6 +16,7 @@ import type { NuxtModule } from 'nuxt/schema'
 import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
 import type {
   ModuleOptions,
+  ModuleOptionsNormalized,
   SupportedAuthProviders,
   AuthProviders
 } from './runtime/types'
@@ -235,3 +236,16 @@ export default defineNuxtModule<ModuleOptions>({
     logger.success('`nuxt-auth` setup done')
   }
 }) satisfies NuxtModule<ModuleOptions>
+
+// Used by nuxt/module-builder for `types.d.ts` generation
+export type { ModuleOptions }
+export interface ModulePublicRuntimeConfig {
+  auth: ModuleOptionsNormalized
+}
+
+// Augment types for type inference in source code
+declare module '@nuxt/schema' {
+  interface PublicRuntimeConfig {
+    auth: ModuleOptionsNormalized
+  }
+}
