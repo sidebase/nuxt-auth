@@ -153,6 +153,12 @@ export type ProviderLocal = {
      */
     headerName?: string;
     /**
+     * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+     *
+     * @example sidebase.io
+     */
+    cookieDomain?: string;
+    /**
      * Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
      *
      * Note: Your backend may reject / expire the token earlier / differently.
@@ -245,6 +251,12 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
      * Note: Your backend may reject / expire the token earlier / differently.
      */
     maxAgeInSeconds?: number;
+    /**
+     * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+     *
+     * @example sidebase.io
+     */
+        cookieDomain?: string;
   };
 };
 
