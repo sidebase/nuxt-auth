@@ -170,6 +170,7 @@ export type ProviderLocal = {
     /**
      * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
      *
+     * @default ''
      * @example sidebase.io
      */
     cookieDomain?: string;
@@ -254,6 +255,7 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
     /**
      * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
      *
+     * @default ''
      * @example sidebase.io
      */
     cookieDomain?: string;

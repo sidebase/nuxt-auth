@@ -56,7 +56,7 @@ const defaultsByBackend: {
       headerName: 'Authorization',
       maxAgeInSeconds: 30 * 60,
       sameSiteAttribute: 'lax',
-      cookieDomain: undefined
+      cookieDomain: ''
     },
     sessionDataType: { id: 'string | number' }
   },
@@ -81,14 +81,14 @@ const defaultsByBackend: {
       headerName: 'Authorization',
       maxAgeInSeconds: 5 * 60, // 5 minutes
       sameSiteAttribute: 'none',
-      cookieDomain: undefined
+      cookieDomain: ''
     },
     refreshToken: {
       signInResponseRefreshTokenPointer: '/refreshToken',
       refreshRequestTokenPointer: '/refreshToken',
       cookieName: 'auth.refresh-token',
       maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days
-      cookieDomain: undefined
+      cookieDomain: ''
     },
     sessionDataType: { id: 'string | number' }
   },
