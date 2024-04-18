@@ -129,6 +129,8 @@ jobs:
 
       # Check building
       - run: pnpm build
+        env:
+          PORT: 3001
 
       # start prod-app and curl from it
       - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"

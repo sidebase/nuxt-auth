@@ -322,6 +322,21 @@ export interface ModuleOptions {
    */
   isEnabled?: boolean;
   /**
+   * Forces your server to send a "loading" status on all requests, prompting the client to fetch on the client. If your website has caching, this prevents the server from caching someone's authentication status.
+   *
+   * This affects the entire site. For route-specific rules add `disableServerSideAuth` on `routeRules` instead:
+      ```ts
+      defineNuxtConfig({
+        routeRules: {
+          '/': { disableServerSideAuth: true }
+        }
+      })
+      ```
+   *
+   * @default false
+   */
+  disableServerSideAuth?: boolean;
+  /**
    * Full url at which the app will run combined with the path to authentication. You can set this differently depending on your selected authentication-provider:
    * - `authjs`: You must set the full URL, with origin and path in production. You can leave this empty in development
    * - `local`: You can set a full URL, but can also leave this empty to fallback to the default value of `/api/auth` or set only the path.
@@ -379,6 +394,15 @@ export interface ModuleOptions {
    * @default false
    */
   globalAppMiddleware?: GlobalMiddlewareOptions | boolean;
+}
+
+export interface RouteOptions {
+  /**
+   * Forces your server to send a "loading" status on a route, prompting the client to fetch on the client. If a specific page has caching, this prevents the server from caching someone's authentication status.
+   *
+   * @default false
+   */
+  disableServerSideAuth: boolean;
 }
 
 // Common useAuthStatus & useAuth return-types
