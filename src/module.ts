@@ -23,6 +23,7 @@ import type {
 
 const topLevelDefaults = {
   isEnabled: true,
+  disableServerSideAuth: false,
   session: {
     enableRefreshPeriodically: false,
     enableRefreshOnWindowFocus: true
@@ -204,7 +205,16 @@ export default defineNuxtModule<ModuleOptions>({
               (options.provider as any).sessionDataType
             )
             : '',
-          '}'
+          '}',
+          "declare module 'nitropack' {",
+          '  interface NitroRouteRules {',
+          `    auth?: import('${resolve('./runtime/types.ts')}').RouteOptions`,
+          '  }',
+          '  interface NitroRouteConfig {',
+          `    auth?: import('${resolve('./runtime/types.ts')}').RouteOptions`,
+          '  }',
+          '}',
+          'export {}'
         ].join('\n')
     })
 
