@@ -184,9 +184,14 @@ const getSession: GetSessionFunc<SessionData> = async (getSessionOptions) => {
       // Add any new cookie to the server-side event for it to be present on the app-side after
       // initial load, see sidebase/nuxt-auth/issues/200 for more information.
       if (process.server) {
-        const setCookieValue = response.headers.get('set-cookie')
-        if (setCookieValue && nuxt.ssrContext) {
-          appendHeader(nuxt.ssrContext.event, 'set-cookie', setCookieValue)
+        const setCookieValues = response.headers.getSetCookie ? response.headers.getSetCookie() : [response.headers.get('set-cookie')]
+        if (setCookieValues && nuxt.ssrContext) {
+          for (const value of setCookieValues) {
+            if (!value) {
+              continue
+            }
+            appendHeader(nuxt.ssrContext.event, 'set-cookie', value)
+          }
         }
       }
 
