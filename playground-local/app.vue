@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useAuth } from '#imports'
 
-const { signIn, token, data, status, lastRefreshedAt, signOut, getSession } = useAuth()
+const { signIn, signUp, token, data, status, lastRefreshedAt, signOut, getSession } = useAuth()
 
 const username = ref('')
 const password = ref('')
@@ -23,6 +23,10 @@ const password = ref('')
       </button>
     </form>
 
+    <br>
+    <button @click="signUp({ username,password })">
+      signup
+    </button>
     <br>
     <button @click="signIn({ username, password }, { callbackUrl: '/protected/globally' })">
       sign in (with redirect to protected page)

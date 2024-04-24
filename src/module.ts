@@ -42,7 +42,12 @@ const defaultsByBackend: {
   local: {
     type: 'local',
     pages: {
-      login: '/login'
+      login: '/login',
+      signup: '/signup',
+      logout: '/logout',
+      error: '/error',
+      newUser: '/new-user',
+      verifyRequest: '/verify-request'
     },
     endpoints: {
       signIn: { path: '/login', method: 'post' },
@@ -64,7 +69,12 @@ const defaultsByBackend: {
   refresh: {
     type: 'refresh',
     pages: {
-      login: '/login'
+      login: '/login',
+      signup: '/signup',
+      logout: '/logout',
+      error: '/error',
+      newUser: '/new-user',
+      verifyRequest: '/verify-request'
     },
     refreshOnlyToken: true,
     endpoints: {

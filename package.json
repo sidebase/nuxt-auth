@@ -21,7 +21,9 @@
     "clean": "rm -rf playground-authjs/.nuxt playground-local/.nuxt playground-refresh/.nuxt dist .nuxt",
     "typecheck": "nuxi prepare playground-local && tsc --noEmit",
     "typecheck:refresh": "nuxi prepare playground-refresh && tsc --noEmit",
-    "dev:prepare": "nuxt-module-build build --stub"
+    "dev:prepare": "nuxt-module-build build --stub",
+    "dev": "nuxi dev playground",
+    "dev:build": "nuxi build playground"
   },
   "dependencies": {
     "@nuxt/kit": "^3.11.2",

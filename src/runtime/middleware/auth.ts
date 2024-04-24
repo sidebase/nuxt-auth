@@ -66,10 +66,14 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
-  // We do not want to block the login page when the local provider is used
+  // We do not want to block the login page when the local provider is used, so for (signup - logout - error)
   if (authConfig.provider?.type === 'local') {
     const loginRoute: string | undefined = authConfig.provider?.pages?.login
-    if (loginRoute && loginRoute === to.path) {
+    const signupRoute: string | undefined = authConfig.provider?.pages?.signup
+    const logoutRoute: string | undefined = authConfig.provider?.pages?.logout
+    const errorRoute: string | undefined = authConfig.provider?.pages?.error
+
+    if ((loginRoute && loginRoute === to.path) || (signupRoute && signupRoute === to.path) || (logoutRoute && logoutRoute === to.path) || (errorRoute && errorRoute === to.path)) {
       return
     }
   }

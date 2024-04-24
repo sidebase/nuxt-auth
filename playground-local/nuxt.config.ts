@@ -10,7 +10,8 @@ export default defineNuxtConfig({
         getSession: { path: '/user' }
       },
       pages: {
-        login: '/'
+        login: '/',
+        verifyRequest: '/verify-email'
       },
       token: {
         signInResponseTokenPointer: '/token/accessToken'

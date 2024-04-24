@@ -114,6 +114,30 @@ export type ProviderLocal = {
      * @default '/login'
      */
     login?: string;
+    /**
+     * Path of the sign-up page that the user should be using to register on the app
+     */
+    signup?: string;
+    /**
+     * Path for sign-out page that the use should be redirected to when they try to sign out
+     * @default '/'
+     */
+    logout?: string;
+    /**
+     * Path for error page that the use should be redirected to when there is an error
+     * @default '/error'
+     */
+    error?: string;
+    /**
+     * Path for verify-request page that the use should be redirected to when there is a need for email verification
+     * @default '/verify-request'
+     */
+    verifyRequest?: string;
+    /**
+     * Path for new-user page that the use should be redirected to when there is an onboarding
+     * @default '/new-user'
+     */
+    newUser?: string;
   };
   /**
    * Settings for the authentication-token that `nuxt-auth` receives from the `signIn` endpoint and that can be used to authenticate subsequent requests.
