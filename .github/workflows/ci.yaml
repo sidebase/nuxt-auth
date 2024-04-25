@@ -8,20 +8,21 @@ on:
 
 env:
   NODE_VER: 18.19.1
+  CI: true
 
 jobs:
   test-module:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Use Node.js ${{ env.NODE_VER }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v3
         name: Install pnpm
         id: pnpm-install
         with:
@@ -48,14 +49,14 @@ jobs:
         working-directory: ./playground-local
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Use Node.js ${{ env.NODE_VER }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v3
         name: Install pnpm
         id: pnpm-install
         with:
@@ -64,11 +65,14 @@ jobs:
       # Install deps
       - run: pnpm i
 
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+
       # Check building
       - run: pnpm build
 
-      # start prod-app and curl from it
-      - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:3000)"
+      - name: Run Playwright tests using Vitest
+        run: pnpm test:e2e
 
   test-playground-refresh:
     runs-on: ubuntu-latest
@@ -76,14 +80,14 @@ jobs:
       run:
         working-directory: ./playground-refresh
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Use Node.js ${{ env.NODE_VER }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v3
         name: Install pnpm
         id: pnpm-install
         with:
@@ -92,14 +96,14 @@ jobs:
       # Install deps
       - run: pnpm i
 
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+
       # Check building
       - run: pnpm build
 
-      # start prod-app and curl from it
-      - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"
-        env:
-          AUTH_ORIGIN: "http://localhost:3002"
-          PORT: 3002
+      - name: Run Playwright tests using Vitest
+        run: pnpm test:e2e
 
   test-playground-authjs:
     runs-on: ubuntu-latest
@@ -107,14 +111,14 @@ jobs:
       run:
         working-directory: ./playground-authjs
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Use Node.js ${{ env.NODE_VER }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v3
         name: Install pnpm
         id: pnpm-install
         with:
@@ -125,6 +129,8 @@ jobs:
 
       # Check building
       - run: pnpm build
+        env:
+          PORT: 3001
 
       # start prod-app and curl from it
       - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"

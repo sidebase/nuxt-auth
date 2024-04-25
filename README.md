@@ -15,7 +15,7 @@
 ## Quick Start
 
 ```sh
-npm i -D @sidebase/nuxt-auth
+npx nuxi@latest module add sidebase-auth
 ```
 
 Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting-started/quick-start) to setup the module for <= v0.5 - the current stable version.

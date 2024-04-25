@@ -8,17 +8,23 @@
     "build": "nuxi build",
     "start": "nuxi preview",
     "generate": "nuxi generate",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "test:e2e": "vitest"
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.5",
-    "eslint": "^8.56.0",
-    "nuxt": "^3.10.1",
+    "@nuxt/test-utils": "^3.12.1",
+    "@playwright/test": "^1.43.1",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^18.19.31",
+    "@vue/test-utils": "^2.4.5",
+    "eslint": "^8.57.0",
+    "nuxt": "^3.11.2",
     "typescript": "^5.3.3",
+    "vitest": "^1.5.0",
     "vue-tsc": "^1.8.27"
   }
 }
