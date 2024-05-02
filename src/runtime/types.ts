@@ -167,6 +167,13 @@ export type ProviderLocal = {
      * @example 'strict'
      */
     sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
+    /**
+     * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+     *
+     * @default ''
+     * @example sidebase.io
+     */
+    cookieDomain?: string;
   };
   /**
    * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
@@ -245,6 +252,13 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
      * Note: Your backend may reject / expire the token earlier / differently.
      */
     maxAgeInSeconds?: number;
+    /**
+     * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+     *
+     * @default ''
+     * @example sidebase.io
+     */
+    cookieDomain?: string;
   };
 };
 
