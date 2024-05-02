@@ -5,7 +5,17 @@ import type { ModuleOptionsNormalized } from '../types'
 import { useRequestEvent, useNuxtApp, abortNavigation, useAuthState } from '#imports'
 
 export const getRequestURL = (includePath = true) => getURL(useRequestEvent()?.node.req, includePath)
-export const joinPathToApiURL = (path: string) => joinURL(useAuthState()._internal.baseURL, path)
+export function joinPathToApiURL (path: string) {
+  const authStateInternal = useAuthState()._internal
+
+  // For internal calls, use a different base
+  // https://github.com/sidebase/nuxt-auth/issues/742
+  const base = path.startsWith('/')
+    ? authStateInternal.pathname
+    : authStateInternal.baseURL
+
+  return joinURL(base, path)
+}
 
 /**
  * Function to correctly navigate to auth-routes, necessary as the auth-routes are not part of the nuxt-app itself, so unknown to nuxt / vue-router.

@@ -45,7 +45,7 @@ const getRequestCookies = async (nuxt: NuxtApp): Promise<{ cookie: string } | {}
 const getCsrfToken = async () => {
   const nuxt = useNuxtApp()
   const headers = await getRequestCookies(nuxt)
-  return _fetch<{ csrfToken: string }>(nuxt, 'csrf', { headers }).then(response => response.csrfToken)
+  return _fetch<{ csrfToken: string }>(nuxt, '/csrf', { headers }).then(response => response.csrfToken)
 }
 const getCsrfTokenWithNuxt = makeCWN(getCsrfToken)
 
@@ -123,7 +123,7 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
     json: true
   })
 
-  const fetchSignIn = () => _fetch<{ url: string }>(nuxt, `${action}/${provider}`, {
+  const fetchSignIn = () => _fetch<{ url: string }>(nuxt, `/${action}/${provider}`, {
     method: 'post',
     params: authorizationParams,
     headers,
@@ -151,7 +151,7 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 /**
  * Get all configured providers from the backend. You can use this method to build your own sign-in page.
  */
-const getProviders = () => _fetch<Record<Exclude<SupportedProviders, undefined>, Omit<AppProvider, 'options'> | undefined>>(useNuxtApp(), 'providers')
+const getProviders = () => _fetch<Record<Exclude<SupportedProviders, undefined>, Omit<AppProvider, 'options'> | undefined>>(useNuxtApp(), '/providers')
 
 /**
  * Refresh and get the current session data.
@@ -177,7 +177,7 @@ const getSession: GetSessionFunc<SessionData> = async (getSessionOptions) => {
 
   const headers = await getRequestCookies(nuxt)
 
-  return _fetch<SessionData>(nuxt, 'session', {
+  return _fetch<SessionData>(nuxt, '/session', {
     onResponse: ({ response }) => {
       const sessionData = response._data
 
@@ -236,7 +236,7 @@ const signOut: SignOutFunc = async (options) => {
   }
 
   const callbackUrlFallback = requestURL
-  const signoutData = await _fetch<{ url: string }>(nuxt, 'signout', {
+  const signoutData = await _fetch<{ url: string }>(nuxt, '/signout', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'

@@ -15,6 +15,7 @@ interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData> {
   clearToken: () => void
   _internal: {
     baseURL: string,
+    pathname: string,
     rawTokenCookie: CookieRef<string | null>
   }
 }
