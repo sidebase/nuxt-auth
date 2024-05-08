@@ -440,6 +440,7 @@ export interface CommonUseAuthStateReturn<SessionData> {
   status: ComputedRef<SessionStatus>;
   _internal: {
     baseURL: string;
+    pathname: string;
   };
 }
 
