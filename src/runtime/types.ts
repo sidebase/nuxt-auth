@@ -167,13 +167,20 @@ export type ProviderLocal = {
      * @example 'strict'
      */
     sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
+    /**
+     * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+     *
+     * @default ''
+     * @example sidebase.io
+     */
+    cookieDomain?: string;
   };
   /**
    * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
    *
    * @default { id: 'string | number' }
    * @example { id: 'string', name: 'string', email: 'string' }
-   * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
+   * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: "'admin' | 'guest' | 'account", subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
    */
   sessionDataType?: SessionDataObject;
 };
@@ -245,6 +252,13 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
      * Note: Your backend may reject / expire the token earlier / differently.
      */
     maxAgeInSeconds?: number;
+    /**
+     * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+     *
+     * @default ''
+     * @example sidebase.io
+     */
+    cookieDomain?: string;
   };
 };
 
@@ -322,6 +336,21 @@ export interface ModuleOptions {
    */
   isEnabled?: boolean;
   /**
+   * Forces your server to send a "loading" status on all requests, prompting the client to fetch on the client. If your website has caching, this prevents the server from caching someone's authentication status.
+   *
+   * This affects the entire site. For route-specific rules add `disableServerSideAuth` on `routeRules` instead:
+      ```ts
+      defineNuxtConfig({
+        routeRules: {
+          '/': { disableServerSideAuth: true }
+        }
+      })
+      ```
+   *
+   * @default false
+   */
+  disableServerSideAuth?: boolean;
+  /**
    * Full url at which the app will run combined with the path to authentication. You can set this differently depending on your selected authentication-provider:
    * - `authjs`: You must set the full URL, with origin and path in production. You can leave this empty in development
    * - `local`: You can set a full URL, but can also leave this empty to fallback to the default value of `/api/auth` or set only the path.
@@ -381,6 +410,15 @@ export interface ModuleOptions {
   globalAppMiddleware?: GlobalMiddlewareOptions | boolean;
 }
 
+export interface RouteOptions {
+  /**
+   * Forces your server to send a "loading" status on a route, prompting the client to fetch on the client. If a specific page has caching, this prevents the server from caching someone's authentication status.
+   *
+   * @default false
+   */
+  disableServerSideAuth: boolean;
+}
+
 // Common useAuthStatus & useAuth return-types
 
 export type SessionLastRefreshedAt = Date | undefined;
@@ -402,6 +440,7 @@ export interface CommonUseAuthStateReturn<SessionData> {
   status: ComputedRef<SessionStatus>;
   _internal: {
     baseURL: string;
+    pathname: string;
   };
 }
 
@@ -474,12 +513,5 @@ export interface ModuleOptionsNormalized extends ModuleOptions {
     origin: string | undefined
     pathname: string
     fullBaseUrl: string
-  }
-}
-
-// Augment types
-declare module 'nuxt/schema' {
-  interface PublicRuntimeConfig {
-    auth: ModuleOptionsNormalized
   }
 }

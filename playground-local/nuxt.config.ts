@@ -15,7 +15,7 @@ export default defineNuxtConfig({
       token: {
         signInResponseTokenPointer: '/token/accessToken'
       },
-      sessionDataType: { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
+      sessionDataType: { id: 'string', email: 'string', name: 'string', role: "'admin' | 'guest' | 'account'", subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
     },
     session: {
       // Whether to refresh the session every time the browser window is refocused.
@@ -26,6 +26,14 @@ export default defineNuxtConfig({
     },
     globalAppMiddleware: {
       isEnabled: true
+    }
+  },
+  routeRules: {
+    '/with-caching': {
+      swr: 86400000,
+      auth: {
+        disableServerSideAuth: true
+      }
     }
   }
 })
