@@ -26,6 +26,10 @@ definePageMeta({ auth: false })
       -> guest mode
     </nuxt-link>
     <br>
+    <nuxt-link to="/with-caching">
+      -> cached page with swr
+    </nuxt-link>
+    <br>
     <div>select one of the above actions to get started.</div>
   </div>
 </template>

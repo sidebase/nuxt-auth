@@ -48,7 +48,8 @@ export const makeCommonAuthState = <SessionData>() => {
     lastRefreshedAt,
     status,
     _internal: {
-      baseURL
+      baseURL,
+      pathname
     }
   }
 }
