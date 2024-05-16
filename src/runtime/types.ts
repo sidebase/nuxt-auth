@@ -168,10 +168,18 @@ export type ProviderLocal = {
      */
     sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
     /**
-     * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+     * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+     *
+     * @default false
+     * @example true
+     */
+    secureCookieAttribute?: boolean;
+    /**
+     * The cookie domain.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
      *
      * @default ''
-     * @example sidebase.io
+     * @example 'sidebase.io'
      */
     cookieDomain?: string;
   };
@@ -270,10 +278,18 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
      */
     maxAgeInSeconds?: number;
     /**
-     * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+     * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+     *
+     * @default false
+     * @example true
+     */
+    secureCookieAttribute?: boolean;
+    /**
+     * The cookie domain.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
      *
      * @default ''
-     * @example sidebase.io
+     * @example 'sidebase.io'
      */
     cookieDomain?: string;
   };

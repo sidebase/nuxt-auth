@@ -56,8 +56,9 @@ const defaultsByBackend: {
       type: 'Bearer',
       cookieName: 'auth.token',
       headerName: 'Authorization',
-      maxAgeInSeconds: 30 * 60,
+      maxAgeInSeconds: 30 * 60, // 30 minutes
       sameSiteAttribute: 'lax',
+      secureCookieAttribute: false,
       cookieDomain: ''
     },
     session: {
@@ -86,6 +87,7 @@ const defaultsByBackend: {
       headerName: 'Authorization',
       maxAgeInSeconds: 5 * 60, // 5 minutes
       sameSiteAttribute: 'none',
+      secureCookieAttribute: false,
       cookieDomain: ''
     },
     refreshToken: {
@@ -93,6 +95,7 @@ const defaultsByBackend: {
       refreshRequestTokenPointer: '/refreshToken',
       cookieName: 'auth.refresh-token',
       maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days
+      secureCookieAttribute: false,
       cookieDomain: ''
     },
     session: {
