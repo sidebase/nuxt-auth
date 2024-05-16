@@ -4,6 +4,7 @@ import type { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, Seco
 import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
+import { formatToken } from '../../utils/local'
 import { useAuthState } from './useAuthState'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
@@ -74,18 +75,29 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
 
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
   const { path, method } = config.endpoints.getSession
-  const { data, loading, lastRefreshedAt, token, rawToken } = useAuthState()
+  const { data, loading, lastRefreshedAt, rawToken, token: tokenState, _internal } = useAuthState()
 
-  if (!token.value && !getSessionOptions?.force) {
+  let token = tokenState.value
+  // For cached responses, return the token directly from the cookie
+  token ??= formatToken(_internal.rawTokenCookie.value)
+
+  if (!token && !getSessionOptions?.force) {
+    loading.value = false
     return
   }
 
-  const headers = new Headers(token.value ? { [config.token.headerName]: token.value } as HeadersInit : undefined)
+  const headers = new Headers(token ? { [config.token.headerName]: token } as HeadersInit : undefined)
 
   loading.value = true
   try {
-    data.value = await _fetch<SessionData>(nuxt, path, { method, headers })
-  } catch {
+    const result = await _fetch<any>(nuxt, path, { method, headers })
+    const { dataResponsePointer: sessionDataResponsePointer } = config.session
+    data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
+  } catch (err) {
+    if (!data.value && err instanceof Error) {
+      console.error(`Session: unable to extract session, ${err.message}`)
+    }
+
     // Clear all data: Request failed so we must not be authenticated
     data.value = null
     rawToken.value = null
