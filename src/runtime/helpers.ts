@@ -130,7 +130,7 @@ export function objectFromJsonPointer (pointer: string | string[], value: any): 
  * Adapted from https://github.com/manuelstofer/json-pointer/blob/931b0f9c7178ca09778087b4b0ac7e4f505620c2/index.js#L217-L221
  */
 function jsonPointerParse (pointer: string): string[] {
-  if (pointer === '') {
+  if (pointer === '' || pointer === '/') {
     return []
   }
   if (pointer.charAt(0) !== '/') {
