@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 import { callWithNuxt } from '#app'
-import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
+import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '../../helpers'
 import { useAuth as useLocalAuth } from '../local/useAuth'
 import { _fetch } from '../../utils/fetch'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
@@ -79,6 +79,7 @@ const refresh = async () => {
   const nuxt = useNuxtApp()
   const config = useTypedBackendConfig(useRuntimeConfig(), 'refresh')
   const { path, method } = config.endpoints.refresh
+  const refreshRequestTokenPointer = config.refreshToken.refreshRequestTokenPointer
 
   const { getSession } = useLocalAuth()
   const { refreshToken, token, rawToken, rawRefreshToken, lastRefreshedAt } =
@@ -91,9 +92,7 @@ const refresh = async () => {
   const response = await _fetch<Record<string, any>>(nuxt, path, {
     method,
     headers,
-    body: {
-      refreshToken: refreshToken.value
-    }
+    body: objectFromJsonPointer(refreshRequestTokenPointer, refreshToken.value)
   })
 
   const extractedToken = jsonPointerGet(
