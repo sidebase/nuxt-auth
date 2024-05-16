@@ -60,7 +60,10 @@ const defaultsByBackend: {
       sameSiteAttribute: 'lax',
       cookieDomain: ''
     },
-    sessionDataType: { id: 'string | number' }
+    session: {
+      dataType: { id: 'string | number' },
+      dataResponsePointer: '/'
+    }
   },
 
   refresh: {
@@ -92,7 +95,10 @@ const defaultsByBackend: {
       maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days
       cookieDomain: ''
     },
-    sessionDataType: { id: 'string | number' }
+    session: {
+      dataType: { id: 'string | number' },
+      dataResponsePointer: '/'
+    }
   },
 
   authjs: {
@@ -201,7 +207,7 @@ export default defineNuxtModule<ModuleOptions>({
           ...(options.provider.type === 'local'
             ? [genInterface(
                 'SessionData',
-                (options.provider as any).sessionDataType
+                (options.provider as any).session.dataType
               )]
             : []
           ),
