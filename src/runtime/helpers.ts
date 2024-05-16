@@ -62,7 +62,7 @@ export function jsonPointerGet <TResult = string | Record<string, any>> (
     }
     obj = obj[tok]
   }
-  return obj
+  return obj as TResult
 }
 
 /**
