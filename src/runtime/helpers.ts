@@ -49,10 +49,10 @@ export const useTypedBackendConfig = <T extends SupportedAuthProviders>(
  * @param obj
  * @param pointer
  */
-export function jsonPointerGet (
+export function jsonPointerGet <TResult = string | Record<string, any>> (
   obj: Record<string, any>,
   pointer: string
-): string | Record<string, any> {
+): TResult {
   const refTokens = Array.isArray(pointer) ? pointer : jsonPointerParse(pointer)
 
   for (let i = 0; i < refTokens.length; ++i) {
