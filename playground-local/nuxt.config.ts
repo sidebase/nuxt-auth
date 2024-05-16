@@ -16,7 +16,7 @@ export default defineNuxtConfig({
         signInResponseTokenPointer: '/token/accessToken'
       },
       session: {
-        dataType: { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" },
+        dataType: { id: 'string', email: 'string', name: 'string', role: "'admin' | 'guest' | 'account'", subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" },
         dataResponsePointer: '/'
       }
     },
@@ -28,6 +28,14 @@ export default defineNuxtConfig({
     },
     globalAppMiddleware: {
       isEnabled: true
+    }
+  },
+  routeRules: {
+    '/with-caching': {
+      swr: 86400000,
+      auth: {
+        disableServerSideAuth: true
+      }
     }
   }
 })

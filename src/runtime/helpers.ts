@@ -49,35 +49,92 @@ export const useTypedBackendConfig = <T extends SupportedAuthProviders>(
  * @param obj
  * @param pointer
  */
-export const jsonPointerGet = <TResult, T extends object = object>(
-  obj: T,
+export function jsonPointerGet (
+  obj: Record<string, any>,
   pointer: string
-): TResult => {
-  let result = obj as unknown as TResult
-  if (pointer === '/') {
-    return result
-  }
-
-  const unescape = (str: string) => str.replace(/~1/g, '/').replace(/~0/g, '~')
-  const parse = (pointer: string) => {
-    if (pointer === '') {
-      return []
-    }
-    if (pointer.charAt(0) !== '/') {
-      throw new Error('Invalid JSON pointer: ' + pointer)
-    }
-    return pointer.substring(1).split(/\//).map(unescape)
-  }
-
-  const refTokens = Array.isArray(pointer) ? pointer : parse(pointer)
+): string | Record<string, any> {
+  const refTokens = Array.isArray(pointer) ? pointer : jsonPointerParse(pointer)
 
   for (let i = 0; i < refTokens.length; ++i) {
     const tok = refTokens[i]
-    if (!(typeof result === 'object' && result && tok in result)) {
+    if (!(typeof obj === 'object' && tok in obj)) {
       throw new Error('Invalid reference token: ' + tok)
     }
-    result = (result as any)[tok]
+    obj = obj[tok]
+  }
+  return obj
+}
+
+/**
+ * Sets a value on an object
+ *
+ * RFC / Standard: https://www.rfc-editor.org/rfc/rfc6901
+ *
+ * Adapted from https://github.com/manuelstofer/json-pointer/blob/931b0f9c7178ca09778087b4b0ac7e4f505620c2/index.js#L68-L103
+ */
+export function jsonPointerSet (
+  obj: Record<string, any>,
+  pointer: string | string[],
+  value: any
+) {
+  const refTokens = Array.isArray(pointer) ? pointer : jsonPointerParse(pointer)
+  let nextTok: string | number = refTokens[0]
+
+  if (refTokens.length === 0) {
+    throw new Error('Can not set the root object')
   }
 
+  for (let i = 0; i < refTokens.length - 1; ++i) {
+    let tok: string | number = refTokens[i]
+    if (typeof tok !== 'string' && typeof tok !== 'number') {
+      tok = String(tok)
+    }
+    if (tok === '__proto__' || tok === 'constructor' || tok === 'prototype') {
+      continue
+    }
+    if (tok === '-' && Array.isArray(obj)) {
+      tok = obj.length
+    }
+    nextTok = refTokens[i + 1]
+
+    if (!(tok in obj)) {
+      if (nextTok.match(/^(\d+|-)$/)) {
+        obj[tok] = []
+      } else {
+        obj[tok] = {}
+      }
+    }
+    obj = obj[tok]
+  }
+  if (nextTok === '-' && Array.isArray(obj)) {
+    nextTok = obj.length
+  }
+  obj[nextTok] = value
+}
+
+/**
+ * Creates an object from a value and a pointer.
+ * This is equivalent to calling `jsonPointerSet` on an empty object.
+ * @returns {Record<string, any>} An object with a value set at an arbitrary pointer.
+ * @example objectFromJsonPointer('/refresh', 'someToken') // { refresh: 'someToken' }
+ */
+export function objectFromJsonPointer (pointer: string | string[], value: any): Record<string, any> {
+  const result = {}
+  jsonPointerSet(result, pointer, value)
   return result
+}
+
+/**
+ * Converts a json pointer into a array of reference tokens
+ *
+ * Adapted from https://github.com/manuelstofer/json-pointer/blob/931b0f9c7178ca09778087b4b0ac7e4f505620c2/index.js#L217-L221
+ */
+function jsonPointerParse (pointer: string): string[] {
+  if (pointer === '') {
+    return []
+  }
+  if (pointer.charAt(0) !== '/') {
+    throw new Error('Invalid JSON pointer: ' + pointer)
+  }
+  return pointer.substring(1).split(/\//).map(s => s.replace(/~1/g, '/').replace(/~0/g, '~'))
 }
