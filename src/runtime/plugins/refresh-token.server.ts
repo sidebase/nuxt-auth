@@ -47,7 +47,7 @@ export default defineNuxtPlugin({
           return
         }
 
-        // check if refereshTokenOnly
+        // check if refreshTokenOnly
         if (!configToken.refreshOnlyToken) {
           const extractedRefreshToken = jsonPointerGet(
             response,
