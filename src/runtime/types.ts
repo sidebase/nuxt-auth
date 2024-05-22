@@ -168,21 +168,46 @@ export type ProviderLocal = {
      */
     sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
     /**
-     * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+     * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+     *
+     * @default false
+     * @example true
+     */
+    secureCookieAttribute?: boolean;
+    /**
+     * The cookie domain.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
      *
      * @default ''
-     * @example sidebase.io
+     * @example 'sidebase.io'
      */
     cookieDomain?: string;
   };
   /**
-   * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
-   *
-   * @default { id: 'string | number' }
-   * @example { id: 'string', name: 'string', email: 'string' }
-   * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: "'admin' | 'guest' | 'account", subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
+   * Settings for the session-data that `nuxt-auth` receives from the `getSession` endpoint.
    */
-  sessionDataType?: SessionDataObject;
+  session?: {
+    /*
+     * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
+     *
+     * @default { id: 'string | number' }
+     * @example { id: 'string', name: 'string', email: 'string' }
+     * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: "'admin' | 'guest' | 'account'", subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
+     */
+    dataType?: SessionDataObject;
+    /**
+     * How to extract the session-data from the session response.
+     *
+     * E.g., setting this to `/data/user` and returning an object like `{ data: { user: { id:number, name: string } }, status: 'ok' }` from the `getSession` endpoint will
+     * storing the 'User' object typed as the type created via the 'dataType' prop.
+     *
+     * This follows the JSON Pointer standard, see it's RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+     *
+     * @default / Access the root of the session response object
+     * @example /data/user  Access the `data/user` property of the session response object
+     */
+    dataResponsePointer?: string;
+  };
 };
 
 /**
@@ -253,10 +278,18 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
      */
     maxAgeInSeconds?: number;
     /**
-     * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+     * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+     *
+     * @default false
+     * @example true
+     */
+    secureCookieAttribute?: boolean;
+    /**
+     * The cookie domain.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
      *
      * @default ''
-     * @example sidebase.io
+     * @example 'sidebase.io'
      */
     cookieDomain?: string;
   };
