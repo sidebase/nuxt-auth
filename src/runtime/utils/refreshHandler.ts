@@ -20,8 +20,6 @@ const defaultRefreshHandler: DefaultRefreshHandler = {
   refreshTokenIntervalTimer: undefined,
 
   visibilityHandler () {
-    console.log('Visibility changed');
-
     // Listen for when the page is visible, if the user switches tabs
     // and makes our tab visible again, re-fetch the session, but only if
     // this feature is not disabled.
