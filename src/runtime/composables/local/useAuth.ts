@@ -21,10 +21,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   const { path, method } = config.endpoints.signIn
   const response = await _fetch<Record<string, any>>(nuxt, path, {
     method,
-    body: {
-      ...credentials,
-      ...(signInOptions ?? {})
-    },
+    body: credentials,
     params: signInParams ?? {}
   })
 

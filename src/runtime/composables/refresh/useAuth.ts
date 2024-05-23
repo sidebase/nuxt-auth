@@ -27,10 +27,7 @@ const signIn: ReturnType<typeof useLocalAuth>['signIn'] = async (
   const { path, method } = config.endpoints.signIn
   const response = await _fetch<Record<string, any>>(nuxt, path, {
     method,
-    body: {
-      ...credentials,
-      ...(signInOptions ?? {})
-    },
+    body: credentials,
     params: signInParams ?? {}
   })
 
