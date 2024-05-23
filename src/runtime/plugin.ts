@@ -1,7 +1,7 @@
 import { getHeader } from 'h3'
 import authMiddleware from './middleware/auth'
 import type { RefreshHandler } from './types'
-import { defaultRefreshHandler } from './utils/refreshHandler'
+import defaultRefreshHandler from './utils/refreshHandler'
 import { getNitroRouteRules } from './utils/kit'
 import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig, useAuth, useAuthState } from '#imports'
 
@@ -37,8 +37,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   // 2. Setup session maintanence, e.g., auto refreshing or refreshing on foux
-  // const RefreshHandler = runtimeConfig.session.refreshHandler ?? DefaultRefreshHandler
-
   const refreshHandler: RefreshHandler =
     typeof runtimeConfig.session.refreshHandler === 'undefined'
       ? defaultRefreshHandler
@@ -48,28 +46,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     refreshHandler.init(runtimeConfig.session)
     if (disableServerSideAuth) {
       getSession()
-    }
-
-    document.addEventListener('visibilitychange', visibilityHandler, false)
-
-    if (enableRefreshPeriodically !== false) {
-      const intervalTime =
-        enableRefreshPeriodically === true ? 1000 : enableRefreshPeriodically
-      refetchIntervalTimer = setInterval(() => {
-        if (data.value) {
-          getSession()
-        }
-      }, intervalTime)
-    }
-
-    if (runtimeConfig.provider.type === 'refresh') {
-      const intervalTime = runtimeConfig.provider.token.maxAgeInSeconds! * 1000
-      const { refresh, refreshToken } = useAuth()
-      refreshTokenIntervalTimer = setInterval(() => {
-        if (refreshToken.value) {
-          refresh()
-        }
-      }, intervalTime)
     }
   })
 

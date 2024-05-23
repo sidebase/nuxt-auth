@@ -1,12 +1,14 @@
 import type { RefreshHandlerConfig, RefreshHandler } from '../types'
 import { useRuntimeConfig, useAuth, useAuthState } from '#imports'
 
-export const defaultRefreshHandler: RefreshHandler & {
-  config?: RefreshHandlerConfig
-  refetchIntervalTimer?: ReturnType<typeof setInterval>
-  refreshTokenIntervalTimer?: ReturnType<typeof setInterval>
-  visibilityHandler(): void
-} = {
+interface DefaultRefreshHandler extends RefreshHandler {
+    config?: RefreshHandlerConfig
+    refetchIntervalTimer?: ReturnType<typeof setInterval>
+    refreshTokenIntervalTimer?: ReturnType<typeof setInterval>
+    visibilityHandler(): void
+}
+
+const defaultRefreshHandler: DefaultRefreshHandler = {
   // Session configuration keep this for reference
   config: undefined,
 
@@ -18,6 +20,8 @@ export const defaultRefreshHandler: RefreshHandler & {
   refreshTokenIntervalTimer: undefined,
 
   visibilityHandler () {
+    console.log('Visibility changed');
+
     // Listen for when the page is visible, if the user switches tabs
     // and makes our tab visible again, re-fetch the session, but only if
     // this feature is not disabled.
@@ -34,9 +38,7 @@ export const defaultRefreshHandler: RefreshHandler & {
     const { data } = useAuthState()
     const { getSession } = useAuth()
 
-    document.addEventListener('visibilitychange', () => {
-      this.visibilityHandler()
-    }, false)
+    document.addEventListener('visibilitychange', this.visibilityHandler, false)
 
     const { enableRefreshPeriodically } = config
 
@@ -64,9 +66,7 @@ export const defaultRefreshHandler: RefreshHandler & {
 
   destroy (): void {
     // Clear visibility handler
-    document.removeEventListener('visibilitychange', () => {
-      this.visibilityHandler()
-    }, false)
+    document.removeEventListener('visibilitychange', this.visibilityHandler, false)
 
     // Clear refetch interval
     clearInterval(this.refetchIntervalTimer)
@@ -77,3 +77,5 @@ export const defaultRefreshHandler: RefreshHandler & {
     }
   }
 }
+
+export default defaultRefreshHandler
