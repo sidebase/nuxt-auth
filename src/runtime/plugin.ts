@@ -2,15 +2,18 @@ import { getHeader } from 'h3'
 import authMiddleware from './middleware/auth'
 import type { RefreshHandler } from './types'
 import { defaultRefreshHandler } from './utils/refreshHandler'
+import { getNitroRouteRules } from './utils/kit'
 import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig, useAuth, useAuthState } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
-  const { data, lastRefreshedAt } = useAuthState()
+  const { data, lastRefreshedAt, loading } = useAuthState()
   const { getSession } = useAuth()
 
   // use runtimeConfig
   const runtimeConfig = useRuntimeConfig().public.auth
+
+  const routeRules = getNitroRouteRules(nuxtApp._route.path)
 
   // Skip auth if we're prerendering
   let nitroPrerender = false
@@ -19,8 +22,17 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       getHeader(nuxtApp.ssrContext.event, 'x-nitro-prerender') !== undefined
   }
 
+  // Prioritize `routeRules` setting over `runtimeConfig` settings, fallback to false
+  let disableServerSideAuth = routeRules.disableServerSideAuth
+  disableServerSideAuth ??= runtimeConfig?.disableServerSideAuth
+  disableServerSideAuth ??= false
+
+  if (disableServerSideAuth) {
+    loading.value = true
+  }
+
   // Only fetch session if it was not yet initialized server-side
-  if (typeof data.value === 'undefined' && !nitroPrerender) {
+  if (typeof data.value === 'undefined' && !nitroPrerender && !disableServerSideAuth) {
     await getSession()
   }
 
@@ -34,6 +46,31 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   nuxtApp.hook('app:mounted', () => {
     refreshHandler.init(runtimeConfig.session)
+    if (disableServerSideAuth) {
+      getSession()
+    }
+
+    document.addEventListener('visibilitychange', visibilityHandler, false)
+
+    if (enableRefreshPeriodically !== false) {
+      const intervalTime =
+        enableRefreshPeriodically === true ? 1000 : enableRefreshPeriodically
+      refetchIntervalTimer = setInterval(() => {
+        if (data.value) {
+          getSession()
+        }
+      }, intervalTime)
+    }
+
+    if (runtimeConfig.provider.type === 'refresh') {
+      const intervalTime = runtimeConfig.provider.token.maxAgeInSeconds! * 1000
+      const { refresh, refreshToken } = useAuth()
+      refreshTokenIntervalTimer = setInterval(() => {
+        if (refreshToken.value) {
+          refresh()
+        }
+      }, intervalTime)
+    }
   })
 
   const _unmount = nuxtApp.vueApp.unmount
