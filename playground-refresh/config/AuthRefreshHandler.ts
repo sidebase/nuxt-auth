@@ -1,4 +1,4 @@
-import type { RefreshHandler } from '@sidebase/nuxt-auth'
+import type { RefreshHandler } from '../../'
 
 // You may also use a plain object with `satisfies RefreshHandler`, of course!
 class CustomRefreshHandler implements RefreshHandler {

@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  modules: ['@sidebase/nuxt-auth'],
+  modules: ['../src/module.ts'],
   build: {
     transpile: ['jsonwebtoken']
   },
