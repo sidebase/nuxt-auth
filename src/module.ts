@@ -24,9 +24,9 @@ import type {
 const topLevelDefaults = {
   isEnabled: true,
   disableServerSideAuth: false,
-  session: {
-    enableRefreshPeriodically: false,
-    enableRefreshOnWindowFocus: true
+  sessionRefresh: {
+    enablePeriodically: false,
+    enableOnWindowFocus: true
   },
   globalAppMiddleware: {
     isEnabled: false,
