@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  modules: ['../src/module.ts'],
+  modules: ['@sidebase/nuxt-auth'],
   build: {
     transpile: ['jsonwebtoken']
   },
@@ -23,6 +23,9 @@ export default defineNuxtConfig({
         signInResponseRefreshTokenPointer: '/token/refreshToken',
         refreshRequestTokenPointer: '/refreshToken'
       }
+    },
+    sessionRefresh: {
+      handler: './config/AuthRefreshHandler'
     },
     globalAppMiddleware: {
       isEnabled: true

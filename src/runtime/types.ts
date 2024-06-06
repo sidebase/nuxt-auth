@@ -376,10 +376,10 @@ export interface SessionRefreshConfig extends DefaultRefreshHandlerConfig {
   /**
    * A custom refresh handler to use. This can be used to implement custom session refresh logic. If not set, the default refresh handler will be used.
    *
-   * @example MyCustomRefreshHandler
+   * @example './config/MyCustomRefreshHandler'
    * @default undefined
    */
-  handler?: RefreshHandler;
+  handler?: string;
 };
 
 /**

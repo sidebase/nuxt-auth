@@ -18,6 +18,7 @@
   "devDependencies": {
     "@nuxt/test-utils": "^3.12.1",
     "@playwright/test": "^1.43.1",
+    "@sidebase/nuxt-auth": "file:..",
     "@types/jsonwebtoken": "^9.0.6",
     "@vue/test-utils": "^2.4.5",
     "eslint": "^8.57.0",
