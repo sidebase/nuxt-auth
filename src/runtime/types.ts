@@ -168,21 +168,46 @@ export type ProviderLocal = {
      */
     sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
     /**
-     * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+     * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+     *
+     * @default false
+     * @example true
+     */
+    secureCookieAttribute?: boolean;
+    /**
+     * The cookie domain.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
      *
      * @default ''
-     * @example sidebase.io
+     * @example 'sidebase.io'
      */
     cookieDomain?: string;
   };
   /**
-   * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
-   *
-   * @default { id: 'string | number' }
-   * @example { id: 'string', name: 'string', email: 'string' }
-   * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: "'admin' | 'guest' | 'account", subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
+   * Settings for the session-data that `nuxt-auth` receives from the `getSession` endpoint.
    */
-  sessionDataType?: SessionDataObject;
+  session?: {
+    /*
+     * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
+     *
+     * @default { id: 'string | number' }
+     * @example { id: 'string', name: 'string', email: 'string' }
+     * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: "'admin' | 'guest' | 'account'", subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
+     */
+    dataType?: SessionDataObject;
+    /**
+     * How to extract the session-data from the session response.
+     *
+     * E.g., setting this to `/data/user` and returning an object like `{ data: { user: { id:number, name: string } }, status: 'ok' }` from the `getSession` endpoint will
+     * storing the 'User' object typed as the type created via the 'dataType' prop.
+     *
+     * This follows the JSON Pointer standard, see it's RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+     *
+     * @default / Access the root of the session response object
+     * @example /data/user  Access the `data/user` property of the session response object
+     */
+    dataResponsePointer?: string;
+  };
 };
 
 /**
@@ -253,10 +278,18 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
      */
     maxAgeInSeconds?: number;
     /**
-     * The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+     * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+     *
+     * @default false
+     * @example true
+     */
+    secureCookieAttribute?: boolean;
+    /**
+     * The cookie domain.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
      *
      * @default ''
-     * @example sidebase.io
+     * @example 'sidebase.io'
      */
     cookieDomain?: string;
   };
@@ -302,11 +335,8 @@ export type AuthProviders =
   | ProviderLocal
   | ProviderLocalRefresh;
 
-/**
- * Configuration for the application-side session.
- */
-type SessionConfig = {
-  /**
+export type RefreshHandlerConfig = {
+    /**
    * Whether to refresh the session every `X` milliseconds. Set this to `false` to turn it off. The session will only be refreshed if a session already exists.
    *
    * Setting this to `true` will refresh the session every second.
@@ -325,6 +355,34 @@ type SessionConfig = {
    * @default true
    */
   enableRefreshOnWindowFocus: boolean;
+};
+
+export type RefreshHandler = {
+  /**
+   * Initializes the refresh handler with the given configuration.
+   * init will be called inside app:mouted lifecycle hook.
+   *
+   * @param config The configuration to use for the refresh handler.
+   */
+  init: (config: RefreshHandlerConfig) => void;
+
+  /**
+   * Handles cleanup of the refresh handler. This method will be called when the app is destroyed.
+   */
+  destroy: () => void;
+};
+
+/**
+ * Configuration for the application-side session.
+ */
+type SessionConfig = RefreshHandlerConfig & {
+  /**
+   * A custom refresh handler to use. This can be used to implement custom session refresh logic. If not set, the default refresh handler will be used.
+   *
+   * @example MyCustomRefreshHandler
+   * @default undefined
+   */
+  refreshHandler?: RefreshHandler;
 };
 
 /**
@@ -440,6 +498,7 @@ export interface CommonUseAuthStateReturn<SessionData> {
   status: ComputedRef<SessionStatus>;
   _internal: {
     baseURL: string;
+    pathname: string;
   };
 }
 
@@ -512,12 +571,5 @@ export interface ModuleOptionsNormalized extends ModuleOptions {
     origin: string | undefined
     pathname: string
     fullBaseUrl: string
-  }
-}
-
-// Augment types
-declare module 'nuxt/schema' {
-  interface PublicRuntimeConfig {
-    auth: ModuleOptionsNormalized
   }
 }

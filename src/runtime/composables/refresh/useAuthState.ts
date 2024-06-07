@@ -19,7 +19,8 @@ export const useAuthState = (): UseAuthStateReturn => {
       default: () => null,
       domain: config.refreshToken.cookieDomain,
       maxAge: config.refreshToken.maxAgeInSeconds,
-      sameSite: 'lax'
+      sameSite: 'lax',
+      secure: config.refreshToken.secureCookieAttribute
     }
   )
 
