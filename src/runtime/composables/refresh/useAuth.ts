@@ -66,9 +66,9 @@ const signIn: ReturnType<typeof useLocalAuth>['signIn'] = async (
   rawToken.value = extractedToken
   rawRefreshToken.value = extractedRefreshToken
 
-  const { callbackUrl, redirect = true, external, withGetSession = true } = signInOptions ?? {}
+  const { callbackUrl, redirect = true, external, withSession = true } = signInOptions ?? {}
 
-  if (withGetSession) {
+  if (withSession) {
     await nextTick(getSession)
   }
 

@@ -35,9 +35,9 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   const { rawToken } = useAuthState()
   rawToken.value = extractedToken
 
-  const { callbackUrl, redirect = true, external, withGetSession = true } = signInOptions ?? {}
+  const { callbackUrl, redirect = true, external, withSession = true } = signInOptions ?? {}
 
-  if (withGetSession) {
+  if (withSession) {
     await nextTick(getSession)
   }
 
