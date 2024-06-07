@@ -255,7 +255,7 @@ export default defineNuxtModule<ModuleOptions>({
     }).dst
     addImports([{
       name: '_refreshHandler',
-      from: generatedRefreshHandlerPath
+      from: generatedRefreshHandlerPath.replace(/\.ts$/, '')
     }])
 
     // 6. Register middleware for autocomplete in definePageMeta
