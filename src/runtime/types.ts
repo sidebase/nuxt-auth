@@ -96,13 +96,15 @@ export type ProviderLocal = {
     signUp?: { path?: string; method?: RouterMethod };
     /**
      * What method and path to call to fetch user / session data from. `nuxt-auth` will send the token received upon sign-in as a header along this request to authenticate.
+     * Set to false to disable.
      *
      * Refer to the `token` configuration to configure how `nuxt-auth` uses the token in this request. By default it will be send as a bearer-authentication header like so: `Authentication: Bearer eyNDSNJDASNMDSA....`
      *
      * @default { path: '/session', method: 'get' }
      * @example { path: '/user', method: 'get' }
+     * @example false
      */
-    getSession?: { path?: string; method?: RouterMethod };
+    getSession?: { path?: string; method?: RouterMethod } | false;
   };
   /**
    * Pages that `nuxt-auth` needs to know the location off for redirects.
