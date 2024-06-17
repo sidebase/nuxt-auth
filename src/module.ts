@@ -2,7 +2,7 @@ import {
   defineNuxtModule,
   useLogger,
   createResolver,
-  addTemplate,
+  addTypeTemplate,
   addPlugin,
   addServerPlugin,
   addImports,
@@ -16,6 +16,7 @@ import type { NuxtModule } from 'nuxt/schema'
 import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
 import type {
   ModuleOptions,
+  ModuleOptionsNormalized,
   SupportedAuthProviders,
   AuthProviders
 } from './runtime/types'
@@ -183,7 +184,7 @@ export default defineNuxtModule<ModuleOptions>({
       nitroConfig.alias['#auth'] = resolve('./runtime/server/services')
     })
 
-    addTemplate({
+    addTypeTemplate({
       filename: 'types/auth.d.ts',
       getContents: () =>
         [
@@ -205,12 +206,6 @@ export default defineNuxtModule<ModuleOptions>({
             : '',
           '}'
         ].join('\n')
-    })
-
-    nuxt.hook('prepare:types', (options) => {
-      options.references.push({
-        path: resolve(nuxt.options.buildDir, 'types/auth.d.ts')
-      })
     })
 
     // 6. Register middleware for autocomplete in definePageMeta
@@ -235,3 +230,16 @@ export default defineNuxtModule<ModuleOptions>({
     logger.success('`nuxt-auth` setup done')
   }
 }) satisfies NuxtModule<ModuleOptions>
+
+// Used by nuxt/module-builder for `types.d.ts` generation
+export type { ModuleOptions }
+export interface ModulePublicRuntimeConfig {
+  auth: ModuleOptionsNormalized
+}
+
+// Augment types for type inference in source code
+declare module '@nuxt/schema' {
+  interface PublicRuntimeConfig {
+    auth: ModuleOptionsNormalized
+  }
+}
