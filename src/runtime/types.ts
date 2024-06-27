@@ -335,8 +335,21 @@ export type AuthProviders =
   | ProviderLocal
   | ProviderLocalRefresh;
 
-export type RefreshHandlerConfig = {
-    /**
+export interface RefreshHandler {
+  /**
+   * Initializes the refresh handler.
+   * Will be called inside `app:mounted` lifecycle hook.
+   */
+  init(): void
+
+  /**
+   * Handles cleanup of the refresh handler. Will be called on `unmount` app hook.
+   */
+  destroy(): void
+};
+
+export interface DefaultRefreshHandlerConfig {
+  /**
    * Whether to refresh the session every `X` milliseconds. Set this to `false` to turn it off. The session will only be refreshed if a session already exists.
    *
    * Setting this to `true` will refresh the session every second.
@@ -345,44 +358,28 @@ export type RefreshHandlerConfig = {
    *
    * @example 1000
    * @default false
-   *
    */
-  enableRefreshPeriodically: number | boolean;
+  enablePeriodically?: number | boolean;
   /**
    * Whether to refresh the session every time the browser window is refocused.
    *
    * @example false
    * @default true
    */
-  enableRefreshOnWindowFocus: boolean;
-};
-
-export type RefreshHandler = {
-  /**
-   * Initializes the refresh handler with the given configuration.
-   * init will be called inside app:mouted lifecycle hook.
-   *
-   * @param config The configuration to use for the refresh handler.
-   */
-  init: (config: RefreshHandlerConfig) => void;
-
-  /**
-   * Handles cleanup of the refresh handler. This method will be called when the app is destroyed.
-   */
-  destroy: () => void;
+  enableOnWindowFocus?: boolean;
 };
 
 /**
  * Configuration for the application-side session.
  */
-type SessionConfig = RefreshHandlerConfig & {
+export interface SessionRefreshConfig extends DefaultRefreshHandlerConfig {
   /**
    * A custom refresh handler to use. This can be used to implement custom session refresh logic. If not set, the default refresh handler will be used.
    *
-   * @example MyCustomRefreshHandler
+   * @example './config/MyCustomRefreshHandler'
    * @default undefined
    */
-  refreshHandler?: RefreshHandler;
+  handler?: string;
 };
 
 /**
@@ -451,7 +448,7 @@ export interface ModuleOptions {
   /**
    * Configuration of the application-side session.
    */
-  session?: SessionConfig;
+  sessionRefresh?: SessionRefreshConfig;
   /**
    * Whether to add a global authentication middleware that protects all pages. Can be either `false` to disable, `true` to enabled
    * or an object to enable and apply extended configuration.
@@ -489,6 +486,7 @@ export interface CommonUseAuthReturn<SignIn, SignOut, GetSession, SessionData> {
   signIn: SignIn;
   signOut: SignOut;
   getSession: GetSession;
+  refresh(): Promise<unknown>
 }
 
 export interface CommonUseAuthStateReturn<SessionData> {
@@ -564,7 +562,7 @@ export interface ModuleOptionsNormalized extends ModuleOptions {
   isEnabled: boolean
   // Cannot use `DeepRequired` here because it leads to build issues
   provider: Required<NonNullable<ModuleOptions['provider']>>
-  session: NonNullable<ModuleOptions['session']>
+  sessionRefresh: NonNullable<ModuleOptions['sessionRefresh']>
   globalAppMiddleware: NonNullable<ModuleOptions['globalAppMiddleware']>
 
   computed: {

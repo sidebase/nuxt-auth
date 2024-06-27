@@ -6,7 +6,8 @@
   "exports": {
     ".": {
       "import": "./dist/module.mjs",
-      "require": "./dist/module.cjs"
+      "require": "./dist/module.cjs",
+      "types": "./dist/types.d.ts"
     }
   },
   "main": "./dist/module.cjs",
