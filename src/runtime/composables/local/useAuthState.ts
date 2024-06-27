@@ -1,4 +1,4 @@
-import { computed, watch, type ComputedRef } from 'vue'
+import { computed, watch, getCurrentInstance, type ComputedRef } from 'vue'
 import type { CookieRef } from '#app'
 import { type CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
@@ -51,12 +51,15 @@ export const useAuthState = (): UseAuthStateReturn => {
     rawToken
   }
 
-  onMounted(() => {
-    // When the page is cached on a server, set the token on the client
-    if (_rawTokenCookie.value && !rawToken.value) {
-      setToken(_rawTokenCookie.value)
-    }
-  })
+  const instance = getCurrentInstance()
+  if (instance) {
+    onMounted(() => {
+      // When the page is cached on a server, set the token on the client
+      if (_rawTokenCookie.value && !rawToken.value) {
+        setToken(_rawTokenCookie.value)
+      }
+    })
+  }
 
   return {
     ...commonAuthState,

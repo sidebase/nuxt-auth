@@ -24,6 +24,9 @@ export default defineNuxtConfig({
         refreshRequestTokenPointer: '/refreshToken'
       }
     },
+    sessionRefresh: {
+      handler: './config/AuthRefreshHandler'
+    },
     globalAppMiddleware: {
       isEnabled: true
     }

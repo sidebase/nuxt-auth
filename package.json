@@ -1,12 +1,13 @@
 {
   "name": "@sidebase/nuxt-auth",
-  "version": "0.8.0-alpha.2",
+  "version": "0.8.0-alpha.3",
   "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
       "import": "./dist/module.mjs",
-      "require": "./dist/module.cjs"
+      "require": "./dist/module.cjs",
+      "types": "./dist/types.d.ts"
     }
   },
   "main": "./dist/module.cjs",

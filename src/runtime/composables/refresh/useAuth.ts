@@ -178,7 +178,6 @@ const signOut: SignOutFunc = async (signOutOptions) => {
 
 type UseAuthReturn = ReturnType<typeof useLocalAuth> & {
   refreshToken: Readonly<Ref<string | null>>;
-  refresh: () => ReturnType<typeof refresh>;
 };
 
 export const useAuth = (): UseAuthReturn => {

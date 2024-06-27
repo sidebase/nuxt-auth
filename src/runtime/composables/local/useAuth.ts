@@ -145,22 +145,15 @@ export const useAuth = (): UseAuthReturn => {
     token
   } = useAuthState()
 
-  const getters = {
+  return {
     status,
     data: readonly(data),
     lastRefreshedAt: readonly(lastRefreshedAt),
-    token: readonly(token)
-  }
-
-  const actions = {
+    token: readonly(token),
     getSession,
     signIn,
     signOut,
-    signUp
-  }
-
-  return {
-    ...getters,
-    ...actions
+    signUp,
+    refresh: getSession
   }
 }
