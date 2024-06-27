@@ -1,4 +1,4 @@
-import { computed, watch, getCurrentInstance type ComputedRef } from 'vue'
+import { computed, watch, getCurrentInstance, type ComputedRef } from 'vue'
 import type { CookieRef } from '#app'
 import { type CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
