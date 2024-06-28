@@ -1,9 +1,10 @@
 import { readonly, type Ref } from 'vue'
 import { callWithNuxt } from '#app/nuxt'
 import type { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions, SignUpOptions } from '../../types'
-import { _fetch } from '../../utils/fetch'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
+import { _fetch } from '../../utils/fetch'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
+import { determineCallbackUrl } from '../../utils/url'
 import { formatToken } from '../../utils/local'
 import { useAuthState } from './useAuthState'
 // @ts-expect-error - #auth not defined
@@ -15,7 +16,8 @@ type Credentials = { username?: string, email?: string, password?: string } & Re
 const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, signInParams) => {
   const nuxt = useNuxtApp()
 
-  const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
+  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const config = useTypedBackendConfig(runtimeConfig, 'local')
   const { path, method } = config.endpoints.signIn
   const response = await _fetch<Record<string, any>>(nuxt, path, {
     method,
@@ -34,10 +36,13 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
 
   await nextTick(getSession)
 
-  const { callbackUrl, redirect = true, external } = signInOptions ?? {}
+  const { redirect = true } = signInOptions ?? {}
+  let { callbackUrl } = signInOptions ?? {}
+  if (typeof callbackUrl === 'undefined') {
+    callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
+  }
   if (redirect) {
-    const urlToNavigateTo = callbackUrl ?? await getRequestURLWN(nuxt)
-    return navigateTo(urlToNavigateTo, { external })
+    return navigateTo(callbackUrl)
   }
 }
 
