@@ -51,5 +51,5 @@ Temporary Items
 .apdisk
 
 ## Vite Press related
-.vitepress/cache
-.vitepress/dist
+docs/.vitepress/cache
+docs/.vitepress/dist
