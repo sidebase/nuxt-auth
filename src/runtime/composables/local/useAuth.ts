@@ -32,9 +32,12 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   const { rawToken } = useAuthState()
   rawToken.value = extractedToken
 
-  await nextTick(getSession)
+  const { callbackUrl, redirect = true, external, withSession = true } = signInOptions ?? {}
 
-  const { callbackUrl, redirect = true, external } = signInOptions ?? {}
+  if (withSession) {
+    await nextTick(getSession)
+  }
+
   if (redirect) {
     const urlToNavigateTo = callbackUrl ?? await getRequestURLWN(nuxt)
     return navigateTo(urlToNavigateTo, { external })
