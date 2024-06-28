@@ -6,7 +6,9 @@ import {
   addPlugin,
   addServerPlugin,
   addImports,
-  addRouteMiddleware
+  addRouteMiddleware,
+  resolvePath,
+  addTemplate
 } from '@nuxt/kit'
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
@@ -18,15 +20,17 @@ import type {
   ModuleOptions,
   ModuleOptionsNormalized,
   SupportedAuthProviders,
-  AuthProviders
+  AuthProviders,
+  RefreshHandler
 } from './runtime/types'
 
 const topLevelDefaults = {
   isEnabled: true,
   disableServerSideAuth: false,
-  session: {
-    enableRefreshPeriodically: false,
-    enableRefreshOnWindowFocus: true
+  sessionRefresh: {
+    enablePeriodically: false,
+    enableOnWindowFocus: true,
+    handler: undefined
   },
   globalAppMiddleware: {
     isEnabled: false,
@@ -233,6 +237,28 @@ export default defineNuxtModule<ModuleOptions>({
       ].join('\n')
     })
 
+    // 5.2. Create refresh handler
+    // const generatedRefreshHandlerPath = resolve('./runtime/refreshHandler.ts')
+    const generatedRefreshHandlerPath = addTemplate({
+      filename: './refreshHandler.ts',
+      async getContents () {
+        if (options.sessionRefresh.handler) {
+          const path = (await resolvePath(options.sessionRefresh.handler)).replace(/\.ts$/, '')
+          return `export { default as _refreshHandler } from '${path}'`
+        }
+
+        return [
+          `import { DefaultRefreshHandler } from '${resolve('./runtime/utils/refreshHandler')}'`,
+          `export const _refreshHandler = new DefaultRefreshHandler(${JSON.stringify(options.sessionRefresh)})`
+        ].join('\n')
+      },
+      write: true
+    }).dst
+    addImports([{
+      name: '_refreshHandler',
+      from: generatedRefreshHandlerPath
+    }])
+
     // 6. Register middleware for autocomplete in definePageMeta
     addRouteMiddleware({
       name: 'auth',
@@ -257,7 +283,7 @@ export default defineNuxtModule<ModuleOptions>({
 }) satisfies NuxtModule<ModuleOptions>
 
 // Used by nuxt/module-builder for `types.d.ts` generation
-export type { ModuleOptions }
+export type { ModuleOptions, RefreshHandler }
 export interface ModulePublicRuntimeConfig {
   auth: ModuleOptionsNormalized
 }

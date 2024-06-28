@@ -76,7 +76,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   const nuxt = useNuxtApp()
 
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
-  const { path, method } = config.endpoints.getSession
+  const getSessionConfig = config.endpoints.getSession
   const { data, loading, lastRefreshedAt, rawToken, token: tokenState, _internal } = useAuthState()
 
   let token = tokenState.value
@@ -88,24 +88,27 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
     return
   }
 
-  const headers = new Headers(token ? { [config.token.headerName]: token } as HeadersInit : undefined)
+  if (getSessionConfig) {
+    const headers = new Headers(token ? { [config.token.headerName]: token } as HeadersInit : undefined)
+    const { path, method } = getSessionConfig
 
-  loading.value = true
-  try {
-    const result = await _fetch<any>(nuxt, path, { method, headers })
-    const { dataResponsePointer: sessionDataResponsePointer } = config.session
-    data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
-  } catch (err) {
-    if (!data.value && err instanceof Error) {
-      console.error(`Session: unable to extract session, ${err.message}`)
+    loading.value = true
+    try {
+      const result = await _fetch<any>(nuxt, path, { method, headers })
+      const { dataResponsePointer: sessionDataResponsePointer } = config.session
+      data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
+    } catch (err) {
+      if (!data.value && err instanceof Error) {
+        console.error(`Session: unable to extract session, ${err.message}`)
+      }
+
+      // Clear all data: Request failed so we must not be authenticated
+      data.value = null
+      rawToken.value = null
     }
-
-    // Clear all data: Request failed so we must not be authenticated
-    data.value = null
-    rawToken.value = null
+    loading.value = false
+    lastRefreshedAt.value = new Date()
   }
-  loading.value = false
-  lastRefreshedAt.value = new Date()
 
   const { required = false, callbackUrl, onUnauthenticated, external } = getSessionOptions ?? {}
   if (required && data.value === null) {
@@ -147,22 +150,15 @@ export const useAuth = (): UseAuthReturn => {
     token
   } = useAuthState()
 
-  const getters = {
+  return {
     status,
     data: readonly(data),
     lastRefreshedAt: readonly(lastRefreshedAt),
-    token: readonly(token)
-  }
-
-  const actions = {
+    token: readonly(token),
     getSession,
     signIn,
     signOut,
-    signUp
-  }
-
-  return {
-    ...getters,
-    ...actions
+    signUp,
+    refresh: getSession
   }
 }
