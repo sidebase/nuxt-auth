@@ -83,7 +83,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
     return
   }
 
-  if getSessionConfig {
+  if (getSessionConfig) {
     const headers = new Headers(token ? { [config.token.headerName]: token } as HeadersInit : undefined)
     const { path, method } = getSessionConfig
   
