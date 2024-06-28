@@ -86,7 +86,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   if (getSessionConfig) {
     const headers = new Headers(token ? { [config.token.headerName]: token } as HeadersInit : undefined)
     const { path, method } = getSessionConfig
-  
+
     loading.value = true
     try {
       const result = await _fetch<any>(nuxt, path, { method, headers })
@@ -96,7 +96,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
       if (!data.value && err instanceof Error) {
         console.error(`Session: unable to extract session, ${err.message}`)
       }
-  
+
       // Clear all data: Request failed so we must not be authenticated
       data.value = null
       rawToken.value = null
