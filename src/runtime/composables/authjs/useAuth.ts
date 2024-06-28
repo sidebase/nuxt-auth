@@ -270,23 +270,16 @@ export const useAuth = (): UseAuthReturn => {
     lastRefreshedAt
   } = useAuthState()
 
-  const getters = {
+  return {
     status,
     data: readonly(data) as Readonly<Ref<SessionData | null | undefined>>,
-    lastRefreshedAt: readonly(lastRefreshedAt)
-  }
-
-  const actions = {
+    lastRefreshedAt: readonly(lastRefreshedAt),
     getSession,
     getCsrfToken,
     getProviders,
     signIn,
-    signOut
-  }
-
-  return {
-    ...actions,
-    ...getters
+    signOut,
+    refresh: getSession
   }
 }
 export default useAuth

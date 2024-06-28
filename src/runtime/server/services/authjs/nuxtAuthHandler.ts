@@ -173,7 +173,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
     }
 
     // 3.3 via a redirect:
-    return sendRedirect(event, nextResult.redirect)
+    return await sendRedirect(event, nextResult.redirect)
   })
 
   // Save handler so that it can be used in other places
