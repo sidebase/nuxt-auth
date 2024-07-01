@@ -16,12 +16,12 @@
     "dist"
   ],
   "scripts": {
-    "build": "nuxi build",
     "prepack": "nuxt-module-build build",
-    "typecheck": "nuxi prepare playground-local && tsc --noEmit",
-    "typecheck:refresh": "nuxi prepare playground-refresh && tsc --noEmit",
+    "build": "nuxi build",
     "lint": "eslint . --max-warnings=0",
     "clean": "rm -rf playground-authjs/.nuxt playground-local/.nuxt playground-refresh/.nuxt dist .nuxt",
+    "typecheck": "nuxi prepare playground-local && tsc --noEmit",
+    "typecheck:refresh": "nuxi prepare playground-refresh && tsc --noEmit",
     "dev:prepare": "nuxt-module-build build --stub",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
