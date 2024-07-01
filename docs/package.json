@@ -1,0 +1,13 @@
+{
+  "name": "@sidebase/nuxt-auth-docs",
+  "private": true,
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview",
+    "lint": "eslint --max-warnings 0 ."
+  },
+  "devDependencies": {
+    "vitepress": "^1.1.4"
+  }
+}
