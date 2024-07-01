@@ -25,7 +25,7 @@ export default defineNuxtConfig({
 })
 ```
 
-```env
+```
 NUXT_AUTH_SECRET="YOUR-SUPER-SECURE-SECRET"
 ```
 
