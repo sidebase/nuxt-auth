@@ -138,9 +138,32 @@ const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInO
   return signIn(credentials, signInOptions)
 }
 
+const authFetch = async (path: string, options: Parameters<typeof $fetch>[1]): Promise<any> => {
+  const nuxt = useNuxtApp()
+
+  const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
+
+  const { token: tokenState, _internal } = useAuthState()
+  let token = tokenState.value
+  token ??= formatToken(_internal.rawTokenCookie.value)
+
+  if (path) {
+    const headers = {
+      ...options?.headers,
+      ...(token ? { [config.token.headerName]: token } : {}) // append auth token if it exists
+    }
+    try {
+      return await _fetch<any>(nuxt, path, { ...options, headers })
+    } catch (err) {
+      console.error(`Error during authenticated fetch:, ${(err as Error).message}`)
+    }
+  }
+}
+
 interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOut, typeof getSession, SessionData> {
   signUp: typeof signUp
-  token: Readonly<Ref<string | null>>
+  authFetch: typeof authFetch
+  token: Readonly<Ref<string | null>>,
 }
 export const useAuth = (): UseAuthReturn => {
   const {
@@ -159,6 +182,7 @@ export const useAuth = (): UseAuthReturn => {
     signIn,
     signOut,
     signUp,
+    authFetch,
     refresh: getSession
   }
 }
