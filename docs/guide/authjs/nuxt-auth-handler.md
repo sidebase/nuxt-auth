@@ -107,11 +107,8 @@ export default NuxtAuthHandler({
   pages: {
     signIn: '/auth/signIn',
     signOut: '/auth/signOut',
-    // Error code is passed as route query (?error=)
     error: '/auth/error',
-    // Used for "Please check your email inbox" message.
     verifyRequest: '/auth/verify-request',
-    // New users are redirect here (good for onboarding)
     newUser: '/auth/new-user'
   }
 })
