@@ -36,3 +36,89 @@ export default defineNuxtConfig({
 ```
 
 Afterwards create your own NuxtAuthHandler under `~/server/api/auth/[...].ts`. Inside the NuxtAuthHandler you can configure the authentication provider you want to use, how the JWT Token is created and managed as well as how your sessions will be composed. The NuxtAuthHander will automaticlly create all required API endpoints to handle authentication inside your application.
+
+## NuxtAuthHandler
+
+The NuxtAuthHandler is an adaptation of the [NextAuthHandler](https://next-auth.js.org/configuration/options) built into AuthJS. Inside the NuxtAuthHandler you can configure:
+
+- **OAuth providers**: _How can users login to your application?_
+- **Adapters**: _How are sessions saved? (e.g. JWT Token, Database etc.)_
+- **JWT Encryption**: _How is the JWT Token encrypted and read?_
+- **Callbacks**: _Hook into the authentication lifecyle hooks._
+
+Begin by creating a new server route file in `~/server/api/auth/[...].ts`. You can then begin adding your NuxtAuthHandler. The filename must be [...].ts - this is a so-called "catch-all" route, read more in the [Nuxt catch-all docs](https://nuxt.com/docs/guide/directory-structure/server#catch-all-route). 
+
+```ts
+import { NuxtAuthHandler } from '#auth'
+
+export default NuxtAuthHandler({
+  // your authentication configuration here!
+})
+```
+
+### Adding a provider
+
+After creating your NuxtAuthHandler, you can begin by adding a provider. You can find an overview of all the avalible providers [here](https://next-auth.js.org/providers/). For this example we will add the GitHub provider.
+
+```ts
+import GithubProvider from 'next-auth/providers/github'
+import { NuxtAuthHandler } from '#auth'
+
+export default NuxtAuthHandler({
+  // A secret string you define, to ensure correct encryption
+  secret: 'your-secret-here',
+  providers: [
+    // @ts-expect-error Use .default here for it to work during SSR.
+    GithubProvider.default({
+      clientId: 'your-client-id',
+      clientSecret: 'your-client-secret'
+    })
+  ]
+})
+```
+
+:::warning
+After importing your provider from `next-auth/providers/[PROVIDER]`, call it using `.default()` inside of the providers array configuration. This is required for SSR to properly function.
+:::
+
+The NuxtAuthHandler accepts [all options that NextAuth.js](https://next-auth.js.org/configuration/options#options) accepts for its API initialization. Use this place to configure authentication providers (oauth-Google, credential flow, ...), your secret, add callbacks for authentication events, configure a custom logger and more. Read the [NextAuth.js docs](https://next-auth.js.org/configuration/options#options) to see all possible options.
+
+### Setting a secret
+
+In addition to setting a provider, you also need to set a `secret` which is used to encrypt the JWT Tokens. To avoid hard-coding of the secret you can make it configurable at runtime by using an environment variable and exporting it at runtime or by using the [Nuxt `useRuntimeConfig`](https://nuxt.com/docs/api/composables/use-runtime-config) (and then also setting the correct environment at runtime):
+
+```ts
+import { NuxtAuthHandler } from '#auth'
+
+export default NuxtAuthHandler({
+  // A secret string you define, to ensure correct encryption - NUXT_AUTH_SECRET required in production
+  secret: useRuntimeConfig().authSecret
+
+  // rest of your authentication configuration here!
+})
+```
+
+::: details Full code
+```ts
+// file: ~/server/api/auth/[...].ts
+import GithubProvider from 'next-auth/providers/github'
+import { NuxtAuthHandler } from '#auth'
+
+export default NuxtAuthHandler({
+  secret: useRuntimeConfig().authSecret,
+  providers: [
+    // @ts-expect-error Use .default here for it to work during SSR.
+    GithubProvider.default({
+      clientId: 'your-client-id',
+      clientSecret: 'your-client-secret'
+    })
+  ]
+})
+```
+:::
+
+## Next Steps
+
+Congrats! You have now configured your first authention provider and can login to the application! We recommend the following next steps to continue configuring your application:
+
+TODO: Add next steps here!
