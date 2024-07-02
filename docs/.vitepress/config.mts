@@ -6,6 +6,7 @@ export default defineConfig({
   title: 'NuxtAuth',
   titleTemplate: ':title - by sidebase',
   description: 'The productive way to build fullstack Nuxt 3 applications.',
+  base: '/nuxt-auth/', // TODO: Change once we deploy to offical domain
   lang: 'en-US',
   appearance: 'dark',
   lastUpdated: true,
@@ -26,5 +27,9 @@ export default defineConfig({
     search: {
       provider: 'local',
     },
+    editLink: {
+      pattern: 'https://github.com/sidebase/nuxt-auth/tree/main/docs/:path',
+      text: 'Edit this page on GitHub'
+    }
   },
 })
