@@ -33,14 +33,9 @@ export const routes: DefaultTheme.Config['sidebar'] = {
           link: '/session-access',
         },
         {
-          text: 'Middleware',
-          collapsed: true,
-          items: [
-            { text: 'Global', link: '/middleware/global' },
-            { text: 'Page', link: '/middleware/page' },
-            { text: 'Guest mode', link: '/middleware/guest-mode' }
-          ],
-        }
+          text: 'Protecting pages',
+          link: '/protecting-pages',
+        },
       ],
     },
     {
