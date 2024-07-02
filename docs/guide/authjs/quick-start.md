@@ -35,9 +35,37 @@ export default defineNuxtConfig({
 })
 ```
 
-Afterwards create your own NuxtAuthHandler under `~/server/api/auth/[...].ts`. Inside the NuxtAuthHandler you can configure the authentication provider you want to use, how the JWT Token is created and managed as well as how your sessions will be composed. The NuxtAuthHander will automaticlly create all required API endpoints to handle authentication inside your application.
+You can also configure AuthJS specific options inside the `nuxt.config.ts`, in addition to the main [module configurations](/guide/application-side/configuration).
+
+### `trustHost`
+
+- **Type:**: `boolean`
+- **Default**: `false`
+
+If set to `true`, `authjs` will use either the `x-forwarded-host` or `host` headers instead of `auth.baseURL`. Make sure that reading `x-forwarded-host` on your hosting platform can be trusted.
+
+:::warning
+**This is an advanced option.** Advanced options are passed the same way as basic options, but **may have complex implications** or side effects. You should try to avoid using advanced options unless you are very comfortable using them.
+:::
+
+### `defaultProvider`
+
+- **Type**: `SupportedProviders`
+- **Default**: `undefined`
+
+Select the default-provider to use when `signIn` is called. Setting this here will also effect the global middleware behavior: E.g., when you set it to `github` and the user is unauthorized, they will be directly forwarded to the Github OAuth page instead of seeing the app-login page.
+
+### `addDefaultCallbackUrl`
+
+- **Type:** `boolean | string`
+- **Default:** `true`
+
+Whether to add a callbackUrl to sign in requests. Setting this to a string-value will result in that being used as the callbackUrl path. Setting this to `true` will result in the blocked original target path being chosen (if it can be determined).
+
 
 ## NuxtAuthHandler
+
+Afterwards create your own NuxtAuthHandler under `~/server/api/auth/[...].ts`. Inside the NuxtAuthHandler you can configure the authentication provider you want to use, how the JWT Token is created and managed as well as how your sessions will be composed. The NuxtAuthHander will automaticlly create all required API endpoints to handle authentication inside your application.
 
 The NuxtAuthHandler is an adaptation of the [NextAuthHandler](https://next-auth.js.org/configuration/options) built into AuthJS. Inside the NuxtAuthHandler you can configure:
 
