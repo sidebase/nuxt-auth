@@ -97,4 +97,4 @@ const erorCode = computed(() => route.params.error)
 
 Looking for a quick start with some pre-made themes? Have a look at [Morpheme UI](https://ui.morpheme.design/templates/nuxt-auth.html), which provides an out of the box integration with NuxtAuth!
 
-![morpheme-preview](/authjs/morpheme-auth-theme.png)
+![morpheme-preview](/authjs/morpheme-auth-screenshot.png)

@@ -53,21 +53,32 @@ import { NuxtAuthHandler } from '#auth'
 export default NuxtAuthHandler({
   // your authentication configuration here!
   callbacks: {
+    /* on before signin */
     async signIn({ user, account, profile, email, credentials }) {
       return true
     },
+    /* on redirect to another url */
     async redirect({ url, baseUrl }) {
       return baseUrl
     },
+    /* on session retrival */
     async session({ session, user, token }) {
       return session
     },
+    /* on JWT token creation or mutation */
     async jwt({ token, user, account, profile, isNewUser }) {
       return token
     }
   }
 })
 ```
+
+Some uses-cases for each callback could be:
+
+- `signIn`: Check if a user is e.g. restricted from accessing the application and terminate the signin flow.
+- `redirect`: Customize the callback url based on futhur parameters, that need to be dynamically calculated and cannot be set on startup (e.g. through feature flags or database values).
+- `session`: Fetch and inject additional data into the session. Read more [here](/guide/authjs/session-data).
+-  `jwt`: Inject or update data inside the JWT token and manage refresh and access tokens.
 
 You can read more on each of these callbacks, what data they provide and what return value they expect on the offical [NextAuth docs](https://next-auth.js.org/configuration/callbacks).
 
