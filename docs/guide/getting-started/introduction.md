@@ -8,21 +8,21 @@ Through a direct integration into Nuxt, you can access and utlize the user sessi
 
 ### Authentication providers
 
-- ✅ OAuth (eg. Github, Google, Twitter, Azure...)
-- ✅ Custom OAuth (Add your own!)
-- ✅ Credentials (username / email + password)
-- ✅ Email Magic URLs
+- OAuth (eg. Github, Google, Twitter, Azure...)
+- Custom OAuth (Add your own!)
+- Credentials (username / email + password)
+- Email Magic URLs
 
 ### Application Side Session Managment
 
-- ✅ Session fetching with `status`, `data` and `lastRefreshedAt`
-- ✅ Methods to `getSession`, `getCsrfToken`, `getProviders`, `signIn` and `signOut`
-- ✅ Full TypeScript support for all methods and properties
+- Session fetching with `status`, `data` and `lastRefreshedAt`
+- Methods to `getSession`, `getCsrfToken`, `getProviders`, `signIn` and `signOut`
+- Full TypeScript support for all methods and properties
 
 ### Application protection
 
-- ✅ Application-side middleware protection for the full application or specific pages
-- ✅ Server-side middleware and endpoint protection
+- Application-side middleware protection for the full application or specific pages
+- Server-side middleware and endpoint protection
 
 ## Common questions
 
