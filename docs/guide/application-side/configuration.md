@@ -88,6 +88,37 @@ Whether to refresh the session every time the browser window is refocused.
 
 ### `refreshHandler`
 
+- **Type**: `RefreshHandler`
+- **Default:** `undefined`
+
+To customize the session refreshing you can provide a refresh handler. A custom `RefreshHandler` requires an `init`- and a `destroy`-function.
+
+- `init` will be called when the nuxt application is mounted. Here you may add event listeners and initialize custom refresh behaviour. The method will receive a `RefreshHandlerConfig`. The type consists of `enablePeriodically` & `enableOnWindowFocus`.
+- `destroy` will be called when your app is unmounted. Here you may run your clean up routine e.g. to remove your event listeners.
+
+```ts
+// file: ~/auth/refreshHandler.ts
+import type { RefreshHandler } from '@sidebase/nuxt-auth'
+
+// You may also use a plain object with `satisfies RefreshHandler`
+class CustomRefreshHandler implements RefreshHandler {
+  init (): void {
+    console.info('Use the full power of the refreshHandler!')
+  }
+
+  destroy (): void {
+    console.info(
+      'Hover above class properties or go to their definition ' +
+      'to learn more about how to craft a refreshHandler'
+    )
+  }
+}
+
+export default new CustomRefreshHandler()
+```
+
+If no custom RefreshHandler is defined, the [built-in-handler](https://github.com/sidebase/nuxt-auth/blob/main/src/runtime/utils/refreshHandler.ts) will be used to handle refreshes.
+
 ### `globalAppMiddleware`
 
 - **Type:** `GlobalMiddlewareOptions | boolean`
