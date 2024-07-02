@@ -21,7 +21,7 @@ Whether the module is enabled at all
 - **Type**: `boolean`
 - **Default**: `false`
 
-Forces your server to send a "loading" authentication status on all requests, thus prompting the client to do a fetch. If your website has caching, this prevents the server from caching someone's authentication status. This effects the entire site, for route-specific rules, add `disableServerSideAuth` on `routeRules`. Read more [here](https://github.com/sidebase/nuxt-auth/pull/610).
+Forces your server to send a "loading" authentication status on all requests, thus prompting the client to do a fetch. If your website has caching, this prevents the server from caching someone's authentication status. This effects the entire site, for route-specific rules, add `disableServerSideAuth` on `routeRules`. Read more [here](/guide/advanced/caching).
 
 ## `baseURL`
 
