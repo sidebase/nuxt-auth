@@ -73,7 +73,7 @@ const { status } = useAuth()
 
 The current data inside the session. Options: `undefined` when no authentication attempt was made, `null` when the user is unauthenticated, `SessionData` when the user is authenticated. 
 
-To customize your `SessionData` see the following docs for [authjs](/guide/authjs/session-data) and [local / refresh]().
+To customize your `SessionData` see the following docs for [authjs](/guide/authjs/session-data) and [local / refresh](/guide/local/session-data).
 
 ```vue
 <script setup lang="ts">
