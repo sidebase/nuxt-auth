@@ -1,8 +1,10 @@
 name: Deploy Docs
 
 on:
-  push:
-    branches: ['docs/migrate-to-vitepress'] // TODO: Change to `main`
+  # push:
+  #   branches: [main]
+  pull_request: # TODO: Remove deployment from pull requests to main
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
