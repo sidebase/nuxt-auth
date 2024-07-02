@@ -245,6 +245,17 @@ Note: Your backend may reject / expire the refreshToken earlier / differently.
 
 The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
 
+## `refreshOnlyToken`
+
+:::tip
+This section only applies to applications using the `refresh` provider.
+:::
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+When refreshOnlyToken is set, only the token will be refreshed
+
 ## Pages
 
 Configure the path of the login-page that the user should be redirected to, when they try to access a protected page without being logged in. This page will also not be blocked by the global middleware.

@@ -64,27 +64,29 @@ Configuration of the authentication provider. Different providers are supported:
 - AuthJS: See configuration options [here](/guide/authjs/quick-start#configuration)
 - Local / Refresh: See configuration options [here](/guide/local/quick-start)
 
-## `session`
+## `sessionRefresh`
 
 - **Type**: `SessionConfig | boolean`
-- **Default**: `{ enableRefreshPeriodically: false, enableRefreshOnWindowFocus: true }`
+- **Default**: `{ enablePeriodically: false, enableOnWindowFocus: true, refreshHandler: RefreshHandler }`
 
 Configuration of the application-side session. You can configure the following attributes:
 
-### `enableRefreshPeriodically`
+### `enablePeriodically`
 
 - **Type**: `boolean | number`
 - **Default**: `undefined`
 
 Whether to refresh the session every `X` milliseconds. Set this to `false` to turn it off. The session will only be refreshed if a session already exists. Setting this to `true` will refresh the session every second. Setting this to `false` will turn off session refresh. Setting this to a number `X` will refresh the session every `X` milliseconds.
 
-### `enableRefreshOnWindowFocus`
+### `enableOnWindowFocus`
 
 
 - **Type**: `boolean`
 - **Default**: `true`
 
 Whether to refresh the session every time the browser window is refocused.
+
+### `refreshHandler`
 
 ### `globalAppMiddleware`
 
