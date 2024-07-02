@@ -62,7 +62,7 @@ If you point to a different origin than the one you deploy to you likely have to
 
 Configuration of the authentication provider. Different providers are supported:
 - AuthJS: See configuration options [here](/guide/authjs/quick-start#configuration)
-- Local / Refresh: See configuration options here
+- Local / Refresh: See configuration options [here](/guide/local/quick-start)
 
 ## `session`
 
