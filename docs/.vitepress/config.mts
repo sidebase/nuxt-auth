@@ -15,7 +15,7 @@ export default defineConfig({
     nav: navRoutes,
     sidebar: sidebarRoutes,
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/sidebase' },
+      { icon: 'github', link: 'https://github.com/sidebase/nuxt-auth' },
       { icon: 'x', link: 'https://twitter.com/sidebase_io' },
       { icon: 'discord', link: 'https://discord.gg/VzABbVsqAc' },
     ],
