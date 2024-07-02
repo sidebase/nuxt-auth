@@ -44,7 +44,7 @@ jobs:
       - name: Navigate to correct directory
         run: cd docs/
       - name: Install dependencies
-        run: pnpm ci
+        run: pnpm i
       - name: Build with VitePress
         run: pnpm docs:build
       - name: Upload artifact
