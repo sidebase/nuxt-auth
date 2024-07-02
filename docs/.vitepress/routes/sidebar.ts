@@ -21,6 +21,29 @@ export const routes: DefaultTheme.Config['sidebar'] = {
       ],
     },
     {
+      text: 'Application side',
+      base: '/guide/application-side',
+      items: [
+        {
+          text: 'Configuration',
+          link: '/configuration',
+        },
+        {
+          text: 'Session access',
+          link: '/session-access',
+        },
+        {
+          text: 'Middleware',
+          collapsed: true,
+          items: [
+            { text: 'Global', link: '/middleware/global' },
+            { text: 'Page', link: '/middleware/page' },
+            { text: 'Guest mode', link: '/middleware/guest-mode' }
+          ],
+        }
+      ],
+    },
+    {
       text: 'AuthJS Provider',
       base: '/guide/authjs',
       items: [
@@ -39,6 +62,15 @@ export const routes: DefaultTheme.Config['sidebar'] = {
         {
           text: 'Session data',
           link: '/session-data',
+        },
+        {
+          text: 'Server side',
+          collapsed: true,
+          items: [
+            { text: 'Session access', link: '/server-side/session-access' },
+            { text: 'JWT access', link: '/server-side/jwt-access' },
+            { text: 'Rest API', link: '/server-side/rest-api' },
+          ],
         },
       ],
     },
@@ -64,14 +96,6 @@ export const routes: DefaultTheme.Config['sidebar'] = {
       text: 'Advanced',
       base: '/guide/advanced',
       items: [
-        {
-          text: 'Middleware',
-          collapsed: true,
-          items: [
-            { text: 'Global', link: '/middleware/global' },
-            { text: 'Page', link: '/middleware/page' },
-          ],
-        },
         {
           text: 'Deployment',
           collapsed: true,
