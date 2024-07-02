@@ -244,3 +244,21 @@ Note: Your backend may reject / expire the refreshToken earlier / differently.
 - **Default:** `''`
 
 The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+
+## Pages
+
+Configure the path of the login-page that the user should be redirected to, when they try to access a protected page without being logged in. This page will also not be blocked by the global middleware.
+
+```ts
+export default defineNuxtConfig({
+    // previous configuration
+    auth: {
+        provider: {
+            type: 'local',
+            pages: {
+                login: '/login'
+            }
+        }
+    }
+})
+```
