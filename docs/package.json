@@ -1,15 +1,12 @@
 {
-  "name": "docus-starter",
-  "version": "0.1.0",
+  "name": "@sidebase/nuxt-auth-docs",
   "private": true,
   "scripts": {
-    "dev": "nuxi dev",
-    "build": "nuxi build",
-    "generate": "nuxi generate",
-    "preview": "nuxi preview"
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
   },
   "devDependencies": {
-    "@nuxt-themes/docus": "^1.15.0",
-    "nuxt": "^3.11.2"
+    "vitepress": "^1.1.4"
   }
 }
