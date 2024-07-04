@@ -13,7 +13,7 @@ export default defineConfig({
   lastUpdated: true,
   head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
   themeConfig: {
-    logo: '/icon.svg',
+    logo: '/lock.png',
     nav: navRoutes,
     sidebar: sidebarRoutes,
     socialLinks: [
