@@ -149,4 +149,6 @@ export default NuxtAuthHandler({
 
 Congrats! You have now configured your first authentication provider and can login to the application! We recommend the following next steps to continue configuring your application:
 
-TODO: Add next steps here!
+- [Define custom Session Data](/guide/authjs/session-data)
+- [Add more providers in your NuxtAuthHandler](/guide/authjs/nuxt-auth-handler)
+- [Customize your Auth pages](/guide/authjs/custom-pages)
