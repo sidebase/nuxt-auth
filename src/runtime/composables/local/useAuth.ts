@@ -138,7 +138,7 @@ const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInO
   return signIn(credentials, signInOptions)
 }
 
-const authFetch = async (path: string, options: Parameters<typeof $fetch>[1]): Promise<any> => {
+const authFetch = async (path: string, options: Parameters<typeof $fetch>[1]) => {
   const nuxt = useNuxtApp()
 
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
@@ -153,7 +153,7 @@ const authFetch = async (path: string, options: Parameters<typeof $fetch>[1]): P
       ...(token ? { [config.token.headerName]: token } : {}) // append auth token if it exists
     }
     try {
-      return await _fetch<any>(nuxt, path, { ...options, headers })
+      return await _fetch(nuxt, path, { ...options, headers })
     } catch (err) {
       console.error(`Error during authenticated fetch:, ${(err as Error).message}`)
     }
