@@ -5,8 +5,8 @@ import { routes as sidebarRoutes } from './routes/sidebar'
 export default defineConfig({
   title: 'NuxtAuth',
   titleTemplate: ':title - by sidebase',
-  description: 'The productive way to build fullstack Nuxt 3 applications.',
-  base: '/nuxt-auth/', // TODO: Change once we deploy to offical domain
+  description: 'Authentication for Nuxt 3',
+  base: '/nuxt-auth/',
   cleanUrls: true,
   lang: 'en-US',
   appearance: 'dark',
