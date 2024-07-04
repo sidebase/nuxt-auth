@@ -39,7 +39,7 @@ You can also configure AuthJS specific options inside the `nuxt.config.ts`, in a
 
 ### `trustHost`
 
-- **Type:**: `boolean`
+- **Type**: `boolean`
 - **Default**: `false`
 
 If set to `true`, `authjs` will use either the `x-forwarded-host` or `host` headers instead of `auth.baseURL`. Make sure that reading `x-forwarded-host` on your hosting platform can be trusted.
