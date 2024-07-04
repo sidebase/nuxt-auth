@@ -23,7 +23,7 @@ export default defineNuxtConfig({
 })
 ```
 
-If you like to futhur customize the global middleware, you can pass an object of configurations to `globalAppMiddleware`. See the API reference here.
+If you like to further customize the global middleware, you can pass an object of configurations to `globalAppMiddleware`. See the API reference here.
 
 ### Disabling the Global Middleware
 
@@ -57,7 +57,7 @@ definePageMeta({
 
 ### Middleware options
 
-`auth` can be either a boolean or an object of futhur middleware configurations. 
+`auth` can be either a boolean or an object of further middleware configurations. 
 
 ```vue
 <script setup lang="ts">

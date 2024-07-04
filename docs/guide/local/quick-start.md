@@ -88,7 +88,7 @@ endpoints: {
 
 ## Token
 
-The `local` and `refresh` providers are both based on exchanging access tokens with your backend. NuxtAuth expects an access token to be provided by the `signIn` endpoint, which will then be saved into the session to authenticate futhur requests to e.g. `getSession`.
+The `local` and `refresh` providers are both based on exchanging access tokens with your backend. NuxtAuth expects an access token to be provided by the `signIn` endpoint, which will then be saved into the session to authenticate further requests to e.g. `getSession`.
 
 The configuration of the `token` properties depend on how your backend accepts and returns data. The options are designed to be as adaptable as possible, to account for many different types of backends. 
 

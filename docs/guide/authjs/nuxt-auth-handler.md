@@ -76,7 +76,7 @@ export default NuxtAuthHandler({
 Some uses-cases for each callback could be:
 
 - `signIn`: Check if a user is e.g. restricted from accessing the application and terminate the signin flow.
-- `redirect`: Customize the callback url based on futhur parameters, that need to be dynamically calculated and cannot be set on startup (e.g. through feature flags or database values).
+- `redirect`: Customize the callback url based on further parameters, that need to be dynamically calculated and cannot be set on startup (e.g. through feature flags or database values).
 - `session`: Fetch and inject additional data into the session. Read more [here](/guide/authjs/session-data).
 -  `jwt`: Inject or update data inside the JWT token and manage refresh and access tokens.
 
@@ -84,7 +84,7 @@ You can read more on each of these callbacks, what data they provide and what re
 
 ## Events
 
-Events are futhur asynchronous functions that are called when certain actions in the authentication flows are triggered. However unlike the callbacks, events do not return any data. They can be used to log certain events or debug your authentication flow. 
+Events are asynchronous callback functions invoked during certain actions in the authentication flow. They can be used to log certain events or debug your authentication flow. 
 
 ```ts
 import { NuxtAuthHandler } from '#auth'

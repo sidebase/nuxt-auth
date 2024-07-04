@@ -147,6 +147,6 @@ export default NuxtAuthHandler({
 
 ## Next Steps
 
-Congrats! You have now configured your first authention provider and can login to the application! We recommend the following next steps to continue configuring your application:
+Congrats! You have now configured your first authentication provider and can login to the application! We recommend the following next steps to continue configuring your application:
 
 TODO: Add next steps here!

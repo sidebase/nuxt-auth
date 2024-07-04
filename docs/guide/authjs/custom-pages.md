@@ -1,6 +1,6 @@
 # Custom pages
 
-NuxtAuth delivers a set of prebuilt authentication pages, that you can use out of the box. However, often you would like to customize and change the authention pages to match your branding.
+NuxtAuth delivers a set of prebuilt authentication pages, that you can use out of the box. However, often you would like to customize and change the authentication pages to match your branding.
 
 :::info
 Remember to disable any authentication related middleware on pages that unauthenticated users should be able to access (e.g. `signIn`)

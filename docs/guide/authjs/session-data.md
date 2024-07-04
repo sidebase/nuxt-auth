@@ -1,10 +1,10 @@
 # Session data
 
-This guide explains how to add custom data to the user session. In many cases, you may wish to adapt which information is returned by the authention flow. This can depend on your provider or any additional API calls you may make, to enricht the session. 
+This guide explains how to add custom data to the user session. In many cases, you may wish to adapt which information is returned by the authentication flow. This can depend on your provider or any additional API calls you may make to enrich the session data.
 
 ## Modify the JWT Token
 
-In order to persist data between session requests, we need to inject certain information into the JWT token, which we can then access during subsequent session requests. However, avoid injecting too much data into the JWT token, as it is limited in its size. Therefore we recommend only injecting an access or session token, that can be then used to request futhur user information inside the session callback.
+In order to persist data between session requests, we need to inject certain information into the JWT token, which we can then access during subsequent session requests. However, avoid injecting too much data into the JWT token, as it is limited in size. We recommend only injecting an access or a session token, that can then be used to request further user information inside the session callback.
 
 The JWT callback provides:
 - `token`: The raw JWT token
