@@ -56,7 +56,7 @@ In the example above requests would be made to the following URLS:
 - **Sign up:** `/api/auth/register` (POST)
 - **Get Session:** `/api/auth/session` (GET)
 
-You can customize each endpoint to fit your needs or disable it by setting it to `false`. For example you may want to disable the `getSession` endpoint.
+You can customize each endpoint to fit your needs or disable it by setting it to `false`. For example you may want to disable the `signUp` endpoint.
 
 ```ts{7}
 {  
@@ -65,12 +65,16 @@ You can customize each endpoint to fit your needs or disable it by setting it to
         provider: {      
             type: 'local',
             endpoints: {        
-                getSession: false
+                signUp: false
             }    
         }  
     }
 }
 ```
+
+:::warning
+You cannot disable the `getSession` endpoint, as NuxtAuth internally uses it to determine the authentication status. 
+:::
 
 ### Refresh provider
 
