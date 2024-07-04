@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useAuth } from '#imports'
 
-const { signIn, token, data, status, lastRefreshedAt, signOut, getSession } = useAuth()
+const { signIn, token, data, status, lastRefreshedAt, signOut, getSession, authFetch } = useAuth()
 
 const username = ref('')
 const password = ref('')
@@ -30,6 +30,10 @@ const password = ref('')
     <br>
     <button data-testid="signout" @click="signOut({ callbackUrl: '/signout' })">
       sign out
+    </button>
+    <br>
+    <button data-testid="auth-fetch" @click="authFetch('/user', { method: 'get' })">
+      manual authenticated fetch
     </button>
     <br>
     <button data-testid="refresh-required-false" @click="getSession({ required: false })">

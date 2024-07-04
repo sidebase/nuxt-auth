@@ -11,7 +11,7 @@ describe('Local Provider', async () => {
     browser: true
   })
 
-  test('load, sign in, reload, refresh, sign out', async () => {
+  test('load, sign in, reload, refresh, auth fetch, sign out', async () => {
     const page = await createPage('/')
     const [
       usernameInput,
@@ -19,6 +19,7 @@ describe('Local Provider', async () => {
       submitButton,
       status,
       signoutButton,
+      authFetchButton,
       refreshRequiredFalseButton,
       refreshRequiredTrueButton
     ] = await Promise.all([
@@ -27,6 +28,7 @@ describe('Local Provider', async () => {
       page.getByTestId('submit'),
       page.getByTestId('status'),
       page.getByTestId('signout'),
+      page.getByTestId('auth-fetch'),
       page.getByTestId('refresh-required-false'),
       page.getByTestId('refresh-required-true')
     ])
@@ -46,6 +48,11 @@ describe('Local Provider', async () => {
     // Ensure that we are still authenticated after page refresh
     await page.reload()
     await playwrightExpect(status).toHaveText(STATUS_AUTHENTICATED)
+
+    // Ensure that a manual authenticated fetch is successful while authenticated
+    const authFetchResponse = page.waitForResponse(/\/api\/auth\/user/)
+    await authFetchButton.click()
+    await playwrightExpect((await authFetchResponse).status()).toBe(200)
 
     // Refresh (required: false), status should not change
     await refreshRequiredFalseButton.click()
