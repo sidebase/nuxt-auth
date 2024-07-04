@@ -9,12 +9,12 @@ export const routes: DefaultTheme.Config['nav'] = [
         link: '/guide/getting-started/introduction',
       },
       {
-        text: 'Guide',
+        text: 'AuthJS guide',
         link: '/guide/authjs/quick-start',
       },
       {
-        text: 'Recipes',
-        link: '/recipes/overview',
+        text: 'Local / Refresh guide',
+        link: '/guide/local/quick-start',
       },
     ],
   },
