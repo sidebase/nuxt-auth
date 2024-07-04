@@ -18,7 +18,8 @@ export const routes: DefaultTheme.Config['nav'] = [
       },
     ],
   },
-  { text: 'API', link: '/api/overview' },
+  // TODO: Add full API docs
+  // { text: 'API', link: '/api/overview' },
   {
     text: 'Resources',
     items: [
