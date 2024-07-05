@@ -36,8 +36,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     // Restore the session data from the cookie if it exists
     const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
     const sessionCookie = useCookie<SessionCookie | null>('auth:sessionCookie')
-    const cookieToken = useCookie<string | null>(config.token.cookieName)
-    if (sessionCookie.value && !rawToken.value && cookieToken.value) {
+    const cookieToken = useCookie<string | null>(config.token?.cookieName)
+    if (sessionCookie?.value && !rawToken?.value && cookieToken?.value) {
       try {
         loading.value = true
         const sessionData = sessionCookie.value
