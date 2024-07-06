@@ -101,6 +101,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
     const result = await _fetch<any>(nuxt, path, { method, headers })
     const { dataResponsePointer: sessionDataResponsePointer } = config.session
     data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
+
     sessionCookie.value = {
       lastRefreshedAt: lastRefreshedAt.value,
       data: data.value
@@ -109,6 +110,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
     if (!data.value && err instanceof Error) {
       console.error(`Session: unable to extract session, ${err.message}`)
     }
+
 
     // Clear all data: Request failed so we must not be authenticated
     data.value = null
