@@ -111,7 +111,6 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
       console.error(`Session: unable to extract session, ${err.message}`)
     }
 
-
     // Clear all data: Request failed so we must not be authenticated
     data.value = null
     rawToken.value = null
