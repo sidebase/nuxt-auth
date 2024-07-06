@@ -32,12 +32,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   // Only fetch session if it was not yet initialized server-side
-  if (typeof data.value === 'undefined' && !nitroPrerender) {
+  if (typeof data.value === 'undefined' && !nitroPrerender && !disableServerSideAuth) {
     // Restore the session data from the cookie
     const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
     const sessionCookie = useCookie<SessionCookie | null>('auth:sessionCookie')
-    const cookieToken = useCookie<string | null>(config.token.cookieName)
-    if (sessionCookie.value && !rawToken.value && cookieToken.value) {
+    const cookieToken = useCookie<string | null>(config.token?.cookieName)
+    if (sessionCookie?.value && !rawToken?.value && cookieToken?.value) {
       try {
         loading.value = true
         const sessionData = sessionCookie.value
