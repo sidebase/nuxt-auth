@@ -6,7 +6,7 @@ export default defineConfig({
   title: 'NuxtAuth',
   titleTemplate: ':title - by sidebase',
   description: 'Authentication for Nuxt 3',
-  base: '/nuxt-auth/',
+  base: '/',
   cleanUrls: true,
   lang: 'en-US',
   appearance: 'dark',
