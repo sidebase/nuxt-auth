@@ -8,7 +8,7 @@ After setting up your provider of choice, you can begin integrating NuxtAuth int
 
 ## `useAuth` composable
 
-The `useAuth` composable is your main gateway to accessing and manipulating session-state and data. Here's the main methods you can use:
+The `useAuth` composable is your main gateway to accessing and manipulating session-state and data. Here are the main methods you can use:
 
 ::: code-group
 
