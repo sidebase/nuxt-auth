@@ -29,8 +29,8 @@ const {
 const {  
     status,
     data,
-    token,
     lastRefreshedAt,
+    token,
     getSession,
     signUp,
     signIn,
@@ -42,8 +42,8 @@ const {
 const {  
     status,
     data,
-    token,
     lastRefreshedAt,
+    token,
     getSession,
     signUp,
     signIn,
@@ -92,10 +92,10 @@ const { data } = useAuth()
 
 ### `token`
 
-The fetched token that can be used to authenticate futhur requests. This could be e.g. a JWT-Bearer token.
+The fetched token that can be used to authenticate further requests. This could be e.g. a JWT-Bearer token.
 
 ```ts
-const useAPI = () => {
+function useAPI() {
     const { token } = useAuth()
 
     return $fetch.create({
@@ -113,7 +113,7 @@ const useAPI = () => {
 
 ### `lastRefreshedAt`
 
-Time at which the session was last refreshed, either `undefined` if no refresh was attempted or a `Date`-object of the time the refresh happened.
+Time at which the session was last refreshed, either `undefined` if no refresh was attempted or a `Date` of the time the refresh happened.
 
 ### `getCsrfToken`
 
@@ -128,7 +128,7 @@ You likely only need to use this if you are not using the built-in `signIn()` an
 
 ### `getProviders`
 
-Get a list of all the configured oAuth providers. Useful for creating a [custom login page](/guide/authjs/custom-pages#sign-in-page). Returns an array of `Provider`.
+Get a list of all the configured OAuth providers. Useful for creating a [custom login page](/guide/authjs/custom-pages#sign-in-page). Returns an array of `Provider`.
 
 ```ts
 export interface Provider {
@@ -146,7 +146,7 @@ export interface Provider {
 
 ### `getSession`
 
-Get or reload the current session from the server. Optionally pass `required` to force a signIn if you session exists.
+Get or reload the current session from the server. Optionally pass `required` to force a signIn if the session doesn't exist.
 
 ```vue
 <script setup lang="ts">
@@ -186,7 +186,7 @@ await signUp(credentials, undefined, { preventLoginFlow: true })
 ```
 
 :::info
-You can also pass the `callbackUrl` option to redirect a user to a certain pages, after they've completed the action. This can be useful when a user attempts to open a page (`/protected`) but has to go through external authentication (e.g., via their google account) first.
+You can also pass the `callbackUrl` option to redirect a user to a certain page, after he's completed the action. This can be useful when a user attempts to open a page (`/protected`) but has to go through external authentication (e.g., via their google account) first.
 :::
 
 :::warning Local / Refresh Only
@@ -233,7 +233,7 @@ await signIn(credentials, { callbackUrl: 'https://nuxt.org', external: true })
 :::
 
 :::info
-You can also pass the `callbackUrl` option to redirect a user to a certain pages, after they've completed the action. This can be useful when a user attempts to open a page (`/protected`) but has to go through external authentication (e.g., via their google account) first.
+You can also pass the `callbackUrl` option to redirect a user to a certain page, after he's completed the action. This can be useful when a user attempts to open a page (`/protected`) but has to go through external authentication (e.g., via their google account) first.
 :::
 
 ### `signOut`
@@ -259,12 +259,12 @@ const { signOut } = useAuth()
 ```
 
 :::info
-You can also pass the `callbackUrl` option to redirect a user to a certain pages, after they've completed the action. This can be useful when a user attempts to open a page (`/protected`) but has to go through external authentication (e.g., via their google account) first.
+You can also pass the `callbackUrl` option to redirect a user to a certain page, after he's completed the action. This can be useful when a user attempts to open a page (`/protected`) but has to go through external authentication (e.g., via their google account) first.
 :::
 
 ### `refreshToken`
 
-The fetched refreshToken that can be used to token . E.g., a refreshToken like so: `eyDFSJKLDAJ0-3249PPRFK3P5234SDFL;AFKJlkjdsjd.dsjlajhasdji89034`
+The fetched refreshToken that can be used to obtain a new access token . E.g. a refreshToken looks like this: `eyDFSJKLDAJ0-3249PPRFK3P5234SDFL;AFKJlkjdsjd.dsjlajhasdji89034`
 
 :::warning Refresh Only
 `refreshToken` is only avalible for the refresh provider!
@@ -272,15 +272,11 @@ The fetched refreshToken that can be used to token . E.g., a refreshToken like s
 
 ### `refresh`
 
-Trigger a refresh, this will set `refreshToken` to a new value.
-
-:::warning Refresh Only
-`refresh` is only avalible for the refresh provider!
-:::
+Trigger a refresh, this will do a provider-specific session refresh.
 
 ## `useAuthState` composable
 
-The `useAuthState` composable is the underlying storage layer to access the session-state and data. Here's the main methods and properties you can use:
+The `useAuthState` composable is the underlying storage layer to access the session-state and data. Here're the main methods and properties you can use:
 
 ::: code-group
 
@@ -301,7 +297,7 @@ loading.value
 // Session data, either `undefined` (= authentication not attempted), `null` (= user unauthenticated), `loading` (= session loading in progress), see https://next-auth.js.org/getting-started/client#signout
 data.value
 
-// Time at which the session was last refreshed, either `undefined` if no refresh was attempted or a `Date`-object of the time the refresh happened
+// Time at which the session was last refreshed, either `undefined` if no refresh was attempted or a `Date` of the time the refresh happened
 lastRefreshedAt.value
 
 ```
@@ -327,7 +323,7 @@ loading.value
 // Session data, either `undefined` (= authentication not attempted), `null` (= user unauthenticated), or session / user data your `getSession`-endpoint returns
 data.value
 
-// Time at which the session was last refreshed, either `undefined` if no refresh was attempted or a `Date`-object of the time the refresh happened
+// Time at which the session was last refreshed, either `undefined` if no refresh was attempted or a `Date` of the time the refresh happened
 lastRefreshedAt.value
 
 // The fetched token that can be used to authenticate future requests. E.g., a JWT-Bearer token like so: `Bearer eyDFSJKLDAJ0-3249PPRFK3P5234SDFL;AFKJlkjdsjd.dsjlajhasdji89034`
@@ -366,7 +362,7 @@ loading.value
 // Session data, either `undefined` (= authentication not attempted), `null` (= user unauthenticated), or session / user data your `getSession`-endpoint returns
 data.value
 
-// Time at which the session was last refreshed, either `undefined` if no refresh was attempted or a `Date`-object of the time the refresh happened
+// Time at which the session was last refreshed, either `undefined` if no refresh was attempted or a `Date` of the time the refresh happened
 lastRefreshedAt.value
 
 // The fetched token that can be used to authenticate future requests. E.g., a JWT-Bearer token like so: `Bearer eyDFSJKLDAJ0-3249PPRFK3P5234SDFL;AFKJlkjdsjd.dsjlajhasdji89034`
