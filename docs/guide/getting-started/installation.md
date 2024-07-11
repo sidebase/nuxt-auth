@@ -15,7 +15,7 @@ npm i -D @sidebase/nuxt-auth
 ```
 
 ```bash [pnpm]
-pnpm install @sidebase/nuxt-auth
+pnpm i -D @sidebase/nuxt-auth
 ```
 
 ```bash [yarn]
