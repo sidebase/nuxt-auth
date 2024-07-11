@@ -35,12 +35,12 @@ NUXT_AUTH_SECRET="YOUR-SUPER-SECURE-SECRET"
 
 The providers are the registered authentication methods that your users can use to login to your application. NuxtAuth provides a number of preconfigured providers you can use to quickly bootstrap your project. These include OAuth providers, [email-based providers](https://next-auth.js.org/configuration/providers/email) (Magic URLs) and a [credentials provider](https://next-auth.js.org/configuration/providers/credentials). In addition to using a pre-built provider, you can also create your own provider. 
 
-You can find an overview of all the prebuilt providers [here](https://next-auth.js.org/providers/). If you could like to create your own provider, please visit the [NextAuth docs](https://next-auth.js.org/configuration/providers/oauth#using-a-custom-provider).
+You can find an overview of all the prebuilt providers [here](https://next-auth.js.org/providers/). If you want to create your own provider, please visit the [NextAuth docs](https://next-auth.js.org/configuration/providers/oauth#using-a-custom-provider).
 
 
 ## Callbacks
 
-The callbacks define inside the NuxtAuthHandler are asynchronous functions that allow you to hook into and modify the authentication flow. This is helpful for when you need to:
+The callbacks inside the NuxtAuthHandler are asynchronous functions that allow you to hook into and modify the authentication flow. This is helpful for when you need to:
 
 - Change the data inside the JWT token or Session Data
 - Add support for refresh tokens
@@ -76,7 +76,7 @@ export default NuxtAuthHandler({
 Some uses-cases for each callback could be:
 
 - `signIn`: Check if a user is e.g. restricted from accessing the application and terminate the signin flow.
-- `redirect`: Customize the callback url based on further parameters, that need to be dynamically calculated and cannot be set on startup (e.g. through feature flags or database values).
+- `redirect`: Customize the callback url based on parameters that need to be dynamically calculated and cannot be set on startup (e.g. through feature flags or database values).
 - `session`: Fetch and inject additional data into the session. Read more [here](/guide/authjs/session-data).
 -  `jwt`: Inject or update data inside the JWT token and manage refresh and access tokens.
 
@@ -91,14 +91,14 @@ import { NuxtAuthHandler } from '#auth'
 
 export default NuxtAuthHandler({
   // your authentication configuration here!
-    events: {
+  events: {
     async signIn(message) { /* on successful sign in */ },
     async signOut(message) { /* on signout */ },
     async createUser(message) { /* user created */ },
     async updateUser(message) { /* user updated - e.g. their email was verified */ },
     async linkAccount(message) { /* account (e.g. GitHub) linked to a user */ },
     async session(message) { /* session is active */ },
-    }
+  }
 })
 ```
 

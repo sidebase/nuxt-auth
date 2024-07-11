@@ -1,6 +1,6 @@
 # Custom pages
 
-NuxtAuth delivers a set of prebuilt authentication pages, that you can use out of the box. However, often you would like to customize and change the authentication pages to match your branding.
+NuxtAuth delivers a set of prebuilt authentication pages that you can use out of the box. However, in most cases you may like to customize the authentication pages to match your branding.
 
 :::info
 Remember to disable any authentication related middleware on pages that unauthenticated users should be able to access (e.g. `signIn`)
@@ -8,7 +8,7 @@ Remember to disable any authentication related middleware on pages that unauthen
 
 ## Sign In page
 
-To create your custom sign-in page you can use signIn to directly start a provider-flow once the user selected it, e.g., by clicking on a button on your custom sign-in page. Here is a very simple sign-in page that either directly starts a github-oauth sign-in flow or directly signs in the user via the credentials flow:
+When crafting your custom sign-in page you can use `signIn` to directly start a provider-flow. For example, when a user clicks a button on your custom sign-in page. Here is a very simple sign-in page that either directly starts a GitHub-OAuth sign-in flow or directly signs the user in via the credentials flow:
 
 ```vue
 <script setup lang="ts">
@@ -57,7 +57,7 @@ const providers = await getProviders()
 </script>
 
 <template>
-    <button  v-for="provider in providers" :key="provider.id"  @click="signIn(provider.id)">
+    <button v-for="provider in providers" :key="provider.id" @click="signIn(provider.id)">
         Sign in with {{ provider.name }}
     </button>
 </template>

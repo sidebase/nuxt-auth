@@ -65,16 +65,16 @@ Whether to add a callbackUrl to sign in requests. Setting this to a string-value
 
 ## NuxtAuthHandler
 
-Afterwards create your own NuxtAuthHandler under `~/server/api/auth/[...].ts`. Inside the NuxtAuthHandler you can configure the authentication provider you want to use, how the JWT Token is created and managed as well as how your sessions will be composed. The NuxtAuthHander will automaticlly create all required API endpoints to handle authentication inside your application.
+As a next step, create your NuxtAuthHandler under `~/server/api/auth/[...].ts`. Inside it you can configure the authentication provider you want to use, how the JWT Token is created and managed as well as how your sessions will be composed. The NuxtAuthHander will automatically create all required API endpoints to handle authentication inside your application.
 
 The NuxtAuthHandler is an adaptation of the [NextAuthHandler](https://next-auth.js.org/configuration/options) built into AuthJS. Inside the NuxtAuthHandler you can configure:
 
 - **OAuth providers**: _How can users login to your application?_
 - **Adapters**: _How are sessions saved? (e.g. JWT Token, Database etc.)_
 - **JWT Encryption**: _How is the JWT Token encrypted and read?_
-- **Callbacks**: _Hook into the authentication lifecyle hooks._
+- **Callbacks**: _Hook into the authentication lifecycle hooks._
 
-Begin by creating a new server route file in `~/server/api/auth/[...].ts`. You can then begin adding your NuxtAuthHandler. The filename must be [...].ts - this is a so-called "catch-all" route, read more in the [Nuxt catch-all docs](https://nuxt.com/docs/guide/directory-structure/server#catch-all-route). 
+Begin by creating a new server route file in `~/server/api/auth/[...].ts`. You can then begin adding your NuxtAuthHandler. The filename must be `[...].ts` - this is a so-called "catch-all" route, read more in the [Nuxt catch-all docs](https://nuxt.com/docs/guide/directory-structure/server#catch-all-route). 
 
 ```ts
 import { NuxtAuthHandler } from '#auth'
@@ -109,7 +109,7 @@ export default NuxtAuthHandler({
 After importing your provider from `next-auth/providers/[PROVIDER]`, call it using `.default()` inside of the providers array configuration. This is required for SSR to properly function.
 :::
 
-The NuxtAuthHandler accepts [all options that NextAuth.js](https://next-auth.js.org/configuration/options#options) accepts for its API initialization. Use this place to configure authentication providers (oauth-Google, credential flow, ...), your secret, add callbacks for authentication events, configure a custom logger and more. Read the [NextAuth.js docs](https://next-auth.js.org/configuration/options#options) to see all possible options.
+The NuxtAuthHandler accepts [all options that NextAuth.js](https://next-auth.js.org/configuration/options#options) accepts for its API initialization. Use this place to configure authentication providers (OAuth, credential flow, ...), your secret, add callbacks for authentication events, configure a custom logger and more. Read the [NextAuth.js docs](https://next-auth.js.org/configuration/options#options) to see all possible options.
 
 ### Setting a secret
 
