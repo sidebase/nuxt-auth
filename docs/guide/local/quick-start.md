@@ -49,12 +49,16 @@ export default defineNuxtConfig({
 
 Each endpoint, consists of an object, with a `path` and `method`. When a user triggers an action inside your application a request will be made to each endpoint. When a request is made to the `getSession` endpoint, a token will be sent as a header. You can configure the headers and token below. 
 
-In the example above requests would be made to the following URLS:
+In the example above requests would be made to the following URLs:
 
 - **Sign in:** `/api/auth/login` (POST)
 - **Sign out** `/api/auth/logout` (POST)
 - **Sign up:** `/api/auth/register` (POST)
 - **Get Session:** `/api/auth/session` (GET)
+
+:::info
+Relative paths starting with a `/` (e.g. `/login`) will be treated as a part of your Nuxt application. If you want to use an external backend, please provide fully-specified URLs instead.
+:::
 
 You can customize each endpoint to fit your needs or disable it by setting it to `false`. For example you may want to disable the `signUp` endpoint.
 
@@ -123,13 +127,13 @@ export default defineNuxtConfig({
 
 How to extract the authentication-token from the sign-in response.
 
-E.g., setting this to `/token/bearer` and returning an object like `{ token: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `signIn` endpoint will result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
+For example, if you have a response object like `{ token: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }`, using `signInResponseTokenPointer: '/token/bearer'` will result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
 
 This follows the JSON Pointer standard, see it's RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
 
 ### `type`
 
-Header type to be used in requests. This in combination with `headerName` is used to construct the final authentication-header `nuxt-auth` uses, e.g, for requests via `getSession`.
+Header type to be used in requests. This in combination with `headerName` is used to construct the final authentication-header `nuxt-auth` uses, e.g. for requests via `getSession`.
 
 - **Type:** `string`
 - **Default:** `'Bearer'`
@@ -150,7 +154,7 @@ Header name to be used in requests that need to be authenticated, e.g., to be us
 
 ### `maxAgeInSeconds`
 
-Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
+Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e. in the user's browser.
 
 Note: Your backend may reject / expire the token earlier / differently.
 
@@ -159,7 +163,7 @@ Note: Your backend may reject / expire the token earlier / differently.
 
 ### `sameSiteAttribute`
 
-The cookie sameSite policy. Can be used as a form of csrf forgery protection. If set to `strict`, the cookie will only be passed with requests to the same 'site'. Typically, this includes subdomains. So, a sameSite: strict cookie set by app.mysite.com will be passed to api.mysite.com, but not api.othersite.com. 
+The cookie sameSite policy. Can be used as a form of CSRF protection. If set to `strict`, the cookie will only be passed with requests to the same 'site'. Typically, this includes subdomains. So, a `sameSite: strict` cookie set by app.mysite.com will be passed to api.mysite.com, but not api.othersite.com. 
 
 See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
 
@@ -238,7 +242,7 @@ It refers to the name of the property when it is stored in a cookie.
 - **Type:** `number`
 - **Default:** `1800`
   
-Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
+Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e. in the user's browser.
 
 Note: Your backend may reject / expire the refreshToken earlier / differently.
 

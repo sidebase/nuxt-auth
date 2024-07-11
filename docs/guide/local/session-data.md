@@ -29,7 +29,7 @@ type SessionData = {
 
 ## Complex types
 
-In addition to using simple type such as `string`, `number` or `boolean` you can also configure complexer types such as sub-objects or arrays. 
+In addition to using simple type such as `string`, `number` or `boolean` you can also configure more complex types such as sub-objects or arrays. 
  
 ```ts
 export default defineNuxtConfig({
@@ -47,6 +47,7 @@ export default defineNuxtConfig({
 })
 ```
 
+Example above will generate the following type for your session:
 ```ts
 type SessionConfig = {
     id: string | number,
