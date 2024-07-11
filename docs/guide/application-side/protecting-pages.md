@@ -31,7 +31,9 @@ If the global middleware is disabled, you can manually add the middleware to ind
 
 ```vue
 <script lang="ts" setup>
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ 
+    middleware: 'auth'
+})
 </script>
 
 <template>
@@ -62,8 +64,10 @@ definePageMeta({
 ```vue
 <script setup lang="ts">
 definePageMeta({
-    unauthenticatedOnly: false,
-    navigateUnauthenticatedTo: '/auth/signin'
+    auth: {
+        unauthenticatedOnly: false,
+        navigateUnauthenticatedTo: '/auth/signin'
+    }
 })
 </script>
 
