@@ -21,7 +21,7 @@ Whether the module is enabled at all
 - **Type**: `boolean`
 - **Default**: `false`
 
-Forces your server to send a "loading" authentication status on all requests, thus prompting the client to do a fetch. If your website has caching, this prevents the server from caching someone's authentication status. This effects the entire site, for route-specific rules, add `disableServerSideAuth` on `routeRules`. Read more [here](/guide/advanced/caching).
+Forces your server to send a "loading" authentication status on all requests, thus prompting the client to do a fetch. If your website has caching, this prevents the server from caching someone's authentication status. This affects the entire site; for route-specific rules add `disableServerSideAuth` on `routeRules`. Read more [here](/guide/advanced/caching).
 
 ## `baseURL`
 
@@ -37,7 +37,7 @@ The full url at which the app will run combined with the path to authentication.
 - `authjs`: You must set the full URL, with origin and path in production. You can leave this empty in development
 - `local`: You can set a full URL, but can also leave this empty to fallback to the default value of `/api/auth` or set only the path.
 
-### `authjs`
+### `authjs` Provider
 
 `baseURL` can be `undefined` during development but _must_ be set to the combination of origin + path that points to your `NuxtAuthHandler` for production. The origin consists out of:
 - **scheme**: http / https
@@ -45,7 +45,7 @@ The full url at which the app will run combined with the path to authentication.
 - **port**: _empty_ (implies `:80` for http and `:443` for https), :3000, :8888
 - **path**: the path that directs to the location of your `NuxtAuthHandler` e.g. `/api/auth`
 
-### `local` and `refresh`
+### `local` and `refresh` Providers
 
 Defaults to `/api/auth` for both development and production. Setting this is optional, if you set it you can set it to either:
 - just a path: Will lead to `nuxt-auth` using `baseURL` as a relative path appended to the origin you deploy to. Example: `/backend/auth`
@@ -61,8 +61,8 @@ If you point to a different origin than the one you deploy to you likely have to
 - **Default**: `undefined`
 
 Configuration of the authentication provider. Different providers are supported:
-- AuthJS: See configuration options [here](/guide/authjs/quick-start#configuration)
-- Local / Refresh: See configuration options [here](/guide/local/quick-start)
+- AuthJS: See [configuration options here](/guide/authjs/quick-start#configuration)
+- Local / Refresh: See [configuration options here](/guide/local/quick-start)
 
 ## `sessionRefresh`
 
@@ -76,7 +76,10 @@ Configuration of the application-side session. You can configure the following a
 - **Type**: `boolean | number`
 - **Default**: `undefined`
 
-Whether to refresh the session every `X` milliseconds. Set this to `false` to turn it off. The session will only be refreshed if a session already exists. Setting this to `true` will refresh the session every second. Setting this to `false` will turn off session refresh. Setting this to a number `X` will refresh the session every `X` milliseconds.
+Whether to refresh the session every `X` milliseconds. The refresh will only happen if a session already exists.
+Setting this to a number `X` will refresh the session every `X` milliseconds.
+Setting this to `true` is equivalent to `enablePeriodically: 1000`, the session will be refreshed every second.
+Setting this to `false` will turn the session refresh off. 
 
 ### `enableOnWindowFocus`
 
@@ -88,12 +91,14 @@ Whether to refresh the session every time the browser window is refocused.
 
 ### `refreshHandler`
 
-- **Type**: `RefreshHandler`
+- **Type**: `string`
 - **Default:** `undefined`
 
-To customize the session refreshing you can provide a refresh handler. A custom `RefreshHandler` requires an `init`- and a `destroy`-function.
+To customize the session refreshing you can provide the path to your refresh handler. When setting this option, `enablePeriodically` and `enableOnWindowFocus` are ignored.
 
-- `init` will be called when the nuxt application is mounted. Here you may add event listeners and initialize custom refresh behaviour. The method will receive a `RefreshHandlerConfig`. The type consists of `enablePeriodically` & `enableOnWindowFocus`.
+A custom `RefreshHandler` requires `init` and `destroy` functions:
+
+- `init` will be called when the nuxt application is mounted. Here you may add event listeners and initialize custom refresh behaviour.
 - `destroy` will be called when your app is unmounted. Here you may run your clean up routine e.g. to remove your event listeners.
 
 ```ts
@@ -124,7 +129,7 @@ If no custom RefreshHandler is defined, the [built-in-handler](https://github.co
 - **Type:** `GlobalMiddlewareOptions | boolean`
 - **Default**: `false`
 
-Whether to add a global authentication middleware that protects all pages. Can be either `false` to disable, `true` to enabled or an object to enable and apply extended configuration.
+Whether to add a global authentication middleware that protects all pages. Can be either `false` to disable, `true` to enable with defaults or an object to enable with provided options.
 
 - If you **enable** this, everything is going to be protected and you can selectively disable protection for some pages by specifying `definePageMeta({ auth: false })`
 - If you **disable** this, everything is going to be public and you can selectively enable protection for some pages by specifying `definePageMeta({ auth: true })`

@@ -27,7 +27,7 @@ If you like to further customize the global middleware, you can pass an object o
 
 ### Disabling the Global Middleware
 
-If the global middleware is disabled, you can manually add the middlware to individual pages. This is only avalible if the global middleware is disabled, as you will get an error along the lines of `Error: Unknown route middleware: 'auth'`. This is because the auth middleware is then added globally and not available to use as a local, page-specific middleware.
+If the global middleware is disabled, you can manually add the middleware to individual pages. This is only available if the global middleware is disabled, as you will get an error along the lines of `Error: Unknown route middleware: 'auth'`. This is because the auth middleware is then added globally and not available to use as a local, page-specific middleware.
 
 ```vue
 <script lang="ts" setup>
@@ -77,7 +77,7 @@ definePageMeta({
 Whether to only allow unauthenticated users to access this page. Authenticated users will be redirected to / or the route defined in `navigateAuthenticatedTo`.
 
 :::tip
-Setting `unauthenticatedOnly: false` is equivalent to setting auth: false from the user-perspective, but requires some extra middleware-steps, so is a bit less efficient. Therefore it is recommended to always use auth: false instead.
+Setting `unauthenticatedOnly: false` is equivalent to setting `auth: false` from the user perspective, but requires some extra middleware steps, so it is a bit less efficient. Therefore it is recommended to use `auth: false` instead.
 :::
 
 #### `navigateAuthenticatedTo`
@@ -108,7 +108,7 @@ definePageMeta({
 </script>
 
 <template>
-    I can only be viewed logged out!
+    I can only be viewed as a guest!
 </template>
 ```
 

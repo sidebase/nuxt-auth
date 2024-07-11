@@ -17,7 +17,7 @@ yarn add next-auth@4.21.1
 ```
 
 ::: warning
-Due to a breaking change in NextAuth, nuxt-auth is only compoatible with NextAuth versions under v4.23.0. We recommend pinning the version to `4.21.1`. Read more [here](https://github.com/sidebase/nuxt-auth/issues/514).
+Due to a breaking change in NextAuth, nuxt-auth is only compatible with NextAuth versions under v4.23.0. We recommend pinning the version to `4.21.1`. Read more [here](https://github.com/sidebase/nuxt-auth/issues/514).
 :::
 
 ## Configuration
@@ -53,7 +53,7 @@ If set to `true`, `authjs` will use either the `x-forwarded-host` or `host` head
 - **Type**: `SupportedProviders`
 - **Default**: `undefined`
 
-Select the default-provider to use when `signIn` is called. Setting this here will also effect the global middleware behavior: E.g., when you set it to `github` and the user is unauthorized, they will be directly forwarded to the Github OAuth page instead of seeing the app-login page.
+Select the default-provider to use when `signIn` is called. Setting this here will also affect the global middleware behavior. For instance, when you set it to `github` and the user is unauthorized, they will be directly forwarded to the Github OAuth page instead of seeing the app-login page.
 
 ### `addDefaultCallbackUrl`
 
