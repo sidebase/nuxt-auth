@@ -101,8 +101,19 @@ A custom `RefreshHandler` requires `init` and `destroy` functions:
 - `init` will be called when the nuxt application is mounted. Here you may add event listeners and initialize custom refresh behaviour.
 - `destroy` will be called when your app is unmounted. Here you may run your clean up routine e.g. to remove your event listeners.
 
-```ts
-// file: ~/auth/refreshHandler.ts
+::: code-group
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+    auth: {
+        sessionRefresh: {
+            // You can place it anywhere and name as you wish
+            handler: './config/AuthRefreshHandler'
+        }
+    }
+})
+```
+
+```ts [~/config/AuthRefreshHandler.ts]
 import type { RefreshHandler } from '@sidebase/nuxt-auth'
 
 // You may also use a plain object with `satisfies RefreshHandler`
