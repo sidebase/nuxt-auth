@@ -23,16 +23,16 @@ If you are still unsure, below are some tables to help you pick:
 
 ### Features
 
-|                                                           	|                               authjs 	 | local 	| refresh
-|-----------------------------------------------------------	|-------------------------------------:	 |------:	| ------:
-| app `useAuth`-composable to sign-in, sign-out, ...        	|                                    ✅ 	|     ✅ 	| ✅
-| session-management: auto-refresh, refresh on refocus, ... 	| ✅                                    	| ✅     	| ✅
-| static apps ("nuxi generate")                             	| ❌                                    	| ✅     	| ✅
-| guest mode                                                	| ✅                                    	| ✅     	| ✅
-| app-side middleware                                       	| ✅                                    	| ✅     	| ✅
-| server-side middleware                                    	| ✅                                    	| ✅     	| ✅
-| pre-made login-page                                       	| ✅ (impacts bundle-size)              	| ❌     	| ❌
-| database-adapters, server-side callback-hooks             	| ✅                                    	| ❌     	| ❌
+|                                                           	|                               authjs 	 | local  | refresh
+|-----------------------------------------------------------	    |---------------------------------:	 |------: | ---:
+| [`useAuth`-composable](/guide/application-side/session-access) to sign in/out, refresh a session, etc.                                                        	    | ✅ 	                             | ✅ 	 | ✅
+| Session-management: auto-refresh, refresh on refocus, ... 	    | ✅                                  | ✅      | ✅
+| Static apps ("nuxi generate")                                  	| ❌                                  | ✅      | ✅
+| [Guest mode](/guide/application-side/protecting-pages#guest-mode) | ✅                                  | ✅      | ✅
+| [App-side middleware](/guide/application-side/protecting-pages)   | ✅                                  | ✅      | ✅
+| [Server-side middleware](/guide/authjs/server-side/session-access#endpoint-protection)                                      | ✅                                  | ✅      | ✅
+| Pre-made login-page                                       	    | ✅ (impacts bundle-size)            | ❌      | ❌
+| Database-adapters, server-side callback-hooks             	    | ✅                                  | ❌      | ❌
 
 ::: tip Still unsure what is best for you?
 Join our [Discord](https://discord.gg/VzABbVsqAc) and share your use case!
