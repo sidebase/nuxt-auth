@@ -139,6 +139,9 @@ jobs:
           PORT: 3001
   build-docs:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./docs
 
     steps:
       - uses: actions/checkout@v4
@@ -159,4 +162,4 @@ jobs:
       - run: pnpm dev:prepare
 
       # Build docs to test for dead links
-        run: cd docs/ && pnpm docs:build
+        run: pnpm docs:build
