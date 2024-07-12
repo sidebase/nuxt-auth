@@ -98,10 +98,7 @@ You can find a full list of our features, as well as which provider supports eac
 
 ## Demo Page
 
-Visit the [`nuxt-auth` demo page here](https://nuxt-auth-example.sidebase.io/):
-![nuxt-auth demo page](.github/nuxt-auth-demo.png)
-
-You can find the [demo source-code here](https://github.com/sidebase/nuxt-auth-example).
+Want to get a preview of what `@sidebase/nuxt-auth` has to offer? Visit the [`nuxt-auth` demo page here](https://nuxt-auth-example.sidebase.io/). Peak into the [demo source-code here](https://github.com/sidebase/nuxt-auth-example).
 
 ## Development
 
