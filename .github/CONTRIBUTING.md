@@ -77,7 +77,7 @@ To start developing on this package, please follow the quick start guide below.
    ```
 4. Create a new branch (based on the `main` branch):
    ```sh
-   git checkout -b <fix/enh>/<issue_number>-<description>
+   git checkout -b <fix/enh/docs>/<issue_number>-<description>
    ```
 5. Update the code to include your fix or Enchantment
 6. Add or update any tests that relate to your changes.
