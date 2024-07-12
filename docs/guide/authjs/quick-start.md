@@ -29,7 +29,10 @@ export default defineNuxtConfig({
     modules: ['@sidebase/nuxt-auth'],
     auth: {
         provider: {
-            type: 'authjs'
+            type: 'authjs',
+            trustHost: false,
+            defaultProvider: 'github',
+            addDefaultCallbackUrl: true
         }
     }
 })

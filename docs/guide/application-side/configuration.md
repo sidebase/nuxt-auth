@@ -5,7 +5,16 @@ NuxtAuth offers a wide range of configuration options that can be defined inside
 ```ts
 export default defineNuxtConfig({
     modules: ['@sidebase/nuxt-auth'],
-    auth: { /* The Auth Config */ }
+    auth: { 
+        isEnabled: true,
+        disableServerSideAuth: false,
+        baseURL: 'http://localhost:3000/api/auth',
+        provider: { /* your provider config */ },
+        sessionRefresh: {
+            enablePeriodically: true,
+            enableOnWindowFocus: true,
+        }
+     }
 })
 ```
 
