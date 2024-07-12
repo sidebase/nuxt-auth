@@ -100,50 +100,51 @@ You can find a full list of our features, as well as which provider supports eac
 
 Want to get a preview of what `@sidebase/nuxt-auth` has to offer? Visit the [`nuxt-auth` demo page here](https://nuxt-auth-example.sidebase.io/). Peak into the [demo source-code here](https://github.com/sidebase/nuxt-auth-example).
 
-## Acknowledgments
-
-`@sidebase/nuxt-auth` is supported by all of our amazing contributors and the [Nuxt 3 team](https://nuxters.nuxt.com/)!
-
-<a href="https://github.com/sidebase/nuxt-auth/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=sidebase/nuxt-auth" />
-</a>
-
 ## Development
 
 This project uses `pnpm` for development.
 
 - Run `pnpm dev:prepare` to generate type stubs.
-- Use `pnpm dev` to start [the module playground](./playground) in development mode.
+- Use `pnpm dev` inside a [module playground directory](#module-playground) to start a playground in development mode.
 - Run `pnpm lint` to run eslint
 - Run `pnpm typecheck` to run typescheck via tsc
-- Run `pnpm publish --access public` to publish (bump version before)
+- Run `pnpm publish --access public` to publish
+- Run `pnpm publish --access public --tag next` to publish a pre-release
 
 ### Module Playground
 
 This module also has it's own playground:
+
 ```sh
 > git clone https://github.com/sidebase/nuxt-auth
 
 > cd nuxt-auth
 
-# **OPEN THE `~/playground/server/api/auth/[...].ts` and configure your own auth-provider
+> cd playground-[PROVIDER]
 
 > pnpm i
 
 > pnpm dev:prepare
 
 > pnpm dev
-
-# -> open http://localhost:3000
 ```
+
+#### Additional playground commands
+
+- Run `pnpm dev:prepare` to generate type stubs.
+- Run `pnpm dev` to start the playground.
+- Run `pnpm test:e2e` to run the end-to-end tests.
+- Run `pnpm lint` to run eslint
+- Run `pnpm typecheck` to run typescheck via tsc
 
 #### Testing different Providers
 
 We have one playground per provider:
-- [`local`](./playground-local)
 - [`authjs`](./playground-authjs)
+- [`local`](./playground-local)
+- [`refresh`](./playground-refresh)
 
-**How to test static Nuxt 3 apps?**
+##### How to test static Nuxt 3 apps?
 
 To test static Nuxt 3 apps we want to run a static frontend and a separate backend that will take over authentication:
 1. `playground-local/nuxt.config.ts`: Add `baseURL: 'http://localhost:3001'` to the `auth`-config
@@ -161,6 +162,19 @@ To test static Nuxt 3 apps we want to run a static frontend and a separate backe
 
     pnpm dev
 
-    # A seconds Nuxt app should now be running on http://localhost:3001. We use this purely for authentication
+    # A second Nuxt app should now be running on http://localhost:3001. 
+    # We use this purely for authentication
     ```
 4.  Visit [http://localhost:3000](http://localhost:3000) -> this should open the static application. Performing any auth-related actions, the app should send requests to the backend running on port `3001`  
+
+## Contributing
+
+Thank you to everyone who has contributed to this project by writing issues or opening pull requests. Your efforts help us improve and grow. If you are interested in contributing, please take a moment to review our [Contributing Guidelines](.github/CONTRIBUTING.md). We appreciate your support and look forward to your contributions!
+
+## Acknowledgments
+
+`@sidebase/nuxt-auth` is supported by all of our amazing contributors and the [Nuxt 3 team](https://nuxters.nuxt.com/)!
+
+<a href="https://github.com/sidebase/nuxt-auth/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=sidebase/nuxt-auth" />
+</a>
