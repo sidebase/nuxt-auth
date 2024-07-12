@@ -137,3 +137,26 @@ jobs:
         env:
           AUTH_ORIGIN: "http://localhost:3001"
           PORT: 3001
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ env.NODE_VER }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VER }}
+
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 8
+
+      # Install deps and prepare types
+      - run: pnpm i
+      - run: pnpm dev:prepare
+
+      # Build docs to test for dead links
+        run: cd docs/ && pnpm docs:build
