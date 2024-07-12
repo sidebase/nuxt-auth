@@ -71,33 +71,31 @@ Then visit the [Quick Start documentation](https://auth.sidebase.io/guide/gettin
 - [`local`](https://auth.sidebase.io/guide/local/quick-start): for static pages that rely on an external backend with a credential flow for authentication.
 - [`refresh`](https://auth.sidebase.io/guide/local/quick-start#refresh-token): for static pages that rely on an external backend with a credential flow and refresh tokens for authentication.
 
-### Feature overview
-
 You can find a full list of our features, as well as which provider supports each feature [on our docs](https://auth.sidebase.io/guide/getting-started/choose-provider).
 
-#### Authentication providers:
+### Authentication providers:
 - OAuth (e.g., Github, Google, Twitter, Azure, ...)
 - Custom OAuth (write it yourself)
 - Credentials (password + username)
 - Email Magic URLs
 
-#### Application Side Session Managment using [`useAuth`](https://auth.sidebase.io/guide/application-side/session-access#useauth-composable)
+### Application Side Session Managment using [`useAuth`](https://auth.sidebase.io/guide/application-side/session-access#useauth-composable)
 - Session fetching with `status`, `data` and `lastRefreshedAt`
 - Methods to `getSession`, `getCsrfToken`, `getProviders`, `signIn` and `signOut`
 - Full TypeScript support for all methods and properties
 
-#### Application protection 
+### Application protection 
 - Application-side middleware protection for the [full application](https://auth.sidebase.io/guide/application-side/protecting-pages#global-middleware) or [specific pages](https://auth.sidebase.io/guide/application-side/protecting-pages#local-middleware)
 - Server-side [middleware](https://auth.sidebase.io/guide/authjs/server-side/session-access#server-middleware) and [endpoint protection](https://auth.sidebase.io/guide/authjs/server-side/session-access#endpoint-protection)
 
-#### Advanced features for session life-cycle management:
+### Advanced features for session life-cycle management:
 - Pre-built and [customizable refresh behaviour](https://auth.sidebase.io/guide/application-side/configuration#sessionrefresh)
   - Refresh the session periodically
   - Refresh the session on tab-refocus
   - One time session fetch on page load, afterwards for specific actions (e.g., on navigation)
 - Completly configure the Refresh behaviour of your application using the [`RefreshHandler`](https://auth.sidebase.io/guide/application-side/configuration#refreshhandler)
 
-#### Server Side utilities
+### Server Side utilities
 - Session access using [`getServerSession`](https://auth.sidebase.io/guide/authjs/server-side/session-access)
 - JWT Token access using [`getToken`](https://auth.sidebase.io/guide/authjs/server-side/jwt-access)
 - Server-side [middleware](https://auth.sidebase.io/guide/authjs/server-side/session-access#server-middleware) and [endpoint protection](https://auth.sidebase.io/guide/authjs/server-side/session-access#endpoint-protection)
