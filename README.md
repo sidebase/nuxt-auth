@@ -2,8 +2,6 @@
 
 # @sidebase/nuxt-auth
 
-Authentication built for Nuxt 3! Easily add authentication via OAuth providers, credentials or Email Magic URLs!
-
 <!-- Badges Start -->
 <p>
   <a href="https://npmjs.com/package/@sidebase/nuxt-auth">
@@ -29,6 +27,8 @@ Authentication built for Nuxt 3! Easily add authentication via OAuth providers, 
   </a>
 </p>
 <!-- Badges End -->
+
+Authentication built for Nuxt 3! Easily add authentication via OAuth providers, credentials or Email Magic URLs!
 
 ## Quick Start
 
