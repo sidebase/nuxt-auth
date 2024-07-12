@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { defineProps, ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import StarIcon from './StarIcon.vue';
 
 const props = defineProps<{
