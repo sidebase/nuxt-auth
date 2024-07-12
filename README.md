@@ -28,7 +28,7 @@
 </p>
 <!-- Badges End -->
 
-Authentication built for Nuxt 3! Easily add authentication via OAuth providers, credentials or Email Magic URLs!
+> Authentication built for Nuxt 3! Easily add authentication via OAuth providers, credentials or Email Magic URLs!
 
 ## Quick Start
 
