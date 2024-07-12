@@ -102,10 +102,10 @@ Want to get a preview of what `@sidebase/nuxt-auth` has to offer? Visit the [`nu
 
 ## Acknowledgments
 
-`@sidebase/nuxt-auth` is supported by all of our amazing contributors and the Nuxt 3 team!
+`@sidebase/nuxt-auth` is supported by all of our amazing contributors and the [Nuxt 3 team](https://nuxters.nuxt.com/)!
 
 <a href="https://github.com/sidebase/nuxt-auth/graphs/contributors">
-  <img width="500px" src="https://contrib.rocks/image?repo=sidebase/nuxt-auth" />
+  <img src="https://contrib.rocks/image?repo=sidebase/nuxt-auth" />
 </a>
 
 ## Development
