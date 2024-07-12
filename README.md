@@ -100,6 +100,14 @@ You can find a full list of our features, as well as which provider supports eac
 
 Want to get a preview of what `@sidebase/nuxt-auth` has to offer? Visit the [`nuxt-auth` demo page here](https://nuxt-auth-example.sidebase.io/). Peak into the [demo source-code here](https://github.com/sidebase/nuxt-auth-example).
 
+## Acknowledgments
+
+`@sidebase/nuxt-auth` is supported by all of our amazing contributors and the Nuxt 3 team!
+
+<a href="https://github.com/sidebase/nuxt-auth/graphs/contributors">
+  <img width="500px" src="https://contrib.rocks/image?repo=sidebase/nuxt-auth" />
+</a>
+
 ## Development
 
 This project uses `pnpm` for development.
