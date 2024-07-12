@@ -56,11 +56,7 @@ npx nuxi@latest module add sidebase-auth
       modules: ['@sidebase/nuxt-auth']
   })
   ```
-
-  <hr />
 </details>
-
-<br />
 
 Then visit the [Quick Start documentation](https://auth.sidebase.io/guide/getting-started/introduction) to continue the configuration of your app!
 
