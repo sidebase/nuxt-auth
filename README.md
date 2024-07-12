@@ -1,16 +1,34 @@
-![nuxt-auth demo page](.github/nuxt-auth.jpg)
+![@sidebase/nuxt-auth banner](.github/nuxt-auth.jpg)
 
-# 🔐 nuxt-auth
+# @sidebase/nuxt-auth
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![GitHub stars](https://badgen.net/github/stars/sidebase/nuxt-auth)](https://GitHub.com/sidebase/nuxt-auth/)
-[![License][license-src]][license-href]
-[![Follow us on Twitter](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/sidebase_io)
-[![Join our Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/NDDgQkcv3s)
+<!-- Badges Start -->
+<p>
+  <a href="https://npmjs.com/package/@sidebase/nuxt-auth">
+    <img src="https://img.shields.io/npm/v/@sidebase/nuxt-auth.svg?style=flat-square&colorA=202128&colorB=36936A" alt="Version">
+  </a>
+  <a href="https://npmjs.com/package/@sidebase/nuxt-auth">
+    <img src="https://img.shields.io/npm/dm/@sidebase/nuxt-auth.svg?style=flat-square&colorA=202128&colorB=36936A" alt="Downloads">
+  </a>
+  <a href="https://github.com/sidebase/nuxt-auth/stargazers">
+    <img src="https://img.shields.io/github/stars/sidebase/nuxt-auth.svg?style=flat-square&colorA=202128&colorB=36936A" alt="Downloads">
+  </a>
+  <a href="https://github.com/sidebase/nuxt-auth/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/sidebase/nuxt-auth.svg?style=flat-square&colorA=202128&colorB=36936A" alt="License">
+  </a>
+  <a href="https://auth.sidebase.io">
+    <img src="https://img.shields.io/badge/Docs-202128?style=flat-square&logo=gitbook&logoColor=DDDDD4" alt="Docs">
+  </a>
+  <a href="https://x.com/sidebase_io">
+    <img src="https://img.shields.io/badge/Follow_us-202128?style=flat-square&logo=X&logoColor=DDDDD4" alt="Follow us on X">
+  </a>
+  <a href="https://discord.gg/NDDgQkcv3s">
+    <img src="https://img.shields.io/badge/Join_our_Discord-202128?style=flat-square&logo=discord&logoColor=DDDDD4" alt="Join our Discord">
+  </a>
+</p>
+<!-- Badges End -->
 
-> `nuxt-auth` is a feature-packed, open-source authentication module for Nuxt 3 applications.
-> Starting with v0.6 `nuxt-auth` also supports static Nuxt applications
+> `@sidebase/nuxt-auth` is a feature-packed, open-source authentication module for Nuxt 3 applications.
 
 ## Quick Start
 
@@ -18,45 +36,71 @@
 npx nuxi@latest module add sidebase-auth
 ```
 
-Then visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/getting-started/quick-start) to setup the module for <= v0.5 - the current stable version.
+<details>
+  <summary>Or install manually</summary>
+  
+  #### 1. Install the package as a dev dependency
 
-Visit the [Quick Start documentation](https://sidebase.io/nuxt-auth/v0.6/getting-started/quick-start) to setup the module for >= v0.6 - the "future" experimental version with support for static Nuxt 3 apps and the `local` provider.
+  ```sh
+  npm i -D @sidebase/nuxt-auth
+
+  pnpm i -D @sidebase/nuxt-auth
+
+  yarn add --dev @sidebase/nuxt-auth
+  ```
+
+  #### 2. Add the modules to your `nuxt.config.ts`
+
+  ```ts
+  export default defineNuxtConfig({
+      modules: ['@sidebase/nuxt-auth']
+  })
+  ```
+
+  <hr />
+</details>
+
+<br />
+
+Then visit the [Quick Start documentation](https://auth.sidebase.io/guide/getting-started/introduction) to continue the configuration of your app!
 
 ## Features
 
-`nuxt-auth` is a library with the goal of supporting authentication for any universal Nuxt 3 application. At the moment two providers are supported:
-- [Auth.js / NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 12k star library to the nuxt 3 ecosystem with a native developer experience (DX)
-- `local` for static pages that rely on an external backend with a credential flow for authentication. `local` is supported starting with v0.6 of the module
+`@sidebase/nuxt-auth` is a library with the goal of supporting authentication for any universal Nuxt 3 application. At the moment three providers are supported:
+- [`authjs`](https://auth.sidebase.io/guide/authjs/quick-start): for non-static apps that want to use [Auth.js / NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 23k star library to the Nuxt 3 ecosystem with a native developer experience (DX)
+- [`local`](https://auth.sidebase.io/guide/local/quick-start): for static pages that rely on an external backend with a credential flow for authentication.
+- [`refresh`](https://auth.sidebase.io/guide/local/quick-start#refresh-token): for static pages that rely on an external backend with a credential flow and refresh tokens for authentication.
 
-Features of the `authjs`-provider of `nuxt-auth` include:
-- ✔️ Authentication providers:
-    - ✔️ OAuth (e.g., Github, Google, Twitter, Azure, ...)
-    - ✔️ Custom OAuth (write it yourself)
-    - ✔️ Credentials (password + username)
-    - ✔️ Email Magic URLs
-- ✔️ Isomorphic / Universal Auth Composable `useAuth` supports:
-    - actions: `getSession`, `getCsrfToken`, `getProviders`, `signIn`, `signOut`
-    - getters: `status`, `data`, `lastRefreshedAt`
-    - full typescript support for all methods and property
-- ✔️ Application-side middleware protection
-- ✔️ Server-side middleware and endpoint protection
-- ✔️ Advanced features for session life-cycle management:
-    - Refresh the session periodically
-    - Refresh the session on tab-refocus
-    - One time session fetch on page load, afterwards for specific actions (e.g., on navigation)
-    - 🚧 Session broadcasting between tabs (see #70)
-- ✔️ Persistent sessions across requests
-- ✔️ REST API:
-    - `GET /signin`,
-    - `POST /signin/:provider`,
-    - `GET/POST /callback/:provider`,
-    - `GET /signout`,
-    - `POST /signout`,
-    - `GET /session`,
-    - `GET /csrf`,
-    - `GET /providers`
+### Feature overview
 
-You can find a feature-table of all starting with v0.6 in the [nuxt-auth "next"-version-docs](https://sidebase.io/nuxt-auth/v0.6/getting-started).
+You can find a full list of our features, as well as which provider supports each feature [on our docs](https://auth.sidebase.io/guide/getting-started/choose-provider).
+
+#### Authentication providers:
+- OAuth (e.g., Github, Google, Twitter, Azure, ...)
+- Custom OAuth (write it yourself)
+- Credentials (password + username)
+- Email Magic URLs
+
+#### Application Side Session Managment using [`useAuth`](https://auth.sidebase.io/guide/application-side/session-access#useauth-composable)
+- Session fetching with `status`, `data` and `lastRefreshedAt`
+- Methods to `getSession`, `getCsrfToken`, `getProviders`, `signIn` and `signOut`
+- Full TypeScript support for all methods and properties
+
+#### Application protection 
+- Application-side middleware protection for the [full application](https://auth.sidebase.io/guide/application-side/protecting-pages#global-middleware) or [specific pages](https://auth.sidebase.io/guide/application-side/protecting-pages#local-middleware)
+- Server-side [middleware](https://auth.sidebase.io/guide/authjs/server-side/session-access#server-middleware) and [endpoint protection](https://auth.sidebase.io/guide/authjs/server-side/session-access#endpoint-protection)
+
+#### Advanced features for session life-cycle management:
+- Pre-built and [customizable refresh behaviour](https://auth.sidebase.io/guide/application-side/configuration#sessionrefresh)
+  - Refresh the session periodically
+  - Refresh the session on tab-refocus
+  - One time session fetch on page load, afterwards for specific actions (e.g., on navigation)
+- Completly configure the Refresh behaviour of your application using the [`RefreshHandler`](https://auth.sidebase.io/guide/application-side/configuration#refreshhandler)
+
+#### Server Side utilities
+- Session access using [`getServerSession`](https://auth.sidebase.io/guide/authjs/server-side/session-access)
+- JWT Token access using [`getToken`](https://auth.sidebase.io/guide/authjs/server-side/jwt-access)
+- Server-side [middleware](https://auth.sidebase.io/guide/authjs/server-side/session-access#server-middleware) and [endpoint protection](https://auth.sidebase.io/guide/authjs/server-side/session-access#endpoint-protection)
 
 ## Demo Page
 
@@ -74,16 +118,6 @@ This project uses `pnpm` for development.
 - Run `pnpm lint` to run eslint
 - Run `pnpm typecheck` to run typescheck via tsc
 - Run `pnpm publish --access public` to publish (bump version before)
-
-<!-- Badges -->
-[npm-version-src]: https://img.shields.io/npm/v/@sidebase/nuxt-auth/latest.svg
-[npm-version-href]: https://npmjs.com/package/@sidebase/nuxt-auth
-
-[npm-downloads-src]: https://img.shields.io/npm/dt/@sidebase/nuxt-auth.svg
-[npm-downloads-href]: https://npmjs.com/package/@sidebase/nuxt-auth
-
-[license-src]: https://img.shields.io/npm/l/@sidebase/nuxt-auth.svg
-[license-href]: https://npmjs.com/package/@sidebase/nuxt-auth
 
 ### Module Playground
 
