@@ -59,7 +59,7 @@ onMounted(fetchCount)
   gap: 5px;
 
   padding: 3px 10px;
-  border-radius: 0.25em;
+  border-radius: 8px;
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
   float: left;
@@ -81,9 +81,9 @@ onMounted(fetchCount)
 }
 
 .Count {
-  border-bottom-right-radius: 3px;
+  border-bottom-right-radius: 8px;
   border-left: 0;
-  border-top-right-radius: 3px;
+  border-top-right-radius: 8px;
   float: left;
   padding: 3px 10px;
   vertical-align: middle;
