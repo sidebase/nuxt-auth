@@ -72,6 +72,7 @@ export default defineNuxtPlugin({
 
         lastRefreshedAt.value = new Date()
       }
+      // eslint-disable-next-line unused-imports/no-unused-vars
       catch (err) {
         rawRefreshToken.value = null
         rawToken.value = null

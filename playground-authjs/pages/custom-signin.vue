@@ -14,7 +14,7 @@ async function mySignInHandler({ username, password, callbackUrl }: { username: 
 
   if (error) {
     // Do your custom error handling here
-    alert('You have made a terrible mistake while entering your credentials')
+    console.error('You have made a terrible mistake while entering your credentials')
   }
   else {
     // No error, continue with the sign in, e.g., by following the returned redirect:

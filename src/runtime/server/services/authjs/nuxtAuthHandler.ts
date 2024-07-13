@@ -26,7 +26,6 @@ const useConfig = () => useTypedBackendConfig(useRuntimeConfig(), 'authjs')
 
 /**
  * Parse a body if the request method is supported, return `undefined` otherwise.
-
  * @param event H3Event event to read body of
  */
 async function readBodyForNext(event: H3Event) {
@@ -221,17 +220,17 @@ export async function getServerSession(event: H3Event) {
  *
  * @param eventAndOptions Omit<GetTokenParams, 'req'> & { event: H3Event } The event to get the cookie or authorization header from that contains the JWT Token and options you want to alter token getting behavior.
  */
-export function getToken<R extends boolean = false>({ event, secureCookie, secret, ...rest }: Omit<GetTokenParams<R>, 'req'> & { event: H3Event }) {
+export function getToken<R extends boolean = false>(eventAndOptions: Omit<GetTokenParams<R>, 'req'> & { event: H3Event }) {
   return nextGetToken({
   // @ts-expect-error As our request is not a real next-auth request, we pass down only what's required for the method, as per code from https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L68
     req: {
-      cookies: parseCookies(event),
-      headers: getHeaders(event) as IncomingHttpHeaders
+      cookies: parseCookies(eventAndOptions.event),
+      headers: getHeaders(eventAndOptions.event) as IncomingHttpHeaders
     },
     // see https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L73
-    secureCookie: secureCookie ?? getServerOrigin(event).startsWith('https://'),
-    secret: secret || usedSecret,
-    ...rest
+    secureCookie: eventAndOptions.secureCookie ?? getServerOrigin(eventAndOptions.event).startsWith('https://'),
+    secret: eventAndOptions.secret || usedSecret,
+    ...eventAndOptions
   })
 }
 

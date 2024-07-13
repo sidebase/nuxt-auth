@@ -34,6 +34,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   const { rawToken } = useAuthState()
   rawToken.value = extractedToken
 
+  // eslint-disable-next-line ts/no-use-before-define
   await nextTick(getSession)
 
   const { redirect = true } = signInOptions ?? {}

@@ -42,6 +42,7 @@ export function getRequestURLFromRequest(event: H3Event, { trustHost }: { trustH
   try {
     origin = getServerOrigin(event)
   }
+  // eslint-disable-next-line unused-imports/no-unused-vars
   catch (error) {
     return undefined
   }
