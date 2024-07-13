@@ -57,7 +57,7 @@ In the example above requests would be made to the following URLs:
 - **Get Session:** `/api/auth/session` (GET)
 
 :::info
-Relative paths starting with a `/` (e.g. `/login`) will be treated as a part of your Nuxt application. If you want to use an external backend, please provide fully-specified URLs instead.
+Relative paths starting with a `/` (e.g. `/login`) will be treated as a part of your Nuxt application. If you want to use an external backend, please provide fully-specified URLs instead. Read more [here](#using-an-external-backend).
 :::
 
 You can customize each endpoint to fit your needs or disable it by setting it to `false`. For example you may want to disable the `signUp` endpoint.
@@ -79,6 +79,30 @@ You can customize each endpoint to fit your needs or disable it by setting it to
 :::warning
 You cannot disable the `getSession` endpoint, as NuxtAuth internally uses it to determine the authentication status. 
 :::
+
+### Using an external backend
+
+When using the `local` or `refresh` provider to access an external backend, please consider that the module will attempt to resolve the API endpoints by using internal Nuxt 3 relative URLs or an external call.
+
+To ensure that the module can properly identify that your endpoints point to an external URL, please ensure the following:
+
+1. `auth.baseURL` **includes** a trailing `/` at the end
+2. `auth.endpoints` **do not** include a leading `/` at the start
+
+```ts
+auth: {
+    baseURL: 'https://external-api.com', // [!code --]
+    baseURL: 'https://external-api.com/' // [!code ++]
+    endpoints: {
+        signIn: { path: '/login', method: 'post' }, // [!code --]
+        signIn: { path: 'login', method: 'post' }, // [!code ++]
+        getSession: { path: '/session', method: 'get' }, // [!code --]
+        getSession: { path: '/session', method: 'get' }, // [!code ++]
+    }
+}
+```
+
+You can read more about the path resolving logic in `@sidebase/nuxt-auth` [here](https://github.com/sidebase/nuxt-auth/issues/782#issuecomment-2223861422).
 
 ### Refresh provider
 

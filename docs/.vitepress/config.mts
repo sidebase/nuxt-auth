@@ -14,6 +14,7 @@ export default defineConfig({
   head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
   themeConfig: {
     logo: '/lock.png',
+    outline: { level: 'deep' },
     nav: navRoutes,
     sidebar: sidebarRoutes,
     socialLinks: [
