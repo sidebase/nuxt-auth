@@ -28,18 +28,19 @@ Ensure that your `baseURL` is properly configured to match your backend API. Rea
 
 Afterwards, you can define the endpoints to which the authentication requests will be made:
 
+<!-- eslint-skip -->
 ```ts
 export default defineNuxtConfig({
     // ...Previous configuration
     auth: {
-        baseURL: '/api/auth'
+        baseURL: '/api/auth',
         provider: {
             type: 'local',
             endpoints: {
                 signIn: { path: '/login', method: 'post' },
                 signOut: { path: '/logout', method: 'post' },
                 signUp: { path: '/register', method: 'post' },
-                getSession: { path: '/session', method: 'get' },
+                getSession: { path: '/session', method: 'get' }
             }
         }
     }
@@ -88,16 +89,19 @@ To ensure that the module can properly identify that your endpoints point to an 
 1. `auth.baseURL` **includes** a trailing `/` at the end
 2. `auth.endpoints` **do not** include a leading `/` at the start
 
+<!-- eslint-skip -->
 ```ts
-auth: {
+{
+  auth: {
     baseURL: 'https://external-api.com', // [!code --]
-    baseURL: 'https://external-api.com/' // [!code ++]
+    baseURL: 'https://external-api.com/', // [!code ++]
     endpoints: {
         signIn: { path: '/login', method: 'post' }, // [!code --]
         signIn: { path: 'login', method: 'post' }, // [!code ++]
         getSession: { path: '/session', method: 'get' }, // [!code --]
         getSession: { path: 'session', method: 'get' }, // [!code ++]
     }
+  }
 }
 ```
 
@@ -107,13 +111,16 @@ You can read more about the path resolving logic in `@sidebase/nuxt-auth` [here]
 
 If you are using the refresh provider, you can additionally define a `refresh` endpoint, which will be used to refresh the access token upon expiry.
 
+<!-- eslint-skip -->
 ```ts
-endpoints: {
+{
+  endpoints: {
     signIn: { path: '/login', method: 'post' },
     signOut: { path: '/logout', method: 'post' },
     signUp: { path: '/register', method: 'post' },
     getSession: { path: '/session', method: 'get' },
     refresh: { path: '/refresh', method: 'post' } // [!code ++]
+  }
 }
 ```
 
