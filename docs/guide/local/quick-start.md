@@ -97,7 +97,7 @@ auth: {
         signIn: { path: '/login', method: 'post' }, // [!code --]
         signIn: { path: 'login', method: 'post' }, // [!code ++]
         getSession: { path: '/session', method: 'get' }, // [!code --]
-        getSession: { path: '/session', method: 'get' }, // [!code ++]
+        getSession: { path: 'session', method: 'get' }, // [!code ++]
     }
 }
 ```
