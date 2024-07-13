@@ -2,6 +2,8 @@
 import { parseURL } from 'ufo'
 import type { DeepRequired } from 'ts-essentials'
 import type { AuthProviders, SupportedAuthProviders } from './types'
+// eslint-disable-next-line ts/consistent-type-imports, unused-imports/no-unused-imports
+import { useRuntimeConfig } from '#imports'
 
 export const isProduction = process.env.NODE_ENV === 'production'
 
