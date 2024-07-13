@@ -1,24 +1,24 @@
 import type { AppProvider, BuiltInProviderType } from 'next-auth/providers/index'
 import { defu } from 'defu'
-import { readonly, type Ref } from 'vue'
+import { type Ref, readonly } from 'vue'
 import { appendHeader } from 'h3'
-import { callWithNuxt } from '#app/nuxt'
-import type { NuxtApp } from '#app/nuxt'
 import { determineCallbackUrl } from '../../utils/url'
-import { makeCWN, joinPathToApiURLWN, navigateToAuthPageWN, getRequestURLWN } from '../../utils/callWithNuxt'
+import { getRequestURLWN, joinPathToApiURLWN, makeCWN, navigateToAuthPageWN } from '../../utils/callWithNuxt'
 import { _fetch } from '../../utils/fetch'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
-import type { CommonUseAuthReturn, SignOutFunc, GetSessionFunc, SignInFunc } from '../../types'
+import type { CommonUseAuthReturn, GetSessionFunc, SignInFunc, SignOutFunc } from '../../types'
 import { useTypedBackendConfig } from '../../helpers'
 import type { SessionData } from './useAuthState'
-import { createError, useNuxtApp, useRuntimeConfig, useRequestHeaders, useAuthState } from '#imports'
+import type { NuxtApp } from '#app/nuxt'
+import { callWithNuxt } from '#app/nuxt'
+import { createError, useAuthState, useNuxtApp, useRequestHeaders, useRuntimeConfig } from '#imports'
 
 /**
  * Utility type that allows autocompletion for a mix of literal, primitiva and non-primitive values.
  * @source https://github.com/microsoft/TypeScript/issues/29729#issuecomment-832522611
  */
-// eslint-disable-next-line no-use-before-define
-type LiteralUnion<T extends U, U = string> = T | (U & Record<never, never>);
+
+type LiteralUnion<T extends U, U = string> = T | (U & Record<never, never>)
 
 // TODO: Stronger typing for `provider`, see https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/index.tsx#L199-L203
 export type SupportedProviders = LiteralUnion<BuiltInProviderType> | undefined
@@ -29,7 +29,7 @@ export type SupportedProviders = LiteralUnion<BuiltInProviderType> | undefined
  * Calling nested async composable can lead to "nuxt instance unavailable" errors. See more details here: https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529. To resolve this we can manually ensure that the nuxt-context is set. This module contains `callWithNuxt` helpers for some of the methods that are frequently called in nested `useAuth` composable calls.
  *
  */
-const getRequestCookies = async (nuxt: NuxtApp): Promise<{ cookie: string } | {}> => {
+async function getRequestCookies(nuxt: NuxtApp): Promise<{ cookie: string } | {}> {
   // `useRequestHeaders` is sync, so we narrow it to the awaited return type here
   const { cookie } = await callWithNuxt(nuxt, () => useRequestHeaders(['cookie']))
   if (cookie) {
@@ -42,7 +42,7 @@ const getRequestCookies = async (nuxt: NuxtApp): Promise<{ cookie: string } | {}
  *
  * You can use this to pass along for certain requests, most of the time you will not need it.
  */
-const getCsrfToken = async () => {
+async function getCsrfToken() {
   const nuxt = useNuxtApp()
   const headers = await getRequestCookies(nuxt)
   return _fetch<{ csrfToken: string }>(nuxt, '/csrf', { headers }).then(response => response.csrfToken)
@@ -110,7 +110,7 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 
   const csrfToken = await callWithNuxt(nuxt, getCsrfToken)
 
-  const headers: { 'Content-Type': string; cookie?: string | undefined } = {
+  const headers: { 'Content-Type': string, 'cookie'?: string | undefined } = {
     'Content-Type': 'application/x-www-form-urlencoded',
     ...(await getRequestCookies(nuxt))
   }
@@ -263,7 +263,7 @@ interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOu
   getCsrfToken: typeof getCsrfToken
   getProviders: typeof getProviders
 }
-export const useAuth = (): UseAuthReturn => {
+export function useAuth(): UseAuthReturn {
   const {
     data,
     status,

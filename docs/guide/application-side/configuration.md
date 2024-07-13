@@ -4,17 +4,17 @@ NuxtAuth offers a wide range of configuration options that can be defined inside
 
 ```ts
 export default defineNuxtConfig({
-    modules: ['@sidebase/nuxt-auth'],
-    auth: { 
-        isEnabled: true,
-        disableServerSideAuth: false,
-        baseURL: 'http://localhost:3000/api/auth',
-        provider: { /* your provider config */ },
-        sessionRefresh: {
-            enablePeriodically: true,
-            enableOnWindowFocus: true,
-        }
-     }
+  modules: ['@sidebase/nuxt-auth'],
+  auth: {
+    isEnabled: true,
+    disableServerSideAuth: false,
+    baseURL: 'http://localhost:3000/api/auth',
+    provider: { /* your provider config */ },
+    sessionRefresh: {
+      enablePeriodically: true,
+      enableOnWindowFocus: true,
+    }
+  }
 })
 ```
 
@@ -88,10 +88,9 @@ Configuration of the application-side session. You can configure the following a
 Whether to refresh the session every `X` milliseconds. The refresh will only happen if a session already exists.
 Setting this to a number `X` will refresh the session every `X` milliseconds.
 Setting this to `true` is equivalent to `enablePeriodically: 1000`, the session will be refreshed every second.
-Setting this to `false` will turn the session refresh off. 
+Setting this to `false` will turn the session refresh off.
 
 ### `enableOnWindowFocus`
-
 
 - **Type**: `boolean`
 - **Default**: `true`
@@ -113,12 +112,12 @@ A custom `RefreshHandler` requires `init` and `destroy` functions:
 ::: code-group
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
-    auth: {
-        sessionRefresh: {
-            // You can place it anywhere and name as you wish
-            handler: './config/AuthRefreshHandler'
-        }
+  auth: {
+    sessionRefresh: {
+      // You can place it anywhere and name as you wish
+      handler: './config/AuthRefreshHandler'
     }
+  }
 })
 ```
 
@@ -127,14 +126,14 @@ import type { RefreshHandler } from '@sidebase/nuxt-auth'
 
 // You may also use a plain object with `satisfies RefreshHandler`
 class CustomRefreshHandler implements RefreshHandler {
-  init (): void {
+  init(): void {
     console.info('Use the full power of the refreshHandler!')
   }
 
-  destroy (): void {
+  destroy(): void {
     console.info(
-      'Hover above class properties or go to their definition ' +
-      'to learn more about how to craft a refreshHandler'
+      'Hover above class properties or go to their definition '
+      + 'to learn more about how to craft a refreshHandler'
     )
   }
 }

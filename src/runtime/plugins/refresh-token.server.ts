@@ -7,9 +7,9 @@ import { defineNuxtPlugin, useAuthState, useRuntimeConfig } from '#imports'
 export default defineNuxtPlugin({
   name: 'refresh-token-plugin',
   enforce: 'pre',
-  async setup (nuxtApp) {
-    const { rawToken, rawRefreshToken, refreshToken, token, lastRefreshedAt } =
-      useAuthState()
+  async setup(nuxtApp) {
+    const { rawToken, rawRefreshToken, refreshToken, token, lastRefreshedAt }
+      = useAuthState()
 
     if (refreshToken.value && token.value) {
       const config = nuxtApp.$config.public.auth
@@ -62,7 +62,8 @@ export default defineNuxtPlugin({
               } in ${JSON.stringify(response)}`
             )
             return
-          } else {
+          }
+          else {
             rawRefreshToken.value = extractedRefreshToken
           }
         }
@@ -70,7 +71,8 @@ export default defineNuxtPlugin({
         rawToken.value = extractedToken
 
         lastRefreshedAt.value = new Date()
-      } catch (err) {
+      }
+      catch (err) {
         rawRefreshToken.value = null
         rawToken.value = null
       }

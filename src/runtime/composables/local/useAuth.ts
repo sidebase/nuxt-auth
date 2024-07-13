@@ -1,15 +1,15 @@
-import { readonly, type Ref } from 'vue'
-import { callWithNuxt } from '#app/nuxt'
-import type { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions, SignUpOptions } from '../../types'
+import { type Ref, readonly } from 'vue'
+import type { CommonUseAuthReturn, GetSessionFunc, SecondarySignInOptions, SignInFunc, SignOutFunc, SignUpOptions } from '../../types'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
 import { _fetch } from '../../utils/fetch'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
 import { determineCallbackUrl } from '../../utils/url'
 import { formatToken } from '../../utils/local'
 import { useAuthState } from './useAuthState'
+import { callWithNuxt } from '#app/nuxt'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
-import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
+import { navigateTo, nextTick, useNuxtApp, useRuntimeConfig } from '#imports'
 
 type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
 
@@ -95,7 +95,8 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
     const result = await _fetch<any>(nuxt, path, { method, headers })
     const { dataResponsePointer: sessionDataResponsePointer } = config.session
     data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
-  } catch (err) {
+  }
+  catch (err) {
     if (!data.value && err instanceof Error) {
       console.error(`Session: unable to extract session, ${err.message}`)
     }
@@ -111,7 +112,8 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   if (required && data.value === null) {
     if (onUnauthenticated) {
       return onUnauthenticated()
-    } else {
+    }
+    else {
       await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external })
     }
   }
@@ -119,7 +121,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   return data.value
 }
 
-const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions) => {
+async function signUp(credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions) {
   const nuxt = useNuxtApp()
 
   const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signUp
@@ -139,7 +141,7 @@ interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOu
   signUp: typeof signUp
   token: Readonly<Ref<string | null>>
 }
-export const useAuth = (): UseAuthReturn => {
+export function useAuth(): UseAuthReturn {
   const {
     data,
     status,

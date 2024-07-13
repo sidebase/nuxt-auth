@@ -1,6 +1,6 @@
 # Self Hosting
 
-This guide will explain how you can self-host a Nuxt3 application running NuxtAuth. 
+This guide will explain how you can self-host a Nuxt3 application running NuxtAuth.
 
 ## Authjs Provider
 
@@ -25,14 +25,14 @@ When [attempting to determine the server origin](https://github.com/sidebase/nux
 :::
 
 :::tip
-We recommend setting the `AUTH_ORIGIN` during runtime and leaving the `baseURL`-config key empty, to avoid using a potentially incorrect ORIGIN. 
+We recommend setting the `AUTH_ORIGIN` during runtime and leaving the `baseURL`-config key empty, to avoid using a potentially incorrect ORIGIN.
 :::
 
 In addition to verifying that the origin is correctly set, also ensure that you have a secure [`secret` set in the NuxtAuthHandler](/guide/authjs/nuxt-auth-handler#secret).
 
 ## Local / Refresh Provider
 
-When deploying a Local or Refresh -provider based app, you will only need to set the correct `baseURL` to your authentication backend. 
+When deploying a Local or Refresh -provider based app, you will only need to set the correct `baseURL` to your authentication backend.
 
 This path can either be:
 
@@ -40,7 +40,7 @@ This path can either be:
 - **Absolute**: Pointing at a path inside an external application (e.g. `https://my-auth-backend/api`)
 
 :::warning
-For the `local` and `refresh` providers, this value will need to be set at build time. This is required to support static applications. 
+For the `local` and `refresh` providers, this value will need to be set at build time. This is required to support static applications.
 
 For this, ensure that you either directly set the `baseURL` inside the `nuxt.config.ts`, or provide a build-time environment variable that overwrites the value inside the `nuxt.config.ts`.
 :::

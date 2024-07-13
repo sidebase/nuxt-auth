@@ -11,7 +11,7 @@ This is a list of errors & warnings that NuxtAuth throws, what each of them mean
 import { NuxtAuthHandler } from '#auth'
 
 export default NuxtAuthHandler({
-  secret: 'my-superb-secret'  // <--- !!!! THIS IS WHAT'S MISSING
+  secret: 'my-superb-secret' // <--- !!!! THIS IS WHAT'S MISSING
 
   // ... rest of your config
 })
@@ -23,6 +23,5 @@ export default NuxtAuthHandler({
 
 1. Use the `AUTH_ORIGIN` environment variable if it is set,
 2. Development only: Determine the origin automatically from the incoming HTTP request
-
 
 The `origin` is important for callbacks that happen to a specific origin for `oauth` flows. Note that in order for (2) to work the `origin` already has to be set at build-time, i.e., when you run `npm run build` or `npm run generate` and it will lead to the `origin` being inside your app-bundle.

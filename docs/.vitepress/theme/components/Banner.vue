@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { VPButton } from 'vitepress/theme';
+import { VPButton } from 'vitepress/theme'
 
 defineProps<{
-  text?: string,
+  text?: string
   button?: {
-    href: string,
+    href: string
     text: string
   }
 }>()

@@ -1,26 +1,26 @@
-import { computed, watch, getCurrentInstance, type ComputedRef } from 'vue'
-import type { CookieRef } from '#app'
-import { type CommonUseAuthStateReturn } from '../../types'
+import { type ComputedRef, computed, getCurrentInstance, watch } from 'vue'
+import type { CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
 import { useTypedBackendConfig } from '../../helpers'
 import { formatToken } from '../../utils/local'
-import { useRuntimeConfig, useCookie, useState, onMounted } from '#imports'
+import type { CookieRef } from '#app'
+import { onMounted, useCookie, useRuntimeConfig, useState } from '#imports'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
 
 interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData> {
   token: ComputedRef<string | null>
-  rawToken: CookieRef<string | null>,
+  rawToken: CookieRef<string | null>
   setToken: (newToken: string | null) => void
   clearToken: () => void
   _internal: {
-    baseURL: string,
-    pathname: string,
+    baseURL: string
+    pathname: string
     rawTokenCookie: CookieRef<string | null>
   }
 }
 
-export const useAuthState = (): UseAuthStateReturn => {
+export function useAuthState(): UseAuthStateReturn {
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
   const commonAuthState = makeCommonAuthState<SessionData>()
 
