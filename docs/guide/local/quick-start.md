@@ -93,11 +93,14 @@ To ensure that the module can properly identify that your endpoints point to an 
 auth: {
     baseURL: 'https://external-api.com', // [!code --]
     baseURL: 'https://external-api.com/' // [!code ++]
-    endpoints: {
-        signIn: { path: '/login', method: 'post' }, // [!code --]
-        signIn: { path: 'login', method: 'post' }, // [!code ++]
-        getSession: { path: '/session', method: 'get' }, // [!code --]
-        getSession: { path: 'session', method: 'get' }, // [!code ++]
+    provider: {
+        type: 'local',
+        endpoints: {
+            signIn: { path: '/login', method: 'post' }, // [!code --]
+            signIn: { path: 'login', method: 'post' }, // [!code ++]
+            getSession: { path: '/session', method: 'get' }, // [!code --]
+            getSession: { path: 'session', method: 'get' }, // [!code ++]
+        }
     }
 }
 ```
