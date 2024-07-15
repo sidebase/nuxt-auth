@@ -100,4 +100,26 @@ export const routes: DefaultTheme.Config['sidebar'] = {
       ],
     },
   ],
+  '/recipes': [
+    {
+      text: 'Module',
+      base: '/recipes/module',
+      items: [
+        {
+          text: 'Mocking in Vitest',
+          link: '/mocking',
+        }
+      ],
+    },
+    {
+      text: 'AuthJS',
+      base: '/recipes/authjs',
+      items: [],
+    },
+    {
+      text: 'Local / Refresh',
+      base: '/recipes/local',
+      items: [],
+    },
+  ]
 }
