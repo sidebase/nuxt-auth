@@ -102,6 +102,15 @@ export const routes: DefaultTheme.Config['sidebar'] = {
   ],
   '/recipes': [
     {
+      text: 'Information',
+      items: [
+        {
+          text: 'Overview',
+          link: '/recipes/overview'
+        },
+      ]
+    },
+    {
       text: 'Module',
       base: '/recipes/module',
       items: [
