@@ -182,7 +182,7 @@ await signUp(credentials, undefined, { preventLoginFlow: true })
 ```
 
 :::info
-You can also pass the `callbackUrl` option to redirect a user to a certain page, after he's completed the action. This can be useful when a user attempts to open a page (`/protected`) but has to go through external authentication (e.g., via their google account) first.
+You can also pass the `callbackUrl` option to redirect a user to a certain page, after they completed the action. This can be useful when a user attempts to open a page (`/protected`) but has to go through external authentication (e.g., via their google account) first.
 :::
 
 :::warning Local / Refresh Only
@@ -229,7 +229,7 @@ await signIn(credentials, { callbackUrl: 'https://nuxt.org', external: true })
 :::
 
 :::info
-You can also pass the `callbackUrl` option to redirect a user to a certain page, after he's completed the action. This can be useful when a user attempts to open a page (`/protected`) but has to go through external authentication (e.g., via their google account) first.
+You can also pass the `callbackUrl` option to redirect a user to a certain page, after they completed the action. This can be useful when a user attempts to open a page (`/protected`) but has to go through external authentication (e.g., via their google account) first.
 :::
 
 ### `signOut`
@@ -255,7 +255,7 @@ const { signOut } = useAuth()
 ```
 
 :::info
-You can also pass the `callbackUrl` option to redirect a user to a certain page, after he's completed the action. This can be useful when a user attempts to open a page (`/protected`) but has to go through external authentication (e.g., via their google account) first.
+You can also pass the `callbackUrl` option to redirect a user to a certain page, after they completed the action. This can be useful when a user attempts to open a page (`/protected`) but has to go through external authentication (e.g., via their google account) first.
 :::
 
 ### `refreshToken`
