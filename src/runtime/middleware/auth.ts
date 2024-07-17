@@ -66,8 +66,8 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
-  // We do not want to block the login page when the local provider is used
-  if (authConfig.provider?.type === 'local') {
+  // We do not want to block the login page when the local/refresh provider is used
+  if (authConfig.provider?.type === 'local' || authConfig.provider?.type === 'refresh') {
     const loginRoute: string | undefined = authConfig.provider?.pages?.login
     if (loginRoute && loginRoute === to.path) {
       return
