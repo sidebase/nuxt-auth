@@ -3,7 +3,7 @@ import type { H3Event } from 'h3'
 
 import { Auth as AuthHandler } from '@auth/core'
 import type { AuthConfig, Session } from '@auth/core/types'
-import { getToken as nextGetToken } from '@auth/core/jwt'
+import { getToken as authjsGetToken } from '@auth/core/jwt'
 import type { GetTokenParams } from '@auth/core/jwt'
 
 import { defu } from 'defu'
@@ -17,45 +17,6 @@ import { useRuntimeConfig } from '#imports'
 
 let preparedAuthjsHandler: ((req: Request) => Promise<Response>) | undefined
 let usedSecret: string | string[] | undefined
-
-// const SUPPORTED_ACTIONS: AuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
-
-/**
- * Parse a body if the request method is supported, return `undefined` otherwise.
-
-* @param event H3Event event to read body of
- */
-// const readBodyForNext = async (event: H3Event) => {
-//   let body: any
-
-//   if (isMethod(event, ['PATCH', 'POST', 'PUT', 'DELETE'])) {
-//     body = await readBody(event)
-//   }
-//   return body
-// }
-
-/**
- * Get action and optional provider from a request.
- *
- * E.g., with a request like `/api/signin/github` get the action `signin` with the provider `github`
- */
-// const parseActionAndProvider = ({ context }: H3Event): { action: AuthAction, providerId: string | undefined } => {
-//   const params: string[] | undefined = context.params?._?.split('/')
-
-//   if (!params || ![1, 2].includes(params.length)) {
-//     throw createError({ statusCode: 400, statusMessage: `Invalid path used for auth-endpoint. Supply either one path parameter (e.g., \`/api/auth/session\`) or two (e.g., \`/api/auth/signin/github\` after the base path (in previous examples base path was: \`/api/auth/\`. Received \`${params}\`` })
-//   }
-
-//   const [unvalidatedAction, providerId] = params
-
-//   // Get TS to correctly infer the type of `unvalidatedAction`
-//   const action = SUPPORTED_ACTIONS.find(action => action === unvalidatedAction)
-//   if (!action) {
-//     throw createError({ statusCode: 400, statusMessage: `Called endpoint with unsupported action ${unvalidatedAction}. Only the following actions are supported: ${SUPPORTED_ACTIONS.join(', ')}` })
-//   }
-
-//   return { action, providerId }
-// }
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
 export function NuxtAuthHandler (nuxtAuthOptions?: AuthConfig) {
@@ -83,7 +44,7 @@ export function NuxtAuthHandler (nuxtAuthOptions?: AuthConfig) {
     // AuthJS uses `/auth` as default, but we rely on `/api/auth` (same as in previous `next-auth`)
     basePath: '/api/auth'
 
-    // Enable framework-author specific functionality
+    // Uncomment to enable framework-author specific functionality
     // raw: raw as typeof raw
   })
 
@@ -93,34 +54,6 @@ export function NuxtAuthHandler (nuxtAuthOptions?: AuthConfig) {
   }
 
   preparedAuthjsHandler = (req: Request) => AuthHandler(req, options)
-
-  // 2. Set response status, headers, cookies
-  // if (nextResult.status) {
-  //   res.statusCode = nextResult.status
-  // }
-  // nextResult.cookies?.forEach(cookie => setCookieDeduped(event, cookie.name, cookie.value, cookie.options))
-  // nextResult.headers?.forEach(header => appendHeaderDeduped(event, header.key, header.value))
-
-  // // 3. Return either:
-  // // 3.1 the body directly if no redirect is set:
-  // if (!nextResult.redirect) {
-  //   return nextResult.body
-  // }
-  // // 3.2 a json-object with a redirect url if `json: true` is set by client:
-  // //      ```
-  // //      // quote from https://github.com/nextauthjs/next-auth/blob/261968b9bbf8f57dd34651f60580d078f0c8a2ef/packages/next-auth/src/react/index.tsx#L3-L7
-  // //      On signIn() and signOut() we pass 'json: true' to request a response in JSON
-  // //      instead of HTTP as redirect URLs on other domains are not returned to
-  // //      requests made using the fetch API in the browser, and we need to ask the API
-  // //      to return the response as a JSON object (the end point still defaults to
-  // //      returning an HTTP response with a redirect for non-JavaScript clients).
-  // //      ```
-  // if (nextRequest.body?.json) {
-  //   return { url: nextResult.redirect }
-  // }
-
-  // // 3.3 via a redirect:
-  // return await sendRedirect(event, nextResult.redirect)
 
   return eventHandler(async (event: H3Event) => {
     // Transform h3 request to the web-standard Request
@@ -183,12 +116,13 @@ export async function getServerSession (event: H3Event) {
 /**
  * Get the decoded JWT token either from cookies or header (both are attempted).
  *
- * The only change from the original `getToken` implementation is that the `req` is not passed in, in favor of `event` being passed in. See https://next-auth.js.org/tutorials/securing-pages-and-api-routes#using-gettoken for further documentation.
+ * The only change from the original `getToken` implementation is that the `req` is not passed in, in favor of `event` being passed in.
+ * See https://next-auth.js.org/tutorials/securing-pages-and-api-routes#using-gettoken for further documentation.
  *
- * @param eventAndOptions Omit<GetTokenParams, 'req'> & { event: H3Event } The event to get the cookie or authorization header from that contains the JWT Token and options you want to alter token getting behavior.
+ * @param eventAndOptions The event to get the cookie or authorization header from that contains the JWT Token and options you want to alter token getting behavior.
  */
 export function getToken<R extends boolean = false> ({ event, secureCookie, secret, ...rest }: Omit<GetTokenParams<R>, 'req'> & { event: H3Event }) {
-  return nextGetToken({
+  return authjsGetToken({
     req: {
       headers: event.headers
     },
@@ -200,13 +134,10 @@ export function getToken<R extends boolean = false> ({ event, secureCookie, secr
 }
 
 /**
- * Generate a NextAuth.js internal request object that we can pass into the NextAuth.js
- * handler. This method will either try to fill all fields for a request that targets
- * the auth-REST API or return a minimal internal request to support server-side
- * session fetching for requests with arbitrary, non auth-REST API
- * targets (set via: `event.context.checkSessionOnNonAuthRequest = true`)
+ * Generate an Auth.js request object that can be passed into the handler.
+ * This method should only be used for authentication endpoints.
  *
- * @param event H3Event event to transform into `RequestInternal`
+ * @param event H3Event to transform into `Request`
  */
 function createRequestForAuthjs (event: H3Event, trustHostUserPreference: boolean): Request {
   // Adapted from `h3`
@@ -219,59 +150,17 @@ function createRequestForAuthjs (event: H3Event, trustHostUserPreference: boolea
   })
 
   return webRequest
-
-  // // TODO Use web-standard Request + rely on next-auth building the response
-  // const nextRequest: Omit<Request, 'action'> = {
-  //   host: getRequestURLFromRequest(event, { trustHost: useConfig().trustHost }),
-  //   body: null,
-  //   cookies: parseCookies(event),
-  //   query: undefined,
-  //   headers: getHeaders(event),
-  //   method: event.method,
-  //   providerId: undefined,
-  //   error: undefined
-  // }
-
-  // // Setting `event.context.checkSessionOnNonAuthRequest = true` allows callers of `authHandler`.
-  // // We can use this to check session status on the server-side.
-  // //
-  // // When doing this, most other data is not required, e.g., we do not need to parse the body. For this reason,
-  // // we return the minimum required data for session checking.
-  // if (event.context.checkSessionOnNonAuthRequest === true) {
-  //   return {
-  //     ...nextRequest,
-  //     method: 'GET',
-  //     action: 'session'
-  //   }
-  // }
-
-  // // Figure out what action, providerId (optional) and error (optional) of the NextAuth.js lib is targeted
-  // const query = getQuery(event)
-  // const { action, providerId } = parseActionAndProvider(event)
-  // const error = query.error
-  // if (Array.isArray(error)) {
-  //   throw createError({ statusCode: 400, statusMessage: 'Error query parameter can only appear once' })
-  // }
-
-  // const body = await readBodyForNext(event)
-
-  // event.node.req
-
-  // return {
-  //   ...nextRequest,
-  //   body,
-  //   query,
-  //   action,
-  //   providerId,
-  //   error: String(error) || undefined
-  // }
 }
 
 /**
  * Get the request url or construct it.
  * Adapted from `h3` to also account for server origin.
  *
- * WARNING: Please ensure that any URL produced by this function has a trusted host!
+ * ## WARNING
+ * Please ensure that any URL produced by this function has a trusted host!
+ *
+ * @param trustHost Whether the host can be trusted. If `true`, base will be inferred from the request, otherwise the configured origin will be used.
+ * @throws {Error} When server origin was incorrectly configured or when URL building failed
  */
 function getRequestURLFromH3Event (event: H3Event, trustHost: boolean): URL {
   const path = (event.node.req.originalUrl || event.path).replace(
@@ -282,6 +171,15 @@ function getRequestURLFromH3Event (event: H3Event, trustHost: boolean): URL {
   return new URL(path, base)
 }
 
+/**
+ * Gets the request base in the form of origin.
+ *
+ * ## WARNING
+ * Please ensure that any URL produced by this function has a trusted host!
+ *
+ * @param trustHost Whether the host can be trusted. If `true`, base will be inferred from the request, otherwise the configured origin will be used.
+ * @throws {Error} When server origin was incorrectly configured
+ */
 function getRequestBaseFromH3Event (event: H3Event, trustHost: boolean): string {
   if (trustHost) {
     const host = getRequestHost(event, { xForwardedHost: trustHost })
@@ -292,50 +190,6 @@ function getRequestBaseFromH3Event (event: H3Event, trustHost: boolean): string 
     // This may throw, we don't catch it
     const origin = getServerOrigin(event)
 
-    return joinURL(origin, useRuntimeConfig().public.auth.computed.pathname)
+    return origin
   }
 }
-
-/** Adapted from `h3` to fix https://github.com/sidebase/nuxt-auth/issues/523 */
-// function appendHeaderDeduped (event: H3Event, name: string, value: string) {
-//   let current = getResponseHeader(event, name)
-//   if (!current) {
-//     setResponseHeader(event, name, value)
-//     return
-//   }
-
-//   if (!Array.isArray(current)) {
-//     current = [current.toString()]
-//   }
-
-//   // Check existence of a header value and avoid adding it again
-//   if (current.includes(value)) {
-//     return
-//   }
-
-//   current.push(value)
-//   setResponseHeader(event, name, current)
-// }
-
-// /**
-//  * Adds a cookie, overriding its previous value.
-//  * Related to https://github.com/sidebase/nuxt-auth/issues/523
-//  */
-// function setCookieDeduped (event: H3Event, name: string, value: string, serializeOptions: CookieSerializeOptions) {
-//   // Deduplicate by removing the same name cookie
-//   let setCookiesHeader = getResponseHeader(event, 'set-cookie')
-//   if (setCookiesHeader) {
-//     if (!Array.isArray(setCookiesHeader)) {
-//       setCookiesHeader = [setCookiesHeader.toString()]
-//     }
-
-//     // Safety: `cookie-es` builds up the cookie by using `name + '=' + encodedValue`
-//     // https://github.com/unjs/cookie-es/blob/a3495860248b98e7015c9a3ade8c6c47ad3403df/src/index.ts#L102
-//     const filterBy = `${name}=`
-//     setCookiesHeader = setCookiesHeader.filter(cookie => !cookie.startsWith(filterBy))
-
-//     setResponseHeader(event, 'set-cookie', setCookiesHeader)
-//   }
-
-//   setCookie(event, name, value, serializeOptions)
-// }
