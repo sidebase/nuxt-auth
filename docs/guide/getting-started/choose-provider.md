@@ -30,7 +30,7 @@ If you are still unsure, below are some tables to help you pick:
 | Static apps ("nuxi generate")                                  	| ❌                                  | ✅      | ✅
 | [Guest mode](/guide/application-side/protecting-pages#guest-mode) | ✅                                  | ✅      | ✅
 | [App-side middleware](/guide/application-side/protecting-pages)   | ✅                                  | ✅      | ✅
-| [Server-side middleware](/guide/authjs/server-side/session-access#endpoint-protection)                                      | ✅                                  | ✅      | ✅
+| [Server-side middleware](/guide/authjs/server-side/session-access#endpoint-protection)                                      | ✅                                  | ❌      | ❌
 | Pre-made login-page                                       	    | ✅ (impacts bundle-size)            | ❌      | ❌
 | Database-adapters, server-side callback-hooks             	    | ✅                                  | ❌      | ❌
 

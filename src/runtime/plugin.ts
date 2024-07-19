@@ -13,7 +13,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // use runtimeConfig
   const runtimeConfig = useRuntimeConfig().public.auth
 
-  const routeRules = getNitroRouteRules(nuxtApp._route.path)
+  const routeRules = import.meta.server ? getNitroRouteRules(nuxtApp._route.path) : {}
 
   // Skip auth if we're prerendering
   let nitroPrerender = false
