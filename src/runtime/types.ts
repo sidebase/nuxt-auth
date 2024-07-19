@@ -207,10 +207,14 @@ export type ProviderLocal = {
   /**
    * Configuration for the `refresh`-provider an extended version of the local provider.
    * If set to undefined, local provider without refresh logic will be used.
-   *
-   * @default undefined
    */
   refresh?: {
+    /**
+     * Whether the refresh logic of the local provider is active
+     *
+     * @default false
+     */
+    isEnabled?: boolean,
     /**
      * What method and path to call to perform the sign-in. This endpoint must return a token that can be used to authenticate subsequent requests.
      *
@@ -266,6 +270,13 @@ export type ProviderLocal = {
        * Note: Your backend may reject / expire the token earlier / differently.
        */
       maxAgeInSeconds?: number;
+      /**
+       * The cookie sameSite policy. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
+       *
+       * @default 'lax'
+       * @example 'strict'
+       */
+      sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
       /**
        * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
        *

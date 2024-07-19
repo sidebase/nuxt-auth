@@ -25,14 +25,32 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     params: signInParams ?? {}
   })
 
+  const { rawToken } = useAuthState()
+
+  // Extract the access token
   const extractedToken = jsonPointerGet(response, config.token.signInResponseTokenPointer)
   if (typeof extractedToken !== 'string') {
-    console.error(`Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`)
+    console.error(
+      `Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}.
+       Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`
+    )
     return
   }
-
-  const { rawToken } = useAuthState()
   rawToken.value = extractedToken
+
+  // Extract the refresh token if enabled
+  if (config.refresh.isEnabled) {
+    const refreshTokenPointer = config.refresh.token.signInResponseRefreshTokenPointer
+
+    const extractedRefreshToken = jsonPointerGet(response, refreshTokenPointer)
+    if (typeof extractedRefreshToken !== 'string') {
+      console.error(
+        `Auth: string token expected, received instead: ${JSON.stringify(extractedRefreshToken)}.
+         Tried to find token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
+      )
+      return
+    }
+  }
 
   await nextTick(getSession)
 

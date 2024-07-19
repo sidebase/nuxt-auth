@@ -68,6 +68,20 @@ const defaultsByBackend: {
     session: {
       dataType: { id: 'string | number' },
       dataResponsePointer: '/'
+    },
+    refresh: {
+      isEnabled: false,
+      endpoint: { path: '/refresh', method: 'post' },
+      refreshOnlyToken: true,
+      token: {
+        signInResponseRefreshTokenPointer: '/refreshToken',
+        refreshRequestTokenPointer: '/refreshToken',
+        cookieName: 'auth.refresh-token',
+        maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days
+        sameSiteAttribute: 'lax',
+        secureCookieAttribute: false,
+        cookieDomain: ''
+      }
     }
   },
 
@@ -236,8 +250,8 @@ export default defineNuxtModule<ModuleOptions>({
       addServerPlugin(resolve('./runtime/server/plugins/assertOrigin'))
     }
 
-    // 7.2 Add a server-plugin to refresh the token on production-startup
-    if (selectedProvider === 'refresh') {
+    // 9. Add a plugin to refresh the token on production-startup
+    if (userOptions.provider?.type === 'local' && userOptions.provider.refresh?.isEnabled) {
       addPlugin(resolve('./runtime/plugins/refresh-token.server'))
     }
 

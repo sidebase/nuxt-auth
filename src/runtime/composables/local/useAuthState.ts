@@ -24,6 +24,8 @@ export const useAuthState = (): UseAuthStateReturn => {
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
   const commonAuthState = makeCommonAuthState<SessionData>()
 
+  const instance = getCurrentInstance()
+
   // Re-construct state from cookie, also setup a cross-component sync via a useState hack, see https://github.com/nuxt/nuxt/issues/13020#issuecomment-1397282717
   const _rawTokenCookie = useCookie<string | null>(config.token.cookieName, {
     default: () => null,
@@ -32,33 +34,62 @@ export const useAuthState = (): UseAuthStateReturn => {
     sameSite: config.token.sameSiteAttribute,
     secure: config.token.secureCookieAttribute
   })
-
   const rawToken = useState('auth:raw-token', () => _rawTokenCookie.value)
   watch(rawToken, () => { _rawTokenCookie.value = rawToken.value })
 
   const token = computed(() => formatToken(rawToken.value))
-
-  const setToken = (newToken: string | null) => {
+  function setToken (newToken: string | null) {
     rawToken.value = newToken
   }
-
-  const clearToken = () => {
+  function clearToken () {
     setToken(null)
   }
 
-  const schemeSpecificState = {
-    token,
-    rawToken
-  }
-
-  const instance = getCurrentInstance()
+  // When the page is cached on a server, set the token on the client
   if (instance) {
     onMounted(() => {
-      // When the page is cached on a server, set the token on the client
       if (_rawTokenCookie.value && !rawToken.value) {
         setToken(_rawTokenCookie.value)
       }
     })
+  }
+
+  // Handle refresh token, for when refresh logic is enabled
+  const rawRefreshToken = useState('auth:raw-refresh-token', () => null)
+  if (config.refresh.isEnabled) {
+    const _rawRefreshTokenCookie = useCookie<string | null>(config.refresh.token.cookieName,
+      {
+        default: () => null,
+        domain: config.refresh.token.cookieDomain,
+        maxAge: config.refresh.token.maxAgeInSeconds,
+        sameSite: config.refresh.token.sameSiteAttribute,
+        secure: config.refresh.token.secureCookieAttribute
+      }
+    )
+    watch(rawRefreshToken, () => { _rawRefreshTokenCookie.value = rawRefreshToken.value })
+
+    // When the page is cached on a server, set the refresh token on the client
+    if (instance) {
+      onMounted(() => {
+        if (_rawRefreshTokenCookie.value && !rawRefreshToken.value) {
+          rawRefreshToken.value = _rawRefreshTokenCookie.value
+        }
+      })
+    }
+  }
+
+  const refreshToken = computed(() => {
+    if (!rawRefreshToken.value || rawRefreshToken.value === null) {
+      return null
+    }
+    return String(rawRefreshToken.value)
+  })
+
+  const schemeSpecificState = {
+    token,
+    rawToken,
+    refreshToken,
+    rawRefreshToken
   }
 
   return {
