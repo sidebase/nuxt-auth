@@ -28,6 +28,10 @@ export const routes: DefaultTheme.Config['nav'] = [
         link: '/resources/overview',
       },
       {
+        text: 'Migrations',
+        link: '/resources/migrations/1.0.0',
+      },
+      {
         text: 'Security',
         link: '/resources/security',
       },
@@ -38,8 +42,12 @@ export const routes: DefaultTheme.Config['nav'] = [
     ],
   },
   {
-    text: '0.8.0',
+    text: '1.0.0',
     items: [
+      {
+        text: '0.8.1',
+        link: 'https://github.com/sidebase/nuxt-auth/tree/0.8.1/docs',
+      },
       {
         text: '0.7.2',
         link: 'https://github.com/sidebase/nuxt-auth/tree/0.7.2/docs/content',

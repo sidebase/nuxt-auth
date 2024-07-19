@@ -13,10 +13,10 @@ import Banner from './components/Banner.vue'
 // Configuration
 const bannerConfig = {
   // Leave text empty to disable the banner
-  text: '✨ NuxtAuth v0.8.0 has been released! ✨',
+  text: '⚠️ You are viewing the docs for NuxtAuth v1.0.0 ⚠️',
   button: {
-    href: 'https://github.com/sidebase/nuxt-auth/releases/tag/0.8.0',
-    text: 'View release notes'
+    href: '/resources/migrations/1.0.0',
+    text: 'View migration guide'
   }
 }
 
