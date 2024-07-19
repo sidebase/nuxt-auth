@@ -18,7 +18,7 @@ import { useRuntimeConfig } from '#imports'
 let preparedAuthjsHandler: ((req: Request) => Promise<Response>) | undefined
 let usedSecret: string | string[] | undefined
 
-/** Setup the nuxt (next) auth event handler, based on the passed in options */
+/** Setup the nuxt-auth (authjs) event handler, based on the passed in options */
 export function NuxtAuthHandler (nuxtAuthOptions?: AuthConfig) {
   const isProduction = process.env.NODE_ENV === 'production'
   const trustHostUserPreference = useTypedBackendConfig(useRuntimeConfig(), 'authjs').trustHost
