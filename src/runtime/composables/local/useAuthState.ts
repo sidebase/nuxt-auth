@@ -8,9 +8,11 @@ import { useRuntimeConfig, useCookie, useState, onMounted } from '#imports'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
 
-interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData> {
+export interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData> {
   token: ComputedRef<string | null>
   rawToken: CookieRef<string | null>,
+  refreshToken: ComputedRef<string | null>
+  rawRefreshToken: CookieRef<string | null>,
   setToken: (newToken: string | null) => void
   clearToken: () => void
   _internal: {

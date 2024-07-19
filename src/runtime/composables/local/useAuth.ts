@@ -1,12 +1,12 @@
 import { readonly, type Ref } from 'vue'
 import { callWithNuxt } from '#app/nuxt'
-import type { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions, SignUpOptions } from '../../types'
-import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
+import type { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions, SignUpOptions, GetSessionOptions } from '../../types'
+import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '../../helpers'
 import { _fetch } from '../../utils/fetch'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
 import { determineCallbackUrl } from '../../utils/url'
 import { formatToken } from '../../utils/local'
-import { useAuthState } from './useAuthState'
+import { useAuthState, type UseAuthStateReturn } from './useAuthState'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
 import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
@@ -25,7 +25,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     params: signInParams ?? {}
   })
 
-  const { rawToken } = useAuthState()
+  const { rawToken, rawRefreshToken } = useAuthState()
 
   // Extract the access token
   const extractedToken = jsonPointerGet(response, config.token.signInResponseTokenPointer)
@@ -46,21 +46,22 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     if (typeof extractedRefreshToken !== 'string') {
       console.error(
         `Auth: string token expected, received instead: ${JSON.stringify(extractedRefreshToken)}.
-         Tried to find token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
+         Tried to find refresh token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
       )
       return
     }
+    rawRefreshToken.value = extractedRefreshToken
   }
 
   await nextTick(getSession)
 
-  const { redirect = true } = signInOptions ?? {}
+  const { redirect = true, external } = signInOptions ?? {}
   let { callbackUrl } = signInOptions ?? {}
   if (typeof callbackUrl === 'undefined') {
     callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
   }
   if (redirect) {
-    return navigateTo(callbackUrl)
+    return navigateTo(callbackUrl, { external })
   }
 }
 
@@ -68,18 +69,21 @@ const signOut: SignOutFunc = async (signOutOptions) => {
   const nuxt = useNuxtApp()
   const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
   const config = useTypedBackendConfig(runtimeConfig, 'local')
-  const { data, rawToken, token } = await callWithNuxt(nuxt, useAuthState)
-
-  const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
-  data.value = null
-  rawToken.value = null
+  const { data, token, rawToken, refreshToken, rawRefreshToken }: UseAuthStateReturn = await callWithNuxt(nuxt, useAuthState)
 
   const signOutConfig = config.endpoints.signOut
-  let res
 
+  const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
+  const body = signOutConfig && signOutConfig.method.toLowerCase() === 'post' ? { refreshToken: refreshToken.value } : { }
+
+  data.value = null
+  rawToken.value = null
+  rawRefreshToken.value = null
+
+  let res
   if (signOutConfig) {
     const { path, method } = signOutConfig
-    res = await _fetch(nuxt, path, { method, headers })
+    res = await _fetch(nuxt, path, { method, headers, body })
   }
 
   const { callbackUrl, redirect = true, external } = signOutOptions ?? {}
@@ -153,16 +157,73 @@ const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInO
   return signIn(credentials, signInOptions)
 }
 
+const refresh = async (getSessionOptions?: GetSessionOptions) => {
+  const nuxt = useNuxtApp()
+  const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
+
+  // Only refresh the session if the refresh logic is not enabled
+  if (!config.refresh.isEnabled) {
+    return getSession(getSessionOptions)
+  }
+
+  const { path, method } = config.refresh.endpoint
+  const refreshRequestTokenPointer = config.refresh.token.refreshRequestTokenPointer
+
+  const { refreshToken, token, rawToken, rawRefreshToken, lastRefreshedAt } = useAuthState()
+
+  const headers = new Headers({
+    [config.token.headerName]: token.value
+  } as HeadersInit)
+
+  const response = await _fetch<Record<string, any>>(nuxt, path, {
+    method,
+    headers,
+    body: objectFromJsonPointer(refreshRequestTokenPointer, refreshToken.value)
+  })
+
+  // Extract the new token from the refresh response
+  const extractedToken = jsonPointerGet(response, config.token.signInResponseTokenPointer)
+  if (typeof extractedToken !== 'string') {
+    console.error(
+      `Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}.
+       Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`
+    )
+    return
+  }
+
+  if (!config.refresh.refreshOnlyToken) {
+    const refreshTokenPointer = config.refresh.token.signInResponseRefreshTokenPointer
+    const extractedRefreshToken = jsonPointerGet(response, refreshTokenPointer)
+    if (typeof extractedRefreshToken !== 'string') {
+      console.error(
+        `Auth: string token expected, received instead: ${JSON.stringify(extractedRefreshToken)}.
+         Tried to find refresh token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
+      )
+      return
+    } else {
+      rawRefreshToken.value = extractedRefreshToken
+    }
+  }
+
+  rawToken.value = extractedToken
+  lastRefreshedAt.value = new Date()
+
+  await nextTick()
+  return getSession(getSessionOptions)
+}
+
 interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOut, typeof getSession, SessionData> {
   signUp: typeof signUp
   token: Readonly<Ref<string | null>>
+  refreshToken: Readonly<Ref<string | null>>
 }
 export const useAuth = (): UseAuthReturn => {
   const {
     data,
     status,
     lastRefreshedAt,
-    token
+    token,
+    refreshToken
   } = useAuthState()
 
   return {
@@ -170,10 +231,11 @@ export const useAuth = (): UseAuthReturn => {
     data: readonly(data),
     lastRefreshedAt: readonly(lastRefreshedAt),
     token: readonly(token),
+    refreshToken: readonly(refreshToken),
     getSession,
     signIn,
     signOut,
     signUp,
-    refresh: getSession
+    refresh
   }
 }
