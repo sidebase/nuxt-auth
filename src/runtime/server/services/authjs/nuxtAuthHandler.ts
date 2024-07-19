@@ -3,12 +3,8 @@ import type { H3Event } from 'h3'
 
 import { Auth as AuthHandler } from '@auth/core'
 import type { AuthConfig, Session } from '@auth/core/types'
-import { } from '@auth/core/'
-import { getToken as nextGetToken } from 'next-auth/jwt'
-// import type { RequestInternal } from 'next-auth/core'
-import type { GetTokenParams } from 'next-auth/jwt'
-
-import { } from '@auth/core/providers/github'
+import { getToken as nextGetToken } from '@auth/core/jwt'
+import type { GetTokenParams } from '@auth/core/jwt'
 
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
