@@ -3,6 +3,10 @@
   "version": "0.8.1",
   "license": "MIT",
   "type": "module",
+  "engines": {
+    "pnpm": ">=9.4.0",
+    "node": ">=22.3.0"
+  },
   "exports": {
     ".": {
       "import": "./dist/module.mjs",
