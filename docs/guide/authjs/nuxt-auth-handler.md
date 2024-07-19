@@ -20,7 +20,7 @@ export default NuxtAuthHandler({
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
   runtimeConfig: {
-    authSecret: '123',
+    authSecret: process.env.NUXT_AUTH_SECRET,
   }
 })
 ```
