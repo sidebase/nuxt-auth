@@ -71,43 +71,6 @@ const defaultsByBackend: {
     }
   },
 
-  refresh: {
-    type: 'refresh',
-    pages: {
-      login: '/login'
-    },
-    refreshOnlyToken: true,
-    endpoints: {
-      signIn: { path: '/login', method: 'post' },
-      signOut: { path: '/logout', method: 'post' },
-      signUp: { path: '/register', method: 'post' },
-      getSession: { path: '/session', method: 'get' },
-      refresh: { path: '/refresh', method: 'post' }
-    },
-    token: {
-      signInResponseTokenPointer: '/token',
-      type: 'Bearer',
-      cookieName: 'auth.token',
-      headerName: 'Authorization',
-      maxAgeInSeconds: 5 * 60, // 5 minutes
-      sameSiteAttribute: 'none',
-      secureCookieAttribute: false,
-      cookieDomain: ''
-    },
-    refreshToken: {
-      signInResponseRefreshTokenPointer: '/refreshToken',
-      refreshRequestTokenPointer: '/refreshToken',
-      cookieName: 'auth.refresh-token',
-      maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days
-      secureCookieAttribute: false,
-      cookieDomain: ''
-    },
-    session: {
-      dataType: { id: 'string | number' },
-      dataResponsePointer: '/'
-    }
-  },
-
   authjs: {
     type: 'authjs',
     trustHost: false,
