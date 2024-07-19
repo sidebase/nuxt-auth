@@ -98,37 +98,6 @@ jobs:
       - name: Run Playwright tests using Vitest
         run: pnpm test:e2e
 
-  test-playground-refresh:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./playground-refresh
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Use Node.js ${{ env.NODE_VER }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VER }}
-
-      - uses: pnpm/action-setup@v3
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 8
-
-      # Install deps
-      - run: pnpm i
-
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
-
-      # Check building
-      - run: pnpm build
-
-      - name: Run Playwright tests using Vitest
-        run: pnpm test:e2e
-
   test-playground-authjs:
     runs-on: ubuntu-latest
     defaults:
