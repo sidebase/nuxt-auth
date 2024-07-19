@@ -1,6 +1,6 @@
 # NuxtAuthHandler
 
-The NuxtAuthHandler is an adaptation of the [NextAuthHandler](https://next-auth.js.org/configuration/options) built into AuthJS. You can learn more about how to setup a minimal version of the NuxtAuthHandler in the [Quick Start section](/guide/authjs/quick-start#nuxtauthhandler).
+The NuxtAuthHandler is an adaptation of the [AuthConfig](https://authjs.dev/reference/core#authconfig) built into AuthJS. You can learn more about how to setup a minimal version of the NuxtAuthHandler in the [Quick Start section](/guide/authjs/quick-start#nuxtauthhandler).
 
 
 ## Secret
@@ -26,6 +26,7 @@ export default defineNuxtConfig({
 ```
 
 ``` txt [.env]
+# This will overwrite the default secret set in the nuxt config.
 NUXT_AUTH_SECRET="YOUR-SUPER-SECURE-SECRET"
 ```
 
@@ -33,9 +34,9 @@ NUXT_AUTH_SECRET="YOUR-SUPER-SECURE-SECRET"
 
 ## Providers
 
-The providers are the registered authentication methods that your users can use to login to your application. NuxtAuth provides a number of preconfigured providers you can use to quickly bootstrap your project. These include OAuth providers, [email-based providers](https://next-auth.js.org/configuration/providers/email) (Magic URLs) and a [credentials provider](https://next-auth.js.org/configuration/providers/credentials). In addition to using a pre-built provider, you can also create your own provider. 
+The providers are the registered authentication methods that your users can use to login to your application. NuxtAuth provides a number of preconfigured providers you can use to quickly bootstrap your project. These include OAuth providers, [email-based providers](https://authjs.dev/getting-started/authentication/email) (Magic URLs) and a [credentials provider](https://authjs.dev/getting-started/authentication/credentials). In addition to using a pre-built provider, you can also create your own provider. 
 
-You can find an overview of all the prebuilt providers [here](https://next-auth.js.org/providers/). If you want to create your own provider, please visit the [NextAuth docs](https://next-auth.js.org/configuration/providers/oauth#using-a-custom-provider).
+You can find an overview of all the prebuilt providers [here](https://authjs.dev/reference/core/providers). If you want to create your own provider, please visit the [AuthJS docs](https://authjs.dev/guides/configuring-oauth-providers#use-your-own-provider).
 
 
 ## Callbacks
@@ -80,7 +81,7 @@ Some uses-cases for each callback could be:
 - `session`: Fetch and inject additional data into the session. Read more [here](/guide/authjs/session-data).
 -  `jwt`: Inject or update data inside the JWT token and manage refresh and access tokens.
 
-You can read more on each of these callbacks, what data they provide and what return value they expect on the offical [NextAuth docs](https://next-auth.js.org/configuration/callbacks).
+You can read more on each of these callbacks, what data they provide and what return value they expect on the offical [AuthJS docs](https://authjs.dev/reference/core#callbacks).
 
 ## Events
 
@@ -102,7 +103,7 @@ export default NuxtAuthHandler({
 })
 ```
 
-You can read more on each of these events and what data they provide on the offical [NextAuth docs](https://next-auth.js.org/configuration/events).
+You can read more on each of these events and what data they provide on the offical [AuthJS docs](https://authjs.dev/reference/core#events).
 
 ## Pages
 

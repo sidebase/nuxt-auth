@@ -23,7 +23,7 @@ During research it became clear that implementing everything from scratch will b
 - hard to maintain as authentication providers come and go,
 - hard to build initial trust for as authentication is important and cannot go wrong,
 
-In order to avoid these problems without taking forever (leaving Nuxt without an authentication library in the meantime), we decided to investigate if we can wrap [NextAuth.js](https://github.com/nextauthjs/next-auth), the most popular authentication library in the Next.js ecosystem by far and a trusted, well maintained one at that!
+In order to avoid these problems without taking forever (leaving Nuxt without an authentication library in the meantime), we decided to investigate if we can wrap [AuthJS](https://authjs.dev/), the most popular authentication library in the Next.js ecosystem by far and a trusted, well maintained one at that!
 
 In our investigation we found prior attempts to make NextAuth.js framework agnostic. These have more or less come to fruition, so far mostly resulting in some PoCs and example apps. Looking at these was quite helpful to get started. In particular, big pushes in the right direction came from:
 

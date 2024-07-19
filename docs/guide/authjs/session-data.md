@@ -87,13 +87,13 @@ const { data } = useAuth()
 
 When modifying the session or JWT objects, you may want to adjust the types accordingly, to ensure that you get proper intellisense and type support. [Module Augmentation](https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation) can be used to inject additional type declarations into installed modules to overwrite or add additional data. 
 
-Begin by creating a new typescript file in the root of your project named: `next-auth.d.ts`. Typescript will automatically recognize that this file is augmenting the module types of `next-auth` (running under the hood).
+Begin by creating a new typescript file in the root of your project named: `auth.d.ts`. Typescript will automatically recognize that this file is augmenting the module types of `@auth/core` (running under the hood).
 
 ```ts
-// file: ~/next-auth.d.ts
-import type { DefaultSession } from 'next-auth'
+// file: ~/auth.d.ts
+import type { DefaultSession } from '@auth/core/types'
 
-declare module 'next-auth' {
+declare module 'auth' {
   /* Returned by `useAuth`, `getSession` and `getServerSession` */
   interface Session extends DefaultSession {
     user: {
@@ -108,7 +108,7 @@ declare module 'next-auth' {
 In addition to modifying the `session` data types, you can also extend the types of the JWT token. This allows you to receive proper type support when accessing the JWT token inside the NuxtAuthHandler or when calling `getToken` on the server side.
 
 ```ts
-// file: ~/next-auth.d.ts
+// file: ~/auth.d.ts
 declare module 'next-auth/jwt' {
   /** Returned by the `jwt` callback and `getToken` */
   interface JWT {

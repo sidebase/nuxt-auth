@@ -15,7 +15,7 @@ export default eventHandler(async (event) => {
 })
 ```
 
-The function behaves identical to the [`getToken` function from NextAuth.js](https://next-auth.js.org/tutorials/securing-pages-and-api-routes#using-gettoken) with one change: you have to pass in the h3-`event` instead of `req`. This is due to how cookies can be accessed on h3: not via `req.cookies` but rather via `useCookies(event)`.
+The function behaves identical to the [`getToken` function from AuthJS](https://authjs.dev/reference/core/jwt#gettoken) with one change: you have to pass in the h3-`event` instead of `req`. This is due to how cookies can be accessed on h3: not via `req.cookies` but rather via `useCookies(event)`.
 
 You do not need to pass in any further parameters like `secret`, `secureCookie`, ... They are automatically inferred to the values you configured if not set and reading the token will work out of the box. You _may_ pass these options, e.g., to get the raw, encoded JWT token you can pass `raw: true`.
 
