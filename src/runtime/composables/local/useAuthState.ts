@@ -57,7 +57,7 @@ export const useAuthState = (): UseAuthStateReturn => {
   }
 
   // Handle refresh token, for when refresh logic is enabled
-  const rawRefreshToken = useState('auth:raw-refresh-token', () => null)
+  const rawRefreshToken = useState<string | null>('auth:raw-refresh-token', () => null)
   if (config.refresh.isEnabled) {
     const _rawRefreshTokenCookie = useCookie<string | null>(config.refresh.token.cookieName,
       {
