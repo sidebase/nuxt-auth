@@ -7,7 +7,7 @@ import { useRequestEvent, useNuxtApp, abortNavigation, useAuthState } from '#imp
 export const getRequestURL = (includePath = true) => getURL(useRequestEvent()?.node.req, includePath)
 export function joinPathToApiURL (path: string) {
   const authStateInternal = useAuthState()._internal
-  return withBase(authStateInternal.pathname, authStateInternal.baseURL)
+  return withBase(path, authStateInternal.baseURL)
 }
 
 /**
