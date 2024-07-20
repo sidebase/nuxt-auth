@@ -2,11 +2,15 @@
   "name": "@sidebase/nuxt-auth-docs",
   "private": true,
   "scripts": {
+    "predocs:dev": "typedoc",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview"
   },
   "devDependencies": {
+    "typedoc": "^0.26.4",
+    "typedoc-plugin-markdown": "^4.2.1",
+    "typedoc-vitepress-theme": "^1.0.1",
     "vitepress": "^1.1.4"
   }
 }
