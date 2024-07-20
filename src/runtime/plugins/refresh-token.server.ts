@@ -8,6 +8,7 @@ export default defineNuxtPlugin({
   name: 'refresh-token-plugin',
   enforce: 'pre',
   async setup (nuxtApp) {
+    // @ts-ignore
     const { rawToken, rawRefreshToken, refreshToken, token, lastRefreshedAt } =
       useAuthState()
 

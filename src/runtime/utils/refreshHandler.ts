@@ -45,6 +45,7 @@ export class DefaultRefreshHandler implements RefreshHandler {
       const intervalTime = this.runtimeConfig.provider.token.maxAgeInSeconds! * 1000
 
       this.refreshTokenIntervalTimer = setInterval(() => {
+        // @ts-ignore
         if (this.auth?.refreshToken.value) {
           this.auth.refresh()
         }

@@ -1,5 +1,6 @@
 {
-  "entryPoints": ["../src/**/*"],
+  "entryPoints": ["../src"],
+  "entryPointStrategy": "expand",
   "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
   "githubPages": false,
   "readme": "none",
