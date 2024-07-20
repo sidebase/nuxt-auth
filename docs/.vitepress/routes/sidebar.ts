@@ -1,6 +1,8 @@
 import type { DefaultTheme } from 'vitepress'
+import typedocSidebar from "../../api/typedoc-sidebar.json";
 
 export const routes: DefaultTheme.Config['sidebar'] = {
+  '/api': typedocSidebar,
   '/guide': [
     {
       text: 'Getting started',
