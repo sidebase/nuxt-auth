@@ -36,7 +36,7 @@ When deploying a Local or Refresh -provider based app, you will only need to set
 
 This path can either be:
 
-- **Reletive**: Pointing at a path inside your own application (e.g. `/api/auth`)
+- **Relative**: Pointing at a path inside your own application (e.g. `/api/auth`)
 - **Absolute**: Pointing at a path inside an external application (e.g. `https://my-auth-backend/api`)
 
 :::warning
