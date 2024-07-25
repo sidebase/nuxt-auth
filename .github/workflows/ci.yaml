@@ -2,9 +2,9 @@ name: nodejs CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, next]
   pull_request:
-    branches: [main]
+    branches: [main, next]
 
 env:
   NODE_VER: 18.19.1
