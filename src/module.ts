@@ -145,7 +145,7 @@ export default defineNuxtModule<ModuleOptions>({
       provider: defu(
         userOptions.provider,
         defaultsByBackend[selectedProvider]
-      ) as DeepRequired<AuthProviders>
+      ) as Required<AuthProviders>
     }
 
     // 1. Check if module should be enabled at all

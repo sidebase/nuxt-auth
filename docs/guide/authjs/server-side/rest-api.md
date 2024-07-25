@@ -4,7 +4,7 @@ aside: false
 
 # REST API
 
-All endpoints that NextAuth.js supports are also supported by `nuxt-auth`:
+All endpoints that AuthJS supports are also supported by `nuxt-auth`:
 
 | Endpoint                          | Request      | Description                                                    |
 |-----------------------------------|:-------------|:---------------------------------------------------------------|
@@ -18,4 +18,4 @@ All endpoints that NextAuth.js supports are also supported by `nuxt-auth`:
 
 The `baseURL` is `/api/auth` per default and [can be configured in the `nuxt.config.ts`](/guide/application-side/configuration#baseurl).
 
-You can directly interact with these API endpoints if you wish to, it's probably a better idea to use `useAuth` where possible though. [See the full rest API documentation of NextAuth.js here](https://next-auth.js.org/getting-started/rest-api).
+You can directly interact with these API endpoints if you wish to, it's probably a better idea to use `useAuth` where possible though.

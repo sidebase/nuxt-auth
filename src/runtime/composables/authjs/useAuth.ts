@@ -1,4 +1,4 @@
-import type { AppProvider, BuiltInProviderType } from 'next-auth/providers/index'
+import type { AppProvider, BuiltInProviderType } from '@auth/core/providers/index'
 import { defu } from 'defu'
 import { readonly, type Ref } from 'vue'
 import { appendHeader } from 'h3'
