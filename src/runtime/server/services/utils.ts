@@ -10,16 +10,17 @@ import { useRuntimeConfig } from '#imports'
  * Get `origin` and fallback to `x-forwarded-host` or `host` headers if not in production.
  */
 export const getServerOrigin = (event?: H3Event): string => {
-  const authRuntimeConfig = useRuntimeConfig().public.auth
+  const config = useRuntimeConfig()
 
   // Prio 1: Environment variable
-  const envOrigin = camelCase(authRuntimeConfig.originEnvKey!, { normalize: true })
+  const envOriginKey = camelCase(config.public.auth.originEnvKey!, { normalize: true })
+  const envOrigin = config[envOriginKey] as string|undefined
   if (envOrigin) {
     return envOrigin
   }
 
   // Prio 2: Computed origin
-  const runtimeConfigOrigin = authRuntimeConfig.computed.origin
+  const runtimeConfigOrigin = config.public.auth.computed.origin
   if (runtimeConfigOrigin) {
     return runtimeConfigOrigin
   }
