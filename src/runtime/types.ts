@@ -406,7 +406,7 @@ export interface ModuleOptions {
    */
   disableServerSideAuth?: boolean;
   /**
-   * The environment key that holds the origin of the application. This is used to determine the full URL of the application in production.
+   * The name of the environment variable that holds the origin of the application. This is used to determine the full URL of the application in production.
    * As an example, if you set `NUXT_AUTH_ORIGIN=http://example.org` in your `.env` file, the module will use this to determine the full URL of the application.
    *
    * Find more about this in the documentation: https://auth.sidebase.io/resources/error-reference#auth-no-origin
