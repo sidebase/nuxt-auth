@@ -7,8 +7,7 @@ on:
     branches: [main]
 
 env:
-  NODE_VER: 22.5.1
-  PNPM_VER: 9.6.0
+  NODE_VER: 22.5
   CI: true
 
 jobs:
@@ -18,20 +17,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
+          cache: 'pnpm'
 
-      - uses: pnpm/action-setup@v3
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: ${{ env.PNPM_VER }}
-
-      # Install deps and prepare types
-      - run: pnpm i
-      - run: pnpm dev:prepare
+      - name: Install deps and prepare types
+        run: pnpm i && pnpm dev:prepare
 
       # Check if build and package artifacts can still be generated
       - run: pnpm prepack
@@ -49,20 +47,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
+          cache: 'pnpm'
 
-      - uses: pnpm/action-setup@v3
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: ${{ env.PNPM_VER }}
-
-      # Install deps and prepare types
-      - run: pnpm i
-      - run: pnpm dev:prepare
+      - name: Install deps and prepare types
+        run: pnpm i && pnpm dev:prepare
 
       # Build docs
       - run: cd docs && pnpm docs:build
@@ -76,19 +73,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
+          cache: 'pnpm'
 
-      - uses: pnpm/action-setup@v3
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: ${{ env.PNPM_VER }}
-
-      # Install deps
-      - run: pnpm i
+      - name: Install deps
+        run: pnpm i
 
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
@@ -107,19 +104,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
+          cache: 'pnpm'
 
-      - uses: pnpm/action-setup@v3
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: ${{ env.PNPM_VER }}
-
-      # Install deps
-      - run: pnpm i
+      - name: Install deps
+        run: pnpm i
 
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
@@ -138,19 +135,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
+          cache: 'pnpm'
 
-      - uses: pnpm/action-setup@v3
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: ${{ env.PNPM_VER }}
-
-      # Install deps
-      - run: pnpm i
+      - name: Install deps
+        run: pnpm i
 
       # Check building
       - run: pnpm build

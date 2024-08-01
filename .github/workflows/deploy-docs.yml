@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VER: 22.5.1
-  PNPM_VER: 9.6.0
+  NODE_VER: 22.5
+  CI: true
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -33,16 +33,16 @@ jobs:
         with:
           fetch-depth: 0 # Required to calculate lastUpdated
 
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
-          cache: pnpm
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: ${{ env.PNPM_VER }}
+          cache: 'pnpm'
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
