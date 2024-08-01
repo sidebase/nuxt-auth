@@ -31,8 +31,8 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   const extractedToken = jsonPointerGet(response, config.token.signInResponseTokenPointer)
   if (typeof extractedToken !== 'string') {
     console.error(
-      `Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}.
-       Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`
+      `Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. ` +
+       `Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`
     )
     return
   }
@@ -45,8 +45,8 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     const extractedRefreshToken = jsonPointerGet(response, refreshTokenPointer)
     if (typeof extractedRefreshToken !== 'string') {
       console.error(
-        `Auth: string token expected, received instead: ${JSON.stringify(extractedRefreshToken)}.
-         Tried to find refresh token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
+        `Auth: string token expected, received instead: ${JSON.stringify(extractedRefreshToken)}. ` +
+         `Tried to find refresh token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
       )
       return
     }
@@ -185,8 +185,8 @@ const refresh = async (getSessionOptions?: GetSessionOptions) => {
   const extractedToken = jsonPointerGet(response, config.token.signInResponseTokenPointer)
   if (typeof extractedToken !== 'string') {
     console.error(
-      `Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}.
-       Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`
+      `Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. ` +
+       `Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`
     )
     return
   }
@@ -196,8 +196,8 @@ const refresh = async (getSessionOptions?: GetSessionOptions) => {
     const extractedRefreshToken = jsonPointerGet(response, refreshTokenPointer)
     if (typeof extractedRefreshToken !== 'string') {
       console.error(
-        `Auth: string token expected, received instead: ${JSON.stringify(extractedRefreshToken)}.
-         Tried to find refresh token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
+        `Auth: string token expected, received instead: ${JSON.stringify(extractedRefreshToken)}. ` +
+         `Tried to find refresh token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
       )
       return
     } else {

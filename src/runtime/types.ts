@@ -205,8 +205,8 @@ export type ProviderLocal = {
     dataResponsePointer?: string;
   };
   /**
-   * Configuration for the `refresh`-provider an extended version of the local provider.
-   * If set to undefined, local provider without refresh logic will be used.
+   * Configuration for the refresh token logic of the `local` provider.
+   * If set to `undefined` or set to `{ isEnabled: false }`, refresh tokens will not be used.
    */
   refresh?: {
     /**
@@ -260,8 +260,8 @@ export type ProviderLocal = {
       /**
        * It refers to the name of the property when it is stored in a cookie.
        *
-       * @default auth.refresh-token
-       * @example auth._refresh-token
+       * @default 'auth.refresh-token'
+       * @example 'auth._refresh-token'
        */
       cookieName?: string;
       /**

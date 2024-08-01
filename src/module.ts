@@ -251,7 +251,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     // 9. Add a plugin to refresh the token on production-startup
-    if (userOptions.provider?.type === 'local' && userOptions.provider.refresh?.isEnabled) {
+    if (options.provider.type === 'local' && options.provider.refresh?.isEnabled) {
       addPlugin(resolve('./runtime/plugins/refresh-token.server'))
     }
 

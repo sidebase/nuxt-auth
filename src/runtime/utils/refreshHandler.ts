@@ -41,7 +41,7 @@ export class DefaultRefreshHandler implements RefreshHandler {
       }, intervalTime)
     }
 
-    if (this.runtimeConfig.provider.type === 'local' && this.runtimeConfig.provider.refresh) {
+    if (this.runtimeConfig.provider.type === 'local' && this.runtimeConfig.provider.refresh?.isEnabled) {
       const intervalTime = this.runtimeConfig.provider.refresh.token!.maxAgeInSeconds! * 1000
 
       this.refreshTokenIntervalTimer = setInterval(() => {
