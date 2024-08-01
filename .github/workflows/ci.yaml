@@ -7,7 +7,8 @@ on:
     branches: [main]
 
 env:
-  NODE_VER: 18.19.1
+  NODE_VER: 22.5.1
+  PNPM_VER: 9.6.0
   CI: true
 
 jobs:
@@ -26,7 +27,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
+          version: ${{ env.PNPM_VER }}
 
       # Install deps and prepare types
       - run: pnpm i
@@ -57,7 +58,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
+          version: ${{ env.PNPM_VER }}
 
       # Install deps and prepare types
       - run: pnpm i
@@ -84,7 +85,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
+          version: ${{ env.PNPM_VER }}
 
       # Install deps
       - run: pnpm i
@@ -115,7 +116,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
+          version: ${{ env.PNPM_VER }}
 
       # Install deps
       - run: pnpm i
@@ -146,7 +147,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
+          version: ${{ env.PNPM_VER }}
 
       # Install deps
       - run: pnpm i
