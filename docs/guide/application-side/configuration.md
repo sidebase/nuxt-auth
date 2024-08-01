@@ -31,7 +31,7 @@ Whether the module is enabled at all
 - **Type**: `string`
 - **Default**: `AUTH_ORIGIN`
 
-The environment variable that holds the origin of your application. This is used to determine the origin of your application in production. Read more [here](/resources/error-reference#auth-no-origin).
+The name of the environment variable that holds the origin of the application. This is used to determine the origin of your application in production. Read more [here](/resources/error-reference#auth-no-origin).
 
 ## `disableServerSideAuth`
 
