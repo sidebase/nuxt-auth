@@ -27,7 +27,9 @@
     "typecheck": "nuxi prepare playground-local && tsc --noEmit",
     "typecheck:refresh": "nuxi prepare playground-refresh && tsc --noEmit",
     "dev:prepare": "nuxt-module-build build --stub",
-    "docs:dev": "cd ./docs && pnpm docs:dev"
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "@nuxt/kit": "^3.12.4",
@@ -51,6 +53,7 @@
     "ofetch": "^1.3.4",
     "ts-essentials": "^9.4.2",
     "typescript": "^5.5.4",
+    "vitepress": "^1.3.1",
     "vue-tsc": "^2.0.29"
   },
   "overrides": {
