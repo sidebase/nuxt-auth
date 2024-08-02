@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 import { routes as navRoutes } from './routes/navbar'
 import { routes as sidebarRoutes } from './routes/sidebar'
-import { headConfig } from './head'
+import { headConfig, sitemapConfig } from './head'
 
 export default defineConfig({
   title: 'NuxtAuth',
@@ -13,7 +13,7 @@ export default defineConfig({
   appearance: 'dark',
   lastUpdated: true,
   head: headConfig,
-  sitemap: { hostname: 'https://auth.sidebase.io' },
+  sitemap: sitemapConfig,
   themeConfig: {
     logo: '/lock.png',
     outline: { level: 'deep' },
