@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import DefaultTheme from 'vitepress/theme'
 import GithubStarsButton from './components/GithubStarsButton.vue'
 import Banner from './components/Banner.vue'
