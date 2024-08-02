@@ -62,7 +62,7 @@ jobs:
         run: pnpm i && pnpm dev:prepare
 
       # Build docs
-      - run: cd docs && pnpm docs:build
+      - run: pnpm docs:build
 
   test-playground-local:
     runs-on: ubuntu-latest
