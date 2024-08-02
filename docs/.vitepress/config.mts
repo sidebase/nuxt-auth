@@ -3,8 +3,6 @@ import { routes as navRoutes } from './routes/navbar'
 import { routes as sidebarRoutes } from './routes/sidebar'
 import { headConfig } from './head'
 
-export const HOST_NAME = 'https://auth.sidebase.io'
-
 export default defineConfig({
   title: 'NuxtAuth',
   titleTemplate: ':title - by sidebase',
@@ -15,9 +13,7 @@ export default defineConfig({
   appearance: 'dark',
   lastUpdated: true,
   head: headConfig,
-  sitemap: {
-    hostname: HOST_NAME,
-  },
+  sitemap: { hostname: 'https://auth.sidebase.io' },
   themeConfig: {
     logo: '/lock.png',
     outline: { level: 'deep' },

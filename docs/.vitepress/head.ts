@@ -1,6 +1,6 @@
 import type { HeadConfig } from "vitepress"
-import { HOST_NAME } from "./config.mts"
 
+const HOST_NAME = 'https://auth.sidebase.io'
 const OG_IMAGE_URL = `${HOST_NAME}/nuxt-auth-og.jpg`
 
 export const headConfig: HeadConfig[] = [
