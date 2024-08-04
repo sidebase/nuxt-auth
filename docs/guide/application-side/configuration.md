@@ -144,7 +144,7 @@ export default new CustomRefreshHandler()
 
 If no custom RefreshHandler is defined, the [built-in-handler](https://github.com/sidebase/nuxt-auth/blob/main/src/runtime/utils/refreshHandler.ts) will be used to handle refreshes.
 
-### `globalAppMiddleware`
+## `globalAppMiddleware`
 
 - **Type:** `GlobalMiddlewareOptions | boolean`
 - **Default**: `false`
