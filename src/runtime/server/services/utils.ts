@@ -15,7 +15,7 @@ export const getServerOrigin = (event?: H3Event): string => {
   // Prio 1: Environment variable
   const envOriginKey = config.public.auth.originEnvKey!
   const envOriginKeyCamelcase = camelCase(envOriginKey, { normalize: true })
-  const envOrigin: string | undefined = config[envOriginKeyCamelcase] ?? process.env[envOriginKey]
+  const envOrigin = (config[envOriginKeyCamelcase] ?? process.env[envOriginKey]) as string | undefined
   if (envOrigin) {
     return envOrigin
   }
