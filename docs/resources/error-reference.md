@@ -30,7 +30,7 @@ The `origin` is important for callbacks that happen to a specific origin for `oa
 // file: nuxt.config.ts
 export default defineNuxtConfig({
   runtimeConfig: {
-    authOrigin: 'https://example.org', // <--- !!!! THIS IS WHAT'S MISSING
+    authOrigin: 'https://example.org', // You can either set a default or leave it empty
   }
 
   // ... rest of your config
