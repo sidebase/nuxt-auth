@@ -182,6 +182,13 @@ export type ProviderLocal = {
      * @example 'sidebase.io'
      */
     cookieDomain?: string;
+    /**
+     * Whether to set the httpOnly flag on the cookie.
+     *
+     * @default false
+     * @example true
+     */
+    httpOnlyCookieAttribute?: boolean;
   };
   /**
    * Settings for the session-data that `nuxt-auth` receives from the `getSession` endpoint.
@@ -292,6 +299,13 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
      * @example 'sidebase.io'
      */
     cookieDomain?: string;
+    /**
+     * Whether to set the httpOnly flag on the cookie.
+     *
+     * @default false
+     * @example true
+     */
+    httpOnlyCookieAttribute?: boolean;
   };
 };
 
