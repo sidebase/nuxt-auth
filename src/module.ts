@@ -27,6 +27,7 @@ import type {
 const topLevelDefaults = {
   isEnabled: true,
   disableServerSideAuth: false,
+  originEnvKey: 'AUTH_ORIGIN',
   sessionRefresh: {
     enablePeriodically: false,
     enableOnWindowFocus: true,
