@@ -94,7 +94,7 @@ const defaultsByBackend: {
       sameSiteAttribute: 'none',
       secureCookieAttribute: false,
       cookieDomain: '',
-      httpOnlyCookieAttribute: false,
+      httpOnlyCookieAttribute: false
     },
     refreshToken: {
       signInResponseRefreshTokenPointer: '/refreshToken',
@@ -103,7 +103,7 @@ const defaultsByBackend: {
       maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days
       secureCookieAttribute: false,
       cookieDomain: '',
-      httpOnlyCookieAttribute: false,
+      httpOnlyCookieAttribute: false
     },
     session: {
       dataType: { id: 'string | number' },

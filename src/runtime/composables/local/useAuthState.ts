@@ -31,7 +31,7 @@ export const useAuthState = (): UseAuthStateReturn => {
     maxAge: config.token.maxAgeInSeconds,
     sameSite: config.token.sameSiteAttribute,
     secure: config.token.secureCookieAttribute,
-    httpOnly: config.token.httpOnlyCookieAttribute,
+    httpOnly: config.token.httpOnlyCookieAttribute
   })
 
   const rawToken = useState('auth:raw-token', () => _rawTokenCookie.value)
