@@ -406,6 +406,15 @@ export interface ModuleOptions {
    */
   disableServerSideAuth?: boolean;
   /**
+   * The name of the environment variable that holds the origin of the application. This is used to determine the full URL of the application in production.
+   * As an example, if you set `NUXT_AUTH_ORIGIN=http://example.org` in your `.env` file, the module will use this to determine the full URL of the application.
+   *
+   * Find more about this in the documentation: https://auth.sidebase.io/resources/error-reference#auth-no-origin
+   *
+   * @default 'AUTH_ORIGIN'
+   */
+  originEnvKey?: string
+  /**
    * Full url at which the app will run combined with the path to authentication. You can set this differently depending on your selected authentication-provider:
    * - `authjs`: You must set the full URL, with origin and path in production. You can leave this empty in development
    * - `local`: You can set a full URL, but can also leave this empty to fallback to the default value of `/api/auth` or set only the path.

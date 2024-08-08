@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     auth: { 
         isEnabled: true,
         disableServerSideAuth: false,
+        originEnvKey: 'AUTH_ORIGIN',
         baseURL: 'http://localhost:3000/api/auth',
         provider: { /* your provider config */ },
         sessionRefresh: {
@@ -24,6 +25,13 @@ export default defineNuxtConfig({
 - **Default**: `true`
 
 Whether the module is enabled at all
+
+## `originEnvKey`
+
+- **Type**: `string`
+- **Default**: `AUTH_ORIGIN`
+
+The name of the environment variable that holds the origin of the application. This is used to determine the origin of your application in production. Read more [here](/resources/error-reference#auth-no-origin).
 
 ## `disableServerSideAuth`
 
