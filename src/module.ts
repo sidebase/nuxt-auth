@@ -63,7 +63,8 @@ const defaultsByBackend: {
       maxAgeInSeconds: 30 * 60, // 30 minutes
       sameSiteAttribute: 'lax',
       secureCookieAttribute: false,
-      cookieDomain: ''
+      cookieDomain: '',
+      httpOnlyCookieAttribute: false
     },
     session: {
       dataType: { id: 'string | number' },
@@ -92,7 +93,8 @@ const defaultsByBackend: {
       maxAgeInSeconds: 5 * 60, // 5 minutes
       sameSiteAttribute: 'none',
       secureCookieAttribute: false,
-      cookieDomain: ''
+      cookieDomain: '',
+      httpOnlyCookieAttribute: false,
     },
     refreshToken: {
       signInResponseRefreshTokenPointer: '/refreshToken',
@@ -100,7 +102,8 @@ const defaultsByBackend: {
       cookieName: 'auth.refresh-token',
       maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days
       secureCookieAttribute: false,
-      cookieDomain: ''
+      cookieDomain: '',
+      httpOnlyCookieAttribute: false,
     },
     session: {
       dataType: { id: 'string | number' },
