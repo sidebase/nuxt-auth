@@ -14,12 +14,12 @@ defineEmits(['reset', 'fill'])
         {{ title }}
       </h1>
       <div v-if="actions && actions.length > 0" class="flex items-center gap-1.5">
-        <TheButton v-if="actions.includes('reset')" size="xs" @click="$emit('reset')">
+        <AuthButton v-if="actions.includes('reset')" size="xs" @click="$emit('reset')">
           Reset
-        </TheButton>
-        <TheButton v-if="actions.includes('fill')" size="xs" @click="$emit('fill')">
+        </AuthButton>
+        <AuthButton v-if="actions.includes('fill')" size="xs" @click="$emit('fill')">
           Autofill
-        </TheButton>
+        </AuthButton>
       </div>
     </header>
     <pre><ClientOnly><slot /></ClientOnly></pre>
