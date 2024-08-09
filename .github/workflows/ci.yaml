@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./playground-local
+        working-directory: ./playground/local
 
     steps:
       - uses: actions/checkout@v4
@@ -100,7 +100,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./playground-refresh
+        working-directory: ./playground/refresh
     steps:
       - uses: actions/checkout@v4
 
@@ -131,7 +131,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./playground-authjs
+        working-directory: ./playground/authjs
     steps:
       - uses: actions/checkout@v4
 
