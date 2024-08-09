@@ -35,7 +35,9 @@ export function useAuthState(): UseAuthStateReturn {
   })
 
   const rawToken = useState('auth:raw-token', () => _rawTokenCookie.value)
-  watch(rawToken, () => { _rawTokenCookie.value = rawToken.value })
+  watch(rawToken, () => {
+    _rawTokenCookie.value = rawToken.value
+  })
 
   const token = computed(() => formatToken(rawToken.value))
 

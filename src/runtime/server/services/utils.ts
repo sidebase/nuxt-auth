@@ -43,11 +43,12 @@ export function getRequestURLFromRequest(event: H3Event, { trustHost }: { trustH
     }
   }
 
-  let origin
+  let origin: undefined | string
   try {
     origin = getServerOrigin(event)
   }
   catch (error) {
+    console.error(error)
     return undefined
   }
   return joinURL(origin, useRuntimeConfig().public.auth.computed.pathname)

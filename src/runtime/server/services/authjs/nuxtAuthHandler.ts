@@ -26,7 +26,7 @@ const useConfig = () => useTypedBackendConfig(useRuntimeConfig(), 'authjs')
 
 /**
  * Parse a body if the request method is supported, return `undefined` otherwise.
-
+ *
  * @param event H3Event event to read body of
  */
 async function readBodyForNext(event: H3Event) {
@@ -219,7 +219,10 @@ export async function getServerSession(event: H3Event) {
  *
  * The only change from the original `getToken` implementation is that the `req` is not passed in, in favor of `event` being passed in. See https://next-auth.js.org/tutorials/securing-pages-and-api-routes#using-gettoken for further documentation.
  *
- * @param eventAndOptions Omit<GetTokenParams, 'req'> & { event: H3Event } The event to get the cookie or authorization header from that contains the JWT Token and options you want to alter token getting behavior.
+ * @param eventAndOptions
+ * @param eventAndOptions.event The event to get the cookie or authorization header from that contains the JWT Token and options you want to alter token getting behavior.
+ * @param eventAndOptions.secureCookie
+ * @param eventAndOptions.secret
  */
 export function getToken<R extends boolean = false>({ event, secureCookie, secret, ...rest }: Omit<GetTokenParams<R>, 'req'> & { event: H3Event }) {
   return nextGetToken({

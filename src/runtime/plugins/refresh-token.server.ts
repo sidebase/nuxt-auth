@@ -73,6 +73,7 @@ export default defineNuxtPlugin({
         lastRefreshedAt.value = new Date()
       }
       catch (err) {
+        console.error(err)
         rawRefreshToken.value = null
         rawToken.value = null
       }
