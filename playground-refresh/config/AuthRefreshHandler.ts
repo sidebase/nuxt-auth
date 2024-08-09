@@ -1,4 +1,4 @@
-import type { RefreshHandler } from '../../'
+import type { RefreshHandler } from '../../src/module'
 
 // You may also use a plain object with `satisfies RefreshHandler`, of course!
 class CustomRefreshHandler implements RefreshHandler {
