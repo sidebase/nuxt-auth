@@ -41,10 +41,10 @@ Before posting an enchantment, please consider the following questions:
   - Would it require a major, minor, or patch release?
   - Which providers would be impacted by this change?
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > The more impact your Enchantment has on the package, the longer it may take to push, as we need to integrate it into our release cycle.
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > While we appreciate every request, we cannot accept them all. Please be understanding if we do not accept your request.
 
 ## Pull requests
@@ -94,10 +94,10 @@ To start developing on this package, please follow the quick start guide below.
    ```
 8. [Open a Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests), and fill out the provided fields.
 
-> [!TIP]  
+> [!TIP]
 > Read more about how to use the included playground [here](../README.md#development).
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > By submitting a Pull request, you agree to license your work under the MIT license used by the project.
 
 ### Reviews
@@ -106,7 +106,7 @@ After you submit your Pull request, a member of our core team will review it. Pl
 
 After receiving a review, please address any comments left by the reviewer or debate them if you disagree. This process will repeat until the pull request is approved and merged!
 
-> [!NOTE]  
+> [!NOTE]
 > Besides a manual review of your pull request, we will run an automated CI pipeline on your code.
 
 ## Release cycles
@@ -119,7 +119,7 @@ This package follows [Semantic Versioning 2.0.0](https://semver.org/).
 
 If we release a pre-version of a new release, we will tag it with `next` in the npmjs release and add one of the following additions to the versions:
 
-- **ALPHA**: Early development build of a new release 
+- **ALPHA**: Early development build of a new release
   - Not properly tested yet
 - **RC**: Potential release candidate of a new release
   - Internally tested on a series of demo apps

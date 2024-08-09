@@ -1,4 +1,4 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import getURL from 'requrl'
 import { joinURL } from 'ufo'
 import { camelCase } from 'scule'
@@ -9,7 +9,7 @@ import { useRuntimeConfig } from '#imports'
 /**
  * Get `origin` and fallback to `x-forwarded-host` or `host` headers if not in production.
  */
-export const getServerOrigin = (event?: H3Event): string => {
+export function getServerOrigin(event?: H3Event): string {
   const config = useRuntimeConfig()
 
   // Prio 1: Environment variable
@@ -35,7 +35,7 @@ export const getServerOrigin = (event?: H3Event): string => {
 }
 
 /** Get the request url or construct it */
-export const getRequestURLFromRequest = (event: H3Event, { trustHost }: { trustHost: boolean }): string | undefined => {
+export function getRequestURLFromRequest(event: H3Event, { trustHost }: { trustHost: boolean }): string | undefined {
   if (trustHost) {
     const forwardedValue = getURL(event.node.req)
     if (forwardedValue) {
@@ -46,7 +46,8 @@ export const getRequestURLFromRequest = (event: H3Event, { trustHost }: { trustH
   let origin
   try {
     origin = getServerOrigin(event)
-  } catch (error) {
+  }
+  catch (error) {
     return undefined
   }
   return joinURL(origin, useRuntimeConfig().public.auth.computed.pathname)

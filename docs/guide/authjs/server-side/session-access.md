@@ -6,7 +6,7 @@ On the server side you can get access to the current session like this:
 import { getServerSession } from '#auth'
 
 export default eventHandler(async (event) => {
-    const session = await getServerSession(event)
+  const session = await getServerSession(event)
 })
 ```
 
@@ -29,13 +29,12 @@ To protect an endpoint, check the session after fetching it:
 import { getServerSession } from '#auth'
 
 export default eventHandler(async (event) => {
-    const session = await getServerSession(event)
-    if (!session) {
-        return { status: 'unauthenticated!' }
-    }
-    return { status: 'authenticated!' }
+  const session = await getServerSession(event)
+  if (!session) {
+    return { status: 'unauthenticated!' }
+  }
+  return { status: 'authenticated!' }
 })
-
 ```
 
 ## Server Middleware
@@ -47,12 +46,12 @@ You can also use this in a [Nuxt server middleware](https://nuxt.com/docs/guide/
 import { getServerSession } from '#auth'
 
 export default eventHandler(async (event) => {
-    const session = await getServerSession(event)
-    if (!session) {
-        throw createError({ 
-            statusMessage: 'Unauthenticated', 
-            statusCode: 403 
-        })
-    }
+  const session = await getServerSession(event)
+  if (!session) {
+    throw createError({
+      statusMessage: 'Unauthenticated',
+      statusCode: 403
+    })
+  }
 })
 ```

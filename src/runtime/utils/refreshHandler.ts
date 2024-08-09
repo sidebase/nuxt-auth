@@ -1,5 +1,5 @@
-import type { DefaultRefreshHandlerConfig, RefreshHandler, ModuleOptionsNormalized } from '../types'
-import { useRuntimeConfig, useAuth } from '#imports'
+import type { DefaultRefreshHandlerConfig, ModuleOptionsNormalized, RefreshHandler } from '../types'
+import { useAuth, useRuntimeConfig } from '#imports'
 
 export class DefaultRefreshHandler implements RefreshHandler {
   /** Result of `useAuth` composable, mostly used for session data/refreshing */
@@ -18,13 +18,13 @@ export class DefaultRefreshHandler implements RefreshHandler {
   /** Because passing `this.visibilityHandler` to `document.addEventHandler` loses `this` context */
   private boundVisibilityHandler: typeof this.visibilityHandler
 
-  constructor (
+  constructor(
     public config: DefaultRefreshHandlerConfig
   ) {
     this.boundVisibilityHandler = this.visibilityHandler.bind(this)
   }
 
-  init (): void {
+  init(): void {
     this.runtimeConfig = useRuntimeConfig().public.auth
     this.auth = useAuth()
 
@@ -52,7 +52,7 @@ export class DefaultRefreshHandler implements RefreshHandler {
     }
   }
 
-  destroy (): void {
+  destroy(): void {
     // Clear visibility handler
     document.removeEventListener('visibilitychange', this.boundVisibilityHandler, false)
 
@@ -69,7 +69,7 @@ export class DefaultRefreshHandler implements RefreshHandler {
     this.runtimeConfig = undefined
   }
 
-  visibilityHandler (): void {
+  visibilityHandler(): void {
     // Listen for when the page is visible, if the user switches tabs
     // and makes our tab visible again, re-fetch the session, but only if
     // this feature is not disabled.

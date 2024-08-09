@@ -3,7 +3,6 @@
   "name": "nuxt-auth-playground-refresh",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --max-warnings=0",
     "dev": "nuxi prepare && nuxi dev",
     "build": "nuxi build",
     "start": "nuxi preview",
@@ -20,7 +19,6 @@
     "@playwright/test": "^1.45.3",
     "@types/jsonwebtoken": "^9.0.6",
     "@vue/test-utils": "^2.4.6",
-    "eslint": "^8.57.0",
     "nuxt": "^3.12.4",
     "typescript": "^5.5.4",
     "vitest": "^1.6.0",

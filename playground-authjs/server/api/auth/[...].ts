@@ -23,7 +23,7 @@ export default NuxtAuthHandler({
         username: { label: 'Username', type: 'text', placeholder: '(hint: jsmith)' },
         password: { label: 'Password', type: 'password', placeholder: '(hint: hunter2)' }
       },
-      authorize (credentials: any) {
+      authorize(credentials: any) {
         // You need to provide your own logic here that takes the credentials
         // submitted and returns either a object representing a user or value
         // that is false/null if the credentials are invalid.
@@ -34,7 +34,8 @@ export default NuxtAuthHandler({
         if (credentials?.username === user.username && credentials?.password === user.password) {
           // Any object returned will be saved in `user` property of the JWT
           return user
-        } else {
+        }
+        else {
           console.error('Warning: Malicious login attempt registered, bad credentials provided')
 
           // If you return null then an error will be displayed advising the user to check their details.

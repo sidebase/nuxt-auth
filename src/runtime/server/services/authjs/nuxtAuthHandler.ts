@@ -1,5 +1,5 @@
-import type { IncomingHttpHeaders } from 'http'
-import { getQuery, setCookie, readBody, sendRedirect, eventHandler, parseCookies, createError, isMethod, getHeaders, getResponseHeader, setResponseHeader } from 'h3'
+import type { IncomingHttpHeaders } from 'node:http'
+import { createError, eventHandler, getHeaders, getQuery, getResponseHeader, isMethod, parseCookies, readBody, sendRedirect, setCookie, setResponseHeader } from 'h3'
 import type { H3Event } from 'h3'
 import type { CookieSerializeOptions } from 'cookie-es'
 
@@ -13,7 +13,7 @@ import { defu } from 'defu'
 import { joinURL } from 'ufo'
 import { ERROR_MESSAGES } from '../errors'
 import { isNonEmptyObject } from '../../../utils/checkSessionResult'
-import { getServerOrigin, getRequestURLFromRequest } from '../utils'
+import { getRequestURLFromRequest, getServerOrigin } from '../utils'
 import { useTypedBackendConfig } from '../../../helpers'
 
 import { useRuntimeConfig } from '#imports'
@@ -27,9 +27,9 @@ const useConfig = () => useTypedBackendConfig(useRuntimeConfig(), 'authjs')
 /**
  * Parse a body if the request method is supported, return `undefined` otherwise.
 
-* @param event H3Event event to read body of
+ * @param event H3Event event to read body of
  */
-const readBodyForNext = async (event: H3Event) => {
+async function readBodyForNext(event: H3Event) {
   let body: any
 
   if (isMethod(event, ['PATCH', 'POST', 'PUT', 'DELETE'])) {
@@ -43,7 +43,7 @@ const readBodyForNext = async (event: H3Event) => {
  *
  * E.g., with a request like `/api/signin/github` get the action `signin` with the provider `github`
  */
-const parseActionAndProvider = ({ context }: H3Event): { action: AuthAction, providerId: string | undefined } => {
+function parseActionAndProvider({ context }: H3Event): { action: AuthAction, providerId: string | undefined } {
   const params: string[] | undefined = context.params?._?.split('/')
 
   if (!params || ![1, 2].includes(params.length)) {
@@ -62,14 +62,15 @@ const parseActionAndProvider = ({ context }: H3Event): { action: AuthAction, pro
 }
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
-export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
+export function NuxtAuthHandler(nuxtAuthOptions?: AuthOptions) {
   const isProduction = process.env.NODE_ENV === 'production'
 
   usedSecret = nuxtAuthOptions?.secret
   if (!usedSecret) {
     if (isProduction) {
       throw new Error(ERROR_MESSAGES.NO_SECRET)
-    } else {
+    }
+    else {
       console.info(ERROR_MESSAGES.NO_SECRET)
       usedSecret = 'secret'
     }
@@ -184,7 +185,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
   return handler
 }
 
-export const getServerSession = async (event: H3Event) => {
+export async function getServerSession(event: H3Event) {
   const authBasePath = useRuntimeConfig().public.auth.computed.pathname
 
   // avoid running auth middleware on auth middleware (see #186)
@@ -220,20 +221,22 @@ export const getServerSession = async (event: H3Event) => {
  *
  * @param eventAndOptions Omit<GetTokenParams, 'req'> & { event: H3Event } The event to get the cookie or authorization header from that contains the JWT Token and options you want to alter token getting behavior.
  */
-export const getToken = <R extends boolean = false>({ event, secureCookie, secret, ...rest }: Omit<GetTokenParams<R>, 'req'> & { event: H3Event }) => nextGetToken({
+export function getToken<R extends boolean = false>({ event, secureCookie, secret, ...rest }: Omit<GetTokenParams<R>, 'req'> & { event: H3Event }) {
+  return nextGetToken({
   // @ts-expect-error As our request is not a real next-auth request, we pass down only what's required for the method, as per code from https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L68
-  req: {
-    cookies: parseCookies(event),
-    headers: getHeaders(event) as IncomingHttpHeaders
-  },
-  // see https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L73
-  secureCookie: secureCookie ?? getServerOrigin(event).startsWith('https://'),
-  secret: secret || usedSecret,
-  ...rest
-})
+    req: {
+      cookies: parseCookies(event),
+      headers: getHeaders(event) as IncomingHttpHeaders
+    },
+    // see https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L73
+    secureCookie: secureCookie ?? getServerOrigin(event).startsWith('https://'),
+    secret: secret || usedSecret,
+    ...rest
+  })
+}
 
 /** Adapted from `h3` to fix https://github.com/sidebase/nuxt-auth/issues/523 */
-function appendHeaderDeduped (event: H3Event, name: string, value: string) {
+function appendHeaderDeduped(event: H3Event, name: string, value: string) {
   let current = getResponseHeader(event, name)
   if (!current) {
     setResponseHeader(event, name, value)
@@ -257,7 +260,7 @@ function appendHeaderDeduped (event: H3Event, name: string, value: string) {
  * Adds a cookie, overriding its previous value.
  * Related to https://github.com/sidebase/nuxt-auth/issues/523
  */
-function setCookieDeduped (event: H3Event, name: string, value: string, serializeOptions: CookieSerializeOptions) {
+function setCookieDeduped(event: H3Event, name: string, value: string, serializeOptions: CookieSerializeOptions) {
   // Deduplicate by removing the same name cookie
   let setCookiesHeader = getResponseHeader(event, 'set-cookie')
   if (setCookiesHeader) {
