@@ -520,6 +520,7 @@ export interface CommonUseAuthStateReturn<SessionData> {
   _internal: {
     baseURL: string;
     pathname: string;
+    isUrlInternal: boolean;
   };
 }
 

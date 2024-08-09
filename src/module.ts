@@ -131,9 +131,7 @@ export default defineNuxtModule<ModuleOptions>({
     const logger = useLogger(PACKAGE_NAME)
 
     // 0. Assemble all options
-    const { origin, pathname = '/api/auth' } = getOriginAndPathnameFromURL(
-      userOptions.baseURL ?? ''
-    )
+    const { origin, pathname = '/api/auth' } = getOriginAndPathnameFromURL(userOptions.baseURL ?? '')
 
     const selectedProvider = userOptions.provider?.type ?? 'authjs'
 

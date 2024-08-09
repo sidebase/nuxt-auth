@@ -6,13 +6,10 @@ import { useRequestEvent, useNuxtApp, abortNavigation, useAuthState } from '#imp
 
 export const getRequestURL = (includePath = true) => getURL(useRequestEvent()?.node.req, includePath)
 export function joinPathToApiURL (path: string) {
-  const authStateInternal = useAuthState()._internal
+  const { baseURL, pathname, isUrlInternal } = useAuthState()._internal
 
-  // For internal calls, use a different base
-  // https://github.com/sidebase/nuxt-auth/issues/742
-  const base = path.startsWith('/')
-    ? authStateInternal.pathname
-    : authStateInternal.baseURL
+  // For internal calls, do not include the `ORIGIN`
+  const base = isUrlInternal ? pathname : baseURL
 
   return joinURL(base, path)
 }
