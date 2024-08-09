@@ -27,6 +27,9 @@
     "typecheck": "nuxi prepare playground-local && tsc --noEmit",
     "typecheck:refresh": "nuxi prepare playground-refresh && tsc --noEmit",
     "dev:prepare": "nuxt-module-build build --stub",
+    "dev:authjs": "cd ./playground-authjs && pnpm dev",
+    "dev:local": "cd ./playground-local && pnpm dev",
+    "dev:refresh": "cd ./playground-refresh && pnpm dev",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
