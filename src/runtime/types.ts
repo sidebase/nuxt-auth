@@ -511,7 +511,13 @@ export interface CommonUseAuthReturn<SignIn, SignOut, GetSession, SessionData> {
   getSession: GetSession;
   refresh(): Promise<unknown>
 }
-
+/**
+ * Common values required for all providers
+ *
+ * @remark basePath: The `basePath` for the API without an `origin`
+ * @remark baseURL: The `basePath` combined with an `origin` (provided via config or determined)
+ * @remark isBaseURLInternal: Is the origin provided in `baseURL` the same as that of the Nuxt app?
+ */
 export interface CommonUseAuthStateReturn<SessionData> {
   data: WrappedSessionData<SessionData>;
   loading: Ref<boolean>;
@@ -519,8 +525,8 @@ export interface CommonUseAuthStateReturn<SessionData> {
   status: ComputedRef<SessionStatus>;
   _internal: {
     baseURL: string;
-    pathname: string;
-    isUrlInternal: boolean;
+    basePath: string;
+    isBaseURLInternal: boolean;
   };
 }
 

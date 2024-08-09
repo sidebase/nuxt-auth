@@ -45,9 +45,9 @@ export const makeCommonAuthState = <SessionData>() => {
   // Determine if the API is internal. This is the case if:
   // - no `ORIGIN` was provided
   // - the provided `ORIGIN` matches the `determinedOrigin` of the app
-  let isUrlInternal = false
+  let isBaseURLInternal = false
   if (!origin || origin === determinedOrigin) {
-    isUrlInternal = true
+    isBaseURLInternal = true
   }
 
   return {
@@ -57,8 +57,8 @@ export const makeCommonAuthState = <SessionData>() => {
     status,
     _internal: {
       baseURL,
-      pathname,
-      isUrlInternal
+      basePath: pathname,
+      isBaseURLInternal
     }
   }
 }

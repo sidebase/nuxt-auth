@@ -1,4 +1,4 @@
-import { joinURL } from 'ufo'
+import { withBase } from 'ufo'
 import getURL from 'requrl'
 import { sendRedirect } from 'h3'
 import type { ModuleOptionsNormalized } from '../types'
@@ -6,12 +6,11 @@ import { useRequestEvent, useNuxtApp, abortNavigation, useAuthState } from '#imp
 
 export const getRequestURL = (includePath = true) => getURL(useRequestEvent()?.node.req, includePath)
 export function joinPathToApiURL (path: string) {
-  const { baseURL, pathname, isUrlInternal } = useAuthState()._internal
+  const { baseURL, basePath, isBaseURLInternal } = useAuthState()._internal
 
   // For internal calls, do not include the `ORIGIN`
-  const base = isUrlInternal ? pathname : baseURL
-
-  return joinURL(base, path)
+  const base = isBaseURLInternal ? basePath : baseURL
+  return withBase(base, path)
 }
 
 /**
