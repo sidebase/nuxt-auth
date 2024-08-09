@@ -8,10 +8,11 @@ export function generateModuleTypes (provider: AuthProviders) {
   const providerSpecificTypes: string[] = []
 
   if (provider.type === 'authjs') {
-    providerSpecificTypes.push(`  const { getServerSession, getToken, NuxtAuthHandler }: typeof import('${resolve('./runtime/server/services')}')`)
+    providerSpecificTypes.push(`  const { getServerSession, getToken, NuxtAuthHandler }: typeof import('${resolve('./runtime/server/services/authjs')}')`)
   }
 
   if (provider.type === 'local') {
+    providerSpecificTypes.push(`  const { getServerSession, getToken }: typeof import('${resolve('./runtime/server/services/local')}')`)
     providerSpecificTypes.push(genInterface('SessionData', (provider as any).session.dataType))
   }
 
