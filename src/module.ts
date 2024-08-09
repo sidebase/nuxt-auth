@@ -70,45 +70,21 @@ const defaultsByBackend: {
     session: {
       dataType: { id: 'string | number' },
       dataResponsePointer: '/'
-    }
-  },
-
-  refresh: {
-    type: 'refresh',
-    pages: {
-      login: '/login'
     },
-    refreshOnlyToken: true,
-    endpoints: {
-      signIn: { path: '/login', method: 'post' },
-      signOut: { path: '/logout', method: 'post' },
-      signUp: { path: '/register', method: 'post' },
-      getSession: { path: '/session', method: 'get' },
-      refresh: { path: '/refresh', method: 'post' }
-    },
-    token: {
-      signInResponseTokenPointer: '/token',
-      type: 'Bearer',
-      cookieName: 'auth.token',
-      headerName: 'Authorization',
-      maxAgeInSeconds: 5 * 60, // 5 minutes
-      sameSiteAttribute: 'none',
-      secureCookieAttribute: false,
-      cookieDomain: '',
-      httpOnlyCookieAttribute: false
-    },
-    refreshToken: {
-      signInResponseRefreshTokenPointer: '/refreshToken',
-      refreshRequestTokenPointer: '/refreshToken',
-      cookieName: 'auth.refresh-token',
-      maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days
-      secureCookieAttribute: false,
-      cookieDomain: '',
-      httpOnlyCookieAttribute: false
-    },
-    session: {
-      dataType: { id: 'string | number' },
-      dataResponsePointer: '/'
+    refresh: {
+      isEnabled: false,
+      endpoint: { path: '/refresh', method: 'post' },
+      refreshOnlyToken: true,
+      token: {
+        signInResponseRefreshTokenPointer: '/refreshToken',
+        refreshRequestTokenPointer: '/refreshToken',
+        cookieName: 'auth.refresh-token',
+        maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days
+        sameSiteAttribute: 'lax',
+        secureCookieAttribute: false,
+        cookieDomain: '',
+        httpOnlyCookieAttribute: false
+      }
     }
   },
 
@@ -277,8 +253,8 @@ export default defineNuxtModule<ModuleOptions>({
       addServerPlugin(resolve('./runtime/server/plugins/assertOrigin'))
     }
 
-    // 7.2 Add a server-plugin to refresh the token on production-startup
-    if (selectedProvider === 'refresh') {
+    // 9. Add a plugin to refresh the token on production-startup
+    if (options.provider.type === 'local' && options.provider.refresh.isEnabled) {
       addPlugin(resolve('./runtime/plugins/refresh-token.server'))
     }
 
