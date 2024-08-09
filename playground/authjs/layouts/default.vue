@@ -31,15 +31,7 @@ const links = [
     />
     <div class="relative my-4 max-w-7xl mx-auto space-y-4">
       <slot />
-      <div class="space-y-2 border-t">
-        <div class="pt-4">
-          <h1 class="text-3xl font-semibold">
-            Authentication Overview
-          </h1>
-          <p class="font-light text-lg">
-            See all available authentication & session information below.
-          </p>
-        </div>
+      <div class="space-y-2 border-t pt-4">
         <AuthDataViewer>
           <span>Status:</span> {{ status }}
         </AuthDataViewer>
