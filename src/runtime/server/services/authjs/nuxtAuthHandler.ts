@@ -132,7 +132,7 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
       query,
       action,
       providerId,
-      error: String(error) || undefined
+      error: error ? String(error) : undefined
     }
   }
 

@@ -7,6 +7,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  NODE_VER: 22.5
+  CI: true
+
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
@@ -28,21 +32,27 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Required to calculate lastUpdated
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
         with:
-          version: 8
-      - name: Setup Node
+          run_install: false
+
+      - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: pnpm
+          node-version: ${{ env.NODE_VER }}
+          cache: 'pnpm'
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
+
       - name: Install dependencies
         run: pnpm i
+
       - name: Build with VitePress
-        run: cd docs/ && pnpm docs:build
+        run: pnpm docs:build
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

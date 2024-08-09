@@ -27,6 +27,7 @@ import type {
 const topLevelDefaults = {
   isEnabled: true,
   disableServerSideAuth: false,
+  originEnvKey: 'AUTH_ORIGIN',
   sessionRefresh: {
     enablePeriodically: false,
     enableOnWindowFocus: true,
@@ -63,7 +64,8 @@ const defaultsByBackend: {
       maxAgeInSeconds: 30 * 60, // 30 minutes
       sameSiteAttribute: 'lax',
       secureCookieAttribute: false,
-      cookieDomain: ''
+      cookieDomain: '',
+      httpOnlyCookieAttribute: false
     },
     session: {
       dataType: { id: 'string | number' },
