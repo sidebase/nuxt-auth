@@ -29,6 +29,8 @@ export type SupportedProviders = LiteralUnion<BuiltInProviderType> | undefined
  * Calling nested async composable can lead to "nuxt instance unavailable" errors. See more details here: https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529. To resolve this we can manually ensure that the nuxt-context is set. This module contains `callWithNuxt` helpers for some of the methods that are frequently called in nested `useAuth` composable calls.
  *
  */
+
+// eslint-disable-next-line ts/no-empty-object-type
 async function getRequestCookies(nuxt: NuxtApp): Promise<{ cookie: string } | {}> {
   // `useRequestHeaders` is sync, so we narrow it to the awaited return type here
   const { cookie } = await callWithNuxt(nuxt, () => useRequestHeaders(['cookie']))
@@ -115,7 +117,7 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
     ...(await getRequestCookies(nuxt))
   }
 
-  // @ts-expect-error
+  // @ts-expect-error `options` is typed as any, but is a valid parameter for URLSearchParams
   const body = new URLSearchParams({
     ...options,
     csrfToken,
@@ -138,6 +140,7 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 
   // At this point the request succeeded (i.e., it went through)
   const error = new URL(data.url).searchParams.get('error')
+  // eslint-disable-next-line ts/no-use-before-define
   await getSessionWithNuxt(nuxt)
 
   return {
@@ -151,7 +154,9 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 /**
  * Get all configured providers from the backend. You can use this method to build your own sign-in page.
  */
-const getProviders = () => _fetch<Record<Exclude<SupportedProviders, undefined>, Omit<AppProvider, 'options'> | undefined>>(useNuxtApp(), '/providers')
+function getProviders() {
+  return _fetch<Record<Exclude<SupportedProviders, undefined>, Omit<AppProvider, 'options'> | undefined>>(useNuxtApp(), '/providers')
+}
 
 /**
  * Refresh and get the current session data.
