@@ -8,6 +8,12 @@ import { useRuntimeConfig, useCookie, useState, onMounted } from '#imports'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
 
+/**
+ * The internal response of the local-specific auth data
+ *
+ * @remarks
+ * The returned value `refreshToken` and `rawRefreshToken` will always be `null` if `refresh.isEnabled` is `false`
+ */
 export interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData> {
   token: ComputedRef<string | null>
   rawToken: CookieRef<string | null>,

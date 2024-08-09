@@ -225,7 +225,7 @@ const refresh = async (getSessionOptions?: GetSessionOptions) => {
  * Returns an extended version of CommonUseAuthReturn with local-provider specific data
  *
  * @remarks
- * The returned value `refreshToken` will always be `Ref<null>` if `refresh.isEnabled` is `false`
+ * The returned value `refreshToken` will always be `null` if `refresh.isEnabled` is `false`
  */
 interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOut, typeof getSession, SessionData> {
   signUp: typeof signUp
