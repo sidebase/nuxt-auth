@@ -233,7 +233,8 @@ export type ProviderLocal = {
      */
     endpoint?: { path?: string; method?: RouterMethod };
     /**
-     *  When refreshOnlyToken is set, only the token will be refreshed
+     * When refreshOnlyToken is set to `true`, only the token will be updated when the refresh endpoint is called.
+     * When refreshOnlyToken is set to `false`, the token and refreshToken will be updated when the refresh endpoint is called.
      *
      * @default true
      */
