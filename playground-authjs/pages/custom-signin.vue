@@ -14,6 +14,7 @@ async function mySignInHandler({ username, password, callbackUrl }: { username: 
 
   if (error) {
     // Do your custom error handling here
+    // eslint-disable-next-line no-alert
     alert('You have made a terrible mistake while entering your credentials')
   }
   else {
