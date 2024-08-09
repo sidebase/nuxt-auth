@@ -1,5 +1,6 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
+  extends: ['../base'],
   modules: ['../src/module.ts'],
   build: {
     transpile: ['jsonwebtoken']
