@@ -56,13 +56,13 @@ const links = [
       <AuthSideItems>
         <template #actions>
           <div class="flex flex-col gap-1">
-            <AuthButton @click="signIn({ username, password })">
+            <AuthButton :disabled="status === 'authenticated'" @click="signIn({ username, password })">
               Sign In
             </AuthButton>
-            <AuthButton @click="signOut">
+            <AuthButton :disabled="status === 'unauthenticated'" @click="signOut">
               Sign Out
             </AuthButton>
-            <AuthButton @click="signIn({ username, password }, { callbackUrl: '/protected/globally' })">
+            <AuthButton :disabled="status === 'authenticated'" @click="signIn({ username, password }, { callbackUrl: '/protected/globally' })">
               Sign In (with redirect to protected page)
             </AuthButton>
             <AuthButton @click="getSession({ required: false })">
@@ -71,7 +71,7 @@ const links = [
             <AuthButton @click="getSession({ required: true, callbackUrl: '/' })">
               Refresh Session (required: true)
             </AuthButton>
-            <AuthButton @click="refresh()">
+            <AuthButton :disabled="status === 'unauthenticated'" @click="refresh()">
               Refresh Tokens
             </AuthButton>
           </div>
