@@ -12,7 +12,6 @@ import {
 } from '@nuxt/kit'
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
-import { genInterface } from 'knitwork'
 import type { DeepRequired } from 'ts-essentials'
 import type { NuxtModule } from 'nuxt/schema'
 import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
@@ -126,7 +125,10 @@ const PACKAGE_NAME = 'sidebase-auth'
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: PACKAGE_NAME,
-    configKey: 'auth'
+    configKey: 'auth',
+    compatibility: {
+      nuxt: '>=3.0.0'
+    }
   },
   setup (userOptions, nuxt) {
     const logger = useLogger(PACKAGE_NAME)
@@ -165,7 +167,7 @@ export default defineNuxtModule<ModuleOptions>({
     if (!isProduction) {
       const authjsAddition =
         selectedProvider === 'authjs'
-          ? ', ensure that `NuxtAuthHandler({ ... })` is there, see https://sidebase.io/nuxt-auth/configuration/nuxt-auth-handler'
+          ? ', ensure that `NuxtAuthHandler({ ... })` is there, see https://auth.sidebase.io/guide/authjs/nuxt-auth-handler'
           : ''
       logger.info(
         `Selected provider: ${selectedProvider}. Auth API location is \`${options.computed.fullBaseUrl}\`${authjsAddition}`
