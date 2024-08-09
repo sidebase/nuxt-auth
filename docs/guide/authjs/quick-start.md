@@ -26,15 +26,15 @@ After installing `@sidebase/nuxt-auth` and `next-auth`, you can now configure Nu
 
 ```ts
 export default defineNuxtConfig({
-    modules: ['@sidebase/nuxt-auth'],
-    auth: {
-        provider: {
-            type: 'authjs',
-            trustHost: false,
-            defaultProvider: 'github',
-            addDefaultCallbackUrl: true
-        }
+  modules: ['@sidebase/nuxt-auth'],
+  auth: {
+    provider: {
+      type: 'authjs',
+      trustHost: false,
+      defaultProvider: 'github',
+      addDefaultCallbackUrl: true
     }
+  }
 })
 ```
 
@@ -65,7 +65,6 @@ Select the default-provider to use when `signIn` is called. Setting this here wi
 
 Whether to add a callbackUrl to sign in requests. Setting this to a string-value will result in that being used as the callbackUrl path. Setting this to `true` will result in the blocked original target path being chosen (if it can be determined).
 
-
 ## NuxtAuthHandler
 
 As a next step, create your NuxtAuthHandler under `~/server/api/auth/[...].ts`. Inside it you can configure the authentication provider you want to use, how the JWT Token is created and managed as well as how your sessions will be composed. The NuxtAuthHander will automatically create all required API endpoints to handle authentication inside your application.
@@ -77,7 +76,7 @@ The NuxtAuthHandler is an adaptation of the [NextAuthHandler](https://next-auth.
 - **JWT Encryption**: _How is the JWT Token encrypted and read?_
 - **Callbacks**: _Hook into the authentication lifecycle hooks._
 
-Begin by creating a new server route file in `~/server/api/auth/[...].ts`. You can then begin adding your NuxtAuthHandler. The filename must be `[...].ts` - this is a so-called "catch-all" route, read more in the [Nuxt catch-all docs](https://nuxt.com/docs/guide/directory-structure/server#catch-all-route). 
+Begin by creating a new server route file in `~/server/api/auth/[...].ts`. You can then begin adding your NuxtAuthHandler. The filename must be `[...].ts` - this is a so-called "catch-all" route, read more in the [Nuxt catch-all docs](https://nuxt.com/docs/guide/directory-structure/server#catch-all-route).
 
 ```ts
 import { NuxtAuthHandler } from '#auth'

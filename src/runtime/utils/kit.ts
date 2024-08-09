@@ -1,12 +1,12 @@
 import { withoutBase, withoutTrailingSlash } from 'ufo'
-import { createRouter, toRouteMatcher, type RouteMatcher } from 'radix3'
-import { type RouteOptions } from '../types'
+import { type RouteMatcher, createRouter, toRouteMatcher } from 'radix3'
+import type { RouteOptions } from '../types'
 import { useRuntimeConfig } from '#imports'
 
 /**
  * Removes query params from url path.
  */
-export const withoutQuery = (path: string) => {
+export function withoutQuery(path: string) {
   return path.split('?')[0]
 }
 
@@ -17,7 +17,7 @@ let routeMatcher: RouteMatcher
  *
  * In the returned function, enter a path to retrieve the routeRules that applies to that page.
  */
-export const getNitroRouteRules = (path: string): Partial<RouteOptions> => {
+export function getNitroRouteRules(path: string): Partial<RouteOptions> {
   const { nitro, app } = useRuntimeConfig()
 
   if (!routeMatcher) {

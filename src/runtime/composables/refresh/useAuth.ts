@@ -1,5 +1,4 @@
 import type { Ref } from 'vue'
-import { callWithNuxt } from '#app'
 import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '../../helpers'
 import { useAuth as useLocalAuth } from '../local/useAuth'
 import { _fetch } from '../../utils/fetch'
@@ -7,6 +6,7 @@ import { getRequestURLWN } from '../../utils/callWithNuxt'
 import { determineCallbackUrl } from '../../utils/url'
 import type { SignOutFunc } from '../../types'
 import { useAuthState } from './useAuthState'
+import { callWithNuxt } from '#app'
 import {
   navigateTo,
   nextTick,
@@ -77,15 +77,15 @@ const signIn: ReturnType<typeof useLocalAuth>['signIn'] = async (
   }
 }
 
-const refresh = async () => {
+async function refresh() {
   const nuxt = useNuxtApp()
   const config = useTypedBackendConfig(useRuntimeConfig(), 'refresh')
   const { path, method } = config.endpoints.refresh
   const refreshRequestTokenPointer = config.refreshToken.refreshRequestTokenPointer
 
   const { getSession } = useLocalAuth()
-  const { refreshToken, token, rawToken, rawRefreshToken, lastRefreshedAt } =
-    useAuthState()
+  const { refreshToken, token, rawToken, rawRefreshToken, lastRefreshedAt }
+    = useAuthState()
 
   const headers = new Headers({
     [config.token.headerName]: token.value
@@ -126,7 +126,8 @@ const refresh = async () => {
         } in ${JSON.stringify(response)}`
       )
       return
-    } else {
+    }
+    else {
       rawRefreshToken.value = extractedRefreshToken
     }
   }
@@ -162,7 +163,7 @@ const signOut: SignOutFunc = async (signOutOptions) => {
 
   if (signOutConfig) {
     const { path, method } = config.endpoints.signOut as {
-      path: string;
+      path: string
       method:
         | 'get'
         | 'head'
@@ -172,7 +173,7 @@ const signOut: SignOutFunc = async (signOutOptions) => {
         | 'delete'
         | 'connect'
         | 'options'
-        | 'trace';
+        | 'trace'
     }
     res = await _fetch(nuxt, path, { method, headers, body: method.toLowerCase() === 'post' ? body : undefined })
   }
@@ -186,10 +187,10 @@ const signOut: SignOutFunc = async (signOutOptions) => {
 }
 
 type UseAuthReturn = ReturnType<typeof useLocalAuth> & {
-  refreshToken: Readonly<Ref<string | null>>;
-};
+  refreshToken: Readonly<Ref<string | null>>
+}
 
-export const useAuth = (): UseAuthReturn => {
+export function useAuth(): UseAuthReturn {
   const localAuth = useLocalAuth()
   // overwrite the local signIn & signOut Function
   localAuth.signIn = signIn

@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
-import StarIcon from './StarIcon.vue';
+import { onMounted, ref } from 'vue'
+import StarIcon from './StarIcon.vue'
 
 const props = defineProps<{
-  owner: string,
+  owner: string
   repo: string
 }>()
 
 const count = ref(0)
 
-async function fetchCount () {
+async function fetchCount() {
   const res = await fetch(`https://api.github.com/repos/${props.owner}/${props.repo}`)
   const resJson = await res.json()
   count.value = resJson.stargazers_count ?? 0
@@ -18,27 +18,27 @@ onMounted(fetchCount)
 </script>
 
 <template>
-    <div class="Wrapper">
-      <a
-        title="Github"
-        class="Button"
-        :href="`https://github.com/${owner}/${repo}`"
-        target="_blank"
-        rel="noreferrer noopener"
-      >
-        <StarIcon />
-        Star
-      </a>
-      <a
-        class="Count"
-        :href="`https://github.com/${owner}/${repo}/stargazers`"
-        aria-label={label}
-        target="_blank"
-        rel="noreferrer noopener"
-      >
-        {{ new Intl.NumberFormat().format(count) }}
-      </a>
-    </div>
+  <div class="Wrapper">
+    <a
+      title="Github"
+      class="Button"
+      :href="`https://github.com/${owner}/${repo}`"
+      target="_blank"
+      rel="noreferrer noopener"
+    >
+      <StarIcon />
+      Star
+    </a>
+    <a
+      class="Count"
+      :href="`https://github.com/${owner}/${repo}/stargazers`"
+      aria-label="{label}"
+      target="_blank"
+      rel="noreferrer noopener"
+    >
+      {{ new Intl.NumberFormat().format(count) }}
+    </a>
+  </div>
 </template>
 
 <style scoped>

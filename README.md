@@ -38,7 +38,7 @@ npx nuxi@latest module add sidebase-auth
 
 <details>
   <summary>Or install manually</summary>
-  
+
   #### 1. Install the package as a dev dependency
 
   ```sh
@@ -53,7 +53,7 @@ npx nuxi@latest module add sidebase-auth
 
   ```ts
   export default defineNuxtConfig({
-      modules: ['@sidebase/nuxt-auth']
+    modules: ['@sidebase/nuxt-auth']
   })
   ```
 </details>
@@ -80,7 +80,7 @@ You can find a full list of our features, as well as which provider supports eac
 - Methods to `getSession`, `getCsrfToken`, `getProviders`, `signIn` and `signOut`
 - Full TypeScript support for all methods and properties
 
-### Application protection 
+### Application protection
 - Application-side middleware protection for the [full application](https://auth.sidebase.io/guide/application-side/protecting-pages#global-middleware) or [specific pages](https://auth.sidebase.io/guide/application-side/protecting-pages#local-middleware)
 - Server-side [middleware](https://auth.sidebase.io/guide/authjs/server-side/session-access#server-middleware) and [endpoint protection](https://auth.sidebase.io/guide/authjs/server-side/session-access#endpoint-protection)
 
@@ -162,10 +162,10 @@ To test static Nuxt 3 apps we want to run a static frontend and a separate backe
 
     pnpm dev
 
-    # A second Nuxt app should now be running on http://localhost:3001. 
+    # A second Nuxt app should now be running on http://localhost:3001.
     # We use this purely for authentication
     ```
-4.  Visit [http://localhost:3000](http://localhost:3000) -> this should open the static application. Performing any auth-related actions, the app should send requests to the backend running on port `3001`  
+4.  Visit [http://localhost:3000](http://localhost:3000) -> this should open the static application. Performing any auth-related actions, the app should send requests to the backend running on port `3001`
 
 ## Contributing
 

@@ -22,7 +22,7 @@ export default eventHandler(async (event) => {
   const user = {
     username,
     picture: 'https://github.com/nuxt.png',
-    name: 'User ' + username
+    name: `User ${username}`
   }
 
   const accessToken = sign({ ...user, scope: ['test', 'user'] }, SECRET, {

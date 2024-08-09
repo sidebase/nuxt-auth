@@ -80,7 +80,7 @@ export const routes: DefaultTheme.Config['sidebar'] = {
         {
           text: 'Session data',
           link: '/session-data',
-        }
+        },
       ],
     },
     {

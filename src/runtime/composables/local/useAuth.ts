@@ -1,17 +1,66 @@
-import { readonly, type Ref } from 'vue'
-import { callWithNuxt } from '#app/nuxt'
-import type { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions, SignUpOptions } from '../../types'
+import { type Ref, readonly } from 'vue'
+import type { CommonUseAuthReturn, GetSessionFunc, SecondarySignInOptions, SignInFunc, SignOutFunc, SignUpOptions } from '../../types'
 import { jsonPointerGet, useTypedBackendConfig } from '../../helpers'
 import { _fetch } from '../../utils/fetch'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
 import { determineCallbackUrl } from '../../utils/url'
 import { formatToken } from '../../utils/local'
 import { useAuthState } from './useAuthState'
+import { callWithNuxt } from '#app/nuxt'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
-import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
+import { navigateTo, nextTick, useNuxtApp, useRuntimeConfig } from '#imports'
 
 type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
+
+const getSession: GetSessionFunc<SessionData | null | void> = async function (getSessionOptions) {
+  const nuxt = useNuxtApp()
+
+  const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
+  const { path, method } = config.endpoints.getSession
+  const { data, loading, lastRefreshedAt, rawToken, token: tokenState, _internal } = useAuthState()
+
+  let token = tokenState.value
+  // For cached responses, return the token directly from the cookie
+  token ??= formatToken(_internal.rawTokenCookie.value)
+
+  if (!token && !getSessionOptions?.force) {
+    loading.value = false
+    return
+  }
+
+  const headers = new Headers(token ? { [config.token.headerName]: token } as HeadersInit : undefined)
+
+  loading.value = true
+  try {
+    const result = await _fetch<any>(nuxt, path, { method, headers })
+    const { dataResponsePointer: sessionDataResponsePointer } = config.session
+    data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
+  }
+  catch (err) {
+    if (!data.value && err instanceof Error) {
+      console.error(`Session: unable to extract session, ${err.message}`)
+    }
+
+    // Clear all data: Request failed so we must not be authenticated
+    data.value = null
+    rawToken.value = null
+  }
+  loading.value = false
+  lastRefreshedAt.value = new Date()
+
+  const { required = false, callbackUrl, onUnauthenticated, external } = getSessionOptions ?? {}
+  if (required && data.value === null) {
+    if (onUnauthenticated) {
+      return onUnauthenticated()
+    }
+    else {
+      await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external })
+    }
+  }
+
+  return data.value
+}
 
 const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, signInParams) => {
   const nuxt = useNuxtApp()
@@ -72,54 +121,7 @@ const signOut: SignOutFunc = async (signOutOptions) => {
   return res
 }
 
-const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionOptions) => {
-  const nuxt = useNuxtApp()
-
-  const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
-  const { path, method } = config.endpoints.getSession
-  const { data, loading, lastRefreshedAt, rawToken, token: tokenState, _internal } = useAuthState()
-
-  let token = tokenState.value
-  // For cached responses, return the token directly from the cookie
-  token ??= formatToken(_internal.rawTokenCookie.value)
-
-  if (!token && !getSessionOptions?.force) {
-    loading.value = false
-    return
-  }
-
-  const headers = new Headers(token ? { [config.token.headerName]: token } as HeadersInit : undefined)
-
-  loading.value = true
-  try {
-    const result = await _fetch<any>(nuxt, path, { method, headers })
-    const { dataResponsePointer: sessionDataResponsePointer } = config.session
-    data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
-  } catch (err) {
-    if (!data.value && err instanceof Error) {
-      console.error(`Session: unable to extract session, ${err.message}`)
-    }
-
-    // Clear all data: Request failed so we must not be authenticated
-    data.value = null
-    rawToken.value = null
-  }
-  loading.value = false
-  lastRefreshedAt.value = new Date()
-
-  const { required = false, callbackUrl, onUnauthenticated, external } = getSessionOptions ?? {}
-  if (required && data.value === null) {
-    if (onUnauthenticated) {
-      return onUnauthenticated()
-    } else {
-      await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external })
-    }
-  }
-
-  return data.value
-}
-
-const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions) => {
+async function signUp(credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions) {
   const nuxt = useNuxtApp()
 
   const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signUp
@@ -139,7 +141,7 @@ interface UseAuthReturn extends CommonUseAuthReturn<typeof signIn, typeof signOu
   signUp: typeof signUp
   token: Readonly<Ref<string | null>>
 }
-export const useAuth = (): UseAuthReturn => {
+export function useAuth(): UseAuthReturn {
   const {
     data,
     status,

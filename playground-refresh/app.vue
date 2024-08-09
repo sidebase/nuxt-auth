@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useAuth } from '#imports'
+
 const {
   signIn,
   token,

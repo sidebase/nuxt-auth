@@ -33,7 +33,7 @@ export default defineConfig({
     },
     editLink: {
       pattern: 'https://github.com/sidebase/nuxt-auth/tree/main/docs/:path',
-      text: 'Edit this page on GitHub'
-    }
+      text: 'Edit this page on GitHub',
+    },
   },
 })

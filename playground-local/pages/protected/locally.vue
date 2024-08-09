@@ -1,7 +1,3 @@
-<template>
-  <div>I'm a secret! My protection works via the named `nuxt-auth` module middleware.</div>
-</template>
-
 <script setup lang="ts">
 import { definePageMeta } from '#imports'
 
@@ -10,3 +6,7 @@ definePageMeta({
   middleware: 'auth'
 })
 </script>
+
+<template>
+  <div>I'm a secret! My protection works via the named `nuxt-auth` module middleware.</div>
+</template>

@@ -4,14 +4,14 @@ import { sign, verify } from 'jsonwebtoken'
 export const SECRET = 'dummy'
 
 interface User {
-  username: string;
-  name: string;
-  picture: string;
+  username: string
+  name: string
+  picture: string
 }
 
 interface JwtPayload extends User {
-  scope: Array<'test' | 'user'>;
-  exp: number;
+  scope: Array<'test' | 'user'>
+  exp: number
 }
 
 export default eventHandler(async (event) => {

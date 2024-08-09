@@ -3,14 +3,12 @@
   "name": "nuxt-auth-playground-authjs",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --max-warnings=0",
     "dev": "nuxi prepare && nuxi dev",
     "build": "nuxi build",
     "start": "nuxi preview",
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
-    "eslint": "^8.57.0",
     "nuxt": "^3.12.4",
     "typescript": "^5.5.4",
     "vue-tsc": "^2.0.29"

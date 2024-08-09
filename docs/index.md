@@ -19,35 +19,35 @@ hero:
     alt: NuxtAuth
 
 features:
-  - icon: 
+  - icon:
         src: /icons/Github.png
     title: OAuth
     details: Effortlessly connect your Nuxt 3 application with Google, Github, Azure and countless others.
-  - icon: 
+  - icon:
         src: /icons/Database.png
     title: Use your own backend
     details: Use the local and refresh providers, to define your endpoints and watch the magic happen.
-  - icon: 
+  - icon:
         src: /icons/Layers.png
     title: Middleware
     details: Easily define the authentication rules for all of your pages.
-  - icon: 
+  - icon:
         src: /icons/Server.png
     title: REST API
     details: Everything authentication related automatically gets servered as new API routes.
-  - icon: 
+  - icon:
         src: /icons/Mail.png
     title: Magic URLs
     details: Allow your users to login with magic links sent by mail.
-  - icon: 
+  - icon:
         src: /icons/Refresh.png
     title: Refresh Tokens
     details: Refresh a users access token in the background.
-  - icon: 
+  - icon:
         src: /icons/Speedometer.png
     title: Made for Nuxt
     details: Deep integrations with the Nuxt framework.
-  - icon: 
+  - icon:
         src: /icons/Rocket.png
     title: Easy deployment
     details: Deploy to Vercel, Netlify or self-host.

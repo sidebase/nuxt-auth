@@ -11,7 +11,7 @@ This is a list of errors & warnings that NuxtAuth throws, what each of them mean
 import { NuxtAuthHandler } from '#auth'
 
 export default NuxtAuthHandler({
-  secret: 'my-superb-secret'  // <--- !!!! THIS IS WHAT'S MISSING
+  secret: 'my-superb-secret' // <--- !!!! THIS IS WHAT'S MISSING
 
   // ... rest of your config
 })
