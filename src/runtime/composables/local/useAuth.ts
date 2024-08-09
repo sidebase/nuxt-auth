@@ -73,8 +73,17 @@ const signOut: SignOutFunc = async (signOutOptions) => {
 
   const signOutConfig = config.endpoints.signOut
 
-  const headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
-  const body = signOutConfig && signOutConfig.method.toLowerCase() === 'post' ? { refreshToken: refreshToken.value } : { }
+  let headers
+  let body
+  if (signOutConfig) {
+    headers = new Headers({ [config.token.headerName]: token.value } as HeadersInit)
+    // If the refresh provider is used and the signOut request is of post, include the refreshToken in the body
+    if (config.refresh.isEnabled && signOutConfig.method.toLowerCase() === 'post') {
+      body = {
+        refreshToken: refreshToken.value
+      }
+    }
+  }
 
   data.value = null
   rawToken.value = null
