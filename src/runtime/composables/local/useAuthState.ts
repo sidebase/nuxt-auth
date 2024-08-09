@@ -72,7 +72,8 @@ export const useAuthState = (): UseAuthStateReturn => {
         domain: config.refresh.token.cookieDomain,
         maxAge: config.refresh.token.maxAgeInSeconds,
         sameSite: config.refresh.token.sameSiteAttribute,
-        secure: config.refresh.token.secureCookieAttribute
+        secure: config.refresh.token.secureCookieAttribute,
+        httpOnly: config.refresh.token.httpOnlyCookieAttribute
       }
     )
     watch(rawRefreshToken, () => { _rawRefreshTokenCookie.value = rawRefreshToken.value })
@@ -94,16 +95,12 @@ export const useAuthState = (): UseAuthStateReturn => {
     return String(rawRefreshToken.value)
   })
 
-  const schemeSpecificState = {
+  return {
+    ...commonAuthState,
     token,
     rawToken,
     refreshToken,
-    rawRefreshToken
-  }
-
-  return {
-    ...commonAuthState,
-    ...schemeSpecificState,
+    rawRefreshToken,
     setToken,
     clearToken,
     _internal: {

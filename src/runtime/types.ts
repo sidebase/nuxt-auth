@@ -157,7 +157,8 @@ export type ProviderLocal = {
      */
     maxAgeInSeconds?: number;
     /**
-     * The cookie sameSite policy. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
+     * The cookie sameSite policy.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
      *
      * @default 'lax'
      * @example 'strict'
@@ -165,6 +166,7 @@ export type ProviderLocal = {
     sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
     /**
      * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.5
      *
      * @default false
      * @example true
@@ -180,6 +182,7 @@ export type ProviderLocal = {
     cookieDomain?: string;
     /**
      * Whether to set the httpOnly flag on the cookie.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.6
      *
      * @default false
      * @example true
@@ -278,7 +281,8 @@ export type ProviderLocal = {
        */
       maxAgeInSeconds?: number;
       /**
-       * The cookie sameSite policy. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
+       * The cookie sameSite policy.
+       * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
        *
        * @default 'lax'
        * @example 'strict'
@@ -286,6 +290,7 @@ export type ProviderLocal = {
       sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
       /**
        * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+       * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.5
        *
        * @default false
        * @example true
@@ -299,6 +304,14 @@ export type ProviderLocal = {
        * @example 'sidebase.io'
        */
       cookieDomain?: string;
+      /**
+       * Whether to set the httpOnly flag on the cookie.
+       * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.6
+       *
+       * @default false
+       * @example true
+       */
+      httpOnlyCookieAttribute?: boolean;
     }
   }
 };
