@@ -22,7 +22,7 @@
   "scripts": {
     "prepack": "nuxt-module-build build",
     "build": "nuxi build",
-    "lint": "eslint . --max-warnings=0",
+    "lint": "oxlint --deny-warnings -D correctness -D suspicious -D perf && eslint . --max-warnings=0",
     "clean": "rm -rf playground-authjs/.nuxt playground-local/.nuxt playground-refresh/.nuxt dist .nuxt",
     "typecheck": "nuxi prepare playground-local && tsc --noEmit",
     "typecheck:refresh": "nuxi prepare playground-refresh && tsc --noEmit",
@@ -45,18 +45,19 @@
     "next-auth": "~4.21.1"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^2.25.0",
     "@nuxt/module-builder": "^0.5.5",
     "@nuxt/schema": "^3.12.4",
     "@nuxtjs/eslint-config-typescript": "^12.1.0",
     "@types/node": "^18.19.42",
+    "eslint": "^8.57.0",
     "nuxt": "^3.12.4",
     "ofetch": "^1.3.4",
+    "oxlint": "^0.7.0",
     "ts-essentials": "^9.4.2",
     "typescript": "^5.5.4",
     "vitepress": "^1.3.1",
-    "vue-tsc": "^2.0.29",
-    "@antfu/eslint-config": "^2.25.0",
-    "eslint": "^8.57.0"
+    "vue-tsc": "^2.0.29"
   },
   "packageManager": "pnpm@9.6.0+sha512.38dc6fba8dba35b39340b9700112c2fe1e12f10b17134715a4aa98ccf7bb035e76fd981cf0bb384dfa98f8d6af5481c2bef2f4266a24bfa20c34eb7147ce0b5e"
 }
