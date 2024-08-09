@@ -82,7 +82,8 @@ const defaultsByBackend: {
         maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days
         sameSiteAttribute: 'lax',
         secureCookieAttribute: false,
-        cookieDomain: ''
+        cookieDomain: '',
+        httpOnlyCookieAttribute: false
       }
     }
   },
