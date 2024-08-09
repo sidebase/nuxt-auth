@@ -29,7 +29,6 @@ export default antfu({
   // Disable jsonc and yaml support
   jsonc: false,
   yaml: false,
-  markdown: false,
 
   // Overwrite certain rules to your preference
   rules: {

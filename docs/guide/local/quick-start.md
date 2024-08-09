@@ -30,20 +30,20 @@ Afterwards, you can define the endpoints to which the authentication requests wi
 
 ```ts
 export default defineNuxtConfig({
-    // ...Previous configuration
-    auth: {
-        baseURL: '/api/auth'
-        provider: {
-            type: 'local',
-            endpoints: {
-                signIn: { path: '/login', method: 'post' },
-                signOut: { path: '/logout', method: 'post' },
-                signUp: { path: '/register', method: 'post' },
-                getSession: { path: '/session', method: 'get' },
-            }
-        }
+  // ...Previous configuration
+  auth: {
+    baseURL: '/api/auth',
+    provider: {
+      type: 'local',
+      endpoints: {
+        signIn: { path: '/login', method: 'post' },
+        signOut: { path: '/logout', method: 'post' },
+        signUp: { path: '/register', method: 'post' },
+        getSession: { path: '/session', method: 'get' },
+      }
     }
-)}
+  }
+})
 ```
 
 Each endpoint, consists of an object, with a `path` and `method`. When a user triggers an action inside your application a request will be made to each endpoint. When a request is made to the `getSession` endpoint, a token will be sent as a header. You can configure the headers and token below.
@@ -62,7 +62,7 @@ Relative paths starting with a `/` (e.g. `/login`) will be treated as a part of 
 You can customize each endpoint to fit your needs or disable it by setting it to `false`. For example you may want to disable the `signUp` endpoint.
 
 ```ts{7}
-{
+export default defineNuxtConfig({
     auth: {
         baseURL: '/api/auth',
         provider: {
@@ -72,7 +72,7 @@ You can customize each endpoint to fit your needs or disable it by setting it to
             }
         }
     }
-}
+})
 ```
 
 :::warning
@@ -88,20 +88,22 @@ To ensure that the module can properly identify that your endpoints point to an 
 1. `auth.baseURL` **includes** a trailing `/` at the end
 2. `auth.endpoints` **do not** include a leading `/` at the start
 
-```ts
-auth: {
-    baseURL: 'https://external-api.com', // [!code --]
-    baseURL: 'https://external-api.com/', // [!code ++]
-    provider: {
-        type: 'local',
-        endpoints: {
-            signIn: { path: '/login', method: 'post' }, // [!code --]
-            signIn: { path: 'login', method: 'post' }, // [!code ++]
-            getSession: { path: '/session', method: 'get' }, // [!code --]
-            getSession: { path: 'session', method: 'get' }, // [!code ++]
+```ts{7}
+export default defineNuxtConfig({
+    auth: {
+        baseURL: 'https://external-api.com', // [!code --]
+        baseURL: 'https://external-api.com/', // [!code ++]
+        provider: {
+            type: 'local',
+            endpoints: {
+                signIn: { path: '/login', method: 'post' }, // [!code --]
+                signIn: { path: 'login', method: 'post' }, // [!code ++]
+                getSession: { path: '/session', method: 'get' }, // [!code --]
+                getSession: { path: 'session', method: 'get' }, // [!code ++]
+            }
         }
     }
-}
+})
 ```
 
 You can read more about the path resolving logic in `@sidebase/nuxt-auth` [here](https://github.com/sidebase/nuxt-auth/issues/782#issuecomment-2223861422).
@@ -111,13 +113,21 @@ You can read more about the path resolving logic in `@sidebase/nuxt-auth` [here]
 If you are using the refresh provider, you can additionally define a `refresh` endpoint, which will be used to refresh the access token upon expiry.
 
 ```ts
-endpoints: {
-    signIn: { path: '/login', method: 'post' },
-    signOut: { path: '/logout', method: 'post' },
-    signUp: { path: '/register', method: 'post' },
-    getSession: { path: '/session', method: 'get' },
-    refresh: { path: '/refresh', method: 'post' } // [!code ++]
-}
+export default defineNuxtConfig({
+  auth: {
+    baseURL: '/api/auth',
+    provider: {
+      type: 'local',
+      endpoints: {
+        signIn: { path: '/login', method: 'post' },
+        signOut: { path: '/logout', method: 'post' },
+        signUp: { path: '/register', method: 'post' },
+        getSession: { path: '/session', method: 'get' },
+        refresh: { path: '/refresh', method: 'post' } // [!code ++]
+      }
+    }
+  }
+})
 ```
 
 ## Token
@@ -128,23 +138,23 @@ The configuration of the `token` properties depend on how your backend accepts a
 
 ```ts
 export default defineNuxtConfig({
-    // Previous configuration
-    auth: {
-        provider: {
-            type: 'local',
-            token: {
-                signInResponseTokenPointer: '/token',
-                type: 'Bearer',
-                cookieName: 'auth.token',
-                headerName: 'Authorization',
-                maxAgeInSeconds: 1800,
-                sameSiteAttribute: 'lax',
-                cookieDomain: 'sidebase.io'
-                secureCookieAttribute: false,
-                httpOnlyCookieAttribute: false,
-            }
-        }
+  // Previous configuration
+  auth: {
+    provider: {
+      type: 'local',
+      token: {
+        signInResponseTokenPointer: '/token',
+        type: 'Bearer',
+        cookieName: 'auth.token',
+        headerName: 'Authorization',
+        maxAgeInSeconds: 1800,
+        sameSiteAttribute: 'lax',
+        cookieDomain: 'sidebase.io',
+        secureCookieAttribute: false,
+        httpOnlyCookieAttribute: false,
+      }
     }
+  }
 })
 ```
 
@@ -229,32 +239,32 @@ If using the `refresh` provider, a seperate `refreshToken` configuration can als
 
 ```ts
 export default defineNuxtConfig({
-    // Previous configuration
-    auth: {
-        provider: {
-            type: 'local',
-            token: {
-                signInResponseTokenPointer: '/token',
-                type: 'Bearer',
-                cookieName: 'auth.token',
-                headerName: 'Authorization',
-                maxAgeInSeconds: 1800,
-                sameSiteAttribute: 'lax',
-                cookieDomain: 'sidebase.io'
-                secureCookieAttribute: false,
-                httpOnlyCookieAttribute: false,
-            },
-            refreshToken: {
-                signInResponseRefreshTokenPointer: '/refresh-token',
-                refreshRequestTokenPointer: 'Bearer',
-                cookieName: 'auth.token',
-                maxAgeInSeconds: 1800,
-                cookieDomain: 'sidebase.io'
-                secureCookieAttribute: false,
-                httpOnlyCookieAttribute: false,
-            }
-        }
+  // Previous configuration
+  auth: {
+    provider: {
+      type: 'local',
+      token: {
+        signInResponseTokenPointer: '/token',
+        type: 'Bearer',
+        cookieName: 'auth.token',
+        headerName: 'Authorization',
+        maxAgeInSeconds: 1800,
+        sameSiteAttribute: 'lax',
+        cookieDomain: 'sidebase.io',
+        secureCookieAttribute: false,
+        httpOnlyCookieAttribute: false,
+      },
+      refreshToken: {
+        signInResponseRefreshTokenPointer: '/refresh-token',
+        refreshRequestTokenPointer: 'Bearer',
+        cookieName: 'auth.token',
+        maxAgeInSeconds: 1800,
+        cookieDomain: 'sidebase.io',
+        secureCookieAttribute: false,
+        httpOnlyCookieAttribute: false,
+      }
     }
+  }
 })
 ```
 
