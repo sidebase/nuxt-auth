@@ -91,7 +91,7 @@ To ensure that the module can properly identify that your endpoints point to an 
 ```ts
 auth: {
     baseURL: 'https://external-api.com', // [!code --]
-    baseURL: 'https://external-api.com/' // [!code ++]
+    baseURL: 'https://external-api.com/', // [!code ++]
     provider: {
         type: 'local',
         endpoints: {

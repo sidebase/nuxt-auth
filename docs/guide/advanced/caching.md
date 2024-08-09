@@ -59,21 +59,21 @@ For example: It may be ideal to add caching to every page besides your profile p
 
 ```ts
 export default defineNuxtConfig({
-    modules: ['@sidebase/nuxt-auth'],
-    auth: {
-        disableServerSideAuth: true,
+  modules: ['@sidebase/nuxt-auth'],
+  auth: {
+    disableServerSideAuth: true,
+  },
+  routeRules: {
+    // Server side auth is disabled on this page because of global setting
+    '/': {
+      swr: 86400000,
     },
-    routeRules: {
-        // Server side auth is disabled on this page because of global setting
-        '/': {
-            swr: 86400000,
-        }
-        // Server side auth is enabled on this page - route rules takes priority.
-        '/profile': {
-            auth: {
-                disableServerSideAuth: false,
-            },
-        },
+    // Server side auth is enabled on this page - route rules takes priority.
+    '/profile': {
+      auth: {
+        disableServerSideAuth: false,
+      },
     },
+  },
 })
 ```

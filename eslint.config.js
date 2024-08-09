@@ -9,7 +9,7 @@ const ignores = [
   '**/dist/**',
   'node_modules',
   '**/node_modules/**',
-  '**/public/**',
+  '**/public/**'
 ]
 
 export default antfu({
@@ -29,6 +29,7 @@ export default antfu({
   // Disable jsonc and yaml support
   jsonc: false,
   yaml: false,
+  markdown: false,
 
   // Overwrite certain rules to your preference
   rules: {
