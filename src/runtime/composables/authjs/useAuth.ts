@@ -208,7 +208,7 @@ const getSession: GetSessionFunc<SessionData> = async (getSessionOptions) => {
       lastRefreshedAt.value = new Date()
 
       options.params = {
-        ...(options.params || {}),
+        ...options.params,
         callbackUrl: callbackUrl || callbackUrlFallback
       }
     },
