@@ -141,6 +141,8 @@ export default defineNuxtConfig({
                 maxAgeInSeconds: 1800,
                 sameSiteAttribute: 'lax',
                 cookieDomain: 'sidebase.io'
+                secureCookieAttribute: false,
+                httpOnlyCookieAttribute: false,
             }
         }
     }
@@ -204,6 +206,20 @@ The cookie domain. See the specification here: https://datatracker.ietf.org/doc/
 - **Type:** `string`
 - **Default:** `''`
 
+### `secureCookieAttribute`
+
+If set, the cookie will be only sent through `HTTPS` protocol. See the specification here : https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.5
+
+-   **Type:** `boolean`
+-   **Default:** `'false'`
+
+### `httpOnlyCookieAttribute`
+
+If set, the cookie will not be accessible from JavaScript. See the specification here : https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.6
+
+-   **Type:** `boolean`
+-   **Default:** `'false'`
+
 ## Refresh token
 
 :::tip
@@ -226,6 +242,8 @@ export default defineNuxtConfig({
                 maxAgeInSeconds: 1800,
                 sameSiteAttribute: 'lax',
                 cookieDomain: 'sidebase.io'
+                secureCookieAttribute: false,
+                httpOnlyCookieAttribute: false,
             },
             refreshToken: {
                 signInResponseRefreshTokenPointer: '/refresh-token',
@@ -233,6 +251,8 @@ export default defineNuxtConfig({
                 cookieName: 'auth.token',
                 maxAgeInSeconds: 1800,
                 cookieDomain: 'sidebase.io'
+                secureCookieAttribute: false,
+                httpOnlyCookieAttribute: false,
             }
         }
     }
@@ -279,6 +299,20 @@ Note: Your backend may reject / expire the refreshToken earlier / differently.
 - **Default:** `''`
 
 The cookie domain. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+
+### `secureCookieAttribute`
+
+If set, the cookie will be only sent through `HTTPS` protocol. See the specification here : https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.5
+
+-   **Type:** `boolean`
+-   **Default:** `'false'`
+
+### `httpOnlyCookieAttribute`
+
+If set, the cookie will not be accessible from JavaScript. See the specification here : https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.6
+
+-   **Type:** `boolean`
+-   **Default:** `'false'`
 
 ## `refreshOnlyToken`
 
