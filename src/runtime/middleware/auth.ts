@@ -97,6 +97,8 @@ export default defineNuxtRouteMiddleware((to) => {
 
   if (authConfig.provider.type === 'authjs') {
     const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.fullPath) }
+    // eslint-disable-next-line ts/ban-ts-comment
+    // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
     return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
   }
   else if (typeof metaAuth === 'object' && metaAuth.navigateUnauthenticatedTo) {
