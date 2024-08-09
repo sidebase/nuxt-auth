@@ -64,6 +64,7 @@ export type SupportedAuthProviders = 'authjs' | 'local'
 export type ProviderLocal = {
   /**
    * Uses the `local` provider to facilitate authentication.
+   * Read more here: https://auth.sidebase.io/guide/local/quick-start
    */
   type: Extract<SupportedAuthProviders, 'local'>;
   /**
@@ -321,11 +322,8 @@ export type ProviderLocal = {
  */
 export type ProviderAuthjs = {
   /**
-   * Uses the `authjs` provider to facilitate autnetication. Currently, two providers exclusive are supported:
-   * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
-   * - `local` or `refresh`: Username and password provider with support for static-applications
-   *
-   * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
+   * Uses the `authjs` provider to facilitate authentication.
+   * Read more here: https://auth.sidebase.io/guide/authjs/quick-start
    */
   type: Extract<SupportedAuthProviders, 'authjs'>;
   /**
