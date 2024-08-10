@@ -206,15 +206,7 @@ export default defineNuxtModule<ModuleOptions>({
         }
       )
 
-      // If AuthJS is selected, inject authjs server-side services
-      if (selectedProvider === 'authjs') {
-        nitroConfig.alias['#auth'] = resolve('./runtime/server/services/authjs')
-      }
-
-      // If local is selected, inject local server-side services
-      if (selectedProvider === 'local') {
-        nitroConfig.alias['#auth'] = resolve('./runtime/server/services/local')
-      }
+      nitroConfig.alias['#auth'] = resolve(`./runtime/server/services/${options.provider.type}`)
     })
 
     addTypeTemplate({
