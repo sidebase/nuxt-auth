@@ -56,7 +56,7 @@ In the example above requests would be made to the following URLs:
 - **Sign up:** `/api/auth/register` (POST)
 - **Get Session:** `/api/auth/session` (GET)
 
-You can customize each endpoint to fit your needs. If you would like to not have your app make a request on signOut, you can set the `signOut` endpoints to `false`. 
+You can customize each endpoint to fit your needs. If you would like to not have your app make a request on signOut, you can set the `signOut` endpoint to `false`. 
 
 ### Refresh provider
 
