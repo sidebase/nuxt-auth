@@ -10,7 +10,7 @@ export function joinPathToApiURL (path: string) {
 
   // For internal calls, do not include the `ORIGIN`
   const base = isBaseURLInternal ? basePath : baseURL
-  return withBase(base, path)
+  return withBase(path, base)
 }
 
 /**
