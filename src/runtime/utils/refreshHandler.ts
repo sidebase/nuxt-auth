@@ -73,7 +73,7 @@ export class DefaultRefreshHandler implements RefreshHandler {
     // Listen for when the page is visible, if the user switches tabs
     // and makes our tab visible again, re-fetch the session, but only if
     // this feature is not disabled.
-    if (this.config?.enableOnWindowFocus && document.visibilityState === 'visible') {
+    if (this.config?.enableOnWindowFocus && document.visibilityState === 'visible' && this.auth?.status.value !== 'unauthenticated') {
       this.auth?.refresh()
     }
   }
