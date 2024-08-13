@@ -12,7 +12,8 @@ import {
   nextTick,
   readonly,
   useNuxtApp,
-  useRuntimeConfig
+  useRuntimeConfig,
+  useRoute
 } from '#imports'
 
 const signIn: ReturnType<typeof useLocalAuth>['signIn'] = async (
@@ -70,7 +71,11 @@ const signIn: ReturnType<typeof useLocalAuth>['signIn'] = async (
   const { redirect = true } = signInOptions ?? {}
   let { callbackUrl } = signInOptions ?? {}
   if (typeof callbackUrl === 'undefined') {
-    callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
+    if (useRoute()?.query?.redirect){
+      callbackUrl = useRoute().query.redirect?.toString()
+    } else {
+      callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
+    }
   }
   if (redirect) {
     return navigateTo(callbackUrl)

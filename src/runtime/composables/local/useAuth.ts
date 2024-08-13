@@ -9,7 +9,8 @@ import { formatToken } from '../../utils/local'
 import { useAuthState } from './useAuthState'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
-import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo } from '#imports'
+import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo, useRoute } from '#imports'
+
 
 type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
 
@@ -39,7 +40,11 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   const { redirect = true } = signInOptions ?? {}
   let { callbackUrl } = signInOptions ?? {}
   if (typeof callbackUrl === 'undefined') {
-    callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
+    if (useRoute()?.query?.redirect){
+      callbackUrl = useRoute().query.redirect?.toString()
+    } else {
+      callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
+    }
   }
   if (redirect) {
     return navigateTo(callbackUrl)
