@@ -1,13 +1,23 @@
 <script setup lang="ts">
-import { useAuth, useRoute, useFetch, useRequestHeaders } from '#imports'
+import { useAuth, useRoute, useRequestHeaders, useAsyncData } from '#imports'
 
 const { data, status, lastRefreshedAt, getCsrfToken, getProviders, signIn, signOut, getSession } = useAuth()
 
 const providers = await getProviders()
 const csrfToken = await getCsrfToken()
 
-const headers = useRequestHeaders(['cookie']) as HeadersInit
-const { data: token } = await useFetch('/api/token', { headers })
+// TEMP: Due to a bug in Nuxt `$fetch` (and thus in `useFetch`),
+// we need to transform `undefined` returned from `$fetch` to `null`.
+// The issue seems to be in type coalescing happening under the hood of `$fetch`:
+// `null` and `''` are both transformed into `undefined` which is not correct.
+const { data: token } = await useAsyncData(
+  '/api/token',
+  async () => {
+    const headers = useRequestHeaders(['cookie'])
+    const result = await $fetch('/api/token', { headers })
+    return result ?? null
+  }
+)
 
 const route = useRoute()
 </script>
