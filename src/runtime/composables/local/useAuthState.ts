@@ -46,7 +46,7 @@ export const useAuthState = (): UseAuthStateReturn => {
   const rawToken = useState('auth:raw-token', () => _rawTokenCookie.value)
   watch(rawToken, () => { _rawTokenCookie.value = rawToken.value })
 
-  const token = computed(() => formatToken(rawToken.value))
+  const token = computed(() => formatToken(rawToken.value, config))
   function setToken (newToken: string | null) {
     rawToken.value = newToken
   }
@@ -88,12 +88,7 @@ export const useAuthState = (): UseAuthStateReturn => {
     }
   }
 
-  const refreshToken = computed(() => {
-    if (!rawRefreshToken.value || rawRefreshToken.value === null) {
-      return null
-    }
-    return String(rawRefreshToken.value)
-  })
+  const refreshToken = computed(() => formatToken(rawRefreshToken.value, config))
 
   return {
     ...commonAuthState,

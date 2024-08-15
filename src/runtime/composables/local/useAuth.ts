@@ -112,7 +112,7 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
 
   let token = tokenState.value
   // For cached responses, return the token directly from the cookie
-  token ??= formatToken(_internal.rawTokenCookie.value)
+  token ??= formatToken(_internal.rawTokenCookie.value, config)
 
   if (!token && !getSessionOptions?.force) {
     loading.value = false
