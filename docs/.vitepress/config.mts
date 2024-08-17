@@ -14,6 +14,7 @@ export default defineConfig({
   lastUpdated: true,
   head: headConfig,
   sitemap: sitemapConfig,
+  ignoreDeadLinks: 'localhostLinks',
   themeConfig: {
     logo: '/lock.png',
     outline: { level: 'deep' },
