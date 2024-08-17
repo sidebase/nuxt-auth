@@ -28,6 +28,19 @@ export const routes: DefaultTheme.SidebarItem[] = [
   {
     text: 'Community',
     base: '/recipes/community',
-    items: [],
+    items: [
+      {
+        text: 'Strapi',
+        link: '/strapi'
+      },
+      {
+        text: 'Directus',
+        link: '/directus',
+      },
+      {
+        text: 'Laravel Passport',
+        link: '/laravel-passport'
+      }
+    ],
   },
 ]

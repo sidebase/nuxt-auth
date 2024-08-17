@@ -1,10 +1,6 @@
 # Mocking with Vitest
 
-<div style="margin-top: 10px" >
-  <Badge type="warning" text="offical" />
-  <Badge type="info" text="authjs" />
-  <Badge type="info" text="testing" />
-</div>
+<RecipeHeader type="official" author="zoey-kaiser" :providers="['authjs']" :tags="['testing', 'vitest']" />
 
 In order to run end-to-end or component tests with Vitest, you will need to create a "mocked" version of the NuxtAuth composables for the test to interact with. In some cases if you are using the `local` or `refresh` provider with a Full-Stack application, you can also directly interact with your authentication API and mock the reponses inside your backend.
 

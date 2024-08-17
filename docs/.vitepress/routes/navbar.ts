@@ -19,24 +19,15 @@ export const routes: DefaultTheme.Config['nav'] = [
     ],
   },
   {
-    text: 'Recipes',
-    items: [
-      {
-        text: 'Official Recipes',
-        link: '/recipes/official/overview',
-      },
-      {
-        text: 'Community Recipes',
-        link: '/recipes/community/overview',
-      },
-    ],
-  },
-  {
     text: 'Resources',
     items: [
       {
         text: 'Overview',
         link: '/resources/overview',
+      },
+      {
+        text: 'Recipes',
+        link: '/recipes/introduction/welcome',
       },
       {
         text: 'Security',
