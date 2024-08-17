@@ -27,7 +27,7 @@ withDefaults(defineProps<{
     </div>
     <a v-if="author" class="Avatar" :href="`https://github.com/${author}`" target="_blank" rel="noreferrer noopener">
       <span>{{ author }}</span>
-      <img :src="`https://github.com/${author}.png?size=100`" />
+      <img :src="`https://github.com/${author}.png?size=100`">
     </a>
   </div>
   <hr>
