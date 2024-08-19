@@ -101,8 +101,8 @@ export default defineNuxtRouteMiddleware((to) => {
     return navigateTo({
       path: authConfig.provider.pages.login,
       query: {
-        redirect: to.fullPath,
-      },
+        redirect: to.fullPath
+      }
     })
   }
 })

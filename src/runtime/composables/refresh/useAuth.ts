@@ -71,7 +71,7 @@ const signIn: ReturnType<typeof useLocalAuth>['signIn'] = async (
   const { redirect = true } = signInOptions ?? {}
   let { callbackUrl } = signInOptions ?? {}
   if (typeof callbackUrl === 'undefined') {
-    if (useRoute()?.query?.redirect){
+    if (useRoute()?.query?.redirect) {
       callbackUrl = useRoute().query.redirect?.toString()
     } else {
       callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))

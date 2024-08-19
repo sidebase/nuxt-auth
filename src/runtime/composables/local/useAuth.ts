@@ -11,7 +11,6 @@ import { useAuthState } from './useAuthState'
 import type { SessionData } from '#auth'
 import { useNuxtApp, useRuntimeConfig, nextTick, navigateTo, useRoute } from '#imports'
 
-
 type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
 
 const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, signInParams) => {
@@ -40,7 +39,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   const { redirect = true } = signInOptions ?? {}
   let { callbackUrl } = signInOptions ?? {}
   if (typeof callbackUrl === 'undefined') {
-    if (useRoute()?.query?.redirect){
+    if (useRoute()?.query?.redirect) {
       callbackUrl = useRoute().query.redirect?.toString()
     } else {
       callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
