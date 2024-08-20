@@ -8,7 +8,7 @@ import { useRuntimeConfig } from '#imports'
 /**
  * Get `origin` and fallback to `x-forwarded-host` or `host` headers if not in production.
  */
-export function getServerOrigin (event?: H3Event): string {
+export function getServerOrigin(event?: H3Event): string {
   const config = useRuntimeConfig()
 
   // Prio 1: Environment variable
@@ -35,7 +35,7 @@ export function getServerOrigin (event?: H3Event): string {
 
 type RuntimeConfig = ReturnType<typeof useRuntimeConfig>
 
-function extractFromRuntimeConfig (config: RuntimeConfig, envVariableName: string): string | undefined {
+function extractFromRuntimeConfig(config: RuntimeConfig, envVariableName: string): string | undefined {
   let normalized = envVariableName.startsWith('NUXT_')
     ? envVariableName.slice(5)
     : envVariableName

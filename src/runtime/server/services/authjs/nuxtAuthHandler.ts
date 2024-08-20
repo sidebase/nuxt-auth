@@ -1,5 +1,5 @@
-import type { IncomingHttpHeaders } from 'http'
-import { getQuery, setCookie, readBody, sendRedirect, eventHandler, parseCookies, createError, isMethod, getHeaders, getResponseHeader, setResponseHeader, getRequestHost, getRequestProtocol } from 'h3'
+import type { IncomingHttpHeaders } from 'node:http'
+import { createError, eventHandler, getHeaders, getQuery, getRequestHost, getRequestProtocol, getResponseHeader, isMethod, parseCookies, readBody, sendRedirect, setCookie, setResponseHeader } from 'h3'
 import type { H3Event } from 'h3'
 import type { CookieSerializeOptions } from 'cookie-es'
 
@@ -22,7 +22,7 @@ let preparedAuthjsHandler: ((req: RequestInternal) => Promise<ResponseInternal>)
 let usedSecret: string | undefined
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
-export function NuxtAuthHandler (nuxtAuthOptions?: AuthOptions) {
+export function NuxtAuthHandler(nuxtAuthOptions?: AuthOptions) {
   const isProduction = process.env.NODE_ENV === 'production'
   const trustHostUserPreference = useTypedBackendConfig(useRuntimeConfig(), 'authjs').trustHost
 
@@ -100,7 +100,7 @@ export function NuxtAuthHandler (nuxtAuthOptions?: AuthOptions) {
 }
 
 /** Gets session on server-side */
-export async function getServerSession (event: H3Event) {
+export async function getServerSession(event: H3Event) {
   const runtimeConfig = useRuntimeConfig()
   const authBasePath = runtimeConfig.public.auth.computed.pathname
   const trustHostUserPreference = useTypedBackendConfig(runtimeConfig, 'authjs').trustHost
@@ -158,7 +158,7 @@ export async function getServerSession (event: H3Event) {
  *
  * @param eventAndOptions The event to get the cookie or authorization header from that contains the JWT Token and options you want to alter token getting behavior.
  */
-export function getToken<R extends boolean = false> ({ event, secureCookie, secret, ...rest }: Omit<GetTokenParams<R>, 'req'> & { event: H3Event }) {
+export function getToken<R extends boolean = false>({ event, secureCookie, secret, ...rest }: Omit<GetTokenParams<R>, 'req'> & { event: H3Event }) {
   return authjsGetToken({
     // @ts-expect-error As our request is not a real next-auth request, we pass down only what's required for the method, as per code from https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L68
     req: {
@@ -178,7 +178,7 @@ export function getToken<R extends boolean = false> ({ event, secureCookie, secr
  *
  * @param event H3Event to transform into `RequestInternal`
  */
-async function createRequestForAuthjs (event: H3Event, trustHostUserPreference: boolean): Promise<RequestInternal> {
+async function createRequestForAuthjs(event: H3Event, trustHostUserPreference: boolean): Promise<RequestInternal> {
   const nextRequest: Omit<RequestInternal, 'action'> = {
     host: getRequestURLFromH3Event(event, trustHostUserPreference).origin,
     body: undefined,
@@ -223,7 +223,7 @@ async function createRequestForAuthjs (event: H3Event, trustHostUserPreference: 
  * @param trustHost Whether the host can be trusted. If `true`, base will be inferred from the request, otherwise the configured origin will be used.
  * @throws {Error} When server origin was incorrectly configured or when URL building failed
  */
-function getRequestURLFromH3Event (event: H3Event, trustHost: boolean): URL {
+function getRequestURLFromH3Event(event: H3Event, trustHost: boolean): URL {
   const path = (event.node.req.originalUrl || event.path).replace(
     /^[/\\]+/g,
     '/'
@@ -241,13 +241,14 @@ function getRequestURLFromH3Event (event: H3Event, trustHost: boolean): URL {
  * @param trustHost Whether the host can be trusted. If `true`, base will be inferred from the request, otherwise the configured origin will be used.
  * @throws {Error} When server origin was incorrectly configured
  */
-function getRequestBaseFromH3Event (event: H3Event, trustHost: boolean): string {
+function getRequestBaseFromH3Event(event: H3Event, trustHost: boolean): string {
   if (trustHost) {
     const host = getRequestHost(event, { xForwardedHost: trustHost })
     const protocol = getRequestProtocol(event)
 
     return `${protocol}://${host}`
-  } else {
+  }
+  else {
     // This may throw, we don't catch it
     const origin = getServerOrigin(event)
 
@@ -263,7 +264,7 @@ const SUPPORTED_ACTIONS: AuthAction[] = ['providers', 'session', 'csrf', 'signin
  *
  * E.g. with a request like `/api/signin/github` get the action `signin` with the provider `github`
  */
-function parseActionAndProvider ({ context }: H3Event): { action: AuthAction; providerId: string | undefined} {
+function parseActionAndProvider({ context }: H3Event): { action: AuthAction, providerId: string | undefined } {
   const params: string[] | undefined = context.params?._?.split('/')
 
   if (!params || ![1, 2].includes(params.length)) {
