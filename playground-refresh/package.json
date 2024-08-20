@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "nuxt-auth-playground-local",
+  "name": "nuxt-auth-playground-refresh",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
@@ -19,7 +19,6 @@
     "@nuxt/test-utils": "^3.14.1",
     "@playwright/test": "^1.46.0",
     "@types/jsonwebtoken": "^9.0.6",
-    "@types/node": "^18.19.44",
     "@vue/test-utils": "^2.4.6",
     "eslint": "^8.57.0",
     "nuxt": "^3.12.4",
