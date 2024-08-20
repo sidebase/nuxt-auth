@@ -591,6 +591,7 @@ export interface ModuleOptionsNormalized extends ModuleOptions {
   provider: Required<NonNullable<ModuleOptions['provider']>>
   sessionRefresh: NonNullable<ModuleOptions['sessionRefresh']>
   globalAppMiddleware: NonNullable<ModuleOptions['globalAppMiddleware']>
+  originEnvKey: string
 
   computed: {
     origin: string | undefined
