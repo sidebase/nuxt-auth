@@ -1,7 +1,7 @@
 <script setup>
 import DefaultTheme from 'vitepress/theme'
-import GithubStarsButton from './components/GithubStarsButton.vue'
-import Banner from './components/Banner.vue'
+import GithubStarsButton from './GithubStarsButton.vue'
+import Banner from './Banner.vue'
 
 const { Layout } = DefaultTheme
 
