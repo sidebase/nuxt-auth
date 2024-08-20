@@ -156,7 +156,10 @@ export async function getServerSession(event: H3Event) {
  * The only change from the original `getToken` implementation is that the `req` is not passed in, in favor of `event` being passed in.
  * See https://next-auth.js.org/tutorials/securing-pages-and-api-routes#using-gettoken for further documentation.
  *
- * @param eventAndOptions The event to get the cookie or authorization header from that contains the JWT Token and options you want to alter token getting behavior.
+ * @param eventAndOptions The event and options used to alter the token behaviour.
+ * @param eventAndOptions.event The event to get the cookie or authorization header from that contains the JWT Token
+ * @param eventAndOptions.secureCookie boolean to determine if the protocol is secured with https
+ * @param eventAndOptions.secret A secret string used for encryption
  */
 export function getToken<R extends boolean = false>({ event, secureCookie, secret, ...rest }: Omit<GetTokenParams<R>, 'req'> & { event: H3Event }) {
   return authjsGetToken({
@@ -220,6 +223,7 @@ async function createRequestForAuthjs(event: H3Event, trustHostUserPreference: b
  * ## WARNING
  * Please ensure that any URL produced by this function has a trusted host!
  *
+ * @param event The H3 Event containing the request
  * @param trustHost Whether the host can be trusted. If `true`, base will be inferred from the request, otherwise the configured origin will be used.
  * @throws {Error} When server origin was incorrectly configured or when URL building failed
  */
@@ -238,6 +242,7 @@ function getRequestURLFromH3Event(event: H3Event, trustHost: boolean): URL {
  * ## WARNING
  * Please ensure that any URL produced by this function has a trusted host!
  *
+ * @param event The H3 Event containing the request
  * @param trustHost Whether the host can be trusted. If `true`, base will be inferred from the request, otherwise the configured origin will be used.
  * @throws {Error} When server origin was incorrectly configured
  */
