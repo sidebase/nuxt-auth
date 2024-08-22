@@ -1,8 +1,8 @@
 // TODO: This should be merged into `./utils`
 import { parseURL } from 'ufo'
 import type { DeepRequired } from 'ts-essentials'
-import type { AuthProviders, SupportedAuthProviders } from './types'
-import type { useRuntimeConfig } from '#imports'
+import type { ProviderAuthjs, ProviderLocal, SupportedAuthProviders } from './types'
+import { useRuntimeConfig } from '#imports'
 
 export const isProduction = process.env.NODE_ENV === 'production'
 
@@ -21,19 +21,30 @@ export function getOriginAndPathnameFromURL(url: string) {
   }
 }
 
+// We use `DeepRequired` here because options are actually enriched using `defu`
+// but due to a build error we can't use `DeepRequired` inside runtime config definition.
+type RuntimeConfig = ReturnType<typeof useRuntimeConfig>
+export type ProviderAuthjsResolvedConfig = DeepRequired<ProviderAuthjs>
+export type ProviderLocalResolvedConfig = DeepRequired<ProviderLocal>
+
+export function useTypedBackendConfig(runtimeConfig: RuntimeConfig, type: 'authjs'): ProviderAuthjsResolvedConfig
+export function useTypedBackendConfig(runtimeConfig: RuntimeConfig, type: 'local'): ProviderLocalResolvedConfig
 /**
  * Get the backend configuration from the runtime config in a typed manner.
  *
  * @param runtimeConfig The runtime config of the application
- * @param _type Backend type to be enforced (e.g.: `local`,`refresh` or `authjs`)
+ * @param type Backend type to be enforced (e.g.: `local` or `authjs`)
  */
-export function useTypedBackendConfig<T extends SupportedAuthProviders>(runtimeConfig: ReturnType<typeof useRuntimeConfig>, _type: T): Extract<DeepRequired<AuthProviders>, { type: T }> {
-  return runtimeConfig.public.auth.provider as Extract<
-    DeepRequired<AuthProviders>,
-    { type: T }
-  >
-  // TODO: find better solution to throw errors, when using sub-configs
-  // throw new Error('RuntimeError: Type must match at this point')
+export function useTypedBackendConfig<T extends SupportedAuthProviders> (
+  runtimeConfig: ReturnType<typeof useRuntimeConfig>,
+  type: T
+): ProviderAuthjsResolvedConfig | ProviderLocalResolvedConfig {
+  const provider = runtimeConfig.public.auth.provider
+  if (provider.type === type) {
+    return provider as DeepRequired<typeof provider>
+  }
+
+  throw new Error('RuntimeError: Type must match at this point')
 }
 
 /**
