@@ -56,18 +56,15 @@ export type SessionDataObject = {
 /**
  * Available `nuxt-auth` authentication providers.
  */
-export type SupportedAuthProviders = 'authjs' | 'local' | 'refresh';
+export type SupportedAuthProviders = 'authjs' | 'local'
 
 /**
  * Configuration for the `local`-provider.
  */
 export type ProviderLocal = {
   /**
-   * Uses the `local` provider to facilitate authentication. Currently, two providers exclusive are supported:
-   * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
-   * - `local` or 'refresh': Username and password provider with support for static-applications
-   *
-   * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
+   * Uses the `local` provider to facilitate authentication.
+   * Read more here: https://auth.sidebase.io/guide/local/quick-start
    */
   type: Extract<SupportedAuthProviders, 'local'>;
   /**
@@ -161,7 +158,8 @@ export type ProviderLocal = {
      */
     maxAgeInSeconds?: number;
     /**
-     * The cookie sameSite policy. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
+     * The cookie sameSite policy.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
      *
      * @default 'lax'
      * @example 'strict'
@@ -169,6 +167,7 @@ export type ProviderLocal = {
     sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
     /**
      * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.5
      *
      * @default false
      * @example true
@@ -184,6 +183,7 @@ export type ProviderLocal = {
     cookieDomain?: string;
     /**
      * Whether to set the httpOnly flag on the cookie.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.6
      *
      * @default false
      * @example true
@@ -215,98 +215,107 @@ export type ProviderLocal = {
      */
     dataResponsePointer?: string;
   };
-};
-
-/**
- * Configuration for the `refresh`-provider an extended version of the local provider.
- */
-export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
   /**
-   * Uses the `authjs` provider to facilitate authentication. Currently, two providers exclusive are supported:
-   * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
-   * - `local` or 'refresh': Username and password provider with support for static-applications
-   *
-   * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
+   * Configuration for the refresh token logic of the `local` provider.
+   * If set to `undefined` or set to `{ isEnabled: false }`, refresh tokens will not be used.
    */
-  type: Extract<SupportedAuthProviders, 'refresh'>;
-  endpoints?: {
+  refresh?: {
+    /**
+     * Whether the refresh logic of the local provider is active
+     *
+     * @default false
+     */
+    isEnabled?: boolean,
     /**
      * What method and path to call to perform the sign-in. This endpoint must return a token that can be used to authenticate subsequent requests.
      *
      * @default { path: '/refresh', method: 'post' }
      */
-    refresh?: { path?: string; method?: RouterMethod };
-  };
-  /**
-   *  When refreshOnlyToken is set, only the token will be refreshed
-   *
-   * @default true
-   */
-  refreshOnlyToken?: boolean;
-
-  refreshToken?: {
+    endpoint?: { path?: string; method?: RouterMethod };
     /**
-     * How to extract the authentication-token from the sign-in response.
+     * When refreshOnlyToken is set to `true`, only the token will be updated when the refresh endpoint is called.
+     * When refreshOnlyToken is set to `false`, the token and refreshToken will be updated when the refresh endpoint is called.
      *
-     * E.g., setting this to `/refreshToken/bearer` and returning an object like `{ refreshToken: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `signIn` endpoint will
-     * result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
-     *
-     * This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
-     *
-     * @default '/refreshToken'  Access the `refreshToken` property of the sign-in response object
-     * @example /       Access the root of the sign-in response object, useful when your endpoint returns a plain, non-object string as the token
+     * @default true
      */
-    signInResponseRefreshTokenPointer?: string;
+    refreshOnlyToken?: boolean;
     /**
-     * How to do a fetch for the refresh token.
-     *
-     * This is especially useful when you have an external backend signing tokens. Refer to this issue to get more information: https://github.com/sidebase/nuxt-auth/issues/635.
-     *
-     * ### Example
-     * Setting this to `/refresh/token` would make Nuxt Auth send the `POST /api/auth/refresh` with the following BODY: `{ "refresh": { "token": "..." } }
-     *
-     * ### Notes
-     * This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
-     *
-     * @default '/refreshToken'
+     * Settings for the refresh-token that `nuxt-auth` receives from the `signIn` endpoint that is used for the `refresh` endpoint.
      */
-    refreshRequestTokenPointer?: string;
-    /**
-     * It refers to the name of the property when it is stored in a cookie.
-     *
-     * @default auth.refresh-token
-     * @example auth._refresh-token
-     */
-    cookieName?: string;
-    /**
-     * Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
-     *
-     * Note: Your backend may reject / expire the token earlier / differently.
-     */
-    maxAgeInSeconds?: number;
-    /**
-     * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
-     *
-     * @default false
-     * @example true
-     */
-    secureCookieAttribute?: boolean;
-    /**
-     * The cookie domain.
-     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
-     *
-     * @default ''
-     * @example 'sidebase.io'
-     */
-    cookieDomain?: string;
-    /**
-     * Whether to set the httpOnly flag on the cookie.
-     *
-     * @default false
-     * @example true
-     */
-    httpOnlyCookieAttribute?: boolean;
-  };
+    token?: {
+      /**
+       * How to extract the authentication-token from the sign-in response.
+       *
+       * E.g., setting this to `/refreshToken/bearer` and returning an object like `{ refreshToken: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `signIn` endpoint will
+       * result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
+       *
+       * This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+       *
+       * @default '/refreshToken'  Access the `refreshToken` property of the sign-in response object
+       * @example /       Access the root of the sign-in response object, useful when your endpoint returns a plain, non-object string as the token
+       */
+      signInResponseRefreshTokenPointer?: string;
+      /**
+       * How to do a fetch for the refresh token.
+       *
+       * This is especially useful when you have an external backend signing tokens. Refer to this issue to get more information: https://github.com/sidebase/nuxt-auth/issues/635.
+       *
+       * ### Example
+       * Setting this to `/refresh/token` would make Nuxt Auth send the `POST /api/auth/refresh` with the following BODY: `{ "refresh": { "token": "..." } }
+       *
+       * ### Notes
+       * This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+       *
+       * @default '/refreshToken'
+       */
+      refreshRequestTokenPointer?: string;
+      /**
+       * It refers to the name of the property when it is stored in a cookie.
+       *
+       * @default 'auth.refresh-token'
+       * @example 'auth._refresh-token'
+       */
+      cookieName?: string;
+      /**
+       * Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
+       *
+       * Note: Your backend may reject / expire the token earlier / differently.
+       */
+      maxAgeInSeconds?: number;
+      /**
+       * The cookie sameSite policy.
+       * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
+       *
+       * @default 'lax'
+       * @example 'strict'
+       */
+      sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
+      /**
+       * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+       * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.5
+       *
+       * @default false
+       * @example true
+       */
+      secureCookieAttribute?: boolean;
+      /**
+       * The cookie domain.
+       * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+       *
+       * @default ''
+       * @example 'sidebase.io'
+       */
+      cookieDomain?: string;
+      /**
+       * Whether to set the httpOnly flag on the cookie.
+       * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.6
+       *
+       * @default false
+       * @example true
+       */
+      httpOnlyCookieAttribute?: boolean;
+    }
+  }
 };
 
 /**
@@ -314,11 +323,8 @@ export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
  */
 export type ProviderAuthjs = {
   /**
-   * Uses the `authjs` provider to facilitate autnetication. Currently, two providers exclusive are supported:
-   * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
-   * - `local` or `refresh`: Username and password provider with support for static-applications
-   *
-   * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
+   * Uses the `authjs` provider to facilitate authentication.
+   * Read more here: https://auth.sidebase.io/guide/authjs/quick-start
    */
   type: Extract<SupportedAuthProviders, 'authjs'>;
   /**
@@ -347,7 +353,6 @@ export type ProviderAuthjs = {
 export type AuthProviders =
   | ProviderAuthjs
   | ProviderLocal
-  | ProviderLocalRefresh;
 
 export interface RefreshHandler {
   /**
@@ -498,7 +503,6 @@ export interface RouteOptions {
 }
 
 // Common useAuthStatus & useAuth return-types
-
 export type SessionLastRefreshedAt = Date | undefined;
 export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading';
 type WrappedSessionData<SessionData> = Ref<SessionData | null | undefined>;
@@ -524,7 +528,6 @@ export interface CommonUseAuthStateReturn<SessionData> {
 }
 
 // Common `useAuth` method-types
-
 export interface SecondarySignInOptions extends Record<string, unknown> {
   /**
    * Specify to which URL the user will be redirected after signing in. Defaults to the page URL the sign-in is initiated from.
