@@ -532,7 +532,7 @@ export interface CommonUseAuthStateReturn<SessionData> {
     baseURL: string
     basePath: string
     isBaseURLInternal: boolean
-  };
+  }
 }
 
 // Common `useAuth` method-types
