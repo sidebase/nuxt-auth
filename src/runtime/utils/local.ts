@@ -1,6 +1,6 @@
 import type { ProviderLocalResolvedConfig } from '../helpers'
 
-export function formatToken (token: string | null | undefined, config: ProviderLocalResolvedConfig): string | null {
+export function formatToken(token: string | null | undefined, config: ProviderLocalResolvedConfig): string | null {
   if (token === null || token === undefined) {
     return null
   }

@@ -2,7 +2,7 @@
 import { parseURL } from 'ufo'
 import type { DeepRequired } from 'ts-essentials'
 import type { ProviderAuthjs, ProviderLocal, SupportedAuthProviders } from './types'
-import { useRuntimeConfig } from '#imports'
+import type { useRuntimeConfig } from '#imports'
 
 export const isProduction = process.env.NODE_ENV === 'production'
 
@@ -35,7 +35,7 @@ export function useTypedBackendConfig(runtimeConfig: RuntimeConfig, type: 'local
  * @param runtimeConfig The runtime config of the application
  * @param type Backend type to be enforced (e.g.: `local` or `authjs`)
  */
-export function useTypedBackendConfig<T extends SupportedAuthProviders> (
+export function useTypedBackendConfig<T extends SupportedAuthProviders>(
   runtimeConfig: ReturnType<typeof useRuntimeConfig>,
   type: T
 ): ProviderAuthjsResolvedConfig | ProviderLocalResolvedConfig {

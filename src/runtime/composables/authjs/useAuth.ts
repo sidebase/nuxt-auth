@@ -6,7 +6,7 @@ import { determineCallbackUrl } from '../../utils/url'
 import { getRequestURLWN, joinPathToApiURLWN, makeCWN, navigateToAuthPageWN } from '../../utils/callWithNuxt'
 import { _fetch } from '../../utils/fetch'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
-import type { CommonUseAuthReturn, GetSessionFunc, SignInFunc, SignOutFunc } from '../../types'
+import type { CommonUseAuthReturn, GetSessionOptions, SignInFunc, SignOutFunc } from '../../types'
 import { useTypedBackendConfig } from '../../helpers'
 import type { SessionData } from './useAuthState'
 import type { NuxtApp } from '#app/nuxt'
@@ -163,7 +163,7 @@ function getProviders() {
  *
  * @param getSessionOptions - Options for getting the session, e.g., set `required: true` to enforce that a session _must_ exist, the user will be directed to a login page otherwise.
  */
-const getSession: GetSessionFunc<SessionData> = async (getSessionOptions) => {
+async function getSession(getSessionOptions?: GetSessionOptions): Promise<SessionData> {
   const nuxt = useNuxtApp()
 
   const callbackUrlFallback = await getRequestURLWN(nuxt)

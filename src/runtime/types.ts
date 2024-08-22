@@ -213,8 +213,8 @@ export interface ProviderLocal {
      * @default / Access the root of the session response object
      * @example /data/user  Access the `data/user` property of the session response object
      */
-    dataResponsePointer?: string;
-  };
+    dataResponsePointer?: string
+  }
   /**
    * Configuration for the refresh token logic of the `local` provider.
    * If set to `undefined` or set to `{ isEnabled: false }`, refresh tokens will not be used.
@@ -225,20 +225,20 @@ export interface ProviderLocal {
      *
      * @default false
      */
-    isEnabled?: boolean,
+    isEnabled?: boolean
     /**
      * What method and path to call to perform the sign-in. This endpoint must return a token that can be used to authenticate subsequent requests.
      *
      * @default { path: '/refresh', method: 'post' }
      */
-    endpoint?: { path?: string; method?: RouterMethod };
+    endpoint?: { path?: string, method?: RouterMethod }
     /**
      * When refreshOnlyToken is set to `true`, only the token will be updated when the refresh endpoint is called.
      * When refreshOnlyToken is set to `false`, the token and refreshToken will be updated when the refresh endpoint is called.
      *
      * @default true
      */
-    refreshOnlyToken?: boolean;
+    refreshOnlyToken?: boolean
     /**
      * Settings for the refresh-token that `nuxt-auth` receives from the `signIn` endpoint that is used for the `refresh` endpoint.
      */
@@ -254,7 +254,7 @@ export interface ProviderLocal {
        * @default '/refreshToken'  Access the `refreshToken` property of the sign-in response object
        * @example /       Access the root of the sign-in response object, useful when your endpoint returns a plain, non-object string as the token
        */
-      signInResponseRefreshTokenPointer?: string;
+      signInResponseRefreshTokenPointer?: string
       /**
        * How to do a fetch for the refresh token.
        *
@@ -268,20 +268,20 @@ export interface ProviderLocal {
        *
        * @default '/refreshToken'
        */
-      refreshRequestTokenPointer?: string;
+      refreshRequestTokenPointer?: string
       /**
        * It refers to the name of the property when it is stored in a cookie.
        *
        * @default 'auth.refresh-token'
        * @example 'auth._refresh-token'
        */
-      cookieName?: string;
+      cookieName?: string
       /**
        * Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
        *
        * Note: Your backend may reject / expire the token earlier / differently.
        */
-      maxAgeInSeconds?: number;
+      maxAgeInSeconds?: number
       /**
        * The cookie sameSite policy.
        * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
@@ -289,7 +289,7 @@ export interface ProviderLocal {
        * @default 'lax'
        * @example 'strict'
        */
-      sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
+      sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined
       /**
        * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
        * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.5
@@ -297,7 +297,7 @@ export interface ProviderLocal {
        * @default false
        * @example true
        */
-      secureCookieAttribute?: boolean;
+      secureCookieAttribute?: boolean
       /**
        * The cookie domain.
        * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
@@ -305,7 +305,7 @@ export interface ProviderLocal {
        * @default ''
        * @example 'sidebase.io'
        */
-      cookieDomain?: string;
+      cookieDomain?: string
       /**
        * Whether to set the httpOnly flag on the cookie.
        * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.6
@@ -313,7 +313,7 @@ export interface ProviderLocal {
        * @default false
        * @example true
        */
-      httpOnlyCookieAttribute?: boolean;
+      httpOnlyCookieAttribute?: boolean
     }
   }
 };
@@ -580,9 +580,6 @@ export type GetSessionOptions = Partial<{
 
 // TODO: These types could be nicer and more general, or located withing `useAuth` files and more specific
 export type SignOutFunc = (options?: SignOutOptions) => Promise<any>
-export type GetSessionFunc<SessionData> = (
-  getSessionOptions?: GetSessionOptions
-) => Promise<SessionData>
 export type SignInFunc<PrimarySignInOptions, SignInResult> = (
   primaryOptions: PrimarySignInOptions,
   signInOptions?: SecondarySignInOptions,

@@ -125,40 +125,6 @@ importers:
         specifier: ^2.0.29
         version: 2.0.29(typescript@5.5.4)
 
-  playground-refresh:
-    dependencies:
-      jsonwebtoken:
-        specifier: ^9.0.2
-        version: 9.0.2
-      zod:
-        specifier: ^3.23.8
-        version: 3.23.8
-    devDependencies:
-      '@nuxt/test-utils':
-        specifier: ^3.14.1
-        version: 3.14.1(@playwright/test@1.46.1)(@vue/test-utils@2.4.6)(h3@1.12.0)(magicast@0.3.4)(nitropack@2.9.7(encoding@0.1.13)(magicast@0.3.4))(playwright-core@1.46.1)(rollup@4.19.2)(vite@5.3.5(@types/node@20.12.7)(terser@5.30.3))(vitest@1.6.0(@types/node@20.12.7)(terser@5.30.3))(vue-router@4.4.2(vue@3.4.35(typescript@5.5.4)))(vue@3.4.35(typescript@5.5.4))
-      '@playwright/test':
-        specifier: ^1.46.0
-        version: 1.46.1
-      '@types/jsonwebtoken':
-        specifier: ^9.0.6
-        version: 9.0.6
-      '@vue/test-utils':
-        specifier: ^2.4.6
-        version: 2.4.6
-      nuxt:
-        specifier: ^3.12.4
-        version: 3.12.4(@parcel/watcher@2.4.1)(@types/node@20.12.7)(encoding@0.1.13)(eslint@8.57.0)(ioredis@5.4.1)(magicast@0.3.4)(optionator@0.9.3)(rollup@4.19.2)(terser@5.30.3)(typescript@5.5.4)(vite@5.3.5(@types/node@20.12.7)(terser@5.30.3))(vue-tsc@2.0.29(typescript@5.5.4))
-      typescript:
-        specifier: ^5.5.4
-        version: 5.5.4
-      vitest:
-        specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.12.7)(terser@5.30.3)
-      vue-tsc:
-        specifier: ^2.0.29
-        version: 2.0.29(typescript@5.5.4)
-
 packages:
 
   '@aashutoshrathi/word-wrap@1.2.6':
@@ -7672,46 +7638,6 @@ snapshots:
       - rollup
       - supports-color
 
-  '@nuxt/test-utils@3.14.1(@playwright/test@1.46.1)(@vue/test-utils@2.4.6)(h3@1.12.0)(magicast@0.3.4)(nitropack@2.9.7(encoding@0.1.13)(magicast@0.3.4))(playwright-core@1.46.1)(rollup@4.19.2)(vite@5.3.5(@types/node@20.12.7)(terser@5.30.3))(vitest@1.6.0(@types/node@20.12.7)(terser@5.30.3))(vue-router@4.4.2(vue@3.4.35(typescript@5.5.4)))(vue@3.4.35(typescript@5.5.4))':
-    dependencies:
-      '@nuxt/kit': 3.12.4(magicast@0.3.4)(rollup@4.19.2)
-      '@nuxt/schema': 3.12.4(rollup@4.19.2)
-      c12: 1.11.1(magicast@0.3.4)
-      consola: 3.2.3
-      defu: 6.1.4
-      destr: 2.0.3
-      estree-walker: 3.0.3
-      execa: 8.0.1
-      fake-indexeddb: 6.0.0
-      get-port-please: 3.1.2
-      h3: 1.12.0
-      local-pkg: 0.5.0
-      magic-string: 0.30.11
-      nitropack: 2.9.7(encoding@0.1.13)(magicast@0.3.4)
-      node-fetch-native: 1.6.4
-      ofetch: 1.3.4
-      pathe: 1.1.2
-      perfect-debounce: 1.0.0
-      radix3: 1.1.2
-      scule: 1.3.0
-      std-env: 3.7.0
-      ufo: 1.5.4
-      unenv: 1.10.0
-      unplugin: 1.12.2
-      vite: 5.3.5(@types/node@20.12.7)(terser@5.30.3)
-      vitest-environment-nuxt: 1.0.0(@playwright/test@1.46.1)(@vue/test-utils@2.4.6)(h3@1.12.0)(magicast@0.3.4)(nitropack@2.9.7(encoding@0.1.13)(magicast@0.3.4))(playwright-core@1.46.1)(rollup@4.19.2)(vite@5.3.5(@types/node@20.12.7)(terser@5.30.3))(vitest@1.6.0(@types/node@20.12.7)(terser@5.30.3))(vue-router@4.4.2(vue@3.4.35(typescript@5.5.4)))(vue@3.4.35(typescript@5.5.4))
-      vue: 3.4.35(typescript@5.5.4)
-      vue-router: 4.4.2(vue@3.4.35(typescript@5.5.4))
-    optionalDependencies:
-      '@playwright/test': 1.46.1
-      '@vue/test-utils': 2.4.6
-      playwright-core: 1.46.1
-      vitest: 1.6.0(@types/node@20.12.7)(terser@5.30.3)
-    transitivePeerDependencies:
-      - magicast
-      - rollup
-      - supports-color
-
   '@nuxt/vite-builder@3.12.4(@types/node@18.19.42)(eslint@8.57.0)(magicast@0.3.4)(optionator@0.9.3)(rollup@4.19.2)(terser@5.30.3)(typescript@5.5.4)(vue-tsc@2.0.29(typescript@5.5.4))(vue@3.4.35(typescript@5.5.4))':
     dependencies:
       '@nuxt/kit': 3.12.4(magicast@0.3.4)(rollup@4.19.2)
@@ -13480,23 +13406,6 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@1.6.0(@types/node@20.12.7)(terser@5.30.3):
-    dependencies:
-      cac: 6.7.14
-      debug: 4.3.4
-      pathe: 1.1.2
-      picocolors: 1.0.0
-      vite: 5.2.9(@types/node@20.12.7)(terser@5.30.3)
-    transitivePeerDependencies:
-      - '@types/node'
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-
   vite-node@2.0.5(@types/node@18.19.42)(terser@5.30.3):
     dependencies:
       cac: 6.7.14
@@ -13737,16 +13646,6 @@ snapshots:
       fsevents: 2.3.3
       terser: 5.30.3
 
-  vite@5.2.9(@types/node@20.12.7)(terser@5.30.3):
-    dependencies:
-      esbuild: 0.20.2
-      postcss: 8.4.38
-      rollup: 4.14.3
-    optionalDependencies:
-      '@types/node': 20.12.7
-      fsevents: 2.3.3
-      terser: 5.30.3
-
   vite@5.3.3(@types/node@18.19.42)(terser@5.30.3):
     dependencies:
       esbuild: 0.21.5
@@ -13857,29 +13756,6 @@ snapshots:
       - vue
       - vue-router
 
-  vitest-environment-nuxt@1.0.0(@playwright/test@1.46.1)(@vue/test-utils@2.4.6)(h3@1.12.0)(magicast@0.3.4)(nitropack@2.9.7(encoding@0.1.13)(magicast@0.3.4))(playwright-core@1.46.1)(rollup@4.19.2)(vite@5.3.5(@types/node@20.12.7)(terser@5.30.3))(vitest@1.6.0(@types/node@20.12.7)(terser@5.30.3))(vue-router@4.4.2(vue@3.4.35(typescript@5.5.4)))(vue@3.4.35(typescript@5.5.4)):
-    dependencies:
-      '@nuxt/test-utils': 3.14.1(@playwright/test@1.46.1)(@vue/test-utils@2.4.6)(h3@1.12.0)(magicast@0.3.4)(nitropack@2.9.7(encoding@0.1.13)(magicast@0.3.4))(playwright-core@1.46.1)(rollup@4.19.2)(vite@5.3.5(@types/node@20.12.7)(terser@5.30.3))(vitest@1.6.0(@types/node@20.12.7)(terser@5.30.3))(vue-router@4.4.2(vue@3.4.35(typescript@5.5.4)))(vue@3.4.35(typescript@5.5.4))
-    transitivePeerDependencies:
-      - '@cucumber/cucumber'
-      - '@jest/globals'
-      - '@playwright/test'
-      - '@testing-library/vue'
-      - '@vitest/ui'
-      - '@vue/test-utils'
-      - h3
-      - happy-dom
-      - jsdom
-      - magicast
-      - nitropack
-      - playwright-core
-      - rollup
-      - supports-color
-      - vite
-      - vitest
-      - vue
-      - vue-router
-
   vitest@1.6.0(@types/node@18.19.42)(terser@5.30.3):
     dependencies:
       '@vitest/expect': 1.6.0
@@ -13938,39 +13814,6 @@ snapshots:
       why-is-node-running: 2.2.2
     optionalDependencies:
       '@types/node': 18.19.45
-    transitivePeerDependencies:
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-
-  vitest@1.6.0(@types/node@20.12.7)(terser@5.30.3):
-    dependencies:
-      '@vitest/expect': 1.6.0
-      '@vitest/runner': 1.6.0
-      '@vitest/snapshot': 1.6.0
-      '@vitest/spy': 1.6.0
-      '@vitest/utils': 1.6.0
-      acorn-walk: 8.3.2
-      chai: 4.4.1
-      debug: 4.3.4
-      execa: 8.0.1
-      local-pkg: 0.5.0
-      magic-string: 0.30.7
-      pathe: 1.1.2
-      picocolors: 1.0.0
-      std-env: 3.7.0
-      strip-literal: 2.0.0
-      tinybench: 2.6.0
-      tinypool: 0.8.4
-      vite: 5.2.9(@types/node@20.12.7)(terser@5.30.3)
-      vite-node: 1.6.0(@types/node@20.12.7)(terser@5.30.3)
-      why-is-node-running: 2.2.2
-    optionalDependencies:
-      '@types/node': 20.12.7
     transitivePeerDependencies:
       - less
       - lightningcss

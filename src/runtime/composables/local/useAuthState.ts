@@ -49,10 +49,10 @@ export function useAuthState(): UseAuthStateReturn {
   })
 
   const token = computed(() => formatToken(rawToken.value, config))
-  function setToken (newToken: string | null) {
+  function setToken(newToken: string | null) {
     rawToken.value = newToken
   }
-  function clearToken () {
+  function clearToken() {
     setToken(null)
   }
 
@@ -68,17 +68,17 @@ export function useAuthState(): UseAuthStateReturn {
   // Handle refresh token, for when refresh logic is enabled
   const rawRefreshToken = useState<string | null>('auth:raw-refresh-token', () => null)
   if (config.refresh.isEnabled) {
-    const _rawRefreshTokenCookie = useCookie<string | null>(config.refresh.token.cookieName,
-      {
-        default: () => null,
-        domain: config.refresh.token.cookieDomain,
-        maxAge: config.refresh.token.maxAgeInSeconds,
-        sameSite: config.refresh.token.sameSiteAttribute,
-        secure: config.refresh.token.secureCookieAttribute,
-        httpOnly: config.refresh.token.httpOnlyCookieAttribute
-      }
-    )
-    watch(rawRefreshToken, () => { _rawRefreshTokenCookie.value = rawRefreshToken.value })
+    const _rawRefreshTokenCookie = useCookie<string | null>(config.refresh.token.cookieName, {
+      default: () => null,
+      domain: config.refresh.token.cookieDomain,
+      maxAge: config.refresh.token.maxAgeInSeconds,
+      sameSite: config.refresh.token.sameSiteAttribute,
+      secure: config.refresh.token.secureCookieAttribute,
+      httpOnly: config.refresh.token.httpOnlyCookieAttribute
+    })
+    watch(rawRefreshToken, () => {
+      _rawRefreshTokenCookie.value = rawRefreshToken.value
+    })
 
     // When the page is cached on a server, set the refresh token on the client
     if (instance) {
