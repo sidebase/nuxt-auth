@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 type BadgeType = 'info' | 'tip' | 'warning' | 'danger' | 'authjs' | 'local' | 'refresh' | 'community' | 'official'
 withDefaults(defineProps<{
-  text: string,
+  text: string
   type?: BadgeType
 }>(), { type: 'tip' })
 </script>

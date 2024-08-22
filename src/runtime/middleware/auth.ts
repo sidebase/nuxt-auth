@@ -1,20 +1,24 @@
-import { navigateToAuthPages, determineCallbackUrl } from '../utils/url'
-import { navigateTo, defineNuxtRouteMiddleware, useRuntimeConfig, useAuth } from '#imports'
+import type { navigateToAuthPages } from '../utils/url'
+import { determineCallbackUrl } from '../utils/url'
+import { defineNuxtRouteMiddleware, navigateTo, useAuth, useRuntimeConfig } from '#imports'
 
 type MiddlewareMeta = boolean | {
-  /** Whether to only allow unauthenticated users to access this page.
+  /**
+   * Whether to only allow unauthenticated users to access this page.
    *
    * Authenticated users will be redirected to `/` or the route defined in `navigateAuthenticatedTo`
    *
    * @default undefined
    */
-  unauthenticatedOnly?: boolean,
-  /** Where to redirect authenticated users if `unauthenticatedOnly` is set to true
+  unauthenticatedOnly?: boolean
+  /**
+   * Where to redirect authenticated users if `unauthenticatedOnly` is set to true
    *
    * @default undefined
    */
-  navigateAuthenticatedTo?: string,
-  /** Where to redirect unauthenticated users if this page is protected
+  navigateAuthenticatedTo?: string
+  /**
+   * Where to redirect unauthenticated users if this page is protected
    *
    * @default undefined
    */
@@ -93,11 +97,14 @@ export default defineNuxtRouteMiddleware((to) => {
 
   if (authConfig.provider.type === 'authjs') {
     const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.fullPath) }
+    // eslint-disable-next-line ts/ban-ts-comment
     // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
     return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
-  } else if (typeof metaAuth === 'object' && metaAuth.navigateUnauthenticatedTo) {
+  }
+  else if (typeof metaAuth === 'object' && metaAuth.navigateUnauthenticatedTo) {
     return navigateTo(metaAuth.navigateUnauthenticatedTo)
-  } else {
+  }
+  else {
     return navigateTo(authConfig.provider.pages.login)
   }
 })
