@@ -2,7 +2,7 @@ import { genInterface } from 'knitwork'
 import { createResolver } from '@nuxt/kit'
 import type { AuthProviders } from '../types'
 
-export function generateModuleTypes (provider: AuthProviders) {
+export function generateModuleTypes(provider: AuthProviders) {
   const { resolve } = createResolver(import.meta.url)
 
   const providerSpecificTypes: string[] = []
