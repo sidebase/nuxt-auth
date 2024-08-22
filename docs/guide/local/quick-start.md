@@ -6,7 +6,6 @@ This guide is for setting up `@sidebase/nuxt-auth` with the Local Provider, whic
 In `v0.9.0` the `refresh` provider was integrated into the `local` provider.
 :::
 
-
 ## Configuration
 
 The entire configuration for the `local` provider is contained inside the `nuxt.config.ts`. Inside the `auth` options, set your provider to `local`.

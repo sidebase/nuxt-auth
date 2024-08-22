@@ -44,7 +44,7 @@ export default defineNuxtConfig({
 
 ## RefreshHandler
 
-In [#715](https://github.com/sidebase/nuxt-auth/pull/715), we took the first step to improve the behavior and possibilities to customize the Refresh behaviour of your application. In [#766](https://github.com/sidebase/nuxt-auth/pull/766) we finalized these changes and improved the previous configuration options. You can define the location of a custom RefreshHandler inside your Nuxt config under `auth.sessionRefresh.refreshHandler`. 
+In [#715](https://github.com/sidebase/nuxt-auth/pull/715), we took the first step to improve the behavior and possibilities to customize the Refresh behaviour of your application. In [#766](https://github.com/sidebase/nuxt-auth/pull/766) we finalized these changes and improved the previous configuration options. You can define the location of a custom RefreshHandler inside your Nuxt config under `auth.sessionRefresh.refreshHandler`.
 
 To customize the session refreshing you can provide a refresh handler. A custom `RefreshHandler` requires an `init`- and a `destroy`-function.
 
@@ -56,14 +56,14 @@ import type { RefreshHandler } from '@sidebase/nuxt-auth'
 
 // You may also use a plain object with `satisfies RefreshHandler`, of course!
 class CustomRefreshHandler implements RefreshHandler {
-  init (): void {
+  init(): void {
     console.info('Use the full power of classes to customize refreshHandler!')
   }
 
-  destroy (): void {
+  destroy(): void {
     console.info(
-      'Hover above class properties or go to their definition ' +
-      'to learn more about how to craft a refreshHandler'
+      'Hover above class properties or go to their definition '
+      + 'to learn more about how to craft a refreshHandler'
     )
   }
 }
