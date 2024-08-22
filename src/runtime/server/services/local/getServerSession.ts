@@ -36,7 +36,7 @@ export async function getServerSession(event: H3Event): Promise<SessionData | nu
   const { path, method } = config.endpoints.getSession
 
   // Compose heads to request the session
-  const headers = new Headers(token ? { [config.token.headerName]: token } as HeadersInit : undefined)
+  const headers = new Headers({ [config.token.headerName]: token } as HeadersInit)
 
   try {
     const url = joinPathToApiURL(event, path)

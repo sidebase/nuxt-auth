@@ -41,9 +41,23 @@ const password = ref('')
       refresh session (required: true)
     </button>
     <br>
-    <NuxtLink to="/login">
-      navigate to Login Page
-    </NuxtLink>
+    <h2>Navigation</h2>
+    <p>Navigate to different pages below to test out different things:</p>
+    <div>
+      <nuxt-link to="/api/protected/inline" external>
+        -> API endpoint protected inline
+      </nuxt-link>
+      <br>
+      <nuxt-link to="/api/protected/middleware" external>
+        -> API endpoint protected middleware
+      </nuxt-link>
+      <br>
+      <NuxtLink to="/login">
+        -> navigate to Login Page
+      </NuxtLink>
+      <br>
+    </div>
+    <br>
     <NuxtPage />
   </div>
 </template>
