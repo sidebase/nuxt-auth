@@ -77,3 +77,17 @@ The configuration values that were unquie to the `refresh` provider have now bee
 ### Node version requirement
 
 Starting from `v0.9.0`, we now require a node version of at least 20. Node version 16 has now left maintaince mode and support for version 18 is ending in 2025. Read more [here](https://nodejs.org/en/about/previous-releases).
+
+## Changelog
+
+* fix(#834): Do not refresh on window focus for unprotected pages by @YoshimiShima in https://github.com/sidebase/nuxt-auth/pull/858
+* chore: add metadata fields to package.json by @MuhammadM1998 in https://github.com/sidebase/nuxt-auth/pull/864
+* fix(#860): make node version requirement less strict by @phoenix-ru in https://github.com/sidebase/nuxt-auth/pull/865
+* docs: Add recipes section and copy old recipes by @zoey-kaiser in https://github.com/sidebase/nuxt-auth/pull/868
+* chore: add plausible site analytics by @zoey-kaiser in https://github.com/sidebase/nuxt-auth/pull/869
+* feat(#673, #523, #848): back-port authjs migration by @phoenix-ru in https://github.com/sidebase/nuxt-auth/pull/849
+* feat(#821): Unify `local` and `refresh` providers into one by @zoey-kaiser in https://github.com/sidebase/nuxt-auth/pull/822
+* chore: updated ESLint and general housekeeping by @zoey-kaiser in https://github.com/sidebase/nuxt-auth/pull/853
+* chore: update docs for `0.9.0` by @zoey-kaiser in https://github.com/sidebase/nuxt-auth/pull/873
+
+**Full Changelog**: https://github.com/sidebase/nuxt-auth/compare/0.8.2...0.9.0
