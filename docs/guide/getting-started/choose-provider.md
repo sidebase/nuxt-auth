@@ -10,7 +10,7 @@ To pick a provider you will first have to take into consideration the requiremen
 - `local` is best when you already have a backend that accepts username + password as a login or want to build a static application. The Local Provider also supports refresh tokens since `v0.9.0`.
 
 :::warning Breaking change
-In `v0.9.0` the `refresh` provider was integrated into the `local` provider.
+In `v0.9.0` the `refresh` provider was integrated into the `local` provider. Read the [upgrade guide](/upgrade/version-0.9.0).
 :::
 
 If you are still unsure, below are some tables to help you pick:

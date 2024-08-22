@@ -3,7 +3,7 @@
 This guide is for setting up `@sidebase/nuxt-auth` with the Local Provider, which is best suited for when you already have a backend that accepts username + password as a login or want to build a static application. The Local Provider also supports refresh tokens since `v0.9.0`.
 
 :::warning Breaking change
-In `v0.9.0` the `refresh` provider was integrated into the `local` provider.
+In `v0.9.0` the `refresh` provider was integrated into the `local` provider. Read the [upgrade guide](/upgrade/version-0.9.0).
 :::
 
 ## Configuration
