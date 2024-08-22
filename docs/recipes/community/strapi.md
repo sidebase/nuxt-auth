@@ -30,14 +30,14 @@ export default defineNuxtConfig({
     // Default http://localhost:1337/api
     STRAPI_BASE_URL: process.env.STRAPI_BASE_URL,
   },
-});
+})
 ```
 
 1. Create the catch-all `NuxtAuthHandler` and add the this custom Strapi credentials provider:
 ```ts
 // file: ~/server/api/auth/[...].ts
-import CredentialsProvider from "next-auth/providers/credentials";
-import { NuxtAuthHandler } from "#auth";
+import CredentialsProvider from 'next-auth/providers/credentials'
+import { NuxtAuthHandler } from '#auth'
 const config = useRuntimeConfig()
 
 export default NuxtAuthHandler({
@@ -45,34 +45,35 @@ export default NuxtAuthHandler({
   providers: [
     // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
     CredentialsProvider.default({
-      name: "Credentials",
-      credentials: {},  // Object is required but can be left empty.
+      name: 'Credentials',
+      credentials: {}, // Object is required but can be left empty.
       async authorize(credentials: any) {
         const response = await $fetch(
           `${config.STRAPI_BASE_URL}/auth/local/`,
           {
-            method: "POST",
+            method: 'POST',
             body: JSON.stringify({
               identifier: credentials.username,
               password: credentials.password,
             }),
           }
-        );
+        )
 
         if (response.user) {
           const u = {
             id: response.id,
             name: response.user.username,
             email: response.user.email,
-          };
-          return u;
-        } else {
+          }
+          return u
+        }
+        else {
           return null
         }
       },
     }),
   ]
-});
+})
 ```
 
 :::tip Learn More
