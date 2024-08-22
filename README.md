@@ -141,7 +141,6 @@ This module also has it's own playground:
 We have one playground per provider:
 - [`authjs`](./playground-authjs)
 - [`local`](./playground-local)
-- [`refresh`](./playground-refresh)
 
 ##### How to test static Nuxt 3 apps?
 
