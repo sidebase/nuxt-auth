@@ -26,6 +26,10 @@ export const routes: DefaultTheme.Config['nav'] = [
         link: '/resources/overview',
       },
       {
+        text: 'Upgrade Guides',
+        link: '/upgrade',
+      },
+      {
         text: 'Recipes',
         link: '/recipes/introduction/welcome',
       },
