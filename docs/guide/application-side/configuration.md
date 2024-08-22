@@ -62,7 +62,7 @@ The full url at which the app will run combined with the path to authentication.
 - **port**: _empty_ (implies `:80` for http and `:443` for https), :3000, :8888
 - **path**: the path that directs to the location of your `NuxtAuthHandler` e.g. `/api/auth`
 
-### `local` and `refresh` Providers
+### `local` Provider
 
 Defaults to `/api/auth` for both development and production. Setting this is optional, if you set it you can set it to either:
 - just a path: Will lead to `nuxt-auth` using `baseURL` as a relative path appended to the origin you deploy to. Example: `/backend/auth`
@@ -74,12 +74,12 @@ If you point to a different origin than the one you deploy to you likely have to
 
 ## `provider`
 
-- **Type**: `ProviderAuthjs | ProviderLocal | ProviderRefresh`
+- **Type**: `ProviderAuthjs | ProviderLocal`
 - **Default**: `undefined`
 
 Configuration of the authentication provider. Different providers are supported:
 - AuthJS: See [configuration options here](/guide/authjs/quick-start#configuration)
-- Local / Refresh: See [configuration options here](/guide/local/quick-start)
+- Local: See [configuration options here](/guide/local/quick-start)
 
 ## `sessionRefresh`
 
