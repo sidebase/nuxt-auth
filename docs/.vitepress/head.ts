@@ -1,10 +1,10 @@
-import type { HeadConfig } from "vitepress"
+import type { HeadConfig } from 'vitepress'
 
 const HOST_NAME = 'https://auth.sidebase.io'
 const OG_IMAGE_URL = `${HOST_NAME}/nuxt-auth-og.jpg`
 
 export const sitemapConfig = {
-  hostname: HOST_NAME
+  hostname: HOST_NAME,
 }
 
 export const headConfig: HeadConfig[] = [

@@ -9,9 +9,9 @@ You can get the JWT token that was passed along with the request using `getToken
 import { getToken } from '#auth'
 
 export default eventHandler(async (event) => {
-    const token = await getToken({ event })
+  const token = await getToken({ event })
 
-    return token || 'no token present'
+  return token || 'no token present'
 })
 ```
 
@@ -39,14 +39,14 @@ export default eventHandler(event => getToken({ event }))
 
 Then from your application-side code you can fetch it like this:
 ```vue
-<template>
-    <div>{{ token || 'no token present, are you logged in?' }}</div>
-</template>
-
 <script setup lang="ts">
 const headers = useRequestHeaders(['cookie']) as HeadersInit
 const { data: token } = await useFetch('/api/token', { headers })
 </script>
+
+<template>
+  <div>{{ token || 'no token present, are you logged in?' }}</div>
+</template>
 ```
 
 :::warning Note:

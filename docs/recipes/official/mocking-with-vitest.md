@@ -40,7 +40,6 @@ export const NuxtAuthHandler = () => eventHandler(() => MOCKED_USER)
 
 Inside this file, you can define any NuxtAuth composable (client-side or server-side) that you need to access inside your tests. Later on when Vitest is running, it will access these functions instead of the built-in ones from NuxtAuth. Therefore you can customize the `MOCKED_USER` to match your session data type.
 
-
 ## Setup the mocked module
 
 Inside of `~/tests/mocks/setup.ts` create a new local Nuxt Module using the mocked functions defined above.
@@ -80,10 +79,10 @@ export default defineNuxtConfig({
     '@sidebase/nuxt-auth',
     ...mockAuthModule,
   ],
-}
+})
 ```
 
-That's it! You can now use `@sidebase/nuxt-auth` inside your tests! We decided to not natively include a mocked version of the module, as the configuration of it highly depends on your setup. 
+That's it! You can now use `@sidebase/nuxt-auth` inside your tests! We decided to not natively include a mocked version of the module, as the configuration of it highly depends on your setup.
 
 :::tip See the code
 You can find the full code for this guide [here](https://github.com/zoey-kaiser/nuxt-auth-recipes/tree/mocking-with-vitest).

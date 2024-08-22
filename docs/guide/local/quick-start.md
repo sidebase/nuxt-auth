@@ -2,7 +2,7 @@
 
 This guide is for setting up `@sidebase/nuxt-auth` with the Local / Refresh Provider, which is best suited for when you already have a backend that accepts username + password as a login or want to build a static application.
 
-The `refresh` provider is based on the `local` provider and extends its functionality by adding support for refresh tokens. 
+The `refresh` provider is based on the `local` provider and extends its functionality by adding support for refresh tokens.
 
 ## Configuration
 
@@ -10,16 +10,15 @@ The entire configuration for the `local` and `refresh` providers is contained in
 
 ```ts
 export default defineNuxtConfig({
-    modules: ['@sidebase/nuxt-auth'],
-    auth: {
-        baseURL: '/api/auth', // or an external url: (e.g. https://auth.example.com/api/auth)
-        provider: {
-            type: 'local' // or 'refresh'
-        }
+  modules: ['@sidebase/nuxt-auth'],
+  auth: {
+    baseURL: '/api/auth', // or an external url: (e.g. https://auth.example.com/api/auth)
+    provider: {
+      type: 'local' // or 'refresh'
     }
+  }
 })
 ```
-
 
 :::tip
 Ensure that your `baseURL` is properly configured to match your backend API. Read more [here](/guide/application-side/configuration#local-and-refresh).
@@ -31,23 +30,23 @@ Afterwards, you can define the endpoints to which the authentication requests wi
 
 ```ts
 export default defineNuxtConfig({
-    // ...Previous configuration
-    auth: {
-        baseURL: '/api/auth'
-        provider: {
-            type: 'local',
-            endpoints: {
-                signIn: { path: '/login', method: 'post' },
-                signOut: { path: '/logout', method: 'post' },
-                signUp: { path: '/register', method: 'post' },
-                getSession: { path: '/session', method: 'get' },
-            }
-        }
+  // ...Previous configuration
+  auth: {
+    baseURL: '/api/auth',
+    provider: {
+      type: 'local',
+      endpoints: {
+        signIn: { path: '/login', method: 'post' },
+        signOut: { path: '/logout', method: 'post' },
+        signUp: { path: '/register', method: 'post' },
+        getSession: { path: '/session', method: 'get' },
+      }
     }
-)}
+  }
+})
 ```
 
-Each endpoint, consists of an object, with a `path` and `method`. When a user triggers an action inside your application a request will be made to each endpoint. When a request is made to the `getSession` endpoint, a token will be sent as a header. You can configure the headers and token below. 
+Each endpoint, consists of an object, with a `path` and `method`. When a user triggers an action inside your application a request will be made to each endpoint. When a request is made to the `getSession` endpoint, a token will be sent as a header. You can configure the headers and token below.
 
 In the example above requests would be made to the following URLs:
 
@@ -56,47 +55,106 @@ In the example above requests would be made to the following URLs:
 - **Sign up:** `/api/auth/register` (POST)
 - **Get Session:** `/api/auth/session` (GET)
 
-You can customize each endpoint to fit your needs. If you would like to not have your app make a request on signOut, you can set the `signOut` endpoint to `false`. 
+:::info
+Relative paths starting with a `/` (e.g. `/login`) will be treated as a part of your Nuxt application. If you want to use an external backend, please provide fully-specified URLs instead. Read more [here](#using-an-external-backend).
+:::
+
+You can customize each endpoint to fit your needs or disable it by setting it to `false`. For example you may want to disable the `signUp` endpoint.
+
+```ts{7}
+export default defineNuxtConfig({
+    auth: {
+        baseURL: '/api/auth',
+        provider: {
+            type: 'local',
+            endpoints: {
+                signUp: false
+            }
+        }
+    }
+})
+```
+
+:::warning
+You cannot disable the `getSession` endpoint, as NuxtAuth internally uses it to determine the authentication status.
+:::
+
+### Using an external backend
+
+When using the `local` or `refresh` provider to access an external backend, please consider that the module will attempt to resolve the API endpoints by using internal Nuxt 3 relative URLs or an external call.
+
+To ensure that the module can properly identify that your endpoints point to an external URL, please ensure the following:
+
+1. `auth.baseURL` **includes** a trailing `/` at the end
+2. `auth.endpoints` **do not** include a leading `/` at the start
+
+```ts{7}
+export default defineNuxtConfig({
+    auth: {
+        baseURL: 'https://external-api.com', // [!code --]
+        baseURL: 'https://external-api.com/', // [!code ++]
+        provider: {
+            type: 'local',
+            endpoints: {
+                signIn: { path: '/login', method: 'post' }, // [!code --]
+                signIn: { path: 'login', method: 'post' }, // [!code ++]
+                getSession: { path: '/session', method: 'get' }, // [!code --]
+                getSession: { path: 'session', method: 'get' }, // [!code ++]
+            }
+        }
+    }
+})
+```
+
+You can read more about the path resolving logic in `@sidebase/nuxt-auth` [here](https://github.com/sidebase/nuxt-auth/issues/782#issuecomment-2223861422).
 
 ### Refresh provider
 
-If you are using the refresh provider, you can additionally define a `refresh` endpoint, which will be used to refresh the access token upon expiry. 
+If you are using the refresh provider, you can additionally define a `refresh` endpoint, which will be used to refresh the access token upon expiry.
 
 ```ts
-endpoints: {
-    signIn: { path: '/login', method: 'post' },
-    signOut: { path: '/logout', method: 'post' },
-    signUp: { path: '/register', method: 'post' },
-    getSession: { path: '/session', method: 'get' },
-    refresh: { path: '/refresh', method: 'post' } // [!code ++]
-}
+export default defineNuxtConfig({
+  auth: {
+    baseURL: '/api/auth',
+    provider: {
+      type: 'local',
+      endpoints: {
+        signIn: { path: '/login', method: 'post' },
+        signOut: { path: '/logout', method: 'post' },
+        signUp: { path: '/register', method: 'post' },
+        getSession: { path: '/session', method: 'get' },
+        refresh: { path: '/refresh', method: 'post' } // [!code ++]
+      }
+    }
+  }
+})
 ```
 
 ## Token
 
 The `local` and `refresh` providers are both based on exchanging access tokens with your backend. NuxtAuth expects an access token to be provided by the `signIn` endpoint, which will then be saved into the session to authenticate further requests to e.g. `getSession`.
 
-The configuration of the `token` properties depend on how your backend accepts and returns data. The options are designed to be as adaptable as possible, to account for many different types of backends. 
+The configuration of the `token` properties depend on how your backend accepts and returns data. The options are designed to be as adaptable as possible, to account for many different types of backends.
 
 ```ts
 export default defineNuxtConfig({
-    // Previous configuration
-    auth: {
-        provider: {
-            type: 'local',
-            token: {
-                signInResponseTokenPointer: '/token',
-                type: 'Bearer',
-                cookieName: 'auth.token',
-                headerName: 'Authorization',
-                maxAgeInSeconds: 1800,
-                sameSiteAttribute: 'lax',
-                cookieDomain: 'sidebase.io'
-                secureCookieAttribute: false,
-                httpOnlyCookieAttribute: false,
-            }
-        }
+  // Previous configuration
+  auth: {
+    provider: {
+      type: 'local',
+      token: {
+        signInResponseTokenPointer: '/token',
+        type: 'Bearer',
+        cookieName: 'auth.token',
+        headerName: 'Authorization',
+        maxAgeInSeconds: 1800,
+        sameSiteAttribute: 'lax',
+        cookieDomain: 'sidebase.io',
+        secureCookieAttribute: false,
+        httpOnlyCookieAttribute: false,
+      }
     }
+  }
 })
 ```
 
@@ -143,7 +201,7 @@ Note: Your backend may reject / expire the token earlier / differently.
 
 ### `sameSiteAttribute`
 
-The cookie sameSite policy. Can be used as a form of CSRF protection. If set to `strict`, the cookie will only be passed with requests to the same 'site'. Typically, this includes subdomains. So, a `sameSite: strict` cookie set by app.mysite.com will be passed to api.mysite.com, but not api.othersite.com. 
+The cookie sameSite policy. Can be used as a form of CSRF protection. If set to `strict`, the cookie will only be passed with requests to the same 'site'. Typically, this includes subdomains. So, a `sameSite: strict` cookie set by app.mysite.com will be passed to api.mysite.com, but not api.othersite.com.
 
 See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
 
@@ -181,32 +239,32 @@ If using the `refresh` provider, a seperate `refreshToken` configuration can als
 
 ```ts
 export default defineNuxtConfig({
-    // Previous configuration
-    auth: {
-        provider: {
-            type: 'local',
-            token: {
-                signInResponseTokenPointer: '/token',
-                type: 'Bearer',
-                cookieName: 'auth.token',
-                headerName: 'Authorization',
-                maxAgeInSeconds: 1800,
-                sameSiteAttribute: 'lax',
-                cookieDomain: 'sidebase.io'
-                secureCookieAttribute: false,
-                httpOnlyCookieAttribute: false,
-            },
-            refreshToken: {
-                signInResponseRefreshTokenPointer: '/refresh-token',
-                refreshRequestTokenPointer: 'Bearer',
-                cookieName: 'auth.token',
-                maxAgeInSeconds: 1800,
-                cookieDomain: 'sidebase.io'
-                secureCookieAttribute: false,
-                httpOnlyCookieAttribute: false,
-            }
-        }
+  // Previous configuration
+  auth: {
+    provider: {
+      type: 'local',
+      token: {
+        signInResponseTokenPointer: '/token',
+        type: 'Bearer',
+        cookieName: 'auth.token',
+        headerName: 'Authorization',
+        maxAgeInSeconds: 1800,
+        sameSiteAttribute: 'lax',
+        cookieDomain: 'sidebase.io',
+        secureCookieAttribute: false,
+        httpOnlyCookieAttribute: false,
+      },
+      refreshToken: {
+        signInResponseRefreshTokenPointer: '/refresh-token',
+        refreshRequestTokenPointer: 'Bearer',
+        cookieName: 'auth.token',
+        maxAgeInSeconds: 1800,
+        cookieDomain: 'sidebase.io',
+        secureCookieAttribute: false,
+        httpOnlyCookieAttribute: false,
+      }
     }
+  }
 })
 ```
 
@@ -239,7 +297,7 @@ It refers to the name of the property when it is stored in a cookie.
 
 - **Type:** `number`
 - **Default:** `1800`
-  
+
 Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e. in the user's browser.
 
 Note: Your backend may reject / expire the refreshToken earlier / differently.
@@ -282,14 +340,14 @@ Configure the path of the login-page that the user should be redirected to, when
 
 ```ts
 export default defineNuxtConfig({
-    // previous configuration
-    auth: {
-        provider: {
-            type: 'local',
-            pages: {
-                login: '/login'
-            }
-        }
+  // previous configuration
+  auth: {
+    provider: {
+      type: 'local',
+      pages: {
+        login: '/login'
+      }
     }
+  }
 })
 ```

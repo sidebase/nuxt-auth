@@ -8,8 +8,7 @@ In order to persist data between session requests, we need to inject certain inf
 
 The JWT callback provides:
 - `token`: The raw JWT token
-- `account`, `profile`, `isNewUser`: The data returned by the OAuth provider. This data varies by provider, we recommend logging each value to inspect what data is included. These values are only avalible on creation of the JWT token, in subsequent requests only the `token` will be accessible. 
-
+- `account`, `profile`, `isNewUser`: The data returned by the OAuth provider. This data varies by provider, we recommend logging each value to inspect what data is included. These values are only avalible on creation of the JWT token, in subsequent requests only the `token` will be accessible.
 
 ```ts
 import { NuxtAuthHandler } from '#auth'
@@ -18,10 +17,10 @@ export default NuxtAuthHandler({
   // your authentication configuration here!
   callbacks: {
     jwt({ token, account, profile }) {
-        if (account) {
-            token.sessionToken = account.session_token
-        }
-        return token
+      if (account) {
+        token.sessionToken = account.session_token
+      }
+      return token
     },
   }
 })
@@ -33,7 +32,7 @@ Any data injected into the JWT token, cannot be directly accessed from the front
 
 ## Inject data into the Session
 
-After enriching the JWT token with additional data, you can now access this data inside the `session` callback. The `session` callback is invoked every time the session data is requested. This can happen when using `useAuth`, `getServerSideSession` or when the session is refreshed. 
+After enriching the JWT token with additional data, you can now access this data inside the `session` callback. The `session` callback is invoked every time the session data is requested. This can happen when using `useAuth`, `getServerSideSession` or when the session is refreshed.
 
 ```ts
 import { NuxtAuthHandler } from '#auth'
@@ -85,7 +84,7 @@ const { data } = useAuth()
 
 ## Typescript
 
-When modifying the session or JWT objects, you may want to adjust the types accordingly, to ensure that you get proper intellisense and type support. [Module Augmentation](https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation) can be used to inject additional type declarations into installed modules to overwrite or add additional data. 
+When modifying the session or JWT objects, you may want to adjust the types accordingly, to ensure that you get proper intellisense and type support. [Module Augmentation](https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation) can be used to inject additional type declarations into installed modules to overwrite or add additional data.
 
 Begin by creating a new typescript file in the root of your project named: `next-auth.d.ts`. Typescript will automatically recognize that this file is augmenting the module types of `next-auth` (running under the hood).
 
@@ -97,9 +96,9 @@ declare module 'next-auth' {
   /* Returned by `useAuth`, `getSession` and `getServerSession` */
   interface Session extends DefaultSession {
     user: {
-        name: string,
-        avatar: string,
-        role: 'admin' | 'manager' | 'user'
+      name: string
+      avatar: string
+      role: 'admin' | 'manager' | 'user'
     }
   }
 }
