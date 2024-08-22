@@ -7,7 +7,7 @@ aside: false
 To pick a provider you will first have to take into consideration the requirements of your use-case. In general one can say that picking:
 
 - `authjs` is best suited for plug-and-play OAuth for established oauth-providers or magic-url based sign-ins.
-- `local` is best when you already have a backend that accepts username + password as a login or want to build a static application.
+- `local` is best when you already have a backend that accepts username + password as a login or want to build a static application. The Local Provider also supports refresh tokens since `v0.9.0`.
 
 :::warning Breaking change
 In `v0.9.0` the `refresh` provider was integrated into the `local` provider.

@@ -13,7 +13,7 @@ export const routes: DefaultTheme.Config['nav'] = [
         link: '/guide/authjs/quick-start',
       },
       {
-        text: 'Local / Refresh guide',
+        text: 'Local guide',
         link: '/guide/local/quick-start',
       },
     ],
