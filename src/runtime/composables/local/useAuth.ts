@@ -1,6 +1,6 @@
 import { readonly, type Ref } from 'vue'
 import { callWithNuxt } from '#app/nuxt'
-import type { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions, SignUpOptions, GetSessionOptions } from '../../types'
+import type { CommonUseAuthReturn, SignOutFunc, SignInFunc, GetSessionFunc, SecondarySignInOptions, SignUpOptions, GetSessionOptions, SignUpResponse } from '../../types'
 import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '../../helpers'
 import { _fetch } from '../../utils/fetch'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
@@ -150,17 +150,20 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   return data.value
 }
 
-const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions) => {
+const signUp = async (credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions): Promise<SignUpResponse> => {
   const nuxt = useNuxtApp()
 
   const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signUp
-  await _fetch(nuxt, path, {
+
+  // Holds result from fetch to be returned if signUpOptions?.preventLoginFlow is true
+  const result = await _fetch<SignUpResponse>(nuxt, path, {
     method,
     body: credentials
   })
 
   if (signUpOptions?.preventLoginFlow) {
-    return
+    // Returns result
+    return result
   }
 
   return signIn(credentials, signInOptions)

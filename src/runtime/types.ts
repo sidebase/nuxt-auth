@@ -54,6 +54,15 @@ export type SessionDataObject = {
 };
 
 /**
+ * Type of data returned from sign up functiom if preventLoginFlow is true
+*/
+export type SignUpResponse = {
+  id?: string; // Optional id field
+  token?: string; // Optional token field
+  [key: string]: any; // Allow additional fields with any type
+};
+
+/**
  * Available `nuxt-auth` authentication providers.
  */
 export type SupportedAuthProviders = 'authjs' | 'local'
