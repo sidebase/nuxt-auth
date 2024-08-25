@@ -1,10 +1,10 @@
 name: Publish Pull Request preview
 on:
   push:
-    branches: [main]
+    branches:
+      - '**'
     tags:
       - '!**'
-  pull_request:
 
 env:
   NODE_VER: 22.5
