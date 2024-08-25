@@ -134,7 +134,7 @@ export default defineNuxtModule<ModuleOptions>({
       return
     }
 
-    logger.info('`nuxt-auth` setup starting. This is a test')
+    logger.info('`nuxt-auth` setup starting')
 
     // 2. Set up runtime configuration
     if (!isProduction) {
@@ -258,7 +258,7 @@ export default defineNuxtModule<ModuleOptions>({
       addPlugin(resolve('./runtime/plugins/refresh-token.server'))
     }
 
-    logger.success('`nuxt-auth` setup done. This is a test')
+    logger.success('`nuxt-auth` setup done')
   }
 }) satisfies NuxtModule<ModuleOptions>
 
