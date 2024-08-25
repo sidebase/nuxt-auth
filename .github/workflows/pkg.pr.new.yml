@@ -42,4 +42,4 @@ jobs:
         run: pnpm prepack
 
       - name: Publish package preview
-        run: pnpx pkg-pr-new publish --compact
+        run: pnpx pkg-pr-new publish --compact --no-template
