@@ -590,7 +590,8 @@ export type SignOutFunc = (options?: SignOutOptions) => Promise<any>
 export type SignInFunc<PrimarySignInOptions, SignInResult> = (
   primaryOptions: PrimarySignInOptions,
   signInOptions?: SecondarySignInOptions,
-  paramsOptions?: Record<string, string>
+  paramsOptions?: Record<string, string>,
+  headersOptions?: Record<string, string>
 ) => Promise<SignInResult>
 
 export interface ModuleOptionsNormalized extends ModuleOptions {

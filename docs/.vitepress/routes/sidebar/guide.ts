@@ -69,7 +69,7 @@ export const routes: DefaultTheme.SidebarItem[] = [
     ],
   },
   {
-    text: 'Local / Refresh Provider',
+    text: 'Local Provider',
     base: '/guide/local',
     items: [
       {
