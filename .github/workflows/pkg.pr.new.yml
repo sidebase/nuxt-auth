@@ -1,4 +1,4 @@
-name: Publish Pull Request preview
+name: Publish Commit
 on:
   push:
     branches:
