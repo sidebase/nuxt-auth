@@ -5,10 +5,7 @@
   "type": "module",
   "description": "Authentication built for Nuxt 3! Easily add authentication via OAuth providers, credentials or Email Magic URLs!",
   "homepage": "https://auth.sidebase.io",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/sidebase/nuxt-auth"
-  },
+  "repository": "github:sidebase/nuxt-auth",
   "engines": {
     "pnpm": ">=9.4.0",
     "node": ">=20"
