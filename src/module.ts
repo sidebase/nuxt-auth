@@ -258,7 +258,7 @@ export default defineNuxtModule<ModuleOptions>({
       addPlugin(resolve('./runtime/plugins/refresh-token.server'))
     }
 
-    logger.success('`nuxt-auth` setup done')
+    logger.success('`nuxt-auth` setup done. This is a test')
   }
 }) satisfies NuxtModule<ModuleOptions>
 
