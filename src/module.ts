@@ -134,7 +134,7 @@ export default defineNuxtModule<ModuleOptions>({
       return
     }
 
-    logger.info('`nuxt-auth` setup starting')
+    logger.info('`nuxt-auth` setup starting. This is a test')
 
     // 2. Set up runtime configuration
     if (!isProduction) {
