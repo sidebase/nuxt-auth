@@ -90,7 +90,7 @@ export function useAuthState(): UseAuthStateReturn {
     }
   }
 
-  const refreshToken = computed(() => formatToken(rawRefreshToken.value, config))
+  const refreshToken = computed(() => rawRefreshToken.value)
 
   return {
     ...commonAuthState,
