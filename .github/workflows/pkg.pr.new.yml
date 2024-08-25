@@ -5,6 +5,7 @@ on:
       - '**'
     tags:
       - '!**'
+  pull_request:
 
 env:
   NODE_VER: 22.5
