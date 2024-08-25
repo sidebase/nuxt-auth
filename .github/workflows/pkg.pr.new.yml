@@ -1,0 +1,45 @@
+name: Publish Commit
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - '!**'
+  pull_request:
+
+env:
+  NODE_VER: 22.5
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Use Node.js ${{ env.NODE_VER }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VER }}
+          cache: 'pnpm'
+
+      - name: Install deps
+        run: pnpm i
+
+      - name: Build and pack
+        run: pnpm prepack
+
+      - name: Publish package preview
+        run: pnpx pkg-pr-new publish --compact

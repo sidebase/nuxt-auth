@@ -5,10 +5,7 @@
   "type": "module",
   "description": "Authentication built for Nuxt 3! Easily add authentication via OAuth providers, credentials or Email Magic URLs!",
   "homepage": "https://auth.sidebase.io",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/sidebase/nuxt-auth"
-  },
+  "repository": "github:sidebase/nuxt-auth",
   "engines": {
     "pnpm": ">=9.4.0",
     "node": ">=20"
@@ -28,7 +25,7 @@
   "scripts": {
     "prepack": "nuxt-module-build build",
     "build": "nuxi build",
-    "lint": "oxlint --deny-warnings -D correctness -D suspicious -D perf && eslint . --max-warnings=0",
+    "lint": "oxlint --deny-warnings -D correctness -D suspicious -D perf -D no-unused-vars && eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "clean": "rm -rf playground-authjs/.nuxt playground-local/.nuxt playground-refresh/.nuxt dist .nuxt",
     "typecheck": "nuxi prepare playground-local && tsc --noEmit",
