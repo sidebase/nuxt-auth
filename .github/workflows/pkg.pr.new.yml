@@ -10,11 +10,6 @@ on:
 env:
   NODE_VER: 22.5
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.number }}
-  cancel-in-progress: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
