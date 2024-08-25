@@ -14,7 +14,7 @@ import { navigateTo, nextTick, useNuxtApp, useRuntimeConfig } from '#imports'
 
 type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
 
-const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, signInParams) => {
+const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, signInParams, signInHeaders) => {
   const nuxt = useNuxtApp()
 
   const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
@@ -23,7 +23,8 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   const response = await _fetch<Record<string, any>>(nuxt, path, {
     method,
     body: credentials,
-    params: signInParams ?? {}
+    params: signInParams ?? {},
+    headers: signInHeaders ?? {}
   })
 
   const { rawToken, rawRefreshToken } = useAuthState()
