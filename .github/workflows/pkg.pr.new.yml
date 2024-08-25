@@ -1,12 +1,10 @@
 name: Publish Pull Request preview
 on:
-  pull_request:
   push:
-    branches:
-      - '**'
-    # Do not publish a preview when a release Tag is created, as we already publish a release
+    branches: [main]
     tags:
       - '!**'
+  pull_request:
 
 env:
   NODE_VER: 22.5
