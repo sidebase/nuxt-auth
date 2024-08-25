@@ -1,0 +1,44 @@
+name: Publish Pull Request preview
+on:
+  pull_request:
+  push:
+    branches:
+      - '**'
+    # Do not publish a preview when a release Tag is created, as we already publish a release
+    tags:
+      - '!**'
+
+env:
+  NODE_VER: 22.5
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Use Node.js ${{ env.NODE_VER }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VER }}
+          cache: 'pnpm'
+
+      - name: Install deps
+        run: pnpm i
+
+      - name: Publish package preview
+        run: pnpx pkg-pr-new publish
