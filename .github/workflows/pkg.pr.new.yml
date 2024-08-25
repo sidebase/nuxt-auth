@@ -38,8 +38,8 @@ jobs:
       - name: Install deps
         run: pnpm i
 
-      - name: Build
-        run: pnpm build
+      - name: Build and pack
+        run: pnpm prepack
 
       - name: Publish package preview
         run: pnpx pkg-pr-new publish --compact
