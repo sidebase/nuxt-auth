@@ -113,14 +113,14 @@ export class DefaultRefreshHandler implements RefreshHandler {
       // If the duration exceeds JavaScript's maximum timeout value:
       // Set a timeout for the maximum allowed duration, then recursively call
       // this method with the remaining time when that timeout completes.
-      (this as any)[timerName] = setTimeout(() => {
+      this[timerName] = setTimeout(() => {
         this.startRefreshTimer(durationMs - this.MAX_JS_TIMEOUT, timerName)
       }, this.MAX_JS_TIMEOUT)
     }
     else {
       // If the duration is within the allowed range:
       // The refresh can be triggered and the timer can be reset.
-      (this as any)[timerName] = setTimeout(() => {
+      this[timerName] = setTimeout(() => {
         // Determine which auth property to check based on the timer type
         const needsSessOrToken: 'data' | 'refreshToken' = timerName === 'refetchIntervalTimer' ? 'data' : 'refreshToken'
 
