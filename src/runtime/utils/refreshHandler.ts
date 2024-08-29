@@ -8,11 +8,11 @@ export class DefaultRefreshHandler implements RefreshHandler {
   /** Runtime config is mostly used for getting provider data */
   runtimeConfig?: ModuleOptionsNormalized
 
-  /** Refetch interval */
+  /** Timer for periodic refresh */
   refetchIntervalTimer?: ReturnType<typeof setInterval>
 
+  /** Timer for refresh token renewal */
   // TODO: find more Generic method to start a Timer for the Refresh Token
-  /** Refetch interval for local/refresh schema */
   refreshTokenIntervalTimer?: ReturnType<typeof setInterval>
 
   /** Because passing `this.visibilityHandler` to `document.addEventHandler` loses `this` context */
@@ -21,8 +21,11 @@ export class DefaultRefreshHandler implements RefreshHandler {
   /** Maximum age of the refresh token, in milliseconds */
   private maxAgeMs?: number
 
-  /** Maximum JS value for setTimeout & setInterval (~24.85 days) */
-  private readonly MAX_JS_TIMEOUT = 2_147_483_647
+  /** Interval time for periodic refresh, in milliseconds */
+  private intervalTime?: number
+
+  /** Maximum value for setTimeout & setInterval in JavaScript (~24.85 days) */
+  private readonly MAX_JS_TIMEOUT: number = 2_147_483_647
 
   constructor(
     public config: DefaultRefreshHandlerConfig
@@ -30,39 +33,46 @@ export class DefaultRefreshHandler implements RefreshHandler {
     this.boundVisibilityHandler = this.visibilityHandler.bind(this)
   }
 
+  /**
+   * Initializes the refresh handler, setting up timers and event listeners.
+   */
   init(): void {
     this.runtimeConfig = useRuntimeConfig().public.auth
     this.auth = useAuth()
 
+    // Set up visibility change listener
     document.addEventListener('visibilitychange', this.boundVisibilityHandler, false)
 
     const { enablePeriodically } = this.config
-    const defaultRefreshInterval = 5 * 60 * 1000 // 5 minutes, in ms
+    const defaultRefreshInterval: number = 5 * 60 * 1000 // 5 minutes, in ms
 
+    // Set up periodic refresh, if enabled
     if (enablePeriodically !== false) {
-      const intervalTime = enablePeriodically === true ? defaultRefreshInterval : enablePeriodically
-      this.refetchIntervalTimer = setInterval(() => {
-        if (this.auth?.data.value) {
-          this.auth.refresh()
-        }
-      }, intervalTime)
+      this.intervalTime = enablePeriodically === true ? defaultRefreshInterval : (enablePeriodically ?? defaultRefreshInterval)
+      this.startRefreshTimer(this.intervalTime, 'refetchIntervalTimer')
     }
 
+    // Set up refresh token timer, if applicable
     const provider = this.runtimeConfig.provider
     if (provider.type === 'local' && provider.refresh.isEnabled && provider.refresh.token?.maxAgeInSeconds) {
       this.maxAgeMs = provider.refresh.token.maxAgeInSeconds * 1000
-      this.startRefreshTimer(this.maxAgeMs)
+      this.startRefreshTimer(this.maxAgeMs, 'refreshTokenIntervalTimer')
     }
   }
 
+  /**
+   * Cleans up timers and event listeners.
+   */
   destroy(): void {
-    // Clear visibility handler
+    // Clear visibility change listener
     document.removeEventListener('visibilitychange', this.boundVisibilityHandler, false)
 
-    // Clear refetch interval
-    clearInterval(this.refetchIntervalTimer)
+    // Clear periodic refresh timer
+    if (this.refetchIntervalTimer) {
+      clearInterval(this.refetchIntervalTimer)
+    }
 
-    // Clear refetch interval
+    // Clear refresh token timer
     if (this.refreshTokenIntervalTimer) {
       clearInterval(this.refreshTokenIntervalTimer)
     }
@@ -72,45 +82,56 @@ export class DefaultRefreshHandler implements RefreshHandler {
     this.runtimeConfig = undefined
   }
 
+  /**
+   * Handles visibility changes, refreshing the session when the browser tab/page becomes visible.
+   */
   visibilityHandler(): void {
-    // Listen for when the page is visible, if the user switches tabs
-    // and makes our tab visible again, re-fetch the session, but only if
-    // this feature is not disabled.
     if (this.config?.enableOnWindowFocus && document.visibilityState === 'visible' && this.auth?.data.value) {
       this.auth.refresh()
     }
   }
 
   /**
-   * Starts the refresh timer, breaking down large intervals
-   * into smaller chunks, to avoid overflow issues.
+   * Starts or restarts a refresh timer, handling large durations by breaking them into smaller intervals.
+   * This method is used to periodically trigger the refresh.
    *
-   * @param durationMs - Duration, in milliseconds.
+   * @param {number} durationMs - The duration in milliseconds before the next refresh should occur.
+   * @param {'refetchIntervalTimer' | 'refreshTokenIntervalTimer'} timerName - Identifies which timer to start.
    */
-  private startRefreshTimer(durationMs: number): void {
-    // Validate duration.
+  private startRefreshTimer(durationMs: number, timerName: 'refetchIntervalTimer' | 'refreshTokenIntervalTimer'): void {
+    // Ensure the duration is positive; if not, exit early
     if (durationMs <= 0) {
       return
     }
 
+    // Validate that the timerName is one of the allowed values
+    if (!['refetchIntervalTimer', 'refreshTokenIntervalTimer'].includes(timerName)) {
+      throw new Error(`Invalid timer name: ${timerName}`)
+    }
+
     if (durationMs > this.MAX_JS_TIMEOUT) {
-      // Postpone for max value, when the interval exceeds it.
-      // It will continue with the remaining time.
-      this.refreshTokenIntervalTimer = setTimeout(() => {
-        const remainingDurationMs = durationMs - this.MAX_JS_TIMEOUT
-        this.startRefreshTimer(remainingDurationMs)
+      // If the duration exceeds JavaScript's maximum timeout value:
+      // Set a timeout for the maximum allowed duration, then recursively call
+      // this method with the remaining time when that timeout completes.
+      (this as any)[timerName] = setTimeout(() => {
+        this.startRefreshTimer(durationMs - this.MAX_JS_TIMEOUT, timerName)
       }, this.MAX_JS_TIMEOUT)
     }
     else {
-      // Perform refresh for a safe duration
-      // and reset its timer to the original value.
-      this.refreshTokenIntervalTimer = setTimeout(() => {
-        if (this.auth?.refreshToken.value) {
+      // If the duration is within the allowed range:
+      // The refresh can be triggered and the timer can be reset.
+      (this as any)[timerName] = setTimeout(() => {
+        // Determine which auth property to check based on the timer type
+        const needsSessOrToken: 'data' | 'refreshToken' = timerName === 'refetchIntervalTimer' ? 'data' : 'refreshToken'
+
+        // Only refresh if the relevant auth data exists
+        if (this.auth?.[needsSessOrToken].value) {
           this.auth.refresh()
         }
 
-        // Restart the timer to its original value.
-        this.startRefreshTimer(this.maxAgeMs ?? 0)
+        // Restart timer with its original duration
+        const originalDuration: number = timerName === 'refetchIntervalTimer' ? this.intervalTime ?? 0 : this.maxAgeMs ?? 0
+        this.startRefreshTimer(originalDuration, timerName)
       }, durationMs)
     }
   }
