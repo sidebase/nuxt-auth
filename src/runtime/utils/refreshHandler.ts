@@ -37,9 +37,10 @@ export class DefaultRefreshHandler implements RefreshHandler {
     document.addEventListener('visibilitychange', this.boundVisibilityHandler, false)
 
     const { enablePeriodically } = this.config
+    const defaultRefreshInterval = 5 * 60 * 1000 // 5 minutes, in ms
 
     if (enablePeriodically !== false) {
-      const intervalTime = enablePeriodically === true ? 1000 : enablePeriodically
+      const intervalTime = enablePeriodically === true ? defaultRefreshInterval : enablePeriodically
       this.refetchIntervalTimer = setInterval(() => {
         if (this.auth?.data.value) {
           this.auth.refresh()
