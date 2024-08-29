@@ -14,10 +14,16 @@ export class DefaultRefreshHandler implements RefreshHandler {
   /** Maximum value for setTimeout & setInterval in JavaScript (~24.85 days) */
   private readonly MAX_JS_TIMEOUT: number = 2_147_483_647
 
-  /** Timers for different refresh types */
+  /** 
+   * Timers for different refresh types.
+   * Key represents name, value is timeout object.
+   */
   private refreshTimers: { [key: string]: ReturnType<typeof setTimeout> } = {}
 
-  /** Reset interval times for periodic refresh, in milliseconds */
+  /** 
+   * Interval durations for executing refresh timers.
+   * Key represents timer name, value is interval duration (in milliseconds).
+   */
   private refreshIntervals: { [key: string]: number } = {}
 
   constructor(
@@ -39,13 +45,13 @@ export class DefaultRefreshHandler implements RefreshHandler {
     const { enablePeriodically } = this.config
     const defaultRefreshInterval: number = 5 * 60 * 1000 // 5 minutes, in ms
 
-    // Set up periodic refresh, if enabled
+    // Set up 'periodic' refresh timer
     if (enablePeriodically !== false) {
       this.refreshIntervals.periodic = enablePeriodically === true ? defaultRefreshInterval : (enablePeriodically ?? defaultRefreshInterval)
       this.startRefreshTimer('periodic', this.refreshIntervals.periodic)
     }
 
-    // Set up refresh token timer, if applicable
+    // Set up 'maxAge' refresh timer
     const provider = this.runtimeConfig.provider
     if (provider.type === 'local' && provider.refresh.isEnabled && provider.refresh.token?.maxAgeInSeconds) {
       this.refreshIntervals.maxAge = provider.refresh.token.maxAgeInSeconds * 1000
