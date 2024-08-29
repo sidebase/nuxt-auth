@@ -110,7 +110,7 @@ export class DefaultRefreshHandler implements RefreshHandler {
         }
 
         // Restart the timer to its original value.
-        this.startRefreshTimer(this.maxAgeMs)
+        this.startRefreshTimer(this.maxAgeMs ?? 0)
       }, durationMs)
     }
   }
