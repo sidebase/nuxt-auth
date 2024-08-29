@@ -18,6 +18,12 @@ export class DefaultRefreshHandler implements RefreshHandler {
   /** Because passing `this.visibilityHandler` to `document.addEventHandler` loses `this` context */
   private boundVisibilityHandler: typeof this.visibilityHandler
 
+  /** Maximum age of the refresh token, in milliseconds */
+  private maxAgeMs?: number
+
+  /** Maximum JS value for setTimeout & setInterval (~24.85 days) */
+  private readonly MAX_JS_TIMEOUT = 2_147_483_647
+
   constructor(
     public config: DefaultRefreshHandlerConfig
   ) {
@@ -43,13 +49,8 @@ export class DefaultRefreshHandler implements RefreshHandler {
 
     const provider = this.runtimeConfig.provider
     if (provider.type === 'local' && provider.refresh.isEnabled && provider.refresh.token?.maxAgeInSeconds) {
-      const intervalTime = provider.refresh.token.maxAgeInSeconds * 1000
-
-      this.refreshTokenIntervalTimer = setInterval(() => {
-        if (this.auth?.refreshToken.value) {
-          this.auth.refresh()
-        }
-      }, intervalTime)
+      this.maxAgeMs = provider.refresh.token.maxAgeInSeconds * 1000
+      this.startRefreshTimer(this.maxAgeMs)
     }
   }
 
@@ -76,6 +77,40 @@ export class DefaultRefreshHandler implements RefreshHandler {
     // this feature is not disabled.
     if (this.config?.enableOnWindowFocus && document.visibilityState === 'visible' && this.auth?.data.value) {
       this.auth.refresh()
+    }
+  }
+
+  /**
+   * Starts the refresh timer, breaking down large intervals
+   * into smaller chunks, to avoid overflow issues.
+   *
+   * @param durationMs - Duration, in milliseconds.
+   */
+  private startRefreshTimer(durationMs: number): void {
+    // Validate duration.
+    if (durationMs <= 0) {
+      return
+    }
+
+    if (durationMs > this.MAX_JS_TIMEOUT) {
+      // Postpone for max value, when the interval exceeds it.
+      // It will continue with the remaining time.
+      this.refreshTokenIntervalTimer = setTimeout(() => {
+        const remainingDurationMs = durationMs - this.MAX_JS_TIMEOUT
+        this.startRefreshTimer(remainingDurationMs)
+      }, this.MAX_JS_TIMEOUT)
+    }
+    else {
+      // Perform refresh for a safe duration
+      // and reset its timer to the original value.
+      this.refreshTokenIntervalTimer = setTimeout(() => {
+        if (this.auth?.refreshToken.value) {
+          this.auth.refresh()
+        }
+
+        // Restart the timer to its original value.
+        this.startRefreshTimer(this.maxAgeMs)
+      }, durationMs)
     }
   }
 }
