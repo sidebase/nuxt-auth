@@ -20,7 +20,6 @@ export class DefaultRefreshHandler implements RefreshHandler {
   /** Reset interval times for periodic refresh, in milliseconds */
   private refreshIntervals: { [key: string]: number } = {}
 
-
   constructor(
     public config: DefaultRefreshHandlerConfig
   ) {
@@ -42,15 +41,15 @@ export class DefaultRefreshHandler implements RefreshHandler {
 
     // Set up periodic refresh, if enabled
     if (enablePeriodically !== false) {
-      this.refreshIntervals['periodic'] = enablePeriodically === true ? defaultRefreshInterval : (enablePeriodically ?? defaultRefreshInterval)
-      this.startRefreshTimer('periodic', this.refreshIntervals['periodic'])
+      this.refreshIntervals.periodic = enablePeriodically === true ? defaultRefreshInterval : (enablePeriodically ?? defaultRefreshInterval)
+      this.startRefreshTimer('periodic', this.refreshIntervals.periodic)
     }
 
     // Set up refresh token timer, if applicable
     const provider = this.runtimeConfig.provider
     if (provider.type === 'local' && provider.refresh.isEnabled && provider.refresh.token?.maxAgeInSeconds) {
-      this.refreshIntervals['maxAge'] = provider.refresh.token.maxAgeInSeconds * 1000
-      this.startRefreshTimer('maxAge', this.refreshIntervals['maxAge'])
+      this.refreshIntervals.maxAge = provider.refresh.token.maxAgeInSeconds * 1000
+      this.startRefreshTimer('maxAge', this.refreshIntervals.maxAge)
     }
   }
 
