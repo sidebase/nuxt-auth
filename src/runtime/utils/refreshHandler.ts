@@ -14,13 +14,13 @@ export class DefaultRefreshHandler implements RefreshHandler {
   /** Maximum value for setTimeout & setInterval in JavaScript (~24.85 days) */
   private readonly MAX_JS_TIMEOUT: number = 2_147_483_647
 
-  /** 
+  /**
    * Timers for different refresh types.
    * Key represents name, value is timeout object.
    */
   private refreshTimers: { [key: string]: ReturnType<typeof setTimeout> } = {}
 
-  /** 
+  /**
    * Interval durations for executing refresh timers.
    * Key represents timer name, value is interval duration (in milliseconds).
    */
