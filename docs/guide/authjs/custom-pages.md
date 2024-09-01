@@ -77,7 +77,7 @@ definePageMeta({
 })
 
 const route = useRoute()
-const errorCode = computed(() => route.params.error)
+const errorCode = computed(() => route.query.error)
 </script>
 
 <template>
