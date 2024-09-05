@@ -53,7 +53,6 @@ export default NuxtAuthHandler({
 ```
 :::
 
-
 ## Callbacks
 
 The callbacks inside the NuxtAuthHandler are asynchronous functions that allow you to hook into and modify the authentication flow. This is helpful for when you need to:
