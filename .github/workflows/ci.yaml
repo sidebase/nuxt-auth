@@ -93,14 +93,12 @@ jobs:
       # Check building
       - run: pnpm build
 
-      # Test with refresh disabled
-      - name: Run Playwright tests using Vitest
+      - name: Run Playwright tests using Vitest with refresh disabled
         run: pnpm test:e2e
         env:
           NUXT_AUTH_REFRESH_ENABLED: false
 
-      # Test with refresh enabled
-      - name: Run Playwright tests using Vitest
+      - name: Run Playwright tests using Vitest with refresh enabled
         run: pnpm test:e2e
 
   test-playground-authjs:
