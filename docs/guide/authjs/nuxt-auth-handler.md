@@ -36,6 +36,24 @@ The providers are the registered authentication methods that your users can use 
 
 You can find an overview of all the prebuilt providers [here](https://next-auth.js.org/providers/). If you want to create your own provider, please visit the [NextAuth docs](https://next-auth.js.org/configuration/providers/oauth#using-a-custom-provider).
 
+::: warning
+`next-auth@4` providers require an additional `.default` to work in Vite. This will no longer be necessary in `next-auth@5` (`authjs`).
+
+```ts
+import GithubProvider from 'next-auth/providers/github'
+
+export default NuxtAuthHandler({
+  providers: [
+    // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
+    GithubProvider.default({ // [!code focus]
+      // GitHub provider configuration
+    })
+  ]
+})
+```
+:::
+
+
 ## Callbacks
 
 The callbacks inside the NuxtAuthHandler are asynchronous functions that allow you to hook into and modify the authentication flow. This is helpful for when you need to:
