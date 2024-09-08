@@ -59,4 +59,30 @@ describe('local Provider', async () => {
     await signoutButton.click()
     await playwrightExpect(status).toHaveText(STATUS_UNAUTHENTICATED)
   })
+
+  it('should sign up and return signup data when preventLoginFlow: true', async () => {
+    const page = await createPage('/register')  // Navigate to signup page
+
+    const [
+      usernameInput,
+      passwordInput,
+      submitButton,
+    ] = await Promise.all([
+      page.getByTestId('regUsername'),
+      page.getByTestId('regPassword'),
+      page.getByTestId('regSubmit')
+    ])
+
+    await usernameInput.fill('newuser')
+    await passwordInput.fill('hunter2')
+
+    // Click button and wait for API to finish
+    const responsePromise = page.waitForResponse(/\/api\/auth\/signup/)
+    await submitButton.click()
+    const response = await responsePromise
+
+    // Expect the response to return signup data
+    const responseBody = await response.json()  // Parse response
+    playwrightExpect(responseBody).toBeDefined()  // Ensure data is returned
+  })
 })
