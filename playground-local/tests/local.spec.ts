@@ -1,17 +1,17 @@
-import { describe, test } from 'vitest'
-import { setup, createPage } from '@nuxt/test-utils/e2e'
+import { describe, it } from 'vitest'
+import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { expect as playwrightExpect } from '@playwright/test'
 
 const STATUS_AUTHENTICATED = 'authenticated'
 const STATUS_UNAUTHENTICATED = 'unauthenticated'
 
-describe('Local Provider', async () => {
+describe('local Provider', async () => {
   await setup({
     runner: 'vitest',
     browser: true
   })
 
-  test('load, sign in, reload, refresh, sign out', async () => {
+  it('load, sign in, reload, refresh, sign out', async () => {
     const page = await createPage('/')
     const [
       usernameInput,

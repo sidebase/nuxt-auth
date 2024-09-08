@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAuth, useRoute, useRequestHeaders, useAsyncData } from '#imports'
+import { useAsyncData, useAuth, useRequestHeaders, useRoute } from '#imports'
 
 const { data, status, lastRefreshedAt, getCsrfToken, getProviders, signIn, signOut, getSession } = useAuth()
 

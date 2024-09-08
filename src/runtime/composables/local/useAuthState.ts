@@ -1,10 +1,10 @@
-import { computed, watch, getCurrentInstance, type ComputedRef } from 'vue'
-import type { CookieRef } from '#app'
-import { type CommonUseAuthStateReturn } from '../../types'
+import { type ComputedRef, computed, getCurrentInstance, watch } from 'vue'
+import type { CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
 import { useTypedBackendConfig } from '../../helpers'
 import { formatToken } from '../../utils/local'
-import { useRuntimeConfig, useCookie, useState, onMounted } from '#imports'
+import type { CookieRef } from '#app'
+import { onMounted, useCookie, useRuntimeConfig, useState } from '#imports'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
 
@@ -16,19 +16,19 @@ import type { SessionData } from '#auth'
  */
 export interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData> {
   token: ComputedRef<string | null>
-  rawToken: CookieRef<string | null>,
+  rawToken: CookieRef<string | null>
   refreshToken: ComputedRef<string | null>
-  rawRefreshToken: CookieRef<string | null>,
+  rawRefreshToken: CookieRef<string | null>
   setToken: (newToken: string | null) => void
   clearToken: () => void
   _internal: {
-    baseURL: string,
-    pathname: string,
+    baseURL: string
+    pathname: string
     rawTokenCookie: CookieRef<string | null>
   }
 }
 
-export const useAuthState = (): UseAuthStateReturn => {
+export function useAuthState(): UseAuthStateReturn {
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
   const commonAuthState = makeCommonAuthState<SessionData>()
 
@@ -44,13 +44,15 @@ export const useAuthState = (): UseAuthStateReturn => {
     httpOnly: config.token.httpOnlyCookieAttribute
   })
   const rawToken = useState('auth:raw-token', () => _rawTokenCookie.value)
-  watch(rawToken, () => { _rawTokenCookie.value = rawToken.value })
+  watch(rawToken, () => {
+    _rawTokenCookie.value = rawToken.value
+  })
 
   const token = computed(() => formatToken(rawToken.value, config))
-  function setToken (newToken: string | null) {
+  function setToken(newToken: string | null) {
     rawToken.value = newToken
   }
-  function clearToken () {
+  function clearToken() {
     setToken(null)
   }
 
@@ -66,17 +68,24 @@ export const useAuthState = (): UseAuthStateReturn => {
   // Handle refresh token, for when refresh logic is enabled
   const rawRefreshToken = useState<string | null>('auth:raw-refresh-token', () => null)
   if (config.refresh.isEnabled) {
-    const _rawRefreshTokenCookie = useCookie<string | null>(config.refresh.token.cookieName,
-      {
-        default: () => null,
-        domain: config.refresh.token.cookieDomain,
-        maxAge: config.refresh.token.maxAgeInSeconds,
-        sameSite: config.refresh.token.sameSiteAttribute,
-        secure: config.refresh.token.secureCookieAttribute,
-        httpOnly: config.refresh.token.httpOnlyCookieAttribute
-      }
-    )
-    watch(rawRefreshToken, () => { _rawRefreshTokenCookie.value = rawRefreshToken.value })
+    const _rawRefreshTokenCookie = useCookie<string | null>(config.refresh.token.cookieName, {
+      default: () => null,
+      domain: config.refresh.token.cookieDomain,
+      maxAge: config.refresh.token.maxAgeInSeconds,
+      sameSite: config.refresh.token.sameSiteAttribute,
+      secure: config.refresh.token.secureCookieAttribute,
+      httpOnly: config.refresh.token.httpOnlyCookieAttribute
+    })
+
+    // Set default value if `useState` returned `null`
+    // https://github.com/sidebase/nuxt-auth/issues/896
+    if (rawRefreshToken.value === null) {
+      rawRefreshToken.value = _rawRefreshTokenCookie.value
+    }
+
+    watch(rawRefreshToken, () => {
+      _rawRefreshTokenCookie.value = rawRefreshToken.value
+    })
 
     // When the page is cached on a server, set the refresh token on the client
     if (instance) {
@@ -88,7 +97,7 @@ export const useAuthState = (): UseAuthStateReturn => {
     }
   }
 
-  const refreshToken = computed(() => formatToken(rawRefreshToken.value, config))
+  const refreshToken = computed(() => rawRefreshToken.value)
 
   return {
     ...commonAuthState,

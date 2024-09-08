@@ -15,11 +15,11 @@ NuxtAuth offers different approaches to protect pages:
 To enable the global middleware on your application, you can configure the middleware inside the `nuxt.config.ts`.
 
 ```ts
-export default defineNuxtConfig({   
-    modules: ['@sidebase/nuxt-auth'],
-    auth: {
-        globalAppMiddleware: true
-    }
+export default defineNuxtConfig({
+  modules: ['@sidebase/nuxt-auth'],
+  auth: {
+    globalAppMiddleware: true
+  }
 })
 ```
 
@@ -31,13 +31,13 @@ If the global middleware is disabled, you can manually add the middleware to ind
 
 ```vue
 <script lang="ts" setup>
-definePageMeta({ 
-    middleware: 'auth'
+definePageMeta({
+  middleware: 'auth'
 })
 </script>
 
 <template>
-    Only I am protected!
+  Only I am protected!
 </template>
 ```
 
@@ -48,31 +48,31 @@ To locally enable or disable the middleware on a single page, you can use the [`
 ```vue
 <script setup lang="ts">
 definePageMeta({
-    auth: false
+  auth: false
 })
 </script>
 
 <template>
-    I am not protected anymore!
+  I am not protected anymore!
 </template>
 ```
 
 ### Middleware options
 
-`auth` can be either a boolean or an object of further middleware configurations. 
+`auth` can be either a boolean or an object of further middleware configurations.
 
 ```vue
 <script setup lang="ts">
 definePageMeta({
-    auth: {
-        unauthenticatedOnly: false,
-        navigateUnauthenticatedTo: '/auth/signin'
-    }
+  auth: {
+    unauthenticatedOnly: false,
+    navigateUnauthenticatedTo: '/auth/signin'
+  }
 })
 </script>
 
 <template>
-    I am protected with a custom redirect!
+  I am protected with a custom redirect!
 </template>
 ```
 
@@ -103,16 +103,16 @@ This behavior is useful for login pages that you don't want to be visitable by l
 
 ```vue
 <script setup lang="ts">
-definePageMeta({  
-    auth: {    
-        unauthenticatedOnly: true,
-        navigateAuthenticatedTo: '/profile'
-    }
+definePageMeta({
+  auth: {
+    unauthenticatedOnly: true,
+    navigateAuthenticatedTo: '/profile'
+  }
 })
 </script>
 
 <template>
-    I can only be viewed as a guest!
+  I can only be viewed as a guest!
 </template>
 ```
 

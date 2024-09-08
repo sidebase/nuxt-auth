@@ -1,11 +1,11 @@
 import { joinURL } from 'ufo'
 import getURL from 'requrl'
-import { sendRedirect } from 'h3'
+import { sanitizeStatusCode } from 'h3'
 import type { ModuleOptionsNormalized } from '../types'
-import { useRequestEvent, useNuxtApp, abortNavigation, useAuthState } from '#imports'
+import { abortNavigation, useAuthState, useNuxtApp, useRequestEvent } from '#imports'
 
 export const getRequestURL = (includePath = true) => getURL(useRequestEvent()?.node.req, includePath)
-export function joinPathToApiURL (path: string) {
+export function joinPathToApiURL(path: string) {
   const authStateInternal = useAuthState()._internal
 
   // For internal calls, use a different base
@@ -25,18 +25,24 @@ export function joinPathToApiURL (path: string) {
  *    manually set `window.location.href` on the client **and then fake return a Promise that does not immediately resolve to block navigation (although it will not actually be fully awaited, but just be awaited long enough for the naviation to complete)**.
  * 2. Additionally on the server-side, we cannot use `navigateTo(signInUrl)` as this uses `vue-router` internally which does not know the "external" sign-in page of next-auth and thus will log a warning which we want to avoid.
  *
- * Adapted from: https://github.com/nuxt/framework/blob/ab2456c295fc8c7609a7ef7ca1e47def5d087e87/packages/nuxt/src/app/composables/router.ts#L97-L115
+ * Adapted from: https://github.com/nuxt/nuxt/blob/d188542a35bb541c7ed2e4502c687c2132979882/packages/nuxt/src/app/composables/router.ts#L161-L188
  *
  * @param href HREF / URL to navigate to
  */
-export const navigateToAuthPages = (href: string) => {
+export function navigateToAuthPages(href: string) {
   const nuxtApp = useNuxtApp()
 
   if (import.meta.server) {
-    if (nuxtApp.ssrContext && nuxtApp.ssrContext.event) {
+    if (nuxtApp.ssrContext) {
+      // TODO: consider deprecating in favour of `app:rendered` and removing
       return nuxtApp.callHook('app:redirected').then(() => {
-        sendRedirect(nuxtApp.ssrContext!.event, href, 302)
-
+        const encodedLoc = href.replace(/"/g, '%22')
+        const encodedHeader = new URL(href).toString()
+        nuxtApp.ssrContext!._renderResponse = {
+          statusCode: sanitizeStatusCode(302, 302),
+          body: `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=${encodedLoc}"></head></html>`,
+          headers: { location: encodedHeader },
+        }
         abortNavigation()
       })
     }
@@ -49,7 +55,7 @@ export const navigateToAuthPages = (href: string) => {
   }
 
   // TODO: Sadly, we cannot directly import types from `vue-router` as it leads to build failures. Typing the router about should help us to avoid manually typing `route` below
-  const router = nuxtApp.$router as { push(href: string): void }
+  const router = nuxtApp.$router as { push: (href: string) => void }
 
   // Wait for the `window.location.href` navigation from above to complete to avoid showing content. If that doesn't work fast enough, delegate navigation back to the `vue-router` (risking a vue-router 404 warning in the console, but still avoiding content-flashes of the protected target page)
   const waitForNavigationWithFallbackToRouter = new Promise(resolve => setTimeout(resolve, 60 * 1000))
@@ -65,7 +71,7 @@ export const navigateToAuthPages = (href: string) => {
  * @param authConfig Authentication runtime module config
  * @param getOriginalTargetPath Function that returns the original location the user wanted to reach
  */
-export const determineCallbackUrl = <T extends string | Promise<string>>(authConfig: ModuleOptionsNormalized, getOriginalTargetPath: () => T): T | string | undefined => {
+export function determineCallbackUrl<T extends string | Promise<string>>(authConfig: ModuleOptionsNormalized, getOriginalTargetPath: () => T): T | string | undefined {
   const authConfigCallbackUrl = typeof authConfig.globalAppMiddleware === 'object'
     ? authConfig.globalAppMiddleware.addDefaultCallbackUrl
     : undefined
@@ -82,7 +88,8 @@ export const determineCallbackUrl = <T extends string | Promise<string>>(authCon
         return getOriginalTargetPath()
       }
     }
-  } else if (authConfig.globalAppMiddleware === true) {
+  }
+  else if (authConfig.globalAppMiddleware === true) {
     return getOriginalTargetPath()
   }
 }

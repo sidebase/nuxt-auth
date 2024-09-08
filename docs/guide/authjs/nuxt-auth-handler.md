@@ -2,10 +2,9 @@
 
 The NuxtAuthHandler is an adaptation of the [NextAuthHandler](https://next-auth.js.org/configuration/options) built into AuthJS. You can learn more about how to setup a minimal version of the NuxtAuthHandler in the [Quick Start section](/guide/authjs/quick-start#nuxtauthhandler).
 
-
 ## Secret
 
-The secret is a random string used to hash tokens, sign and encrypt cookie and generate cryptographic keys. In development the `secret` is automatically set to a SHA hash of the `NuxtAuthHandler`. In production we recommend setting a [runtimeConfig](https://nuxt.com/docs/guide/going-further/runtime-config) value to define a more secure value. 
+The secret is a random string used to hash tokens, sign and encrypt cookie and generate cryptographic keys. In development the `secret` is automatically set to a SHA hash of the `NuxtAuthHandler`. In production we recommend setting a [runtimeConfig](https://nuxt.com/docs/guide/going-further/runtime-config) value to define a more secure value.
 
 ::: code-group
 ```ts [~/server/api/auth/[...].ts]
@@ -33,10 +32,26 @@ NUXT_AUTH_SECRET="YOUR-SUPER-SECURE-SECRET"
 
 ## Providers
 
-The providers are the registered authentication methods that your users can use to login to your application. NuxtAuth provides a number of preconfigured providers you can use to quickly bootstrap your project. These include OAuth providers, [email-based providers](https://next-auth.js.org/configuration/providers/email) (Magic URLs) and a [credentials provider](https://next-auth.js.org/configuration/providers/credentials). In addition to using a pre-built provider, you can also create your own provider. 
+The providers are the registered authentication methods that your users can use to login to your application. NuxtAuth provides a number of preconfigured providers you can use to quickly bootstrap your project. These include OAuth providers, [email-based providers](https://next-auth.js.org/configuration/providers/email) (Magic URLs) and a [credentials provider](https://next-auth.js.org/configuration/providers/credentials). In addition to using a pre-built provider, you can also create your own provider.
 
 You can find an overview of all the prebuilt providers [here](https://next-auth.js.org/providers/). If you want to create your own provider, please visit the [NextAuth docs](https://next-auth.js.org/configuration/providers/oauth#using-a-custom-provider).
 
+::: warning
+`next-auth@4` providers require an additional `.default` to work in Vite. This will no longer be necessary in `next-auth@5` (`authjs`).
+
+```ts
+import GithubProvider from 'next-auth/providers/github'
+
+export default NuxtAuthHandler({
+  providers: [
+    // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
+    GithubProvider.default({ // [!code focus]
+      // GitHub provider configuration
+    })
+  ]
+})
+```
+:::
 
 ## Callbacks
 
@@ -45,7 +60,7 @@ The callbacks inside the NuxtAuthHandler are asynchronous functions that allow y
 - Change the data inside the JWT token or Session Data
 - Add support for refresh tokens
 
-Callbacks are very powerful and allow you to modify the authentication flow based on your needs. 
+Callbacks are very powerful and allow you to modify the authentication flow based on your needs.
 
 ```ts
 import { NuxtAuthHandler } from '#auth'
@@ -84,7 +99,7 @@ You can read more on each of these callbacks, what data they provide and what re
 
 ## Events
 
-Events are asynchronous callback functions invoked during certain actions in the authentication flow. They can be used to log certain events or debug your authentication flow. 
+Events are asynchronous callback functions invoked during certain actions in the authentication flow. They can be used to log certain events or debug your authentication flow.
 
 ```ts
 import { NuxtAuthHandler } from '#auth'
@@ -106,7 +121,7 @@ You can read more on each of these events and what data they provide on the offi
 
 ## Pages
 
-Inside the pages configuration, you can define custom routes that match your authentication related pages. Setting new pages here, will override the included default authentication pages, included with the module. 
+Inside the pages configuration, you can define custom routes that match your authentication related pages. Setting new pages here, will override the included default authentication pages, included with the module.
 
 If you would like to learn more about custom pages and customization, please read the full guide [here](/guide/authjs/custom-pages).
 
