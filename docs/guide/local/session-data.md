@@ -7,11 +7,13 @@ export default defineNuxtConfig({
   auth: {
     provider: {
       type: 'local',
-      sessionDataType: {
-        id: 'string | number',
-        firstName: 'string',
-        lastName: 'string'
-      }
+      session: {
+        dataType: {
+          id: 'string | number',
+          firstName: 'string',
+          lastName: 'string',
+        },
+      },
     }
   }
 })
@@ -36,11 +38,13 @@ export default defineNuxtConfig({
   auth: {
     provider: {
       type: 'local',
-      sessionDataType: {
-        id: 'string | number',
-        firstName: 'string',
-        lastName: 'string',
-        subscriptions: '{ id: number, active: boolean}[]'
+      session: {
+        dataType: {
+          id: 'string | number',
+          firstName: 'string',
+          lastName: 'string',
+          subscriptions: '{ id: number, active: boolean}[]'
+        },
       }
     }
   }
