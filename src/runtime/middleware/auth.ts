@@ -105,6 +105,11 @@ export default defineNuxtRouteMiddleware((to) => {
     return navigateTo(metaAuth.navigateUnauthenticatedTo)
   }
   else {
-    return navigateTo(authConfig.provider.pages.login)
+    return navigateTo({
+      path: authConfig.provider.pages.login,
+      query: {
+        redirect: to.fullPath
+      }
+    })
   }
 })
