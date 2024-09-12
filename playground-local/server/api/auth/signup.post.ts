@@ -19,7 +19,7 @@ export default eventHandler(async (event) => {
     })
   }
 
-  const { username, password } = result.data
+  const { username } = result.data
 
   const expiresIn = '1h' //token expiry (1 hour)
   const user = { username } // Payload for the token, includes the email
