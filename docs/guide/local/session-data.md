@@ -43,7 +43,7 @@ export default defineNuxtConfig({
           id: 'string | number',
           firstName: 'string',
           lastName: 'string',
-          subscriptions: '{ id: number, active: boolean}[]'
+          subscriptions: '{ id: number, active: boolean }[]'
         },
       }
     }
