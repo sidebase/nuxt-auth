@@ -31,7 +31,27 @@ Whether the module is enabled at all
 - **Type**: `string`
 - **Default**: `AUTH_ORIGIN`
 
-The name of the environment variable that holds the origin of the application. This is used to determine the origin of your application in production. Read more [here](/resources/error-reference#auth-no-origin).
+The name of the environment variable that holds the origin of the application. This is used to determine the origin of your application in production.
+
+By default, NuxtAuth will look at `AUTH_ORIGIN` environment variable and `runtimeConfig.authOrigin`.
+
+::: tip
+If you want to use `runtimeConfig` and `NUXT_` prefixed environment variables, you need to make sure to also define the key inside `runtimeConfig`,
+because otherwise Nuxt will not acknowledge your env variable ([issue #906](https://github.com/sidebase/nuxt-auth/issues/906), read more [here](https://nuxt.com/docs/guide/going-further/runtime-config#environment-variables)).
+
+```ts
+export default defineNuxtConfig({
+  auth: {
+    originEnvKey: 'NUXT_YOUR_ORIGIN'
+  },
+  runtimeConfig: {
+    yourOrigin: ''
+  }
+})
+```
+:::
+
+You can read additional information on `origin` determining [here](/resources/error-reference#auth-no-origin).
 
 ## `disableServerSideAuth`
 
