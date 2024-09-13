@@ -26,7 +26,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install deps and prepare types
         run: pnpm i && pnpm dev:prepare
@@ -56,7 +56,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install deps and prepare types
         run: pnpm i && pnpm dev:prepare
@@ -82,7 +82,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install deps
         run: pnpm i
@@ -93,7 +93,12 @@ jobs:
       # Check building
       - run: pnpm build
 
-      - name: Run Playwright tests using Vitest
+      - name: Run Playwright tests using Vitest with refresh disabled
+        run: pnpm test:e2e
+        env:
+          NUXT_AUTH_REFRESH_ENABLED: false
+
+      - name: Run Playwright tests using Vitest with refresh enabled
         run: pnpm test:e2e
 
   test-playground-authjs:
@@ -113,7 +118,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install deps
         run: pnpm i

@@ -77,6 +77,13 @@ export function useAuthState(): UseAuthStateReturn {
       secure: config.refresh.token.secureCookieAttribute,
       httpOnly: config.refresh.token.httpOnlyCookieAttribute
     })
+
+    // Set default value if `useState` returned `null`
+    // https://github.com/sidebase/nuxt-auth/issues/896
+    if (rawRefreshToken.value === null) {
+      rawRefreshToken.value = _rawRefreshTokenCookie.value
+    }
+
     watch(rawRefreshToken, () => {
       _rawRefreshTokenCookie.value = rawRefreshToken.value
     })
