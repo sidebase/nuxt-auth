@@ -111,5 +111,5 @@ export default NuxtAuthHandler({
 ```
 
 :::tip Learn more
-You can find the full discussion in the issue [#149](https://github.com/sidebase/nuxt-auth/v0.6/issues/149). Solution provided by [@Jericho1060](https://github.com/Jericho1060)
+You can find the full discussion in the issue [#149](https://github.com/sidebase/nuxt-auth/issues/149). Solution provided by [@Jericho1060](https://github.com/Jericho1060)
 :::
