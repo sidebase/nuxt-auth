@@ -433,6 +433,7 @@ export interface ModuleOptions {
    * @default 'AUTH_ORIGIN'
    */
   originEnvKey?: string
+  baseURLEnvKey?: string
   /**
    * Full url at which the app will run combined with the path to authentication. You can set this differently depending on your selected authentication-provider:
    * - `authjs`: You must set the full URL, with origin and path in production. You can leave this empty in development

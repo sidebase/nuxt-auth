@@ -28,6 +28,7 @@ const topLevelDefaults = {
   isEnabled: true,
   disableServerSideAuth: false,
   originEnvKey: 'AUTH_ORIGIN',
+  baseURLEnvKey: 'AUTH_BASE_URL',
   sessionRefresh: {
     enablePeriodically: false,
     enableOnWindowFocus: true,
@@ -107,8 +108,10 @@ export default defineNuxtModule<ModuleOptions>({
     const logger = useLogger(PACKAGE_NAME)
 
     // 0. Assemble all options
+    const envBaseURLKey = userOptions.baseURLEnvKey as string
+    const envBaseURLEnvValue = process.env[envBaseURLKey]
     const { origin, pathname = '/api/auth' } = getOriginAndPathnameFromURL(
-      userOptions.baseURL ?? ''
+      envBaseURLEnvValue ?? userOptions.baseURL ?? ''
     )
 
     const selectedProvider = userOptions.provider?.type ?? 'authjs'
