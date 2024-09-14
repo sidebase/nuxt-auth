@@ -223,6 +223,7 @@ export default defineNuxtConfig({
         endpoint: { path: '/refresh', method: 'POST' },
         refreshOnlyToken: true,
         token: {
+          refreshResponseTokenPointer: '/token',
           signInResponseRefreshTokenPointer: '/refresh-token',
           refreshRequestTokenPointer: 'Bearer',
           cookieName: 'auth.token',
@@ -279,6 +280,17 @@ export default defineNuxtConfig({
 When refreshOnlyToken is set, only the `token` will be refreshed and the `refreshToken` will stay the same. (This is helpful when only the `login` endpoint returns a `refreshToken`)
 
 ### `token`
+
+#### `refreshResponseTokenPointer`
+
+- **Type:** `string`
+- **Default:** `'/token'`
+
+How to extract the authentication-token from the refresh response.
+
+E.g., setting this to `/token/bearer` and returning an object like `{ token: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `refresh` endpoint will result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
+
+This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
 
 #### `signInResponseRefreshTokenPointer`
 

@@ -195,11 +195,11 @@ async function refresh(getSessionOptions?: GetSessionOptions) {
   })
 
   // Extract the new token from the refresh response
-  const extractedToken = jsonPointerGet(response, config.token.signInResponseTokenPointer)
+  const extractedToken = jsonPointerGet(response, config.refresh.token.refreshResponseTokenPointer)
   if (typeof extractedToken !== 'string') {
     console.error(
       `Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. `
-      + `Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`
+      + `Tried to find token at ${config.refresh.token.refreshResponseTokenPointer} in ${JSON.stringify(response)}`
     )
     return
   }

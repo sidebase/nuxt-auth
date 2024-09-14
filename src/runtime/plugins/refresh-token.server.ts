@@ -34,14 +34,13 @@ export default defineNuxtPlugin({
 
         const extractedToken = jsonPointerGet(
           response,
-          provider.token.signInResponseTokenPointer
+          provider.refresh.token.refreshResponseTokenPointer
         )
         if (typeof extractedToken !== 'string') {
           console.error(
             `Auth: string token expected, received instead: ${JSON.stringify(
               extractedToken
-            )}. Tried to find token at ${
-              provider.token.signInResponseTokenPointer
+            )}. Tried to find token at ${provider.refresh.token.refreshResponseTokenPointer
             } in ${JSON.stringify(response)}`
           )
           return
@@ -57,8 +56,7 @@ export default defineNuxtPlugin({
             console.error(
               `Auth: string token expected, received instead: ${JSON.stringify(
                 extractedRefreshToken
-              )}. Tried to find token at ${
-                provider.refresh.token.signInResponseRefreshTokenPointer
+              )}. Tried to find token at ${provider.refresh.token.signInResponseRefreshTokenPointer
               } in ${JSON.stringify(response)}`
             )
             return

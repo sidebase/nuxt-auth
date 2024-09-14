@@ -76,6 +76,7 @@ const defaultsByBackend: {
       endpoint: { path: '/refresh', method: 'post' },
       refreshOnlyToken: true,
       token: {
+        refreshResponseTokenPointer: '/token',
         signInResponseRefreshTokenPointer: '/refreshToken',
         refreshRequestTokenPointer: '/refreshToken',
         cookieName: 'auth.refresh-token',
