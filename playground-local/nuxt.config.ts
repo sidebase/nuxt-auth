@@ -9,7 +9,7 @@ export default defineNuxtConfig({
       type: 'local',
       endpoints: {
         getSession: { path: '/user' },
-        signUp:{path:'/signup', method: 'post'}
+        signUp: { path: '/signup', method: 'post' }
       },
       pages: {
         login: '/'

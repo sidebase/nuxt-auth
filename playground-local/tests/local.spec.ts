@@ -61,7 +61,7 @@ describe('local Provider', async () => {
   })
 
   it('should sign up and return signup data when preventLoginFlow: true', async () => {
-    const page = await createPage('/register')  // Navigate to signup page
+    const page = await createPage('/register') // Navigate to signup page
 
     const [
       usernameInput,
@@ -82,7 +82,7 @@ describe('local Provider', async () => {
     const response = await responsePromise
 
     // Expect the response to return signup data
-    const responseBody = await response.json()  // Parse response
-    playwrightExpect(responseBody).toBeDefined()  // Ensure data is returned
+    const responseBody = await response.json() // Parse response
+    playwrightExpect(responseBody).toBeDefined() // Ensure data is returned
   })
 })

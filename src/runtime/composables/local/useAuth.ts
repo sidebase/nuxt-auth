@@ -1,5 +1,5 @@
-import { readonly, type Ref } from 'vue'
-import type { CommonUseAuthReturn, SignOutFunc, SignInFunc, SecondarySignInOptions, SignUpOptions, GetSessionOptions } from '../../types'
+import { type Ref, readonly } from 'vue'
+import type { CommonUseAuthReturn, GetSessionOptions, SecondarySignInOptions, SignInFunc, SignOutFunc, SignUpOptions } from '../../types'
 import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '../../helpers'
 import { _fetch } from '../../utils/fetch'
 import { getRequestURLWN } from '../../utils/callWithNuxt'
@@ -153,7 +153,7 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
   return data.value
 }
 
-const signUp = async<T = any> (credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions): Promise<T> => {
+async function signUp<T = any>(credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions): Promise<T> {
   const nuxt = useNuxtApp()
 
   const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signUp
