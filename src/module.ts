@@ -108,7 +108,7 @@ export default defineNuxtModule<ModuleOptions>({
     const logger = useLogger(PACKAGE_NAME)
 
     // 0. Assemble all options
-    let baseURL = userOptions.baseURL ?? ''
+    let baseURL = userOptions.baseURL ?? '/api/auth'
     if (userOptions.originEnvKey) {
       const envFromRuntimeConfig = extractFromRuntimeConfig(nuxt.options.runtimeConfig, userOptions.originEnvKey)
       const envOrigin = envFromRuntimeConfig ?? process.env[userOptions.originEnvKey]
@@ -117,7 +117,7 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
-    const { origin, pathname = '/api/auth' } = getOriginAndPathnameFromURL(baseURL)
+    const { origin, pathname = '' } = getOriginAndPathnameFromURL(baseURL)
 
     const selectedProvider = userOptions.provider?.type ?? 'authjs'
 
