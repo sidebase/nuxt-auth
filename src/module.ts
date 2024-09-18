@@ -16,6 +16,7 @@ import { genInterface } from 'knitwork'
 import type { DeepRequired } from 'ts-essentials'
 import type { NuxtModule } from 'nuxt/schema'
 import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
+import { extractFromRuntimeConfig } from './runtime/utils/extractFromRuntimeConfig'
 import type {
   AuthProviders,
   ModuleOptions,
@@ -23,7 +24,6 @@ import type {
   RefreshHandler,
   SupportedAuthProviders
 } from './runtime/types'
-import { extractFromRuntimeConfig } from './runtime/utils/extractFromRuntimeConfig'
 
 const topLevelDefaults = {
   isEnabled: true,
@@ -152,7 +152,7 @@ export default defineNuxtModule<ModuleOptions>({
         `Auth API location is \`${fullBaseUrl}\`.`
       ]
       if (selectedProvider === 'authjs') {
-        loggerMessages.push('Ensure that the `NuxtAuthHandler({ ... })` is there, see https://sidebase.io/nuxt-auth/configuration/nuxt-auth-handler')
+        loggerMessages.push('Ensure that the `NuxtAuthHandler({ ... })` is there, see https://auth.sidebase.io/guide/authjs/nuxt-auth-handler')
       }
 
       logger.info(loggerMessages.join(' '))
