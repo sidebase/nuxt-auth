@@ -14,7 +14,7 @@ When crafting your custom sign-in page you can use `signIn` to directly start a 
 <script setup lang="ts">
 // Remember to disable the middleware protection from your page!
 definePageMeta({
-    auth: { unauthenticatedOnly: true, navigateAuthenticatedTo: '/'}
+  auth: { unauthenticatedOnly: true, navigateAuthenticatedTo: '/' }
 })
 
 const { signIn } = useAuth()
@@ -30,10 +30,10 @@ const demoCredentials = { username: 'test', password: 'hunter2' }
   <div>
     <p>Sign-In Options:</p>
     <button @click="signIn('github')">
-        Github
+      Github
     </button>
     <button @click="signIn('credentials', demoCredentials)">
-        Username and Password
+      Username and Password
     </button>
   </div>
 </template>
@@ -49,7 +49,7 @@ If you want to create a custom sign-in page that dynamically offers sign-in opti
 <script setup lang="ts">
 // Remember to disable the middleware protection from your page!
 definePageMeta({
-    auth: { unauthenticatedOnly: true, navigateAuthenticatedTo: '/'}
+  auth: { unauthenticatedOnly: true, navigateAuthenticatedTo: '/' }
 })
 
 const { signIn, getProviders } = useAuth()
@@ -57,9 +57,9 @@ const providers = await getProviders()
 </script>
 
 <template>
-    <button v-for="provider in providers" :key="provider.id" @click="signIn(provider.id)">
-        Sign in with {{ provider.name }}
-    </button>
+  <button v-for="provider in providers" :key="provider.id" @click="signIn(provider.id)">
+    Sign in with {{ provider.name }}
+  </button>
 </template>
 ```
 
@@ -73,16 +73,15 @@ Example: `/auth/error?error=Configuration`
 <script setup lang="ts">
 // Remember to disable the middleware protection from your page!
 definePageMeta({
-    auth: { unauthenticatedOnly: true, navigateAuthenticatedTo: '/'}
+  auth: { unauthenticatedOnly: true, navigateAuthenticatedTo: '/' }
 })
 
-
 const route = useRoute()
-const erorCode = computed(() => route.params.error)
+const errorCode = computed(() => route.query.error)
 </script>
 
 <template>
-    <h1> Authentication error {{ errorCode }}. Please try again! </h1>
+  <h1> Authentication error {{ errorCode }}. Please try again! </h1>
 </template>
 ```
 

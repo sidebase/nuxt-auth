@@ -38,7 +38,7 @@ npx nuxi@latest module add sidebase-auth
 
 <details>
   <summary>Or install manually</summary>
-  
+
   #### 1. Install the package as a dev dependency
 
   ```sh
@@ -53,7 +53,7 @@ npx nuxi@latest module add sidebase-auth
 
   ```ts
   export default defineNuxtConfig({
-      modules: ['@sidebase/nuxt-auth']
+    modules: ['@sidebase/nuxt-auth']
   })
   ```
 </details>
@@ -64,8 +64,7 @@ Then visit the [Quick Start documentation](https://auth.sidebase.io/guide/gettin
 
 `@sidebase/nuxt-auth` is a library with the goal of supporting authentication for any universal Nuxt 3 application. At the moment three providers are supported:
 - [`authjs`](https://auth.sidebase.io/guide/authjs/quick-start): for non-static apps that want to use [Auth.js / NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 23k star library to the Nuxt 3 ecosystem with a native developer experience (DX)
-- [`local`](https://auth.sidebase.io/guide/local/quick-start): for static pages that rely on an external backend with a credential flow for authentication.
-- [`refresh`](https://auth.sidebase.io/guide/local/quick-start#refresh-token): for static pages that rely on an external backend with a credential flow and refresh tokens for authentication.
+- [`local`](https://auth.sidebase.io/guide/local/quick-start): for static pages that rely on an external backend with a credential flow for authentication. The Local Provider also supports refresh tokens since `v0.9.0`. Read more [here](https://auth.sidebase.io/upgrade/version-0.9.0).
 
 You can find a full list of our features, as well as which provider supports each feature [on our docs](https://auth.sidebase.io/guide/getting-started/choose-provider).
 
@@ -80,7 +79,7 @@ You can find a full list of our features, as well as which provider supports eac
 - Methods to `getSession`, `getCsrfToken`, `getProviders`, `signIn` and `signOut`
 - Full TypeScript support for all methods and properties
 
-### Application protection 
+### Application protection
 - Application-side middleware protection for the [full application](https://auth.sidebase.io/guide/application-side/protecting-pages#global-middleware) or [specific pages](https://auth.sidebase.io/guide/application-side/protecting-pages#local-middleware)
 - Server-side [middleware](https://auth.sidebase.io/guide/authjs/server-side/session-access#server-middleware) and [endpoint protection](https://auth.sidebase.io/guide/authjs/server-side/session-access#endpoint-protection)
 
@@ -142,7 +141,6 @@ This module also has it's own playground:
 We have one playground per provider:
 - [`authjs`](./playground-authjs)
 - [`local`](./playground-local)
-- [`refresh`](./playground-refresh)
 
 ##### How to test static Nuxt 3 apps?
 
@@ -162,10 +160,10 @@ To test static Nuxt 3 apps we want to run a static frontend and a separate backe
 
     pnpm dev
 
-    # A second Nuxt app should now be running on http://localhost:3001. 
+    # A second Nuxt app should now be running on http://localhost:3001.
     # We use this purely for authentication
     ```
-4.  Visit [http://localhost:3000](http://localhost:3000) -> this should open the static application. Performing any auth-related actions, the app should send requests to the backend running on port `3001`  
+4.  Visit [http://localhost:3000](http://localhost:3000) -> this should open the static application. Performing any auth-related actions, the app should send requests to the backend running on port `3001`
 
 ## Contributing
 

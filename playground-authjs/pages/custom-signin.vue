@@ -1,3 +1,29 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { definePageMeta, navigateTo, useAuth } from '#imports'
+
+definePageMeta({ auth: false })
+
+const username = ref('')
+const password = ref('')
+
+const { signIn } = useAuth()
+
+async function mySignInHandler({ username, password, callbackUrl }: { username: string, password: string, callbackUrl: string }) {
+  const { error, url } = await signIn('credentials', { username, password, callbackUrl, redirect: false })
+
+  if (error) {
+    // Do your custom error handling here
+    // eslint-disable-next-line no-alert
+    alert('You have made a terrible mistake while entering your credentials')
+  }
+  else {
+    // No error, continue with the sign in, e.g., by following the returned redirect:
+    return navigateTo(url, { external: true })
+  }
+}
+</script>
+
 <template>
   <div>
     <button @click="signIn('github')">
@@ -16,27 +42,3 @@
     </button>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-import { definePageMeta, useAuth, navigateTo } from '#imports'
-
-definePageMeta({ auth: false })
-
-const username = ref('')
-const password = ref('')
-
-const { signIn } = useAuth()
-
-const mySignInHandler = async ({ username, password, callbackUrl }: { username: string, password: string, callbackUrl: string }) => {
-  const { error, url } = await signIn('credentials', { username, password, callbackUrl, redirect: false })
-
-  if (error) {
-    // Do your custom error handling here
-    alert('You have made a terrible mistake while entering your credentials')
-  } else {
-    // No error, continue with the sign in, e.g., by following the returned redirect:
-    return navigateTo(url, { external: true })
-  }
-}
-</script>

@@ -3,7 +3,7 @@ import authMiddleware from './middleware/auth'
 import { getNitroRouteRules } from './utils/kit'
 import { useTypedBackendConfig } from './helpers'
 import type { SessionCookie } from './types'
-import { addRouteMiddleware, defineNuxtPlugin, useRuntimeConfig, useAuth, useAuthState, useCookie, _refreshHandler } from '#imports'
+import { _refreshHandler, addRouteMiddleware, defineNuxtPlugin, useAuth, useAuthState, useCookie, useRuntimeConfig } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
@@ -18,8 +18,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // Skip auth if we're prerendering
   let nitroPrerender = false
   if (nuxtApp.ssrContext) {
-    nitroPrerender =
-      getHeader(nuxtApp.ssrContext.event, 'x-nitro-prerender') !== undefined
+    nitroPrerender
+      = getHeader(nuxtApp.ssrContext.event, 'x-nitro-prerender') !== undefined
   }
 
   // Prioritize `routeRules` setting over `runtimeConfig` settings, fallback to false
@@ -79,8 +79,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // 3. Enable the middleware, either globally or as a named `auth` option
   const { globalAppMiddleware } = useRuntimeConfig().public.auth
   if (
-    globalAppMiddleware === true ||
-    (typeof globalAppMiddleware === 'object' && globalAppMiddleware.isEnabled)
+    globalAppMiddleware === true
+    || (typeof globalAppMiddleware === 'object' && globalAppMiddleware.isEnabled)
   ) {
     addRouteMiddleware('auth', authMiddleware, {
       global: true

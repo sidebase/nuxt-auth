@@ -1,4 +1,4 @@
-import type { Ref, ComputedRef } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 import type { RouterMethod } from 'h3'
 import type { SupportedProviders } from './composables/authjs/useAuth'
 
@@ -12,7 +12,7 @@ interface GlobalMiddlewareOptions {
    * @example true
    * @default false
    */
-  isEnabled: boolean;
+  isEnabled: boolean
   /**
    * Whether to enforce authentication if the target-route does not exist. Per default the middleware redirects
    * to Nuxts' default 404 page instead of forcing a sign-in if the target does not exist. This is to avoid a
@@ -24,7 +24,7 @@ interface GlobalMiddlewareOptions {
    * @example false
    * @default true
    */
-  allow404WithoutAuth?: boolean;
+  allow404WithoutAuth?: boolean
   /**
    * Whether to automatically set the callback url to the page the user tried to visit when the middleware stopped them. This is useful to disable this when using the credentials provider, as it does not allow a `callbackUrl`. Setting this
    * to a string-value will result in that being used as the callbackUrl path. Note: You also need to set the global `addDefaultCallbackUrl` setting to `false` if you want to fully disable this.
@@ -33,7 +33,7 @@ interface GlobalMiddlewareOptions {
    * @example /i-caught-you-but-now-you-are-signed-in
    * @default true
    */
-  addDefaultCallbackUrl?: boolean | string;
+  addDefaultCallbackUrl?: boolean | string
 }
 
 type DataObjectPrimitives =
@@ -43,33 +43,30 @@ type DataObjectPrimitives =
   | 'any'
   | 'undefined'
   | 'function'
-  | 'null';
+  | 'null'
 
-type DataObjectArray = `${string}[]`;
+type DataObjectArray = `${string}[]`
 
-export type SessionDataObject = {
+export interface SessionDataObject {
   [key: string]:
     | Omit<string, DataObjectPrimitives | DataObjectArray>
-    | SessionDataObject;
-};
+    | SessionDataObject
+}
 
 /**
  * Available `nuxt-auth` authentication providers.
  */
-export type SupportedAuthProviders = 'authjs' | 'local' | 'refresh';
+export type SupportedAuthProviders = 'authjs' | 'local'
 
 /**
  * Configuration for the `local`-provider.
  */
-export type ProviderLocal = {
+export interface ProviderLocal {
   /**
-   * Uses the `local` provider to facilitate authentication. Currently, two providers exclusive are supported:
-   * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
-   * - `local` or 'refresh': Username and password provider with support for static-applications
-   *
-   * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
+   * Uses the `local` provider to facilitate authentication.
+   * Read more here: https://auth.sidebase.io/guide/local/quick-start
    */
-  type: Extract<SupportedAuthProviders, 'local'>;
+  type: Extract<SupportedAuthProviders, 'local'>
   /**
    * Endpoints to use for the different methods. `nuxt-auth` will use this and the root-level `baseURL` to create the final request. E.g.:
    * - `baseURL=/api/auth`, `path=/login` will result in a request to `/api/auth/login`
@@ -81,19 +78,19 @@ export type ProviderLocal = {
      *
      * @default { path: '/login', method: 'post' }
      */
-    signIn?: { path?: string; method?: RouterMethod };
+    signIn?: { path?: string, method?: RouterMethod }
     /**
      * What method and path to call to perform the sign-out. Set to false to disable.
      *
      * @default { path: '/logout', method: 'post' }
      */
-    signOut?: { path?: string; method?: RouterMethod } | false;
+    signOut?: { path?: string, method?: RouterMethod } | false
     /**
      * What method and path to call to perform the sign-up.
      *
      * @default { path: '/register', method: 'post' }
      */
-    signUp?: { path?: string; method?: RouterMethod };
+    signUp?: { path?: string, method?: RouterMethod }
     /**
      * What method and path to call to fetch user / session data from. `nuxt-auth` will send the token received upon sign-in as a header along this request to authenticate.
      *
@@ -102,8 +99,8 @@ export type ProviderLocal = {
      * @default { path: '/session', method: 'get' }
      * @example { path: '/user', method: 'get' }
      */
-    getSession?: { path?: string; method?: RouterMethod };
-  };
+    getSession?: { path?: string, method?: RouterMethod }
+  }
   /**
    * Pages that `nuxt-auth` needs to know the location off for redirects.
    */
@@ -113,8 +110,8 @@ export type ProviderLocal = {
      *
      * @default '/login'
      */
-    login?: string;
-  };
+    login?: string
+  }
   /**
    * Settings for the authentication-token that `nuxt-auth` receives from the `signIn` endpoint and that can be used to authenticate subsequent requests.
    */
@@ -130,28 +127,28 @@ export type ProviderLocal = {
      * @default /token  Access the `token` property of the sign-in response object
      * @example /       Access the root of the sign-in response object, useful when your endpoint returns a plain, non-object string as the token
      */
-    signInResponseTokenPointer?: string;
+    signInResponseTokenPointer?: string
     /**
      * Header type to be used in requests. This in combination with `headerName` is used to construct the final authentication-header `nuxt-auth` uses, e.g, for requests via `getSession`.
      *
      * @default Bearer
      * @example Beer
      */
-    type?: string;
+    type?: string
     /**
      * It refers to the name of the property when it is stored in a cookie.
      *
      * @default auth.token
      * @example auth._token
      */
-    cookieName?: string;
+    cookieName?: string
     /**
      * Header name to be used in requests that need to be authenticated, e.g., to be used in the `getSession` request.
      *
      * @default Authorization
      * @example Auth
      */
-    headerName?: string;
+    headerName?: string
     /**
      * Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
      *
@@ -159,21 +156,23 @@ export type ProviderLocal = {
      * @default 1800
      * @example 60 * 60 * 24
      */
-    maxAgeInSeconds?: number;
+    maxAgeInSeconds?: number
     /**
-     * The cookie sameSite policy. See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
+     * The cookie sameSite policy.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
      *
      * @default 'lax'
      * @example 'strict'
      */
-    sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined;
+    sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined
     /**
      * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.5
      *
      * @default false
      * @example true
      */
-    secureCookieAttribute?: boolean;
+    secureCookieAttribute?: boolean
     /**
      * The cookie domain.
      * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
@@ -181,15 +180,16 @@ export type ProviderLocal = {
      * @default ''
      * @example 'sidebase.io'
      */
-    cookieDomain?: string;
+    cookieDomain?: string
     /**
      * Whether to set the httpOnly flag on the cookie.
+     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.6
      *
      * @default false
      * @example true
      */
-    httpOnlyCookieAttribute?: boolean;
-  };
+    httpOnlyCookieAttribute?: boolean
+  }
   /**
    * Settings for the session-data that `nuxt-auth` receives from the `getSession` endpoint.
    */
@@ -201,7 +201,7 @@ export type ProviderLocal = {
      * @example { id: 'string', name: 'string', email: 'string' }
      * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: "'admin' | 'guest' | 'account'", subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
      */
-    dataType?: SessionDataObject;
+    dataType?: SessionDataObject
     /**
      * How to extract the session-data from the session response.
      *
@@ -213,114 +213,120 @@ export type ProviderLocal = {
      * @default / Access the root of the session response object
      * @example /data/user  Access the `data/user` property of the session response object
      */
-    dataResponsePointer?: string;
-  };
-};
-
-/**
- * Configuration for the `refresh`-provider an extended version of the local provider.
- */
-export type ProviderLocalRefresh = Omit<ProviderLocal, 'type'> & {
+    dataResponsePointer?: string
+  }
   /**
-   * Uses the `authjs` provider to facilitate authentication. Currently, two providers exclusive are supported:
-   * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
-   * - `local` or 'refresh': Username and password provider with support for static-applications
-   *
-   * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
+   * Configuration for the refresh token logic of the `local` provider.
+   * If set to `undefined` or set to `{ isEnabled: false }`, refresh tokens will not be used.
    */
-  type: Extract<SupportedAuthProviders, 'refresh'>;
-  endpoints?: {
+  refresh?: {
+    /**
+     * Whether the refresh logic of the local provider is active
+     *
+     * @default false
+     */
+    isEnabled?: boolean
     /**
      * What method and path to call to perform the sign-in. This endpoint must return a token that can be used to authenticate subsequent requests.
      *
      * @default { path: '/refresh', method: 'post' }
      */
-    refresh?: { path?: string; method?: RouterMethod };
-  };
-  /**
-   *  When refreshOnlyToken is set, only the token will be refreshed
-   *
-   * @default true
-   */
-  refreshOnlyToken?: boolean;
-
-  refreshToken?: {
+    endpoint?: { path?: string, method?: RouterMethod }
     /**
-     * How to extract the authentication-token from the sign-in response.
+     * When refreshOnlyToken is set to `true`, only the token will be updated when the refresh endpoint is called.
+     * When refreshOnlyToken is set to `false`, the token and refreshToken will be updated when the refresh endpoint is called.
      *
-     * E.g., setting this to `/refreshToken/bearer` and returning an object like `{ refreshToken: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `signIn` endpoint will
-     * result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
-     *
-     * This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
-     *
-     * @default '/refreshToken'  Access the `refreshToken` property of the sign-in response object
-     * @example /       Access the root of the sign-in response object, useful when your endpoint returns a plain, non-object string as the token
+     * @default true
      */
-    signInResponseRefreshTokenPointer?: string;
+    refreshOnlyToken?: boolean
     /**
-     * How to do a fetch for the refresh token.
-     *
-     * This is especially useful when you have an external backend signing tokens. Refer to this issue to get more information: https://github.com/sidebase/nuxt-auth/issues/635.
-     *
-     * ### Example
-     * Setting this to `/refresh/token` would make Nuxt Auth send the `POST /api/auth/refresh` with the following BODY: `{ "refresh": { "token": "..." } }
-     *
-     * ### Notes
-     * This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
-     *
-     * @default '/refreshToken'
+     * Settings for the refresh-token that `nuxt-auth` receives from the `signIn` endpoint that is used for the `refresh` endpoint.
      */
-    refreshRequestTokenPointer?: string;
-    /**
-     * It refers to the name of the property when it is stored in a cookie.
-     *
-     * @default auth.refresh-token
-     * @example auth._refresh-token
-     */
-    cookieName?: string;
-    /**
-     * Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
-     *
-     * Note: Your backend may reject / expire the token earlier / differently.
-     */
-    maxAgeInSeconds?: number;
-    /**
-     * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
-     *
-     * @default false
-     * @example true
-     */
-    secureCookieAttribute?: boolean;
-    /**
-     * The cookie domain.
-     * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
-     *
-     * @default ''
-     * @example 'sidebase.io'
-     */
-    cookieDomain?: string;
-    /**
-     * Whether to set the httpOnly flag on the cookie.
-     *
-     * @default false
-     * @example true
-     */
-    httpOnlyCookieAttribute?: boolean;
-  };
+    token?: {
+      /**
+       * How to extract the authentication-token from the sign-in response.
+       *
+       * E.g., setting this to `/refreshToken/bearer` and returning an object like `{ refreshToken: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `signIn` endpoint will
+       * result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
+       *
+       * This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+       *
+       * @default '/refreshToken'  Access the `refreshToken` property of the sign-in response object
+       * @example /       Access the root of the sign-in response object, useful when your endpoint returns a plain, non-object string as the token
+       */
+      signInResponseRefreshTokenPointer?: string
+      /**
+       * How to do a fetch for the refresh token.
+       *
+       * This is especially useful when you have an external backend signing tokens. Refer to this issue to get more information: https://github.com/sidebase/nuxt-auth/issues/635.
+       *
+       * ### Example
+       * Setting this to `/refresh/token` would make Nuxt Auth send the `POST /api/auth/refresh` with the following BODY: `{ "refresh": { "token": "..." } }
+       *
+       * ### Notes
+       * This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+       *
+       * @default '/refreshToken'
+       */
+      refreshRequestTokenPointer?: string
+      /**
+       * It refers to the name of the property when it is stored in a cookie.
+       *
+       * @default 'auth.refresh-token'
+       * @example 'auth._refresh-token'
+       */
+      cookieName?: string
+      /**
+       * Maximum age to store the authentication token for. After the expiry time the token is automatically deleted on the application side, i.e., in the users' browser.
+       *
+       * Note: Your backend may reject / expire the token earlier / differently.
+       */
+      maxAgeInSeconds?: number
+      /**
+       * The cookie sameSite policy.
+       * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.7
+       *
+       * @default 'lax'
+       * @example 'strict'
+       */
+      sameSiteAttribute?: boolean | 'lax' | 'strict' | 'none' | undefined
+      /**
+       * Whether to set the secure flag on the cookie. This is useful when the application is served over HTTPS.
+       * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.5
+       *
+       * @default false
+       * @example true
+       */
+      secureCookieAttribute?: boolean
+      /**
+       * The cookie domain.
+       * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.3
+       *
+       * @default ''
+       * @example 'sidebase.io'
+       */
+      cookieDomain?: string
+      /**
+       * Whether to set the httpOnly flag on the cookie.
+       * See the specification here: https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-03#section-4.1.2.6
+       *
+       * @default false
+       * @example true
+       */
+      httpOnlyCookieAttribute?: boolean
+    }
+  }
 };
 
 /**
  * Configuration for the `authjs`-provider.
  */
-export type ProviderAuthjs = {
+export interface ProviderAuthjs {
   /**
-   * Uses the `authjs` provider to facilitate autnetication. Currently, two providers exclusive are supported:
-   * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
-   * - `local` or `refresh`: Username and password provider with support for static-applications
-   *
-   * Read more here: https://sidebase.io/nuxt-auth/v0.6/getting-started
+   * Uses the `authjs` provider to facilitate authentication.
+   * Read more here: https://auth.sidebase.io/guide/authjs/quick-start
    */
-  type: Extract<SupportedAuthProviders, 'authjs'>;
+  type: Extract<SupportedAuthProviders, 'authjs'>
   /**
    * If set to `true`, `authjs` will use either the `x-forwarded-host` or `host` headers instead of `auth.baseURL`.
    *
@@ -330,36 +336,35 @@ export type ProviderAuthjs = {
    * You should **try to avoid using advanced options** unless you are very comfortable using them.
    * @default false
    */
-  trustHost?: boolean;
+  trustHost?: boolean
   /**
    * Select the default-provider to use when `signIn` is called. Setting this here will also effect the global middleware behavior: E.g., when you set it to `github` and the user is unauthorized, they will be directly forwarded to the Github OAuth page instead of seeing the app-login page.
    *
    * @example "github"
    * @default undefined
    */
-  defaultProvider?: undefined | SupportedProviders;
+  defaultProvider?: undefined | SupportedProviders
   /**
    * Whether to add a callbackUrl to sign in requests. Setting this to a string-value will result in that being used as the callbackUrl path. Setting this to `true` will result in the blocked original target path being chosen (if it can be determined).
    */
-  addDefaultCallbackUrl?: boolean | string;
-};
+  addDefaultCallbackUrl?: boolean | string
+}
 
 export type AuthProviders =
   | ProviderAuthjs
   | ProviderLocal
-  | ProviderLocalRefresh;
 
 export interface RefreshHandler {
   /**
    * Initializes the refresh handler.
    * Will be called inside `app:mounted` lifecycle hook.
    */
-  init(): void
+  init: () => void
 
   /**
    * Handles cleanup of the refresh handler. Will be called on `unmount` app hook.
    */
-  destroy(): void
+  destroy: () => void
 };
 
 export interface DefaultRefreshHandlerConfig {
@@ -373,14 +378,14 @@ export interface DefaultRefreshHandlerConfig {
    * @example 1000
    * @default false
    */
-  enablePeriodically?: number | boolean;
+  enablePeriodically?: number | boolean
   /**
    * Whether to refresh the session every time the browser window is refocused.
    *
    * @example false
    * @default true
    */
-  enableOnWindowFocus?: boolean;
+  enableOnWindowFocus?: boolean
 };
 
 /**
@@ -393,7 +398,7 @@ export interface SessionRefreshConfig extends DefaultRefreshHandlerConfig {
    * @example './config/MyCustomRefreshHandler'
    * @default undefined
    */
-  handler?: string;
+  handler?: string
 };
 
 /**
@@ -403,7 +408,7 @@ export interface ModuleOptions {
   /**
    * Whether the module is enabled at all
    */
-  isEnabled?: boolean;
+  isEnabled?: boolean
   /**
    * Forces your server to send a "loading" status on all requests, prompting the client to fetch on the client. If your website has caching, this prevents the server from caching someone's authentication status.
    *
@@ -418,7 +423,7 @@ export interface ModuleOptions {
    *
    * @default false
    */
-  disableServerSideAuth?: boolean;
+  disableServerSideAuth?: boolean
   /**
    * The name of the environment variable that holds the origin of the application. This is used to determine the full URL of the application in production.
    * As an example, if you set `NUXT_AUTH_ORIGIN=http://example.org` in your `.env` file, the module will use this to determine the full URL of the application.
@@ -458,7 +463,7 @@ export interface ModuleOptions {
    * @default undefined                      Default for `authjs` in production, will result in an error
    * @default /api/auth                      Default for `local` for both production and development
    */
-  baseURL?: string;
+  baseURL?: string
   /**
    * Configuration of the authentication provider. Different providers are supported:
    * - auth.js: OAuth focused provider for non-static Nuxt 3 applications
@@ -467,11 +472,11 @@ export interface ModuleOptions {
    * Find more about supported providers here: https://sidebase.io/nuxt-auth/v0.6/getting-started
    *
    */
-  provider?: AuthProviders;
+  provider?: AuthProviders
   /**
    * Configuration of the application-side session.
    */
-  sessionRefresh?: SessionRefreshConfig;
+  sessionRefresh?: SessionRefreshConfig
   /**
    * Whether to add a global authentication middleware that protects all pages. Can be either `false` to disable, `true` to enabled
    * or an object to enable and apply extended configuration.
@@ -485,7 +490,7 @@ export interface ModuleOptions {
    * @example { allow404WithoutAuth: true }
    * @default false
    */
-  globalAppMiddleware?: GlobalMiddlewareOptions | boolean;
+  globalAppMiddleware?: GlobalMiddlewareOptions | boolean
 }
 
 export interface RouteOptions {
@@ -494,92 +499,93 @@ export interface RouteOptions {
    *
    * @default false
    */
-  disableServerSideAuth: boolean;
+  disableServerSideAuth: boolean
 }
 
 // Common useAuthStatus & useAuth return-types
 
-export type SessionLastRefreshedAt = Date | undefined;
-export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading';
-type WrappedSessionData<SessionData> = Ref<SessionData | null | undefined>;
+export type SessionLastRefreshedAt = Date | undefined
+export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
+type WrappedSessionData<SessionData> = Ref<SessionData | null | undefined>
 export interface CommonUseAuthReturn<SignIn, SignOut, GetSession, SessionData> {
-  data: Readonly<WrappedSessionData<SessionData>>;
-  lastRefreshedAt: Readonly<Ref<SessionLastRefreshedAt>>;
-  status: ComputedRef<SessionStatus>;
-  signIn: SignIn;
-  signOut: SignOut;
-  getSession: GetSession;
-  refresh(): Promise<unknown>
+  data: Readonly<WrappedSessionData<SessionData>>
+  lastRefreshedAt: Readonly<Ref<SessionLastRefreshedAt>>
+  status: ComputedRef<SessionStatus>
+  signIn: SignIn
+  signOut: SignOut
+  getSession: GetSession
+  refresh: () => Promise<unknown>
 }
 
 export interface CommonUseAuthStateReturn<SessionData> {
-  data: WrappedSessionData<SessionData>;
-  loading: Ref<boolean>;
-  lastRefreshedAt: Ref<SessionLastRefreshedAt>;
-  status: ComputedRef<SessionStatus>;
+  data: WrappedSessionData<SessionData>
+  loading: Ref<boolean>
+  lastRefreshedAt: Ref<SessionLastRefreshedAt>
+  status: ComputedRef<SessionStatus>
   _internal: {
-    baseURL: string;
-    pathname: string;
-  };
+    baseURL: string
+    pathname: string
+  }
 }
 
 // Common `useAuth` method-types
-
 export interface SecondarySignInOptions extends Record<string, unknown> {
   /**
    * Specify to which URL the user will be redirected after signing in. Defaults to the page URL the sign-in is initiated from.
    *
    * @default undefined Inferred from the current route
    */
-  callbackUrl?: string;
-  /** Whether to redirect users after the method succeeded.
+  callbackUrl?: string
+  /**
+   * Whether to redirect users after the method succeeded.
    *
    * @default true
    */
-  redirect?: boolean;
-  /** Is this callback URL an external one. Setting this to true, allows you to redirect to external urls, however a hard refresh will be done.
+  redirect?: boolean
+  /**
+   * Is this callback URL an external one. Setting this to true, allows you to redirect to external urls, however a hard refresh will be done.
    *
    * @default false
    */
-  external?: boolean;
+  external?: boolean
 }
 
 export interface SignUpOptions extends SecondarySignInOptions {
-  /** Prevent the signIn flow during registration
+  /**
+   * Prevent the signIn flow during registration
    *
    * @default false
    */
-  preventLoginFlow?: boolean;
+  preventLoginFlow?: boolean
 }
 
 export interface SignOutOptions {
-  callbackUrl?: string;
-  redirect?: boolean;
-  external?: boolean;
+  callbackUrl?: string
+  redirect?: boolean
+  external?: boolean
 }
 
 export type GetSessionOptions = Partial<{
-  required?: boolean;
-  callbackUrl?: string;
-  external?: boolean;
-  onUnauthenticated?: () => void;
-  /** Whether to refetch the session even if the token returned by useAuthState is null.
+  required?: boolean
+  callbackUrl?: string
+  external?: boolean
+  onUnauthenticated?: () => void
+  /**
+   * Whether to refetch the session even if the token returned by useAuthState is null.
    *
    * @default false
    */
-  force?: boolean;
-}>;
+  force?: boolean
+}>
 
 // TODO: These types could be nicer and more general, or located withing `useAuth` files and more specific
-export type SignOutFunc = (options?: SignOutOptions) => Promise<any>;
-export type GetSessionFunc<SessionData> = (
-  getSessionOptions?: GetSessionOptions
-) => Promise<SessionData>;
+export type SignOutFunc = (options?: SignOutOptions) => Promise<any>
 export type SignInFunc<PrimarySignInOptions, SignInResult> = (
   primaryOptions: PrimarySignInOptions,
   signInOptions?: SecondarySignInOptions,
-  paramsOptions?: Record<string, string>
-) => Promise<SignInResult>;
+  paramsOptions?: Record<string, string>,
+  headersOptions?: Record<string, string>
+) => Promise<SignInResult>
 
 export interface ModuleOptionsNormalized extends ModuleOptions {
   isEnabled: boolean

@@ -13,7 +13,7 @@ export const routes: DefaultTheme.Config['nav'] = [
         link: '/guide/authjs/quick-start',
       },
       {
-        text: 'Local / Refresh guide',
+        text: 'Local guide',
         link: '/guide/local/quick-start',
       },
     ],
@@ -24,6 +24,10 @@ export const routes: DefaultTheme.Config['nav'] = [
       {
         text: 'Overview',
         link: '/resources/overview',
+      },
+      {
+        text: 'Upgrade Guides',
+        link: '/upgrade',
       },
       {
         text: 'Recipes',
@@ -40,8 +44,12 @@ export const routes: DefaultTheme.Config['nav'] = [
     ],
   },
   {
-    text: '0.8.0',
+    text: '0.9.2',
     items: [
+      {
+        text: '0.8.2',
+        link: 'https://github.com/sidebase/nuxt-auth/tree/0.8.2/docs',
+      },
       {
         text: '0.7.2',
         link: 'https://github.com/sidebase/nuxt-auth/tree/0.7.2/docs/content',
