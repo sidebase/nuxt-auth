@@ -123,7 +123,7 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
 
   const headers = new Headers(token ? { [config.token.headerName]: token } as HeadersInit : undefined)
 
-  const sessionCookie = useCookie<Object | null>('auth:sessionCookie', {
+  const sessionCookie = useCookie<object | null>('auth:sessionCookie', {
     default: () => null,
     maxAge: config.token.maxAgeInSeconds,
     sameSite: config.token.sameSiteAttribute
@@ -139,7 +139,8 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
       lastRefreshedAt: lastRefreshedAt.value,
       data: data.value
     }
-  } catch (err) {
+  }
+  catch (err) {
     if (!data.value && err instanceof Error) {
       console.error(`Session: unable to extract session, ${err.message}`)
     }
