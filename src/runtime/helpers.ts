@@ -2,25 +2,12 @@
 import { parseURL } from 'ufo'
 import type { DeepRequired } from 'ts-essentials'
 import type { ProviderAuthjs, ProviderLocal, SupportedAuthProviders } from './types'
-import { extractFromRuntimeConfig } from './utils/extractFromRuntimeConfig'
-import { useRuntimeConfig } from '#imports'
+import type { useRuntimeConfig } from '#imports'
 
 export const isProduction = process.env.NODE_ENV === 'production'
 
-export function getOriginAndPathnameFromURL(url: string, envOriginKey?: string) {
-  let baseUrl = url
-  const config = useRuntimeConfig()
-
-  // Prioritize environment variable if set
-  if (envOriginKey) {
-    const envFromRuntimeConfig = extractFromRuntimeConfig(config, envOriginKey)
-    const envOrigin = envFromRuntimeConfig ?? process.env[envOriginKey]
-    if (envOrigin) {
-      baseUrl = envOrigin
-    }
-  }
-
-  const { protocol, host, pathname } = parseURL(baseUrl)
+export function getOriginAndPathnameFromURL(url: string) {
+  const { protocol, host, pathname } = parseURL(url)
 
   let origin
   if (host && protocol) {
