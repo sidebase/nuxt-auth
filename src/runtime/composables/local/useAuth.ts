@@ -10,7 +10,7 @@ import { type UseAuthStateReturn, useAuthState } from './useAuthState'
 import { callWithNuxt } from '#app/nuxt'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
-import { navigateTo, nextTick, useNuxtApp, useRuntimeConfig } from '#imports'
+import { navigateTo, nextTick, useCookie, useNuxtApp, useRuntimeConfig } from '#imports'
 
 type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
 
@@ -87,6 +87,28 @@ const signOut: SignOutFunc = async (signOutOptions) => {
     }
   }
 
+  // Explicitly clear both cookies to avoid watcher issues
+  // Use the same options to clear the cookie as the ones used to set it
+  useCookie(config.token.cookieName, {
+    maxAge: 0,
+    domain: config.token.cookieDomain,
+    sameSite: config.token.sameSiteAttribute,
+    secure: config.token.secureCookieAttribute,
+    httpOnly: config.token.httpOnlyCookieAttribute
+  }).value = null
+
+  // Clear the refresh cookie too, if enabled
+  if (config.refresh.isEnabled) {
+    useCookie(config.refresh.token.cookieName, {
+      maxAge: 0,
+      domain: config.refresh.token.cookieDomain,
+      sameSite: config.refresh.token.sameSiteAttribute,
+      secure: config.refresh.token.secureCookieAttribute,
+      httpOnly: config.refresh.token.httpOnlyCookieAttribute
+    }).value = null
+  }
+
+  // Clear local state
   data.value = null
   rawToken.value = null
   rawRefreshToken.value = null

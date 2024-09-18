@@ -11,7 +11,7 @@ export default defineNuxtPlugin({
     const { rawToken, rawRefreshToken, refreshToken, token, lastRefreshedAt }
       = useAuthState()
 
-    if (refreshToken.value && token.value) {
+    if (refreshToken.value) {
       const config = nuxtApp.$config.public.auth
       const configToken = useTypedBackendConfig(useRuntimeConfig(), 'local')
 
@@ -20,10 +20,12 @@ export default defineNuxtPlugin({
       const { path, method } = provider.refresh.endpoint
       const refreshRequestTokenPointer = provider.refresh.token.refreshRequestTokenPointer
 
-      // include header in case of auth is required to avoid 403 rejection
-      const headers = new Headers({
-        [configToken.token.headerName]: token.value
-      } as HeadersInit)
+      const headers = new Headers()
+
+      // To perform the refresh, some backends may require the auth token to also be set.
+      if (token.value) {
+        headers.set(configToken.token.headerName, token.value)
+      }
 
       try {
         const response = await _fetch<Record<string, any>>(nuxtApp, path, {
@@ -40,8 +42,7 @@ export default defineNuxtPlugin({
           console.error(
             `Auth: string token expected, received instead: ${JSON.stringify(
               extractedToken
-            )}. Tried to find token at ${
-              provider.token.signInResponseTokenPointer
+            )}. Tried to find token at ${provider.token.signInResponseTokenPointer
             } in ${JSON.stringify(response)}`
           )
           return
@@ -57,8 +58,7 @@ export default defineNuxtPlugin({
             console.error(
               `Auth: string token expected, received instead: ${JSON.stringify(
                 extractedRefreshToken
-              )}. Tried to find token at ${
-                provider.refresh.token.signInResponseRefreshTokenPointer
+              )}. Tried to find token at ${provider.refresh.token.signInResponseRefreshTokenPointer
               } in ${JSON.stringify(response)}`
             )
             return
