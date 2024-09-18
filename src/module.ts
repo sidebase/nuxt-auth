@@ -11,8 +11,8 @@ import {
   useLogger
 } from '@nuxt/kit'
 import { defu } from 'defu'
-import { genInterface } from 'knitwork'
 import { joinURL } from 'ufo'
+import { genInterface } from 'knitwork'
 import type { DeepRequired } from 'ts-essentials'
 import type { NuxtModule } from 'nuxt/schema'
 import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
