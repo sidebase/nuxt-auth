@@ -4,8 +4,8 @@ import { useAuth } from '#imports'
 
 const { signIn, token, refreshToken, data, status, lastRefreshedAt, signOut, getSession } = useAuth()
 
-const username = ref('')
-const password = ref('')
+const username = ref('smith')
+const password = ref('hunter2')
 </script>
 
 <template>

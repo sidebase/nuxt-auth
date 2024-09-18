@@ -19,20 +19,36 @@ export default NuxtAuthHandler({
 
 ## AUTH_NO_ORIGIN
 
-`AUTH_NO_ORIGIN` will appear as a warning message during development and be thrown as an error that stops the application during production. It is safe to ignore the development warning - it is only meant as a heads-up for your later production-deployment. `AUTH_NO_ORIGIN` occurs when the origin of your application was not set. NuxtAuth tries to find the origin of your application in the following order:
+`AUTH_NO_ORIGIN` will appear as a warning message during development and be thrown as an error that stops the application during production.
+It is safe to ignore the development warning - it is only meant as a heads-up for your later production-deployment.
 
-1. Use the `NUXT_AUTH_ORIGIN` environment variable if it is set
-2. Development only: Determine the origin automatically from the incoming HTTP request
+`AUTH_NO_ORIGIN` occurs when the origin of your application was not set.
+NuxtAuth attempts to find the origin of your application in the following order ([source](https://github.com/sidebase/nuxt-auth/blob/9852116a7d3f3be56f6fdc1cba8bdff747c4cbb8/src/runtime/server/services/utils.ts#L8-L34)):
 
-The `origin` is important for callbacks that happen to a specific origin for `oauth` flows. Note that in order for (2) to work the `origin` already has to be set at build-time, i.e., when you run `npm run build` or `npm run generate` and it will lead to the `origin` being inside your app-bundle.
+### 1. Environment variable and `runtimeConfig`
+
+Use the `AUTH_ORIGIN` environment variable or `runtimeConfig.authOrigin` if set. Name can be customized, refer to [`originEnvKey`](/guide/application-side/configuration#originenvkey).
+
+### 2. `baseURL`
+
+The `origin` is computed using `ufo` from the provided `baseURL`. See implementation [here](https://github.com/sidebase/nuxt-auth/blob/9852116a7d3f3be56f6fdc1cba8bdff747c4cbb8/src/runtime/helpers.ts#L9-L23).
 
 ```ts
-// file: nuxt.config.ts
 export default defineNuxtConfig({
-  runtimeConfig: {
-    authOrigin: 'https://example.org', // You can either set a default or leave it empty
+  auth: {
+    baseURL: `http://localhost:${process.env.PORT || 3000}`
   }
-
-  // ... rest of your config
 })
 ```
+
+### 3. Development only: automatically from the incoming HTTP request
+
+When the server is running in development mode, NuxtAuth can automatically infer it from the incoming request.
+
+::: info
+This is only done for your convenience - make sure to set a proper origin in production.
+:::
+
+---
+
+If there is no valid `origin` after the steps above, `AUTH_NO_ORIGIN` error is thrown in production.
