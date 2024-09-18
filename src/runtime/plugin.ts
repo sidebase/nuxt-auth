@@ -44,9 +44,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         lastRefreshedAt.value = sessionData?.lastRefreshedAt
         data.value = sessionData?.data
         rawToken.value = cookieToken.value
-      } catch (error) {
+      } 
+      catch (error) {
         console.error('Failed to parse session data from cookie:', error)
-      } finally {
+      } 
+      finally {
         loading.value = false
       }
     }
