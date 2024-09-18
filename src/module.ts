@@ -11,7 +11,6 @@ import {
   useLogger
 } from '@nuxt/kit'
 import { defu } from 'defu'
-import { joinURL } from 'ufo'
 import { genInterface } from 'knitwork'
 import type { DeepRequired } from 'ts-essentials'
 import type { NuxtModule } from 'nuxt/schema'
@@ -108,7 +107,8 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 0. Assemble all options
     const { origin, pathname = '/api/auth' } = getOriginAndPathnameFromURL(
-      userOptions.baseURL ?? ''
+      userOptions.baseURL ?? '',
+      userOptions.originEnvKey
     )
 
     const selectedProvider = userOptions.provider?.type ?? 'authjs'
@@ -118,7 +118,6 @@ export default defineNuxtModule<ModuleOptions>({
         computed: {
           origin,
           pathname,
-          fullBaseUrl: joinURL(origin ?? '', pathname)
         }
       }),
       // We use `as` to infer backend types correctly for runtime-usage (everything is set, although for user everything was optional)

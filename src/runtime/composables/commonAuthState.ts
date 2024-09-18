@@ -1,8 +1,6 @@
 import { computed } from 'vue'
-import getURL from 'requrl'
-import { joinURL } from 'ufo'
 import type { SessionLastRefreshedAt, SessionStatus } from '../types'
-import { useRequestEvent, useRuntimeConfig, useState } from '#imports'
+import { useRuntimeConfig, useState } from '#imports'
 
 export function makeCommonAuthState<SessionData>() {
   const data = useState<SessionData | undefined | null>('auth:data', () => undefined)
@@ -32,18 +30,7 @@ export function makeCommonAuthState<SessionData>() {
     }
   })
 
-  // Determine base url of app
-  let baseURL
-  const { origin, pathname, fullBaseUrl } = useRuntimeConfig().public.auth.computed
-  if (origin) {
-    // Case 1: An origin was supplied by the developer in the runtime-config. Use it by returning the already assembled full base url that contains it
-    baseURL = fullBaseUrl
-  }
-  else {
-    // Case 2: An origin was not supplied, we determine it from the request
-    const determinedOrigin = getURL(useRequestEvent()?.node.req, false)
-    baseURL = joinURL(determinedOrigin, pathname)
-  }
+  const { origin, pathname } = useRuntimeConfig().public.auth.computed
 
   return {
     data,
@@ -51,7 +38,7 @@ export function makeCommonAuthState<SessionData>() {
     lastRefreshedAt,
     status,
     _internal: {
-      baseURL,
+      origin,
       pathname
     }
   }

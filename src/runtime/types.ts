@@ -523,7 +523,7 @@ export interface CommonUseAuthStateReturn<SessionData> {
   lastRefreshedAt: Ref<SessionLastRefreshedAt>
   status: ComputedRef<SessionStatus>
   _internal: {
-    baseURL: string
+    origin?: string
     pathname: string
   }
 }
@@ -598,6 +598,5 @@ export interface ModuleOptionsNormalized extends ModuleOptions {
   computed: {
     origin: string | undefined
     pathname: string
-    fullBaseUrl: string
   }
 }

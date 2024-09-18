@@ -1,7 +1,7 @@
 import type { H3Event } from 'h3'
 import getURL from 'requrl'
-import { camelCase } from 'scule'
 import { isProduction } from '../../helpers'
+import { extractFromRuntimeConfig } from '../../utils/extractFromRuntimeConfig'
 import { ERROR_MESSAGES } from './errors'
 import { useRuntimeConfig } from '#imports'
 
@@ -31,18 +31,4 @@ export function getServerOrigin(event?: H3Event): string {
   }
 
   throw new Error(ERROR_MESSAGES.NO_ORIGIN)
-}
-
-type RuntimeConfig = ReturnType<typeof useRuntimeConfig>
-
-function extractFromRuntimeConfig(config: RuntimeConfig, envVariableName: string): string | undefined {
-  let normalized = envVariableName.startsWith('NUXT_')
-    ? envVariableName.slice(5)
-    : envVariableName
-  normalized = camelCase(normalized, { normalize: true })
-
-  const extracted = config[normalized]
-  return typeof extracted === 'string'
-    ? extracted
-    : undefined
 }
