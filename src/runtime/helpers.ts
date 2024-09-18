@@ -14,11 +14,7 @@ export function getOriginAndPathnameFromURL(url: string) {
     origin = `${protocol}//${host}`
   }
 
-  const pathname_ = pathname.length > 0 ? pathname : undefined
-  return {
-    origin,
-    pathname: pathname_
-  }
+  return { origin, pathname }
 }
 
 // We use `DeepRequired` here because options are actually enriched using `defu`

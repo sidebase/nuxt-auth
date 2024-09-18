@@ -117,7 +117,7 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
-    const { origin, pathname = '' } = getOriginAndPathnameFromURL(baseURL)
+    const { origin, pathname } = getOriginAndPathnameFromURL(baseURL)
 
     const selectedProvider = userOptions.provider?.type ?? 'authjs'
 
