@@ -39,7 +39,7 @@ definePageMeta({
     </form>
     <div v-if="response">
       <h2>Response</h2>
-      <pre data-testid="regResponse">{{ response }}</pre>
+      <pre>{{ response }}</pre>
     </div>
   </div>
 </template>
