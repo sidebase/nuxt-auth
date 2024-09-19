@@ -61,7 +61,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   let { callbackUrl } = signInOptions ?? {}
   if (typeof callbackUrl === 'undefined') {
     if (useRoute()?.query?.redirect) {
-      callbackUrl = useRoute().query.redirect?.toString()
+      callbackUrl = useRoute().query.redirect.toString()
     }
     else {
       callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
