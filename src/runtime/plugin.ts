@@ -1,8 +1,8 @@
 import { getHeader } from 'h3'
 import authMiddleware from './middleware/auth'
 import { getNitroRouteRules } from './utils/kit'
-import { useTypedBackendConfig } from './helpers'
-import type { SessionCookie } from './types'
+import type { ProviderLocal, SessionCookie } from './types'
+import type { CookieRef } from '#app'
 import { _refreshHandler, addRouteMiddleware, defineNuxtPlugin, useAuth, useAuthState, useCookie, useRuntimeConfig } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
@@ -32,29 +32,51 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   // Only fetch session if it was not yet initialized server-side
-  if (typeof data.value === 'undefined' && !nitroPrerender && !disableServerSideAuth) {
-    // Restore the session data from the cookie
-    const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
-    const sessionCookie = useCookie<SessionCookie | null>('auth:sessionCookie')
-    const cookieToken = useCookie<string | null>(config.token?.cookieName)
-    if (sessionCookie?.value && !rawToken?.value && cookieToken?.value) {
-      try {
-        loading.value = true
-        const sessionData = sessionCookie.value
-        lastRefreshedAt.value = sessionData?.lastRefreshedAt
-        data.value = sessionData?.data
-        rawToken.value = cookieToken.value
-      }
-      catch (error) {
-        console.error('Failed to parse session data from cookie:', error)
-      }
-      finally {
-        loading.value = false
-      }
+  if (
+    typeof data.value === 'undefined'
+    && !nitroPrerender
+    && !disableServerSideAuth
+  ) {
+    const config = runtimeConfig.provider as ProviderLocal
+
+    if (config.type === 'local') {
+      await handleLocalAuth(config)
     }
 
     if (!data.value) {
       await getSession()
+    }
+  }
+
+  function handleLocalAuth(config: ProviderLocal): void {
+    const sessionCookie = useCookie<SessionCookie | null>(
+      'auth:sessionCookie'
+    )
+    const cookieToken = useCookie<string | null>(
+      config.token?.cookieName ?? 'auth.token'
+    )
+
+    if (sessionCookie?.value && !rawToken?.value && cookieToken?.value) {
+      restoreSessionFromCookie(sessionCookie, cookieToken)
+    }
+  }
+
+  function restoreSessionFromCookie(
+    sessionCookie: CookieRef<SessionCookie | null>,
+    cookieToken: CookieRef<string | null>
+  ): void {
+    try {
+      loading.value = true
+      const sessionData = sessionCookie.value
+      lastRefreshedAt.value = sessionData?.lastRefreshedAt
+      data.value = sessionData?.data
+      rawToken.value = cookieToken.value
+    }
+    catch (error) {
+      console.error('Failed to parse session data from cookie:', error)
+    }
+    finally {
+      loading.value = false
     }
   }
 
