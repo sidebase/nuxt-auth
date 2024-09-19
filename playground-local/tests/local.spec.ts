@@ -68,9 +68,9 @@ describe('local Provider', async () => {
       passwordInput,
       submitButton,
     ] = await Promise.all([
-      page.getByTestId('regUsername'),
-      page.getByTestId('regPassword'),
-      page.getByTestId('regSubmit')
+      page.getByTestId('username'),
+      page.getByTestId('password'),
+      page.getByTestId('submit')
     ])
 
     await usernameInput.fill('newuser')
