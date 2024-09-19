@@ -171,7 +171,6 @@ async function signUp<T>(credentials: Credentials, signInOptions?: SecondarySign
   })
 
   if (signUpOptions?.preventLoginFlow) {
-    // Returns result
     return result
   }
 
