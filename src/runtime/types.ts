@@ -258,14 +258,15 @@ export interface ProviderLocal {
       /**
        * How to extract the authentication-token from the refresh response.
        * 
-       * If not set, `token.signInResponseTokenPointer` will be used instead.
-       * 
        *
        * E.g., setting this to `/token/bearer` and returning an object like `{ token: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `refresh` endpoint will
        * result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
        *
+       * If not set, `token.signInResponseTokenPointer` will be used instead.
+       * 
        * This follows the JSON Pointer standard, see it's RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
        *
+       * @default ''
        * @example /       Access the root of the refresh response object, useful when your endpoint returns a plain, non-object string as the token
        */
       refreshResponseTokenPointer?: string

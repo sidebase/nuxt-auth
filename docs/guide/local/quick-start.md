@@ -295,11 +295,13 @@ This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-ed
 #### `refreshResponseTokenPointer`
 
 - **Type:** `string`
-- **Default:** `'/token'`
+- **Default:** `''`
 
 How to extract the authentication-token from the refresh response.
 
 E.g., setting this to `/token/bearer` and returning an object like `{ token: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `refresh` endpoint will result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
+
+If not set, `token.signInResponseTokenPointer` will be used instead.
 
 This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
 
