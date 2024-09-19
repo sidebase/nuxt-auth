@@ -76,8 +76,8 @@ const defaultsByBackend: {
       endpoint: { path: '/refresh', method: 'post' },
       refreshOnlyToken: true,
       token: {
-        refreshResponseTokenPointer: '/token',
         signInResponseRefreshTokenPointer: '/refreshToken',
+        refreshResponseTokenPointer: '',
         refreshRequestTokenPointer: '/refreshToken',
         cookieName: 'auth.refresh-token',
         maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days

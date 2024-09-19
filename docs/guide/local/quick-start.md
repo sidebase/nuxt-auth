@@ -223,8 +223,8 @@ export default defineNuxtConfig({
         endpoint: { path: '/refresh', method: 'POST' },
         refreshOnlyToken: true,
         token: {
-          refreshResponseTokenPointer: '/token',
           signInResponseRefreshTokenPointer: '/refresh-token',
+          refreshResponseTokenPointer: '',
           refreshRequestTokenPointer: '/refresh-token',
           cookieName: 'auth.token',
           maxAgeInSeconds: 1800,
@@ -281,17 +281,6 @@ When refreshOnlyToken is set, only the `token` will be refreshed and the `refres
 
 ### `token`
 
-#### `refreshResponseTokenPointer`
-
-- **Type:** `string`
-- **Default:** `'/token'`
-
-How to extract the authentication-token from the refresh response.
-
-E.g., setting this to `/token/bearer` and returning an object like `{ token: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `refresh` endpoint will result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
-
-This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
-
 #### `signInResponseRefreshTokenPointer`
 
 - **Type:** `string`
@@ -300,6 +289,17 @@ This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-ed
 How to extract the authentication-refreshToken from the sign-in response.
 
 E.g., setting this to `/token/refreshToken` and returning an object like `{ token: { refreshToken: 'THE_REFRESH__TOKEN' }, timestamp: '2023' }` from the `signIn` endpoint will result in `nuxt-auth` extracting and storing `THE_REFRESH__TOKEN`.
+
+This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+
+#### `refreshResponseTokenPointer`
+
+- **Type:** `string`
+- **Default:** `'/token'`
+
+How to extract the authentication-token from the refresh response.
+
+E.g., setting this to `/token/bearer` and returning an object like `{ token: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `refresh` endpoint will result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
 
 This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
 

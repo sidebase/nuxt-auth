@@ -244,18 +244,6 @@ export interface ProviderLocal {
      */
     token?: {
       /**
-       * How to extract the authentication-token from the refresh response.
-       *
-       * E.g., setting this to `/token/bearer` and returning an object like `{ token: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `refresh` endpoint will
-       * result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
-       *
-       * This follows the JSON Pointer standard, see it's RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
-       *
-       * @default /token  Access the `token` property of the refresh response object
-       * @example /       Access the root of the refresh response object, useful when your endpoint returns a plain, non-object string as the token
-       */
-      refreshResponseTokenPointer?: string
-      /**
        * How to extract the authentication-token from the sign-in response.
        *
        * E.g., setting this to `/refreshToken/bearer` and returning an object like `{ refreshToken: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `signIn` endpoint will
@@ -267,6 +255,20 @@ export interface ProviderLocal {
        * @example /       Access the root of the sign-in response object, useful when your endpoint returns a plain, non-object string as the token
        */
       signInResponseRefreshTokenPointer?: string
+      /**
+       * How to extract the authentication-token from the refresh response.
+       * 
+       * If not set, `token.signInResponseTokenPointer` will be used instead.
+       * 
+       *
+       * E.g., setting this to `/token/bearer` and returning an object like `{ token: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `refresh` endpoint will
+       * result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
+       *
+       * This follows the JSON Pointer standard, see it's RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+       *
+       * @example /       Access the root of the refresh response object, useful when your endpoint returns a plain, non-object string as the token
+       */
+      refreshResponseTokenPointer?: string
       /**
        * How to do a fetch for the refresh token.
        *
