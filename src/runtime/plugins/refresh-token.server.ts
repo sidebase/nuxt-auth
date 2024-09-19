@@ -32,15 +32,16 @@ export default defineNuxtPlugin({
           headers
         })
 
+        const tokenPointer = provider.refresh.token.refreshResponseTokenPointer || provider.token.signInResponseTokenPointer;
         const extractedToken = jsonPointerGet(
           response,
-          provider.refresh.token.refreshResponseTokenPointer
+          tokenPointer
         )
         if (typeof extractedToken !== 'string') {
           console.error(
             `Auth: string token expected, received instead: ${JSON.stringify(
               extractedToken
-            )}. Tried to find token at ${provider.refresh.token.refreshResponseTokenPointer
+            )}. Tried to find token at ${tokenPointer
             } in ${JSON.stringify(response)}`
           )
           return

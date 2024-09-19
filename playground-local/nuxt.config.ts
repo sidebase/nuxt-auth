@@ -26,8 +26,8 @@ export default defineNuxtConfig({
         isEnabled: process.env.NUXT_AUTH_REFRESH_ENABLED !== 'false',
         endpoint: { path: '/refresh', method: 'post' },
         token: {
-          refreshResponseTokenPointer: '/token/accessToken',
           signInResponseRefreshTokenPointer: '/token/refreshToken',
+          refreshResponseTokenPointer: '',
           refreshRequestTokenPointer: '/refreshToken'
         },
       }
