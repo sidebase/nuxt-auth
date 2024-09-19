@@ -105,6 +105,19 @@ export default defineNuxtRouteMiddleware((to) => {
     return navigateTo(metaAuth.navigateUnauthenticatedTo)
   }
   else {
+    if (typeof globalAppMiddleware === 'object' && globalAppMiddleware.addDefaultCallbackUrl) {
+      let redirectUrl: string = to.fullPath
+      if (typeof globalAppMiddleware.addDefaultCallbackUrl === 'string') {
+        redirectUrl = globalAppMiddleware.addDefaultCallbackUrl
+      }
+
+      return navigateTo({
+        path: authConfig.provider.pages.login,
+        query: {
+          redirect: redirectUrl
+        }
+      })
+    }
     return navigateTo(authConfig.provider.pages.login)
   }
 })
