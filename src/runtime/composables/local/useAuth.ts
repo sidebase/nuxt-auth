@@ -159,7 +159,7 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
   return data.value
 }
 
-async function signUp<T = any>(credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions): Promise<T> {
+async function signUp<T>(credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions): Promise<T> {
   const nuxt = useNuxtApp()
 
   const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signUp
