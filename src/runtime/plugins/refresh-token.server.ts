@@ -32,7 +32,7 @@ export default defineNuxtPlugin({
           headers
         })
 
-        const tokenPointer = provider.refresh.token.refreshResponseTokenPointer || provider.token.signInResponseTokenPointer;
+        const tokenPointer = provider.refresh.token.refreshResponseTokenPointer || provider.token.signInResponseTokenPointer
         const extractedToken = jsonPointerGet(
           response,
           tokenPointer
