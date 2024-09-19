@@ -40,7 +40,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const config = runtimeConfig.provider as ProviderLocal
 
     if (config.type === 'local') {
-      await handleLocalAuth(config)
+      handleLocalAuth(config)
     }
 
     if (!data.value) {
