@@ -44,7 +44,7 @@ export const routes: DefaultTheme.Config['nav'] = [
     ],
   },
   {
-    text: '0.9.2',
+    text: '0.9.3',
     items: [
       {
         text: '0.8.2',
