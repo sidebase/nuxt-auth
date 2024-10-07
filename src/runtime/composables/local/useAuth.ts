@@ -218,9 +218,8 @@ async function refresh(getSessionOptions?: GetSessionOptions) {
       )
       return
     }
-    
-      rawRefreshToken.value = extractedRefreshToken
-    
+
+    rawRefreshToken.value = extractedRefreshToken
   }
 
   rawToken.value = extractedToken
