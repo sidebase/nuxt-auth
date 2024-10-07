@@ -101,23 +101,21 @@ export default defineNuxtRouteMiddleware((to) => {
     // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
     return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
   }
-  else if (typeof metaAuth === 'object' && metaAuth.navigateUnauthenticatedTo) {
+  if (typeof metaAuth === 'object' && metaAuth.navigateUnauthenticatedTo) {
     return navigateTo(metaAuth.navigateUnauthenticatedTo)
   }
-  else {
-    if (typeof globalAppMiddleware === 'object' && globalAppMiddleware.addDefaultCallbackUrl) {
-      let redirectUrl: string = to.fullPath
-      if (typeof globalAppMiddleware.addDefaultCallbackUrl === 'string') {
-        redirectUrl = globalAppMiddleware.addDefaultCallbackUrl
-      }
-
-      return navigateTo({
-        path: authConfig.provider.pages.login,
-        query: {
-          redirect: redirectUrl
-        }
-      })
+  if (typeof globalAppMiddleware === 'object' && globalAppMiddleware.addDefaultCallbackUrl) {
+    let redirectUrl: string = to.fullPath
+    if (typeof globalAppMiddleware.addDefaultCallbackUrl === 'string') {
+      redirectUrl = globalAppMiddleware.addDefaultCallbackUrl
     }
-    return navigateTo(authConfig.provider.pages.login)
+
+    return navigateTo({
+      path: authConfig.provider.pages.login,
+      query: {
+        redirect: redirectUrl
+      }
+    })
   }
+  return navigateTo(authConfig.provider.pages.login)
 })
