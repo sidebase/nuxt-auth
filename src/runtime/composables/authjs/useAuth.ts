@@ -1,4 +1,4 @@
-import type { AppProvider, BuiltInProviderType } from 'next-auth/providers/index'
+import type { AppProvider, BuiltInProviderType } from '@auth/core/providers/index'
 import { defu } from 'defu'
 import { type Ref, readonly } from 'vue'
 import { appendHeader } from 'h3'
@@ -112,8 +112,12 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 
   const csrfToken = await callWithNuxt(nuxt, getCsrfToken)
 
-  const headers: { 'Content-Type': string, 'cookie'?: string | undefined } = {
+  const headers: { 'Content-Type': string, 'X-Auth-Return-Redirect': string, 'cookie'?: string | undefined } = {
     'Content-Type': 'application/x-www-form-urlencoded',
+    // This header is set to force AuthJS to return JSON
+    // https://github.com/nextauthjs/next-auth/blob/b86f7bb721e2fa4e9c3251b029095b0f50d46198/packages/next-auth/src/react.tsx#L270-L285
+    // https://github.com/nextauthjs/next-auth/blob/b86f7bb721e2fa4e9c3251b029095b0f50d46198/packages/core/src/index.ts#L160
+    'X-Auth-Return-Redirect': '1',
     ...(await getRequestCookies(nuxt))
   }
 
@@ -122,7 +126,6 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
     ...options,
     csrfToken,
     callbackUrl,
-    json: true
   })
 
   const fetchSignIn = () => _fetch<{ url: string }>(nuxt, `/${action}/${provider}`, {
@@ -244,13 +247,13 @@ const signOut: SignOutFunc = async (options) => {
   const signoutData = await _fetch<{ url: string }>(nuxt, '/signout', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-Auth-Return-Redirect': '1',
     },
     onRequest: ({ options }) => {
       options.body = new URLSearchParams({
         csrfToken: csrfToken as string,
         callbackUrl: callbackUrl || callbackUrlFallback,
-        json: 'true'
       })
     }
   }).catch(error => error.data)
