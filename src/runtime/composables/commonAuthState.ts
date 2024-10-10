@@ -22,12 +22,10 @@ export function makeCommonAuthState<SessionData>() {
     if (loading.value) {
       return 'loading'
     }
-    else if (data.value) {
+    if (data.value) {
       return 'authenticated'
     }
-    else {
-      return 'unauthenticated'
-    }
+    return 'unauthenticated'
   })
 
   const { origin, pathname } = useRuntimeConfig().public.auth.computed
