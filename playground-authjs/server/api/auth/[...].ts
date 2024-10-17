@@ -1,18 +1,16 @@
-import CredentialsProvider from 'next-auth/providers/credentials'
-import GithubProvider from 'next-auth/providers/github'
+import CredentialsProvider from '@auth/core/providers/credentials'
+import GithubProvider from '@auth/core/providers/github'
 import { NuxtAuthHandler } from '#auth'
 
 export default NuxtAuthHandler({
   // a) Never hardcode your secret in your code!! and b) use a secure secret, `test-123` is **not** secure!!
   secret: process.env.AUTH_SECRET ?? 'test-123',
   providers: [
-    // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
-    GithubProvider.default({
+    GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID ?? 'your-client-id',
       clientSecret: process.env.GITHUB_CLIENT_SECRET ?? 'your-client-secret'
     }),
-    // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
-    CredentialsProvider.default({
+    CredentialsProvider({
       // The name to display on the sign in form (e.g. 'Sign in with...')
       name: 'Credentials',
       // The credentials is used to generate a suitable form on the sign in page.
