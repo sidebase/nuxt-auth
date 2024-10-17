@@ -1,11 +1,13 @@
 import { getHeader } from 'h3'
 import authMiddleware from './middleware/auth'
 import { getNitroRouteRules } from './utils/kit'
-import { _refreshHandler, addRouteMiddleware, defineNuxtPlugin, useAuth, useAuthState, useRuntimeConfig } from '#imports'
+import type { ProviderLocal, SessionCookie } from './types'
+import type { CookieRef } from '#app'
+import { _refreshHandler, addRouteMiddleware, defineNuxtPlugin, useAuth, useAuthState, useCookie, useRuntimeConfig } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
-  const { data, lastRefreshedAt, loading } = useAuthState()
+  const { data, lastRefreshedAt, rawToken, loading } = useAuthState()
   const { getSession } = useAuth()
 
   // use runtimeConfig
@@ -30,8 +32,52 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   // Only fetch session if it was not yet initialized server-side
-  if (typeof data.value === 'undefined' && !nitroPrerender && !disableServerSideAuth) {
-    await getSession()
+  if (
+    typeof data.value === 'undefined'
+    && !nitroPrerender
+    && !disableServerSideAuth
+  ) {
+    const config = runtimeConfig.provider as ProviderLocal
+
+    if (config.type === 'local') {
+      handleLocalAuth(config)
+    }
+
+    if (!data.value) {
+      await getSession()
+    }
+  }
+
+  function handleLocalAuth(config: ProviderLocal): void {
+    const sessionCookie = useCookie<SessionCookie | null>(
+      'auth:sessionCookie'
+    )
+    const cookieToken = useCookie<string | null>(
+      config.token?.cookieName ?? 'auth.token'
+    )
+
+    if (sessionCookie?.value && !rawToken?.value && cookieToken?.value) {
+      restoreSessionFromCookie(sessionCookie, cookieToken)
+    }
+  }
+
+  function restoreSessionFromCookie(
+    sessionCookie: CookieRef<SessionCookie | null>,
+    cookieToken: CookieRef<string | null>
+  ): void {
+    try {
+      loading.value = true
+      const sessionData = sessionCookie.value
+      lastRefreshedAt.value = sessionData?.lastRefreshedAt
+      data.value = sessionData?.data
+      rawToken.value = cookieToken.value
+    }
+    catch (error) {
+      console.error('Failed to parse session data from cookie:', error)
+    }
+    finally {
+      loading.value = false
+    }
   }
 
   // 2. Setup session maintanence, e.g., auto refreshing or refreshing on foux
