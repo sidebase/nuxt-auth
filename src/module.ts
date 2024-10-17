@@ -16,6 +16,7 @@ import { genInterface } from 'knitwork'
 import type { DeepRequired } from 'ts-essentials'
 import type { NuxtModule } from 'nuxt/schema'
 import { getOriginAndPathnameFromURL, isProduction } from './runtime/helpers'
+import { extractFromRuntimeConfig } from './runtime/utils/extractFromRuntimeConfig'
 import type {
   AuthProviders,
   ModuleOptions,
@@ -107,9 +108,16 @@ export default defineNuxtModule<ModuleOptions>({
     const logger = useLogger(PACKAGE_NAME)
 
     // 0. Assemble all options
-    const { origin, pathname = '/api/auth' } = getOriginAndPathnameFromURL(
-      userOptions.baseURL ?? ''
-    )
+    let baseURL = userOptions.baseURL ?? '/api/auth'
+    if (userOptions.originEnvKey) {
+      const envFromRuntimeConfig = extractFromRuntimeConfig(nuxt.options.runtimeConfig, userOptions.originEnvKey)
+      const envOrigin = envFromRuntimeConfig ?? process.env[userOptions.originEnvKey]
+      if (envOrigin) {
+        baseURL = envOrigin
+      }
+    }
+
+    const { origin, pathname } = getOriginAndPathnameFromURL(baseURL)
 
     const selectedProvider = userOptions.provider?.type ?? 'authjs'
 
@@ -118,7 +126,6 @@ export default defineNuxtModule<ModuleOptions>({
         computed: {
           origin,
           pathname,
-          fullBaseUrl: joinURL(origin ?? '', pathname)
         }
       }),
       // We use `as` to infer backend types correctly for runtime-usage (everything is set, although for user everything was optional)
@@ -138,13 +145,17 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 2. Set up runtime configuration
     if (!isProduction) {
-      const authjsAddition
-        = selectedProvider === 'authjs'
-          ? ', ensure that `NuxtAuthHandler({ ... })` is there, see https://sidebase.io/nuxt-auth/configuration/nuxt-auth-handler'
-          : ''
-      logger.info(
-        `Selected provider: ${selectedProvider}. Auth API location is \`${options.computed.fullBaseUrl}\`${authjsAddition}`
-      )
+      const fullBaseUrl = joinURL(options.computed.origin ?? '', options.computed.pathname)
+
+      const loggerMessages = [
+        `Selected provider: ${selectedProvider}.`,
+        `Auth API location is \`${fullBaseUrl}\`.`
+      ]
+      if (selectedProvider === 'authjs') {
+        loggerMessages.push('Ensure that the `NuxtAuthHandler({ ... })` is there, see https://auth.sidebase.io/guide/authjs/nuxt-auth-handler')
+      }
+
+      logger.info(loggerMessages.join(' '))
     }
 
     nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }
