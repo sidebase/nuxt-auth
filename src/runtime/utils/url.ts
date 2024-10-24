@@ -8,13 +8,12 @@ export const getRequestURL = (includePath = true) => getURL(useRequestEvent()?.n
 export function joinPathToApiURL(path: string) {
   const authStateInternal = useAuthState()._internal
 
-  // For internal calls, use a different base
-  // https://github.com/sidebase/nuxt-auth/issues/742
-  const base = path.startsWith('/')
-    ? authStateInternal.pathname
-    : authStateInternal.baseURL
+  let baseUrl = authStateInternal.pathname
+  if (authStateInternal.origin) {
+    baseUrl = joinURL(authStateInternal.origin, authStateInternal.pathname)
+  }
 
-  return joinURL(base, path)
+  return joinURL(baseUrl, path)
 }
 
 /**
