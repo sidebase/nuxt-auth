@@ -11,7 +11,7 @@ export default defineNuxtConfig({
         getSession: { path: '/user' }
       },
       pages: {
-        login: '/'
+        login: 'http://localhost/assets/pages/auth.html'
       },
       token: {
         signInResponseTokenPointer: '/token/accessToken'
