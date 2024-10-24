@@ -522,10 +522,6 @@ export interface CommonUseAuthStateReturn<SessionData> {
   loading: Ref<boolean>
   lastRefreshedAt: Ref<SessionLastRefreshedAt>
   status: ComputedRef<SessionStatus>
-  _internal: {
-    origin?: string
-    pathname: string
-  }
 }
 
 // Common `useAuth` method-types
@@ -589,14 +585,10 @@ export type SignInFunc<PrimarySignInOptions, SignInResult> = (
 
 export interface ModuleOptionsNormalized extends ModuleOptions {
   isEnabled: boolean
+  baseURL: string
   // Cannot use `DeepRequired` here because it leads to build issues
   provider: Required<NonNullable<ModuleOptions['provider']>>
   sessionRefresh: NonNullable<ModuleOptions['sessionRefresh']>
   globalAppMiddleware: NonNullable<ModuleOptions['globalAppMiddleware']>
   originEnvKey: string
-
-  computed: {
-    origin: string | undefined
-    pathname: string
-  }
 }

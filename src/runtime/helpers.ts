@@ -1,21 +1,9 @@
 // TODO: This should be merged into `./utils`
-import { parseURL } from 'ufo'
 import type { DeepRequired } from 'ts-essentials'
 import type { ProviderAuthjs, ProviderLocal, SupportedAuthProviders } from './types'
 import type { useRuntimeConfig } from '#imports'
 
 export const isProduction = process.env.NODE_ENV === 'production'
-
-export function getOriginAndPathnameFromURL(url: string) {
-  const { protocol, host, pathname } = parseURL(url)
-
-  let origin
-  if (host && protocol) {
-    origin = `${protocol}//${host}`
-  }
-
-  return { origin, pathname }
-}
 
 // We use `DeepRequired` here because options are actually enriched using `defu`
 // but due to a build error we can't use `DeepRequired` inside runtime config definition.
