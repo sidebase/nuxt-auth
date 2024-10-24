@@ -100,7 +100,7 @@ export default defineNuxtRouteMiddleware((to) => {
   }
 
   // Default callback URL was provided
-  const external = /^https?:\/\/\S+/.test(authConfig.provider.pages.login)
+  const external: boolean = authConfig.provider.pages.login ? /^https?:\/\/\S+/.test(authConfig.provider.pages.login) : false
   if (typeof globalAppMiddleware === 'object' && globalAppMiddleware.addDefaultCallbackUrl) {
     let redirectUrl: string = to.fullPath
     if (typeof globalAppMiddleware.addDefaultCallbackUrl === 'string') {
