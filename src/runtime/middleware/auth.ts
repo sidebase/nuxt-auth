@@ -100,6 +100,7 @@ export default defineNuxtRouteMiddleware((to) => {
   }
 
   // Default callback URL was provided
+  const external: boolean = authConfig.provider.pages.login ? /^https?:\/\/\S+/.test(authConfig.provider.pages.login) : false
   if (typeof globalAppMiddleware === 'object' && globalAppMiddleware.addDefaultCallbackUrl) {
     let redirectUrl: string = to.fullPath
     if (typeof globalAppMiddleware.addDefaultCallbackUrl === 'string') {
@@ -111,11 +112,11 @@ export default defineNuxtRouteMiddleware((to) => {
       query: {
         redirect: redirectUrl
       }
-    })
+    }, { external })
   }
 
   // Fall back to login page
-  return navigateTo(authConfig.provider.pages.login)
+  return navigateTo(authConfig.provider.pages.login, { external })
 })
 
 interface MiddlewareOptionsNormalized {
