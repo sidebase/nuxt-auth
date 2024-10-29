@@ -164,9 +164,7 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
     if (onUnauthenticated) {
       return onUnauthenticated()
     }
-    else {
-      await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external })
-    }
+    await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external })
   }
 
   return data.value
@@ -232,9 +230,8 @@ async function refresh(getSessionOptions?: GetSessionOptions) {
       )
       return
     }
-    else {
-      rawRefreshToken.value = extractedRefreshToken
-    }
+
+    rawRefreshToken.value = extractedRefreshToken
   }
 
   rawToken.value = extractedToken
