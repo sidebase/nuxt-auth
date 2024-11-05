@@ -548,6 +548,12 @@ export interface SecondarySignInOptions extends Record<string, unknown> {
    * @default false
    */
   external?: boolean
+  /**
+   * Whether `getSession` is called. If set to false, you have to manually call `getSession` to get the session data.
+   *
+   * @default true
+   */
+  withSession?: boolean
 }
 
 export interface SignUpOptions extends SecondarySignInOptions {
