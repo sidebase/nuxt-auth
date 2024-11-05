@@ -1,70 +1,61 @@
-import type { RefreshHandlerConfig, RefreshHandler } from '../types'
-import { useRuntimeConfig, useAuth, useAuthState } from '#imports'
+import type { DefaultRefreshHandlerConfig, ModuleOptionsNormalized, RefreshHandler } from '../types'
+import { useAuth, useRuntimeConfig } from '#imports'
 
-interface DefaultRefreshHandler extends RefreshHandler {
-    config?: RefreshHandlerConfig
-    refetchIntervalTimer?: ReturnType<typeof setInterval>
-    refreshTokenIntervalTimer?: ReturnType<typeof setInterval>
-    visibilityHandler(): void
-}
+export class DefaultRefreshHandler implements RefreshHandler {
+  /** Result of `useAuth` composable, mostly used for session data/refreshing */
+  auth?: ReturnType<typeof useAuth>
 
-const defaultRefreshHandler: DefaultRefreshHandler = {
-  // Session configuration keep this for reference
-  config: undefined,
+  /** Runtime config is mostly used for getting provider data */
+  runtimeConfig?: ModuleOptionsNormalized
 
-  // Refetch interval
-  refetchIntervalTimer: undefined,
+  /** Refetch interval */
+  refetchIntervalTimer?: ReturnType<typeof setInterval>
 
   // TODO: find more Generic method to start a Timer for the Refresh Token
-  // Refetch interval for local/refresh schema
-  refreshTokenIntervalTimer: undefined,
+  /** Refetch interval for local/refresh schema */
+  refreshTokenIntervalTimer?: ReturnType<typeof setInterval>
 
-  visibilityHandler () {
-    // Listen for when the page is visible, if the user switches tabs
-    // and makes our tab visible again, re-fetch the session, but only if
-    // this feature is not disabled.
-    if (this.config?.enableRefreshOnWindowFocus && document.visibilityState === 'visible') {
-      useAuth().getSession()
-    }
-  },
+  /** Because passing `this.visibilityHandler` to `document.addEventHandler` loses `this` context */
+  private boundVisibilityHandler: typeof this.visibilityHandler
 
-  init (config: RefreshHandlerConfig): void {
-    this.config = config
+  constructor(
+    public config: DefaultRefreshHandlerConfig
+  ) {
+    this.boundVisibilityHandler = this.visibilityHandler.bind(this)
+  }
 
-    const runtimeConfig = useRuntimeConfig().public.auth
+  init(): void {
+    this.runtimeConfig = useRuntimeConfig().public.auth
+    this.auth = useAuth()
 
-    const { data } = useAuthState()
-    const { getSession } = useAuth()
+    document.addEventListener('visibilitychange', this.boundVisibilityHandler, false)
 
-    document.addEventListener('visibilitychange', this.visibilityHandler, false)
+    const { enablePeriodically } = this.config
 
-    const { enableRefreshPeriodically } = config
-
-    if (enableRefreshPeriodically !== false) {
-      const intervalTime =
-        enableRefreshPeriodically === true ? 1000 : enableRefreshPeriodically
+    if (enablePeriodically !== false) {
+      const intervalTime = enablePeriodically === true ? 1000 : enablePeriodically
       this.refetchIntervalTimer = setInterval(() => {
-        if (data.value) {
-          getSession()
+        if (this.auth?.data.value) {
+          this.auth.refresh()
         }
       }, intervalTime)
     }
 
-    if (runtimeConfig.provider.type === 'refresh') {
-      const intervalTime = runtimeConfig.provider.token.maxAgeInSeconds! * 1000
-      const { refresh, refreshToken } = useAuth()
+    const provider = this.runtimeConfig.provider
+    if (provider.type === 'local' && provider.refresh.isEnabled && provider.refresh.token?.maxAgeInSeconds) {
+      const intervalTime = provider.refresh.token.maxAgeInSeconds * 1000
 
       this.refreshTokenIntervalTimer = setInterval(() => {
-        if (refreshToken.value) {
-          refresh()
+        if (this.auth?.refreshToken.value) {
+          this.auth.refresh()
         }
       }, intervalTime)
     }
-  },
+  }
 
-  destroy (): void {
+  destroy(): void {
     // Clear visibility handler
-    document.removeEventListener('visibilitychange', this.visibilityHandler, false)
+    document.removeEventListener('visibilitychange', this.boundVisibilityHandler, false)
 
     // Clear refetch interval
     clearInterval(this.refetchIntervalTimer)
@@ -73,7 +64,18 @@ const defaultRefreshHandler: DefaultRefreshHandler = {
     if (this.refreshTokenIntervalTimer) {
       clearInterval(this.refreshTokenIntervalTimer)
     }
+
+    // Release state
+    this.auth = undefined
+    this.runtimeConfig = undefined
+  }
+
+  visibilityHandler(): void {
+    // Listen for when the page is visible, if the user switches tabs
+    // and makes our tab visible again, re-fetch the session, but only if
+    // this feature is not disabled.
+    if (this.config?.enableOnWindowFocus && document.visibilityState === 'visible' && this.auth?.data.value) {
+      this.auth.refresh()
+    }
   }
 }
-
-export default defaultRefreshHandler

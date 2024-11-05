@@ -3,7 +3,6 @@
   "name": "nuxt-auth-playground-local",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --max-warnings=0",
     "dev": "nuxi prepare && nuxi dev",
     "build": "nuxi build",
     "start": "nuxi preview",
@@ -13,18 +12,17 @@
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.2",
-    "zod": "^3.22.4"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@nuxt/test-utils": "^3.12.1",
-    "@playwright/test": "^1.43.1",
+    "@nuxt/test-utils": "^3.14.1",
+    "@playwright/test": "^1.46.0",
     "@types/jsonwebtoken": "^9.0.6",
-    "@types/node": "^18.19.31",
-    "@vue/test-utils": "^2.4.5",
-    "eslint": "^8.57.0",
-    "nuxt": "^3.11.2",
-    "typescript": "^5.3.3",
-    "vitest": "^1.5.0",
-    "vue-tsc": "^1.8.27"
+    "@types/node": "^18.19.44",
+    "@vue/test-utils": "^2.4.6",
+    "nuxt": "^3.12.4",
+    "typescript": "^5.5.4",
+    "vitest": "^1.6.0",
+    "vue-tsc": "^2.0.29"
   }
 }

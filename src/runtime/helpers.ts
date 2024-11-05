@@ -1,12 +1,12 @@
 // TODO: This should be merged into `./utils`
 import { parseURL } from 'ufo'
 import type { DeepRequired } from 'ts-essentials'
-import type { SupportedAuthProviders, AuthProviders } from './types'
-import { useRuntimeConfig } from '#imports'
+import type { ProviderAuthjs, ProviderLocal, SupportedAuthProviders } from './types'
+import type { useRuntimeConfig } from '#imports'
 
 export const isProduction = process.env.NODE_ENV === 'production'
 
-export const getOriginAndPathnameFromURL = (url: string) => {
+export function getOriginAndPathnameFromURL(url: string) {
   const { protocol, host, pathname } = parseURL(url)
 
   let origin
@@ -21,22 +21,30 @@ export const getOriginAndPathnameFromURL = (url: string) => {
   }
 }
 
+// We use `DeepRequired` here because options are actually enriched using `defu`
+// but due to a build error we can't use `DeepRequired` inside runtime config definition.
+type RuntimeConfig = ReturnType<typeof useRuntimeConfig>
+export type ProviderAuthjsResolvedConfig = DeepRequired<ProviderAuthjs>
+export type ProviderLocalResolvedConfig = DeepRequired<ProviderLocal>
+
+export function useTypedBackendConfig(runtimeConfig: RuntimeConfig, type: 'authjs'): ProviderAuthjsResolvedConfig
+export function useTypedBackendConfig(runtimeConfig: RuntimeConfig, type: 'local'): ProviderLocalResolvedConfig
 /**
  * Get the backend configuration from the runtime config in a typed manner.
  *
  * @param runtimeConfig The runtime config of the application
- * @param type Backend type to be enforced (e.g.: `local`,`refresh` or `authjs`)
+ * @param type Backend type to be enforced (e.g.: `local` or `authjs`)
  */
-export const useTypedBackendConfig = <T extends SupportedAuthProviders>(
+export function useTypedBackendConfig<T extends SupportedAuthProviders>(
   runtimeConfig: ReturnType<typeof useRuntimeConfig>,
-  _type: T
-): Extract<DeepRequired<AuthProviders>, { type: T }> => {
-  return runtimeConfig.public.auth.provider as Extract<
-    DeepRequired<AuthProviders>,
-    { type: T }
-  >
-  // TODO: find better solution to throw errors, when using sub-configs
-  // throw new Error('RuntimeError: Type must match at this point')
+  type: T
+): ProviderAuthjsResolvedConfig | ProviderLocalResolvedConfig {
+  const provider = runtimeConfig.public.auth.provider
+  if (provider.type === type) {
+    return provider as DeepRequired<typeof provider>
+  }
+
+  throw new Error('RuntimeError: Type must match at this point')
 }
 
 /**
@@ -49,7 +57,7 @@ export const useTypedBackendConfig = <T extends SupportedAuthProviders>(
  * @param obj
  * @param pointer
  */
-export function jsonPointerGet <TResult = string | Record<string, any>> (
+export function jsonPointerGet<TResult = string | Record<string, any>>(
   obj: Record<string, any>,
   pointer: string
 ): TResult {
@@ -58,7 +66,7 @@ export function jsonPointerGet <TResult = string | Record<string, any>> (
   for (let i = 0; i < refTokens.length; ++i) {
     const tok = refTokens[i]
     if (!(typeof obj === 'object' && tok in obj)) {
-      throw new Error('Invalid reference token: ' + tok)
+      throw new Error(`Invalid reference token: ${tok}`)
     }
     obj = obj[tok]
   }
@@ -72,7 +80,7 @@ export function jsonPointerGet <TResult = string | Record<string, any>> (
  *
  * Adapted from https://github.com/manuelstofer/json-pointer/blob/931b0f9c7178ca09778087b4b0ac7e4f505620c2/index.js#L68-L103
  */
-export function jsonPointerSet (
+export function jsonPointerSet(
   obj: Record<string, any>,
   pointer: string | string[],
   value: any
@@ -100,7 +108,8 @@ export function jsonPointerSet (
     if (!(tok in obj)) {
       if (nextTok.match(/^(\d+|-)$/)) {
         obj[tok] = []
-      } else {
+      }
+      else {
         obj[tok] = {}
       }
     }
@@ -118,7 +127,7 @@ export function jsonPointerSet (
  * @returns {Record<string, any>} An object with a value set at an arbitrary pointer.
  * @example objectFromJsonPointer('/refresh', 'someToken') // { refresh: 'someToken' }
  */
-export function objectFromJsonPointer (pointer: string | string[], value: any): Record<string, any> {
+export function objectFromJsonPointer(pointer: string | string[], value: any): Record<string, any> {
   const result = {}
   jsonPointerSet(result, pointer, value)
   return result
@@ -129,12 +138,12 @@ export function objectFromJsonPointer (pointer: string | string[], value: any): 
  *
  * Adapted from https://github.com/manuelstofer/json-pointer/blob/931b0f9c7178ca09778087b4b0ac7e4f505620c2/index.js#L217-L221
  */
-function jsonPointerParse (pointer: string): string[] {
+function jsonPointerParse(pointer: string): string[] {
   if (pointer === '' || pointer === '/') {
     return []
   }
   if (pointer.charAt(0) !== '/') {
-    throw new Error('Invalid JSON pointer: ' + pointer)
+    throw new Error(`Invalid JSON pointer: ${pointer}`)
   }
   return pointer.substring(1).split(/\//).map(s => s.replace(/~1/g, '/').replace(/~0/g, '~'))
 }

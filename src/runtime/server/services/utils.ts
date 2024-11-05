@@ -1,6 +1,6 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import getURL from 'requrl'
-import { joinURL } from 'ufo'
+import { camelCase } from 'scule'
 import { isProduction } from '../../helpers'
 import { ERROR_MESSAGES } from './errors'
 import { useRuntimeConfig } from '#imports'
@@ -8,15 +8,19 @@ import { useRuntimeConfig } from '#imports'
 /**
  * Get `origin` and fallback to `x-forwarded-host` or `host` headers if not in production.
  */
-export const getServerOrigin = (event?: H3Event): string => {
+export function getServerOrigin(event?: H3Event): string {
+  const config = useRuntimeConfig()
+
   // Prio 1: Environment variable
-  const envOrigin = process.env.AUTH_ORIGIN
+  const envOriginKey = config.public.auth.originEnvKey
+  const envFromRuntimeConfig = extractFromRuntimeConfig(config, envOriginKey)
+  const envOrigin = envFromRuntimeConfig ?? process.env[envOriginKey]
   if (envOrigin) {
     return envOrigin
   }
 
-  // Prio 2: Runtime configuration
-  const runtimeConfigOrigin = useRuntimeConfig().public.auth.computed.origin
+  // Prio 2: Computed origin
+  const runtimeConfigOrigin = config.public.auth.computed.origin
   if (runtimeConfigOrigin) {
     return runtimeConfigOrigin
   }
@@ -29,20 +33,16 @@ export const getServerOrigin = (event?: H3Event): string => {
   throw new Error(ERROR_MESSAGES.NO_ORIGIN)
 }
 
-/** Get the request url or construct it */
-export const getRequestURLFromRequest = (event: H3Event, { trustHost }: { trustHost: boolean }): string | undefined => {
-  if (trustHost) {
-    const forwardedValue = getURL(event.node.req)
-    if (forwardedValue) {
-      return Array.isArray(forwardedValue) ? forwardedValue[0] : forwardedValue
-    }
-  }
+type RuntimeConfig = ReturnType<typeof useRuntimeConfig>
 
-  let origin
-  try {
-    origin = getServerOrigin(event)
-  } catch (error) {
-    return undefined
-  }
-  return joinURL(origin, useRuntimeConfig().public.auth.computed.pathname)
+function extractFromRuntimeConfig(config: RuntimeConfig, envVariableName: string): string | undefined {
+  let normalized = envVariableName.startsWith('NUXT_')
+    ? envVariableName.slice(5)
+    : envVariableName
+  normalized = camelCase(normalized, { normalize: true })
+
+  const extracted = config[normalized]
+  return typeof extracted === 'string'
+    ? extracted
+    : undefined
 }

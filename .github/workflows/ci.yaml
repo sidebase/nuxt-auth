@@ -1,4 +1,4 @@
-name: nodejs CI
+name: CI
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  NODE_VER: 18.19.1
+  NODE_VER: 22.5
   CI: true
 
 jobs:
@@ -17,20 +17,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
+          cache: "pnpm"
 
-      - uses: pnpm/action-setup@v3
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 8
-
-      # Install deps and prepare types
-      - run: pnpm i
-      - run: pnpm dev:prepare
+      - name: Install deps and prepare types
+        run: pnpm i && pnpm dev:prepare
 
       # Check if build and package artifacts can still be generated
       - run: pnpm prepack
@@ -42,6 +41,29 @@ jobs:
       # Check building
       - run: pnpm build
 
+  test-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Use Node.js ${{ env.NODE_VER }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VER }}
+          cache: "pnpm"
+
+      - name: Install deps and prepare types
+        run: pnpm i && pnpm dev:prepare
+
+      # Build docs
+      - run: pnpm docs:build
+
   test-playground-local:
     runs-on: ubuntu-latest
     defaults:
@@ -51,19 +73,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
+          cache: "pnpm"
 
-      - uses: pnpm/action-setup@v3
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 8
-
-      # Install deps
-      - run: pnpm i
+      - name: Install deps
+        run: pnpm i
 
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
@@ -71,38 +93,12 @@ jobs:
       # Check building
       - run: pnpm build
 
-      - name: Run Playwright tests using Vitest
+      - name: Run Playwright tests using Vitest with refresh disabled
         run: pnpm test:e2e
+        env:
+          NUXT_AUTH_REFRESH_ENABLED: false
 
-  test-playground-refresh:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./playground-refresh
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Use Node.js ${{ env.NODE_VER }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VER }}
-
-      - uses: pnpm/action-setup@v3
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 8
-
-      # Install deps
-      - run: pnpm i
-
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
-
-      # Check building
-      - run: pnpm build
-
-      - name: Run Playwright tests using Vitest
+      - name: Run Playwright tests using Vitest with refresh enabled
         run: pnpm test:e2e
 
   test-playground-authjs:
@@ -113,19 +109,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
+          cache: "pnpm"
 
-      - uses: pnpm/action-setup@v3
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 8
-
-      # Install deps
-      - run: pnpm i
+      - name: Install deps
+        run: pnpm i
 
       # Check building
       - run: pnpm build
