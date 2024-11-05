@@ -102,7 +102,7 @@ Time at which the session was last refreshed, either `undefined` if no refresh w
 
 Returns the current Cross Site Request Forgery Token (CSRF Token) required to make POST requests (e.g. for signing in and signing out).
 
-You likely only need to use this if you are not using the built-in `signIn()` and `signOut()` methods. Read more: https://next-auth.js.org/getting-started/client#getcsrftoken
+You likely only need to use this if you are not using the built-in `signIn()` and `signOut()` methods. Read more: <https://next-auth.js.org/getting-started/client#getcsrftoken>
 
 :::warning AuthJS Only
 `getCsrfToken` is only avalible for the authjs provider!
@@ -210,6 +210,9 @@ await signIn(credentials, { callbackUrl: '/protected' })
 
 // Trigger a signIn with a redirect to an external page afterwards
 await signIn(credentials, { callbackUrl: 'https://nuxt.org', external: true })
+
+// Trigger a signIn without calling getSession directly. You have to manually call it to get session data.
+await signIn(credentials, { withSession: false })
 ```
 
 :::
@@ -321,6 +324,7 @@ setToken('new token')
 // Helper method to quickly delete the token cookie (alias for rawToken.value = null)
 clearToken()
 ```
+
 :::
 
 :::warning Local provider:
