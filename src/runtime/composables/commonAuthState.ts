@@ -24,12 +24,10 @@ export function makeCommonAuthState<SessionData>() {
     if (loading.value) {
       return 'loading'
     }
-    else if (data.value) {
+    if (data.value) {
       return 'authenticated'
     }
-    else {
-      return 'unauthenticated'
-    }
+    return 'unauthenticated'
   })
 
   // Determine base url of app

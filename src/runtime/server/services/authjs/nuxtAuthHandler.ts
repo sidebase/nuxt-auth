@@ -194,10 +194,8 @@ function getRequestBaseFromH3Event(event: H3Event, trustHost: boolean): string {
 
     return `${protocol}://${host}`
   }
-  else {
-    // This may throw, we don't catch it
-    const origin = getServerOrigin(event)
+  // This may throw, we don't catch it
+  const origin = getServerOrigin(event)
 
-    return origin
-  }
+  return origin
 }
