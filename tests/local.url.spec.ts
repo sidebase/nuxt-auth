@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { resolveApiUrlPath } from '../src/runtime/composables/local/utils/url'
+import { resolveApiUrlPath } from '../src/runtime/utils/url'
 
 describe('endpoint path construction', () => {
   describe('relative baseURL', () => {
@@ -184,6 +184,7 @@ function mockRuntimeConfig(desiredBaseURL: string, envVariableName: string) {
     public: {
       auth: {
         baseURL: desiredBaseURL,
+        disableInternalRouting: true,
         originEnvKey: envVariableName
       }
     }

@@ -28,16 +28,10 @@ export function makeCommonAuthState<SessionData>() {
     return 'unauthenticated'
   })
 
-  const { origin, pathname } = useRuntimeConfig().public.auth.computed
-
   return {
     data,
     loading,
     lastRefreshedAt,
     status,
-    _internal: {
-      origin,
-      pathname
-    }
   }
 }

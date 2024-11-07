@@ -22,8 +22,6 @@ export interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData
   setToken: (newToken: string | null) => void
   clearToken: () => void
   _internal: {
-    origin?: string
-    pathname: string
     rawTokenCookie: CookieRef<string | null>
   }
 }
@@ -108,7 +106,6 @@ export function useAuthState(): UseAuthStateReturn {
     setToken,
     clearToken,
     _internal: {
-      ...commonAuthState._internal,
       rawTokenCookie: _rawTokenCookie
     }
   }

@@ -26,6 +26,7 @@ import type {
 const topLevelDefaults = {
   isEnabled: true,
   baseURL: '/api/auth',
+  disableInternalRouting: false as boolean,
   disableServerSideAuth: false,
   originEnvKey: 'AUTH_ORIGIN',
   sessionRefresh: {
@@ -126,7 +127,13 @@ export default defineNuxtModule<ModuleOptions>({
 
     logger.info('`nuxt-auth` setup starting')
 
-    // 2. Set up runtime configuration
+    // 2.1. Disable internal routing for `local` provider when not specified otherwise
+    // https://github.com/sidebase/nuxt-auth/issues/797
+    if (userOptions.disableInternalRouting === undefined && selectedProvider === 'local') {
+      options.disableInternalRouting = true
+    }
+
+    // 2.2. Set up runtime configuration
     if (!isProduction) {
       const loggerMessages = [
         `Selected provider: ${selectedProvider}.`,

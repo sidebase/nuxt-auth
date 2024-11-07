@@ -1,4 +1,3 @@
-import type { navigateToAuthPages } from '../utils/url'
 import { determineCallbackUrl } from '../utils/url'
 import { isProduction } from '../helpers'
 import { defineNuxtRouteMiddleware, navigateTo, useAuth, useRuntimeConfig } from '#imports'
@@ -91,7 +90,7 @@ export default defineNuxtRouteMiddleware((to) => {
     const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.fullPath) }
     // eslint-disable-next-line ts/ban-ts-comment
     // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
-    return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
+    return signIn(undefined, signInOptions) as Promise<void>
   }
 
   // Redirect path was provided

@@ -1,7 +1,8 @@
 import type { H3Event } from 'h3'
 import getURL from 'requrl'
+import { parseURL } from 'ufo'
 import { isProduction } from '../../helpers'
-import { extractFromRuntimeConfig } from '../../utils/extractFromRuntimeConfig'
+import { resolveApiBaseURL } from '../../utils/url'
 import { ERROR_MESSAGES } from './errors'
 import { useRuntimeConfig } from '#imports'
 
@@ -9,20 +10,17 @@ import { useRuntimeConfig } from '#imports'
  * Get `origin` and fallback to `x-forwarded-host` or `host` headers if not in production.
  */
 export function getServerOrigin(event?: H3Event): string {
-  const config = useRuntimeConfig()
+  const runtimeConfig = useRuntimeConfig()
 
   // Prio 1: Environment variable
-  const envOriginKey = config.public.auth.originEnvKey
-  const envFromRuntimeConfig = extractFromRuntimeConfig(config, envOriginKey)
-  const envOrigin = envFromRuntimeConfig ?? process.env[envOriginKey]
-  if (envOrigin) {
-    return envOrigin
-  }
+  // Prio 2: Static configuration
 
-  // Prio 2: Computed origin
-  const runtimeConfigOrigin = config.public.auth.computed.origin
-  if (runtimeConfigOrigin) {
-    return runtimeConfigOrigin
+  // Resolve the value from runtime config/env.
+  // If the returned value has protocol and host, it is considered valid.
+  const baseURL = resolveApiBaseURL(runtimeConfig, false)
+  const parsed = parseURL(baseURL)
+  if (parsed.protocol && parsed.host) {
+    return `${parsed.protocol}//${parsed.host}`
   }
 
   // Prio 3: Try to infer the origin if we're not in production
