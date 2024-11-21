@@ -46,10 +46,11 @@
     "ufo": "^1.5.4"
   },
   "peerDependencies": {
-    "next-auth": "~4.21.1"
+    "@auth/core": "^0.35.2"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.25.0",
+    "@auth/core": "^0.35.2",
     "@nuxt/module-builder": "^0.8.3",
     "@nuxt/schema": "^3.12.4",
     "@nuxtjs/eslint-config-typescript": "^12.1.0",
