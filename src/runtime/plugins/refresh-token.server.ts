@@ -62,9 +62,7 @@ export default defineNuxtPlugin({
             )
             return
           }
-          else {
-            rawRefreshToken.value = extractedRefreshToken
-          }
+          rawRefreshToken.value = extractedRefreshToken
         }
 
         rawToken.value = extractedToken

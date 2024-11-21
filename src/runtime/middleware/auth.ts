@@ -1,16 +1,15 @@
 import type { navigateToAuthPages } from '../utils/url'
 import { determineCallbackUrl } from '../utils/url'
+import { isProduction } from '../helpers'
 import { defineNuxtRouteMiddleware, navigateTo, useAuth, useRuntimeConfig } from '#imports'
 
 type MiddlewareMeta = boolean | {
   /**
-   * Whether to only allow unauthenticated users to access this page.
+   * Whether to allow only unauthenticated users to access this page.
    *
    * Authenticated users will be redirected to `/` or the route defined in `navigateAuthenticatedTo`
-   *
-   * @default undefined
    */
-  unauthenticatedOnly?: boolean
+  unauthenticatedOnly: boolean
   /**
    * Where to redirect authenticated users if `unauthenticatedOnly` is set to true
    *
@@ -38,41 +37,34 @@ declare module 'vue-router' {
 }
 
 export default defineNuxtRouteMiddleware((to) => {
-  const metaAuth = typeof to.meta.auth === 'object'
-    ? {
-        unauthenticatedOnly: true,
-        ...to.meta.auth
-      }
-    : to.meta.auth
-
-  if (metaAuth === false) {
+  // Normalize options. If `undefined` was returned, we need to skip middleware
+  const options = normalizeUserOptions(to.meta.auth)
+  if (!options) {
     return
   }
 
   const authConfig = useRuntimeConfig().public.auth
   const { status, signIn } = useAuth()
-  const isGuestMode = typeof metaAuth === 'object' && metaAuth.unauthenticatedOnly
-  // Guest mode happy path 1: Unauthenticated user is allowed to view page
+
+  // Guest Mode - only unauthenticated users are allowed
+  const isGuestMode = options.unauthenticatedOnly
+  const isAuthenticated = status.value === 'authenticated'
   if (isGuestMode && status.value === 'unauthenticated') {
+    // Guest Mode - unauthenticated users can stay on the page
     return
   }
-
-  // Guest mode edge-case: Developer used guest-mode config style but set `unauthenticatedOnly` to `false`
-  if (typeof metaAuth === 'object' && !metaAuth.unauthenticatedOnly) {
-    return
+  else if (isGuestMode && isAuthenticated) {
+    // Guest Mode - authenticated users should be redirected to another page
+    return navigateTo(options.navigateAuthenticatedTo)
   }
-
-  if (status.value === 'authenticated') {
-    // Guest mode happy path 2: Authenticated user should be directed to another page
-    if (isGuestMode) {
-      return navigateTo(metaAuth.navigateAuthenticatedTo ?? '/')
-    }
+  else if (isAuthenticated) {
+    // Authenticated users don't need any further redirects
     return
   }
 
   // We do not want to block the login page when the local provider is used
-  if (authConfig.provider?.type === 'local') {
-    const loginRoute: string | undefined = authConfig.provider?.pages?.login
+  if (authConfig.provider.type === 'local') {
+    const loginRoute: string | undefined = authConfig.provider.pages.login
     if (loginRoute && loginRoute === to.path) {
       return
     }
@@ -101,23 +93,71 @@ export default defineNuxtRouteMiddleware((to) => {
     // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
     return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
   }
-  else if (typeof metaAuth === 'object' && metaAuth.navigateUnauthenticatedTo) {
-    return navigateTo(metaAuth.navigateUnauthenticatedTo)
-  }
-  else {
-    if (typeof globalAppMiddleware === 'object' && globalAppMiddleware.addDefaultCallbackUrl) {
-      let redirectUrl: string = to.fullPath
-      if (typeof globalAppMiddleware.addDefaultCallbackUrl === 'string') {
-        redirectUrl = globalAppMiddleware.addDefaultCallbackUrl
-      }
 
-      return navigateTo({
-        path: authConfig.provider.pages.login,
-        query: {
-          redirect: redirectUrl
-        }
-      })
-    }
-    return navigateTo(authConfig.provider.pages.login)
+  // Redirect path was provided
+  if (options.navigateUnauthenticatedTo) {
+    return navigateTo(options.navigateUnauthenticatedTo)
   }
+
+  // Default callback URL was provided
+  if (typeof globalAppMiddleware === 'object' && globalAppMiddleware.addDefaultCallbackUrl) {
+    let redirectUrl: string = to.fullPath
+    if (typeof globalAppMiddleware.addDefaultCallbackUrl === 'string') {
+      redirectUrl = globalAppMiddleware.addDefaultCallbackUrl
+    }
+
+    return navigateTo({
+      path: authConfig.provider.pages.login,
+      query: {
+        redirect: redirectUrl
+      }
+    })
+  }
+
+  // Fall back to login page
+  return navigateTo(authConfig.provider.pages.login)
 })
+
+interface MiddlewareOptionsNormalized {
+  unauthenticatedOnly: boolean
+  navigateAuthenticatedTo: string
+  navigateUnauthenticatedTo?: string
+}
+
+/**
+ * @returns `undefined` is returned when passed options are `false`
+ */
+function normalizeUserOptions(userOptions: MiddlewareMeta | undefined): MiddlewareOptionsNormalized | undefined {
+  // false - do not use middleware
+  // true - use defaults
+  if (typeof userOptions === 'boolean' || userOptions === undefined) {
+    return userOptions !== false
+      ? {
+          // Guest Mode off if `auth: true`
+          unauthenticatedOnly: false,
+          navigateAuthenticatedTo: '/',
+          navigateUnauthenticatedTo: undefined
+        }
+      : undefined
+  }
+
+  // We check in runtime in case usage error was not caught by TS
+  if (typeof userOptions === 'object') {
+    // Guest Mode on to preserve compatibility. A warning is also issued to prevent unwanted behaviour
+    if (userOptions.unauthenticatedOnly === undefined) {
+      if (!isProduction) {
+        console.warn(
+          '[@sidebase/nuxt-auth] `unauthenticatedOnly` was not provided to `definePageMeta` - defaulting to Guest Mode enabled. '
+          + 'Read more at https://auth.sidebase.io/guide/application-side/protecting-pages#middleware-options'
+        )
+      }
+      userOptions.unauthenticatedOnly = true
+    }
+
+    return {
+      unauthenticatedOnly: userOptions.unauthenticatedOnly,
+      navigateAuthenticatedTo: userOptions.navigateAuthenticatedTo ?? '/',
+      navigateUnauthenticatedTo: userOptions.navigateUnauthenticatedTo
+    }
+  }
+}
