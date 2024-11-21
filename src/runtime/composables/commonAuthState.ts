@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 import type { SessionLastRefreshedAt, SessionStatus } from '../types'
-import { useRuntimeConfig, useState } from '#imports'
+import { useState } from '#imports'
 
 export function makeCommonAuthState<SessionData>() {
   const data = useState<SessionData | undefined | null>('auth:data', () => undefined)
