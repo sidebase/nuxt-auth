@@ -134,5 +134,5 @@ jobs:
       # start prod-app and curl from it
       - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"
         env:
-          AUTH_ORIGIN: "http://localhost:3001"
+          AUTH_ORIGIN: "http://localhost:3001/api/auth"
           PORT: 3001
