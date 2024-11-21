@@ -2,6 +2,7 @@ import { getHeader } from 'h3'
 import authMiddleware from './middleware/auth'
 import { getNitroRouteRules } from './utils/kit'
 import { _refreshHandler, addRouteMiddleware, defineNuxtPlugin, useAuth, useAuthState, useRuntimeConfig } from '#imports'
+import { FetchConfigurationError } from './utils/fetch'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
@@ -10,6 +11,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   // use runtimeConfig
   const runtimeConfig = useRuntimeConfig().public.auth
+  const globalAppMiddleware = runtimeConfig.globalAppMiddleware
 
   const routeRules = import.meta.server ? getNitroRouteRules(nuxtApp._route.path) : {}
 
@@ -30,8 +32,22 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   // Only fetch session if it was not yet initialized server-side
-  if (typeof data.value === 'undefined' && !nitroPrerender && !disableServerSideAuth) {
-    await getSession()
+  const isErrorUrl = nuxtApp.ssrContext?.error === true
+  const requireAuthOnErrorPage = globalAppMiddleware === true || (typeof globalAppMiddleware === 'object' && globalAppMiddleware.allow404WithoutAuth)
+  const shouldFetchSession = typeof data.value === 'undefined'
+    && !nitroPrerender
+    && !disableServerSideAuth
+    && !(isErrorUrl && requireAuthOnErrorPage)
+
+  if (shouldFetchSession) {
+    try {
+      await getSession()
+    } catch (e) {
+      // Do not throw the configuration error as it can lead to infinite recursion
+      if (!(e instanceof FetchConfigurationError)) {
+        throw e
+      }
+    }
   }
 
   // 2. Setup session maintanence, e.g., auto refreshing or refreshing on foux
@@ -55,7 +71,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   // 3. Enable the middleware, either globally or as a named `auth` option
-  const { globalAppMiddleware } = useRuntimeConfig().public.auth
   if (
     globalAppMiddleware === true
     || (typeof globalAppMiddleware === 'object' && globalAppMiddleware.isEnabled)

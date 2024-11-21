@@ -164,7 +164,7 @@ function getProviders() {
  *
  * @param getSessionOptions - Options for getting the session, e.g., set `required: true` to enforce that a session _must_ exist, the user will be directed to a login page otherwise.
  */
-async function getSession(getSessionOptions?: GetSessionOptions): Promise<SessionData> {
+async function getSession(getSessionOptions?: GetSessionOptions): Promise<SessionData | null> {
   const nuxt = useNuxtApp()
 
   const callbackUrlFallback = await getRequestURLWN(nuxt)

@@ -73,7 +73,7 @@ export default defineNuxtRouteMiddleware((to) => {
    * We do not want to enforce protection on `404` pages (unless the user opts out of it by setting `allow404WithoutAuth: false`).
    *
    * This is to:
-   * - improve UX and DX: Having to log-in to see a `404` is not pleasent,
+   * - improve UX and DX: Having to log-in to see a `404` is not pleasant,
    * - avoid the `Error [ERR_HTTP_HEADERS_SENT]`-error that occurs when we redirect to the sign-in page when the original to-page does not exist. Likely related to https://github.com/nuxt/framework/issues/9438
    *
    */
