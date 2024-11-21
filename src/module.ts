@@ -78,6 +78,7 @@ const defaultsByBackend: {
       refreshOnlyToken: true,
       token: {
         signInResponseRefreshTokenPointer: '/refreshToken',
+        refreshResponseTokenPointer: '',
         refreshRequestTokenPointer: '/refreshToken',
         cookieName: 'auth.refresh-token',
         maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days
