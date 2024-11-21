@@ -37,6 +37,9 @@ jobs:
       # Check linting and typing
       - run: pnpm lint
       - run: pnpm typecheck
+      
+      # Run unit tests
+      - run: pnpm test:unit
 
       # Check building
       - run: pnpm build
