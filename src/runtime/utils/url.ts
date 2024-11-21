@@ -1,4 +1,4 @@
-import { joinURL, parsePath } from 'ufo'
+import { joinURL, parseURL, withLeadingSlash } from 'ufo'
 
 // Slimmed down type to allow easy unit testing
 interface RuntimeConfig {
@@ -48,7 +48,7 @@ export function resolveApiBaseURL(runtimeConfig: RuntimeConfig, returnOnlyPathna
   }
 
   if (returnOnlyPathname) {
-    baseURL = parsePath(baseURL).pathname
+    baseURL = withLeadingSlash(parseURL(baseURL).pathname)
   }
 
   return baseURL
