@@ -1,8 +1,8 @@
 import { getHeader } from 'h3'
 import authMiddleware from './middleware/auth'
 import { getNitroRouteRules } from './utils/kit'
-import { _refreshHandler, addRouteMiddleware, defineNuxtPlugin, useAuth, useAuthState, useRuntimeConfig } from '#imports'
 import { FetchConfigurationError } from './utils/fetch'
+import { _refreshHandler, addRouteMiddleware, defineNuxtPlugin, useAuth, useAuthState, useRuntimeConfig } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
@@ -42,7 +42,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   if (shouldFetchSession) {
     try {
       await getSession()
-    } catch (e) {
+    }
+    catch (e) {
       // Do not throw the configuration error as it can lead to infinite recursion
       if (!(e instanceof FetchConfigurationError)) {
         throw e

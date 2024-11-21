@@ -11,7 +11,7 @@ export async function _fetch<T>(nuxt: ReturnType<typeof useNuxtApp>, path: strin
   // Prevent callback recursion when doing internal routing
   if (runtimeConfig.public.auth.disableInternalRouting === false) {
     const currentPath = nuxt.ssrContext?.event?.path
-    // const isErrorUrl = nuxt.ssrContext?.error && 
+    // const isErrorUrl = nuxt.ssrContext?.error &&
     if (currentPath?.startsWith(joinedPath)) {
       console.error(`${ERROR_PREFIX} Recursion detected at ${joinedPath}. Have you set the correct \`auth.baseURL\`?`)
       throw new FetchConfigurationError('Server configuration error')
