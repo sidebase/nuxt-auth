@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { resolveApiUrlPath } from '../src/runtime/utils/url'
+import { resolveApiBaseURL, resolveApiUrlPath } from '../src/runtime/utils/url'
 
 /*
  * This spec file covers usecases of the `authjs` provider.
@@ -176,6 +176,39 @@ describe('endpoint path construction', () => {
       // We trust Nuxt to correctly set `runtimeConfig`: https://nuxt.com/docs/guide/going-further/runtime-config#environment-variables
       vi.stubEnv('NUXT_PUBLIC_AUTH_BASE_URL', '/other')
       expect(testResolve(process.env.NUXT_PUBLIC_AUTH_BASE_URL as string)).toBe('/other/signin')
+    })
+
+    it('works with double assignment', () => {
+      // This test case is made specifically to check how `resolveApiUrlPath` would behave
+      // when a default `baseURL` value is being overwritten by `runtime/plugin` with a value provided by `resolveApiBaseURL`.
+
+      // 1. `baseURL` is set to a user-provided value `https://default.example.com/api/auth`;
+      const initialBaseURL = 'https://example.com/api/auth'
+
+      // 2. User also provides `originEnvKey` and sets the env to a different value `https://changed.example.com/auth/v2`;
+      const newBaseURL = 'https://changed.example.com/auth/v2'
+      const expectedNewBaseURL = '/auth/v2'
+      const envName = 'AUTH_ORIGIN'
+      vi.stubEnv(envName, newBaseURL)
+
+      const runtimeConfig = mockRuntimeConfig(initialBaseURL, envName)
+
+      // 3. `runtime/plugin` tries to resolve the base and gets `https://changed.example.com/auth/v2` as a result;
+      const resolvedNewBaseURL = resolveApiBaseURL(runtimeConfig)
+      expect(resolvedNewBaseURL).toBe(expectedNewBaseURL)
+
+      // Unstub the env to emulate the client and verify that the call produces a different result
+      vi.unstubAllEnvs()
+      expect(resolveApiBaseURL(runtimeConfig)).not.toBe(expectedNewBaseURL)
+
+      // 4. `runtime/plugin` overwrites the `baseURL`;
+      runtimeConfig.public.auth.baseURL = resolvedNewBaseURL
+
+      // 5. Another code calls `resolveApiUrlPath` / `resolveApiBaseURL` and should get the changed value exactly.
+      const resolvedBaseURL = resolveApiBaseURL(runtimeConfig)
+      expect(resolvedBaseURL).toBe(expectedNewBaseURL)
+      const resolvedApiUrlPath = resolveApiUrlPath('/', runtimeConfig)
+      expect(resolvedApiUrlPath).toBe(expectedNewBaseURL)
     })
   })
 })
