@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     globalAppMiddleware: {
       isEnabled: true
     },
-    baseURL: `http://localhost:${process.env.PORT || 3000}`
+    baseURL: `http://localhost:${process.env.PORT || 3000}/api/auth`
   },
   routeRules: {
     '/with-caching': {

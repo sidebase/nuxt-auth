@@ -2,7 +2,7 @@ import { type ComputedRef, computed, getCurrentInstance, watch } from 'vue'
 import type { CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
 import { useTypedBackendConfig } from '../../helpers'
-import { formatToken } from '../../utils/local'
+import { formatToken } from './utils/token'
 import type { CookieRef } from '#app'
 import { onMounted, useCookie, useRuntimeConfig, useState } from '#imports'
 // @ts-expect-error - #auth not defined
@@ -22,8 +22,6 @@ export interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData
   setToken: (newToken: string | null) => void
   clearToken: () => void
   _internal: {
-    baseURL: string
-    pathname: string
     rawTokenCookie: CookieRef<string | null>
   }
 }
@@ -108,7 +106,6 @@ export function useAuthState(): UseAuthStateReturn {
     setToken,
     clearToken,
     _internal: {
-      ...commonAuthState._internal,
       rawTokenCookie: _rawTokenCookie
     }
   }
