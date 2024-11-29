@@ -553,7 +553,7 @@ export interface SecondarySignInOptions extends Record<string, unknown> {
    *
    * @default true
    */
-  withSession?: boolean
+  callGetSession?: boolean
 }
 
 export interface SignUpOptions extends SecondarySignInOptions {

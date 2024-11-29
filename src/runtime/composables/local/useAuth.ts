@@ -55,9 +55,9 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     rawRefreshToken.value = extractedRefreshToken
   }
 
-  const { redirect = true, external, withSession = true } = signInOptions ?? {}
+  const { redirect = true, external, callGetSession = true } = signInOptions ?? {}
 
-  if (withSession) {
+  if (callGetSession) {
     await nextTick(getSession)
   }
 

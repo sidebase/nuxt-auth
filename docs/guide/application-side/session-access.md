@@ -212,7 +212,7 @@ await signIn(credentials, { callbackUrl: '/protected' })
 await signIn(credentials, { callbackUrl: 'https://nuxt.org', external: true })
 
 // Trigger a signIn without calling getSession directly. You have to manually call it to get session data.
-await signIn(credentials, { withSession: false })
+await signIn(credentials, { callGetSession: false })
 ```
 
 :::
