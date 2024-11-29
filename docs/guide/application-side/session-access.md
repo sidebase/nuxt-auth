@@ -210,6 +210,9 @@ await signIn(credentials, { callbackUrl: '/protected' })
 
 // Trigger a signIn with a redirect to an external page afterwards
 await signIn(credentials, { callbackUrl: 'https://nuxt.org', external: true })
+
+// Trigger a signIn without calling getSession directly. You have to manually call it to get session data.
+await signIn(credentials, { callGetSession: false })
 ```
 
 :::
@@ -321,6 +324,7 @@ setToken('new token')
 // Helper method to quickly delete the token cookie (alias for rawToken.value = null)
 clearToken()
 ```
+
 :::
 
 :::warning Local provider:
