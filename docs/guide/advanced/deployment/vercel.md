@@ -12,7 +12,7 @@ This variable is avalible at both build and run-time. Therefore you can referenc
 export default defineNuxtConfig({
   modules: ['@sidebase/nuxt-auth'],
   auth: {
-    baseURL: process.env.VERCEL_URL ? `https://${VERCEL_URL}/api/auth` : undefined
+    baseURL: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/api/auth` : undefined
   }
 })
 ```
