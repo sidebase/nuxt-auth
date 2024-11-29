@@ -102,7 +102,7 @@ Time at which the session was last refreshed, either `undefined` if no refresh w
 
 Returns the current Cross Site Request Forgery Token (CSRF Token) required to make POST requests (e.g. for signing in and signing out).
 
-You likely only need to use this if you are not using the built-in `signIn()` and `signOut()` methods. Read more: <https://next-auth.js.org/getting-started/client#getcsrftoken>
+You likely only need to use this if you are not using the built-in `signIn()` and `signOut()` methods. Read more: https://next-auth.js.org/getting-started/client#getcsrftoken
 
 :::warning AuthJS Only
 `getCsrfToken` is only avalible for the authjs provider!
