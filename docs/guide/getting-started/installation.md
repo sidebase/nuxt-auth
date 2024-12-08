@@ -2,24 +2,36 @@
 
 You can install NuxtAuth using nuxi:
 
-```bash
-npx nuxi@latest module add sidebase-auth
+::: code-group
+
+```bash [npm]
+npx nuxi module add sidebase-auth
 ```
+
+```bash [pnpm]
+pnpm exec nuxi module add sidebase-auth
+```
+
+```bash [yarn]
+yarn dlx nuxi module add sidebase-auth
+```
+
+:::
 
 ::: details Manual installation
 
 ::: code-group
 
 ```bash [npm]
-npm i -D @sidebase/nuxt-auth
+npm i @sidebase/nuxt-auth
 ```
 
 ```bash [pnpm]
-pnpm i -D @sidebase/nuxt-auth
+pnpm i @sidebase/nuxt-auth
 ```
 
 ```bash [yarn]
-yarn add --dev @sidebase/nuxt-auth
+yarn add @sidebase/nuxt-auth
 ```
 
 :::
