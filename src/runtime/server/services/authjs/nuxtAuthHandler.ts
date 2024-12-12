@@ -12,7 +12,7 @@ import { ERROR_MESSAGES } from '../errors'
 import { isNonEmptyObject } from '../../../utils/checkSessionResult'
 import { getServerOrigin } from '../utils'
 import { useTypedBackendConfig } from '../../../helpers'
-
+import { resolveApiBaseURL } from '../../../utils/url'
 import { useRuntimeConfig } from '#imports'
 
 let preparedAuthjsHandler: ((req: Request) => Promise<Response>) | undefined
@@ -74,15 +74,15 @@ export function NuxtAuthHandler(nuxtAuthOptions?: AuthConfig) {
 /** Gets session on server-side */
 export async function getServerSession(event: H3Event) {
   const runtimeConfig = useRuntimeConfig()
-  const authBasePath = runtimeConfig.public.auth.computed.pathname
+  const authBasePathname = resolveApiBaseURL(runtimeConfig, true)
   const trustHostUserPreference = useTypedBackendConfig(runtimeConfig, 'authjs').trustHost
 
   // avoid running auth middleware on auth middleware (see #186)
-  if (event.path && event.path.startsWith(authBasePath)) {
+  if (event.path && event.path.startsWith(authBasePathname)) {
     return null
   }
 
-  const sessionUrlPath = joinURL(authBasePath, '/session')
+  const sessionUrlPath = joinURL(authBasePathname, '/session')
   const headers = getHeaders(event) as HeadersInit
   if (!preparedAuthjsHandlerRaw) {
     // Edge-case: If no auth-endpoint was called yet, `preparedAuthHandler`-initialization was also not attempted as Nuxt lazily loads endpoints in production-mode.

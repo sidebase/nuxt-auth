@@ -256,6 +256,21 @@ export interface ProviderLocal {
        */
       signInResponseRefreshTokenPointer?: string
       /**
+       * How to extract the authentication-token from the refresh response.
+       *
+       *
+       * E.g., setting this to `/token/bearer` and returning an object like `{ token: { bearer: 'THE_AUTH_TOKEN' }, timestamp: '2023' }` from the `refresh` endpoint will
+       * result in `nuxt-auth` extracting and storing `THE_AUTH_TOKEN`.
+       *
+       * If not set, `token.signInResponseTokenPointer` will be used instead.
+       *
+       * This follows the JSON Pointer standard, see it's RFC6901 here: https://www.rfc-editor.org/rfc/rfc6901
+       *
+       * @default ''
+       * @example /       Access the root of the refresh response object, useful when your endpoint returns a plain, non-object string as the token
+       */
+      refreshResponseTokenPointer?: string
+      /**
        * How to do a fetch for the refresh token.
        *
        * This is especially useful when you have an external backend signing tokens. Refer to this issue to get more information: https://github.com/sidebase/nuxt-auth/issues/635.
@@ -410,6 +425,21 @@ export interface ModuleOptions {
    */
   isEnabled?: boolean
   /**
+   * Disables the Nuxt `$fetch` optimization. Do so when your auth logic is not handled by a Nuxt server (e.g. when using an external backend).
+   *
+   * Disabling the optimisation means that NuxtAuth will prefer calling `baseURL` + path instead of just path,
+   * which would often translate to an HTTP call.
+   *
+   * By default, this option is set to `false` for `authjs` provider.
+   * For `local` provider `disableInternalRouting` will default to `true` unless explicitly changed by user.
+   *
+   * ## Example
+   * With `disableInternalRouting: true` and `baseURL: 'https://example.com/api/auth'` your calls would be made to `https://example.com/api/auth` endpoints instead of `/api/auth`.
+   *
+   * @see https://nuxt.com/docs/api/utils/dollarfetch
+   */
+  disableInternalRouting?: boolean
+  /**
    * Forces your server to send a "loading" status on all requests, prompting the client to fetch on the client. If your website has caching, this prevents the server from caching someone's authentication status.
    *
    * This affects the entire site. For route-specific rules add `disableServerSideAuth` on `routeRules` instead:
@@ -522,10 +552,6 @@ export interface CommonUseAuthStateReturn<SessionData> {
   loading: Ref<boolean>
   lastRefreshedAt: Ref<SessionLastRefreshedAt>
   status: ComputedRef<SessionStatus>
-  _internal: {
-    baseURL: string
-    pathname: string
-  }
 }
 
 // Common `useAuth` method-types
@@ -589,15 +615,11 @@ export type SignInFunc<PrimarySignInOptions, SignInResult> = (
 
 export interface ModuleOptionsNormalized extends ModuleOptions {
   isEnabled: boolean
+  baseURL: string
+  disableInternalRouting: boolean
   // Cannot use `DeepRequired` here because it leads to build issues
   provider: Required<NonNullable<ModuleOptions['provider']>>
   sessionRefresh: NonNullable<ModuleOptions['sessionRefresh']>
   globalAppMiddleware: NonNullable<ModuleOptions['globalAppMiddleware']>
   originEnvKey: string
-
-  computed: {
-    origin: string | undefined
-    pathname: string
-    fullBaseUrl: string
-  }
 }

@@ -72,6 +72,9 @@ importers:
       vitepress:
         specifier: ^1.3.1
         version: 1.3.1(@algolia/client-search@4.24.0)(@types/node@18.19.42)(postcss@8.4.40)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(search-insights@2.14.0)(terser@5.30.3)(typescript@5.5.4)
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@18.19.42)(terser@5.30.3)
       vue-tsc:
         specifier: ^2.0.29
         version: 2.0.29(typescript@5.5.4)
@@ -12663,7 +12666,6 @@ snapshots:
       - sugarss
       - supports-color
       - terser
-    optional: true
 
   vite-node@1.6.0(@types/node@18.19.45)(terser@5.30.3):
     dependencies:
@@ -12910,7 +12912,6 @@ snapshots:
       '@types/node': 18.19.42
       fsevents: 2.3.3
       terser: 5.30.3
-    optional: true
 
   vite@5.2.9(@types/node@18.19.45)(terser@5.30.3):
     dependencies:
@@ -13064,7 +13065,6 @@ snapshots:
       - sugarss
       - supports-color
       - terser
-    optional: true
 
   vitest@1.6.0(@types/node@18.19.45)(terser@5.30.3):
     dependencies:
