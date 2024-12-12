@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  NODE_VER: 22.5
+  NODE_VER: 22.11
   CI: true
 
 jobs:
@@ -37,6 +37,9 @@ jobs:
       # Check linting and typing
       - run: pnpm lint
       - run: pnpm typecheck
+      
+      # Run unit tests
+      - run: pnpm test:unit
 
       # Check building
       - run: pnpm build
@@ -131,5 +134,5 @@ jobs:
       # start prod-app and curl from it
       - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"
         env:
-          AUTH_ORIGIN: "http://localhost:3001"
+          AUTH_ORIGIN: "http://localhost:3001/api/auth"
           PORT: 3001
