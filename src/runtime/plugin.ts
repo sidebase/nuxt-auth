@@ -1,5 +1,5 @@
 import { getHeader } from 'h3'
-import authMiddleware from './middleware/auth'
+import authMiddleware from './middleware/sidebase-auth'
 import { getNitroRouteRules } from './utils/kit'
 import { _refreshHandler, addRouteMiddleware, defineNuxtPlugin, useAuth, useAuthState, useRuntimeConfig } from '#imports'
 
