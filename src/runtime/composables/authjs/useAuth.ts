@@ -64,7 +64,7 @@ function getCsrfTokenWithNuxt(nuxt: NuxtApp) {
 type SignInResult = void | { error: string | null, status: number, ok: boolean, url: any }
 const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, options, authorizationParams) => {
   const nuxt = useNuxtApp()
-  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const runtimeConfig = useRuntimeConfig()
 
   // 1. Lead to error page if no providers are available
   const configuredProviders = await getProviders()

@@ -17,7 +17,7 @@ type Credentials = { username?: string, email?: string, password?: string } & Re
 const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, signInParams, signInHeaders) => {
   const nuxt = useNuxtApp()
 
-  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const runtimeConfig = useRuntimeConfig()
   const config = useTypedBackendConfig(runtimeConfig, 'local')
   const { path, method } = config.endpoints.signIn
   const response = await _fetch<Record<string, any>>(nuxt, path, {
@@ -75,7 +75,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
 
 const signOut: SignOutFunc = async (signOutOptions) => {
   const nuxt = useNuxtApp()
-  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const runtimeConfig = useRuntimeConfig()
   const config = useTypedBackendConfig(runtimeConfig, 'local')
   const { data, token, rawToken, refreshToken, rawRefreshToken }: UseAuthStateReturn = await callWithNuxt(nuxt, useAuthState)
 
