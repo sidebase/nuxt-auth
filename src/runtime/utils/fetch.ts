@@ -1,8 +1,7 @@
 import { resolveApiUrlPath } from './url'
+import { ERROR_PREFIX } from './logger'
 import { callWithNuxt, useRuntimeConfig } from '#app'
 import type { useNuxtApp } from '#imports'
-
-const ERROR_PREFIX = '[@sidebase/nuxt-auth]'
 
 export async function _fetch<T>(nuxt: ReturnType<typeof useNuxtApp>, path: string, fetchOptions?: Parameters<typeof $fetch>[1]): Promise<T> {
   const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)

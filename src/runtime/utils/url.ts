@@ -17,7 +17,7 @@ export function resolveApiUrlPath(
   runtimeConfig: RuntimeConfig
 ): string {
   // Fully-specified endpoint path - do not join with `baseURL`
-  if (endpointPath.startsWith('http://') || endpointPath.startsWith('https://')) {
+  if (isExternalUrl(endpointPath)) {
     return endpointPath
   }
 
@@ -94,4 +94,13 @@ export function determineCallbackUrl<T extends string | Promise<string>>(
   else if (authConfig.globalAppMiddleware === true) {
     return getOriginalTargetPath()
   }
+}
+
+/**
+ * Naively checks if a URL is external or not by comparing against its protocol.
+ *
+ * URL being valid is not a concern for this function as it is used with developer-controlled inputs.
+ */
+export function isExternalUrl(url: string): boolean {
+  return url.startsWith('http://') || url.startsWith('https://')
 }
