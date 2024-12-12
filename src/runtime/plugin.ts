@@ -1,5 +1,5 @@
 import { getHeader } from 'h3'
-import authMiddleware from './middleware/auth'
+import authMiddleware from './middleware/sidebase-auth'
 import { getNitroRouteRules } from './utils/kit'
 import { FetchConfigurationError } from './utils/fetch'
 import { resolveApiBaseURL } from './utils/url'
