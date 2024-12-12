@@ -4,10 +4,7 @@ import { callWithNuxt, useRuntimeConfig } from '#app'
 import type { useNuxtApp } from '#imports'
 
 export async function _fetch<T>(nuxt: ReturnType<typeof useNuxtApp>, path: string, fetchOptions?: Parameters<typeof $fetch>[1]): Promise<T> {
-  // This fixes https://github.com/sidebase/nuxt-auth/issues/927
-  const runtimeConfigOrPromise = callWithNuxt(nuxt, useRuntimeConfig)
-  const runtimeConfig = 'public' in runtimeConfigOrPromise ? runtimeConfigOrPromise : await runtimeConfigOrPromise
-
+  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
   const joinedPath = resolveApiUrlPath(path, runtimeConfig)
 
   // Prevent callback recursion when doing internal routing
