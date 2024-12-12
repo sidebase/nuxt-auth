@@ -138,8 +138,7 @@ export default defineNuxtModule<ModuleOptions>({
     if (!isProduction) {
       const loggerMessages = [
         `Selected provider: ${selectedProvider}.`,
-        // TODO Before merging PR: write the docs how `baseURL` can be changed in runtime (env `NUXT_PUBLIC_AUTH_BASE_URL`, `runtimeConfig.public.auth.baseURL`, etc.).
-        `Auth API location is \`${options.baseURL}\`, it can be changed using TODO.`
+        `Auth API location is \`${options.baseURL}\`, if you would like to change this, see https://auth.sidebase.io/guide/application-side/configuration#baseurl.`
       ]
       if (selectedProvider === 'authjs') {
         loggerMessages.push('Ensure that the `NuxtAuthHandler({ ... })` is there, see https://auth.sidebase.io/guide/authjs/nuxt-auth-handler')
