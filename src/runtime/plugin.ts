@@ -1,6 +1,8 @@
 import { getHeader } from 'h3'
 import authMiddleware from './middleware/sidebase-auth'
 import { getNitroRouteRules } from './utils/kit'
+import { FetchConfigurationError } from './utils/fetch'
+import { resolveApiBaseURL } from './utils/url'
 import { _refreshHandler, addRouteMiddleware, defineNuxtPlugin, useAuth, useAuthState, useRuntimeConfig } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
@@ -9,9 +11,17 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const { getSession } = useAuth()
 
   // use runtimeConfig
-  const runtimeConfig = useRuntimeConfig().public.auth
+  const wholeRuntimeConfig = useRuntimeConfig()
+  const runtimeConfig = wholeRuntimeConfig.public.auth
+  const globalAppMiddleware = runtimeConfig.globalAppMiddleware
 
   const routeRules = import.meta.server ? getNitroRouteRules(nuxtApp._route.path) : {}
+
+  // Set the correct `baseURL` on the server,
+  // because the client would not have access to environment variables
+  if (import.meta.server) {
+    runtimeConfig.baseURL = resolveApiBaseURL(wholeRuntimeConfig)
+  }
 
   // Skip auth if we're prerendering
   let nitroPrerender = false
@@ -30,8 +40,23 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   // Only fetch session if it was not yet initialized server-side
-  if (typeof data.value === 'undefined' && !nitroPrerender && !disableServerSideAuth) {
-    await getSession()
+  const isErrorUrl = nuxtApp.ssrContext?.error === true
+  const requireAuthOnErrorPage = globalAppMiddleware === true || (typeof globalAppMiddleware === 'object' && globalAppMiddleware.allow404WithoutAuth)
+  const shouldFetchSession = typeof data.value === 'undefined'
+    && !nitroPrerender
+    && !disableServerSideAuth
+    && !(isErrorUrl && requireAuthOnErrorPage)
+
+  if (shouldFetchSession) {
+    try {
+      await getSession()
+    }
+    catch (e) {
+      // Do not throw the configuration error as it can lead to infinite recursion
+      if (!(e instanceof FetchConfigurationError)) {
+        throw e
+      }
+    }
   }
 
   // 2. Setup session maintanence, e.g., auto refreshing or refreshing on foux
@@ -55,7 +80,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   // 3. Enable the middleware, either globally or as a named `auth` option
-  const { globalAppMiddleware } = useRuntimeConfig().public.auth
   if (
     globalAppMiddleware === true
     || (typeof globalAppMiddleware === 'object' && globalAppMiddleware.isEnabled)
