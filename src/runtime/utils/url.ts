@@ -11,11 +11,7 @@ interface RuntimeConfig {
   }
 }
 
-// TODO Comment below: remove/rewrite/add to docs
-// Prios in runtime (baseURL):
-// - env variable (using `originEnvKey`);
-// - static runtime config (`baseURL` captured during build);
-// - defaults;
+/** https://auth.sidebase.io/guide/application-side/configuration#baseurl */
 export function resolveApiUrlPath(
   endpointPath: string,
   runtimeConfig: RuntimeConfig
