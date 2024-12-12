@@ -1,5 +1,6 @@
-import { determineCallbackUrl } from '../utils/url'
+import { determineCallbackUrl, isExternalUrl } from '../utils/url'
 import { isProduction } from '../helpers'
+import { ERROR_PREFIX } from '../utils/logger'
 import { defineNuxtRouteMiddleware, navigateTo, useAuth, useRuntimeConfig } from '#imports'
 
 type MiddlewareMeta = boolean | {
@@ -98,7 +99,14 @@ export default defineNuxtRouteMiddleware((to) => {
     return navigateTo(options.navigateUnauthenticatedTo)
   }
 
+  const loginPage = authConfig.provider.pages.login
+  if (typeof loginPage !== 'string') {
+    console.warn(`${ERROR_PREFIX} provider.pages.login is misconfigured`)
+    return
+  }
+
   // Default callback URL was provided
+  const external = isExternalUrl(loginPage)
   if (typeof globalAppMiddleware === 'object' && globalAppMiddleware.addDefaultCallbackUrl) {
     let redirectUrl: string = to.fullPath
     if (typeof globalAppMiddleware.addDefaultCallbackUrl === 'string') {
@@ -106,15 +114,15 @@ export default defineNuxtRouteMiddleware((to) => {
     }
 
     return navigateTo({
-      path: authConfig.provider.pages.login,
+      path: loginPage,
       query: {
         redirect: redirectUrl
       }
-    })
+    }, { external })
   }
 
   // Fall back to login page
-  return navigateTo(authConfig.provider.pages.login)
+  return navigateTo(loginPage, { external })
 })
 
 interface MiddlewareOptionsNormalized {
@@ -146,7 +154,7 @@ function normalizeUserOptions(userOptions: MiddlewareMeta | undefined): Middlewa
     if (userOptions.unauthenticatedOnly === undefined) {
       if (!isProduction) {
         console.warn(
-          '[@sidebase/nuxt-auth] `unauthenticatedOnly` was not provided to `definePageMeta` - defaulting to Guest Mode enabled. '
+          `${ERROR_PREFIX} \`unauthenticatedOnly\` was not provided to \`definePageMeta\` - defaulting to Guest Mode enabled. `
           + 'Read more at https://auth.sidebase.io/guide/application-side/protecting-pages#middleware-options'
         )
       }
