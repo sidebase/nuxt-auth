@@ -1,8 +1,10 @@
 import { getHeader } from 'h3'
-import authMiddleware from './middleware/auth'
+import authMiddleware from './middleware/sidebase-auth'
 import { getNitroRouteRules } from './utils/kit'
 import type { ProviderLocal, SessionCookie } from './types'
 import type { CookieRef } from '#app'
+import { FetchConfigurationError } from './utils/fetch'
+import { resolveApiBaseURL } from './utils/url'
 import { _refreshHandler, addRouteMiddleware, defineNuxtPlugin, useAuth, useAuthState, useCookie, useRuntimeConfig } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
@@ -11,9 +13,17 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const { getSession } = useAuth()
 
   // use runtimeConfig
-  const runtimeConfig = useRuntimeConfig().public.auth
+  const wholeRuntimeConfig = useRuntimeConfig()
+  const runtimeConfig = wholeRuntimeConfig.public.auth
+  const globalAppMiddleware = runtimeConfig.globalAppMiddleware
 
   const routeRules = import.meta.server ? getNitroRouteRules(nuxtApp._route.path) : {}
+
+  // Set the correct `baseURL` on the server,
+  // because the client would not have access to environment variables
+  if (import.meta.server) {
+    runtimeConfig.baseURL = resolveApiBaseURL(wholeRuntimeConfig)
+  }
 
   // Skip auth if we're prerendering
   let nitroPrerender = false
@@ -32,19 +42,28 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   // Only fetch session if it was not yet initialized server-side
-  if (
-    typeof data.value === 'undefined'
+  const isErrorUrl = nuxtApp.ssrContext?.error === true
+  const requireAuthOnErrorPage = globalAppMiddleware === true || (typeof globalAppMiddleware === 'object' && globalAppMiddleware.allow404WithoutAuth)
+  const shouldFetchSession = typeof data.value === 'undefined'
     && !nitroPrerender
     && !disableServerSideAuth
-  ) {
-    const config = runtimeConfig.provider as ProviderLocal
+    && !(isErrorUrl && requireAuthOnErrorPage)
 
-    if (config.type === 'local') {
-      handleLocalAuth(config)
+  if (shouldFetchSession) {
+    if (runtimeConfig.provider.type === 'local') {
+      handleLocalAuth(runtimeConfig.provider)
     }
 
     if (!data.value) {
-      await getSession()
+      try {
+        await getSession()
+      }
+      catch (e) {
+        // Do not throw the configuration error as it can lead to infinite recursion
+        if (!(e instanceof FetchConfigurationError)) {
+          throw e
+        }
+      }
     }
   }
 
@@ -101,7 +120,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   // 3. Enable the middleware, either globally or as a named `auth` option
-  const { globalAppMiddleware } = useRuntimeConfig().public.auth
   if (
     globalAppMiddleware === true
     || (typeof globalAppMiddleware === 'object' && globalAppMiddleware.isEnabled)
