@@ -242,8 +242,8 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 6. Register middleware for autocomplete in definePageMeta
     addRouteMiddleware({
-      name: 'auth',
-      path: resolve('./runtime/middleware/auth')
+      name: 'sidebase-auth',
+      path: resolve('./runtime/middleware/sidebase-auth')
     })
 
     // 7. Add plugin for initial load
