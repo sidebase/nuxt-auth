@@ -574,6 +574,12 @@ export interface SecondarySignInOptions extends Record<string, unknown> {
    * @default false
    */
   external?: boolean
+  /**
+   * Whether `getSession` needs to be called after a successful sign-in. When set to false, you can manually call `getSession` to obtain the session data.
+   *
+   * @default true
+   */
+  callGetSession?: boolean
 }
 
 export interface SignUpOptions extends SecondarySignInOptions {

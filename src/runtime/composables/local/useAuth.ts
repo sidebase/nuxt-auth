@@ -55,9 +55,12 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     rawRefreshToken.value = extractedRefreshToken
   }
 
-  await nextTick(getSession)
+  const { redirect = true, external, callGetSession = true } = signInOptions ?? {}
 
-  const { redirect = true, external } = signInOptions ?? {}
+  if (callGetSession) {
+    await nextTick(getSession)
+  }
+
   let { callbackUrl } = signInOptions ?? {}
   if (typeof callbackUrl === 'undefined') {
     const redirectQueryParam = useRoute()?.query?.redirect
