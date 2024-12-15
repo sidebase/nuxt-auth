@@ -23,15 +23,15 @@ yarn dlx nuxi module add sidebase-auth
 ::: code-group
 
 ```bash [npm]
-npm i @sidebase/nuxt-auth
+npm i -D @sidebase/nuxt-auth
 ```
 
 ```bash [pnpm]
-pnpm i @sidebase/nuxt-auth
+pnpm i -D @sidebase/nuxt-auth
 ```
 
 ```bash [yarn]
-yarn add @sidebase/nuxt-auth
+yarn add -D @sidebase/nuxt-auth
 ```
 
 :::
@@ -42,10 +42,8 @@ Add NuxtAuth to your `nuxt.config`:
 
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
-  modules: [
-    '@sidebase/nuxt-auth',
-  ],
-})
+  modules: ["@sidebase/nuxt-auth"],
+});
 ```
 
 :::
