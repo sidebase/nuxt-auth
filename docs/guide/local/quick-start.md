@@ -2,10 +2,6 @@
 
 This guide is for setting up `@sidebase/nuxt-auth` with the Local Provider, which is best suited for when you already have a backend that accepts username + password as a login or want to build a static application. The Local Provider also supports refresh tokens since `v0.9.0`.
 
-:::warning Breaking change
-In `v0.9.0` the `refresh` provider was integrated into the `local` provider. Read the [upgrade guide](/upgrade/version-0.9.0).
-:::
-
 ## Configuration
 
 The entire configuration for the `local` provider is contained inside the `nuxt.config.ts`. Inside the `auth` options, set your provider to `local`.
@@ -14,17 +10,12 @@ The entire configuration for the `local` provider is contained inside the `nuxt.
 export default defineNuxtConfig({
   modules: ['@sidebase/nuxt-auth'],
   auth: {
-    baseURL: '/api/auth',
     provider: {
       type: 'local'
     }
   }
 })
 ```
-
-:::tip
-Ensure that your `baseURL` is properly configured to match your backend API. Read more [here](/guide/application-side/configuration#local-and-refresh).
-:::
 
 ## API endpoints
 
@@ -33,8 +24,11 @@ Afterwards, you can define the endpoints to which the authentication requests wi
 ```ts
 export default defineNuxtConfig({
   // ...Previous configuration
+  runtimeConfig: {
+    baseURL: '/api/auth'
+  },
   auth: {
-    baseURL: '/api/auth',
+    originEnvKey: 'NUXT_BASE_URL',
     provider: {
       type: 'local',
       endpoints: {
@@ -50,23 +44,18 @@ export default defineNuxtConfig({
 
 Each endpoint, consists of an object, with a `path` and `method`. When a user triggers an action inside your application a request will be made to each endpoint. When a request is made to the `getSession` endpoint, a token will be sent as a header. You can configure the headers and token below.
 
-In the example above requests would be made to the following URLs:
+In the example above, we define a runtimeConfig value with the `baseURl` using the originEnvKey, which results in requests being made to the following urls:
 
 - **Sign in:** `/api/auth/login` (POST)
 - **Sign out** `/api/auth/logout` (POST)
 - **Sign up:** `/api/auth/register` (POST)
 - **Get Session:** `/api/auth/session` (GET)
 
-:::info
-Relative paths starting with a `/` (e.g. `/login`) will be treated as a part of your Nuxt application. If you want to use an external backend, please provide fully-specified URLs instead. Read more [here](#using-an-external-backend).
-:::
-
 You can customize each endpoint to fit your needs or disable it by setting it to `false`. For example you may want to disable the `signUp` endpoint.
 
 ```ts{7}
 export default defineNuxtConfig({
     auth: {
-        baseURL: '/api/auth',
         provider: {
             type: 'local',
             endpoints: {
@@ -80,35 +69,6 @@ export default defineNuxtConfig({
 :::warning
 You cannot disable the `getSession` endpoint, as NuxtAuth internally uses it to determine the authentication status.
 :::
-
-### Using an external backend
-
-When using the `local` provider to access an external backend, please consider that the module will attempt to resolve the API endpoints by using internal Nuxt 3 relative URLs or an external call.
-
-To ensure that the module can properly identify that your endpoints point to an external URL, please ensure the following:
-
-1. `auth.baseURL` **includes** a trailing `/` at the end
-2. `auth.endpoints` **do not** include a leading `/` at the start
-
-```ts{7}
-export default defineNuxtConfig({
-    auth: {
-        baseURL: 'https://external-api.com', // [!code --]
-        baseURL: 'https://external-api.com/', // [!code ++]
-        provider: {
-            type: 'local',
-            endpoints: {
-                signIn: { path: '/login', method: 'post' }, // [!code --]
-                signIn: { path: 'login', method: 'post' }, // [!code ++]
-                getSession: { path: '/session', method: 'get' }, // [!code --]
-                getSession: { path: 'session', method: 'get' }, // [!code ++]
-            }
-        }
-    }
-})
-```
-
-You can read more about the path resolving logic in `@sidebase/nuxt-auth` [here](https://github.com/sidebase/nuxt-auth/issues/782#issuecomment-2223861422).
 
 ## Token
 
