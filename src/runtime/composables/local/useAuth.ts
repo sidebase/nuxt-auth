@@ -3,9 +3,9 @@ import { type Ref, readonly } from 'vue'
 import type { CommonUseAuthReturn, GetSessionOptions, SecondarySignInOptions, SignInFunc, SignOutFunc, SignUpOptions } from '../../types'
 import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '../../helpers'
 import { _fetch } from '../../utils/fetch'
-import { getRequestURLWN } from '../../utils/callWithNuxt'
 import { determineCallbackUrl } from '../../utils/url'
-import { formatToken } from '../../utils/local'
+import { getRequestURLWN } from '../common/getRequestURL'
+import { formatToken } from './utils/token'
 import { type UseAuthStateReturn, useAuthState } from './useAuthState'
 import { callWithNuxt } from '#app/nuxt'
 // @ts-expect-error - #auth not defined
@@ -17,7 +17,7 @@ type Credentials = { username?: string, email?: string, password?: string } & Re
 const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, signInParams, signInHeaders) => {
   const nuxt = useNuxtApp()
 
-  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const runtimeConfig = useRuntimeConfig()
   const config = useTypedBackendConfig(runtimeConfig, 'local')
   const { path, method } = config.endpoints.signIn
   const response = await _fetch<Record<string, any>>(nuxt, path, {
@@ -75,7 +75,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
 
 const signOut: SignOutFunc = async (signOutOptions) => {
   const nuxt = useNuxtApp()
-  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const runtimeConfig = useRuntimeConfig()
   const config = useTypedBackendConfig(runtimeConfig, 'local')
   const { data, token, rawToken, refreshToken, rawRefreshToken }: UseAuthStateReturn = await callWithNuxt(nuxt, useAuthState)
 
