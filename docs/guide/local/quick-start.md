@@ -70,6 +70,31 @@ export default defineNuxtConfig({
 You cannot disable the `getSession` endpoint, as NuxtAuth internally uses it to determine the authentication status.
 :::
 
+### Using an external backend
+
+You can also set your endpoints to query an external backend:
+
+```ts
+export default defineNuxtConfig({
+  // ...Previous configuration
+  runtimeConfig: {
+    baseURL: 'https://example-api.com'
+  },
+  auth: {
+    originEnvKey: 'NUXT_BASE_URL',
+    provider: {
+      type: 'local',
+      endpoints: {
+        signIn: { path: '/auth/login', method: 'post' },
+        signOut: { path: '/auth/logout', method: 'post' },
+        signUp: { path: '/auth/register', method: 'post' },
+        getSession: { path: '/user/session', method: 'get' },
+      }
+    }
+  }
+})
+```
+
 ## Token
 
 The `local` and `refresh` providers are both based on exchanging access tokens with your backend. NuxtAuth expects an access token to be provided by the `signIn` endpoint, which will then be saved into the session to authenticate further requests to e.g. `getSession`.
