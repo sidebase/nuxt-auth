@@ -44,7 +44,7 @@ export default defineNuxtConfig({
 
 Each endpoint, consists of an object, with a `path` and `method`. When a user triggers an action inside your application a request will be made to each endpoint. When a request is made to the `getSession` endpoint, a token will be sent as a header. You can configure the headers and token below.
 
-In the example above, we define a runtimeConfig value with the `baseURl` using the originEnvKey, which results in requests being made to the following urls:
+In the example above, we define a [runtime config](https://nuxt.com/docs/guide/going-further/runtime-config) value with the `baseURL` using the `originEnvKey`, which results in requests being made to the following URLs:
 
 - **Sign in:** `/api/auth/login` (POST)
 - **Sign out** `/api/auth/logout` (POST)
@@ -78,7 +78,7 @@ You can also set your endpoints to query an external backend:
 export default defineNuxtConfig({
   // ...Previous configuration
   runtimeConfig: {
-    baseURL: 'https://example-api.com'
+    baseURL: 'https://example.com/api'
   },
   auth: {
     originEnvKey: 'NUXT_BASE_URL',

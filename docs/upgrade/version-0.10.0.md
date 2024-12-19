@@ -11,11 +11,11 @@ npm i -D @sidebase/nuxt-auth@^0.10.0
 ```
 
 ```bash [pnpm]
-pnpm i -D @sidebase/nuxt-auth^0.10.0
+pnpm i -D @sidebase/nuxt-auth@^0.10.0
 ```
 
 ```bash [yarn]
-yarn add --dev @sidebase/nuxt-auth^0.10.0
+yarn add --dev @sidebase/nuxt-auth@^0.10.0
 ```
 
 :::
@@ -86,9 +86,9 @@ NUXT_BASE_URL="https://my-backend.com/api/auth" // [!code ++]
 
 ### Adjustments when using an external backend for the `local`-provider
 
-In previous versions of `@sidebase/nuxt-auth` a very specific setup was needed to ensure that external backends could properly be used for the `local`-provider. In 0.10.0 we reworked the internal handling or urls to make it more consistent across providers and configurations.
+In previous versions of `@sidebase/nuxt-auth` a very specific setup was needed to ensure that external backends could properly be used for the `local` provider. In 0.10.0 we reworked the internal handling or URLs to make it more consistent across providers and configurations.
 
-If you were previously using an external backend you can now make the following adjustments:
+If you were previously using an external backend, you can now prefix endpoint paths with a `/`:
 
 ```ts diff
 export default defineNuxtConfig({
@@ -106,7 +106,7 @@ export default defineNuxtConfig({
 })
 ```
 
-You can find a full overview of how `@sidebase/nuxt-auth`handles urls [here](https://github.com/sidebase/nuxt-auth/pull/913#issuecomment-2359137989).
+You can find a full overview of how `@sidebase/nuxt-auth` handles URLs [here](https://github.com/sidebase/nuxt-auth/pull/913#issuecomment-2359137989) and in spec files for [`authjs` provider](https://github.com/sidebase/nuxt-auth/blob/main/tests/authjs.url.spec.ts) and [`local` provider](https://github.com/sidebase/nuxt-auth/blob/main/tests/local.url.spec.ts).
 
 ## Changelog
 

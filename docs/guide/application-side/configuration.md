@@ -64,7 +64,7 @@ Forces your server to send a "loading" authentication status on all requests, th
 
 - **Type**: `string | undefined`
 
-The full url at which the app will run combined with the path to authentication. You should only use `baseURL` if you want to staticlly set a baseURL for your application.
+The full URL at which the app will run combined with the path to authentication. You should only use `baseURL` if you want to set it statically for your application.
 
 You can read additional information on `origin` and `baseURL` determining [here](/resources/error-reference#auth-no-origin).
 
