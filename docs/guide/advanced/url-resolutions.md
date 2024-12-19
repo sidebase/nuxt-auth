@@ -84,7 +84,7 @@ When the server is running in **development mode**, NuxtAuth can automatically i
 
 ---
 
-Therefore as of version 0.10.0, we recommend the following setup to set your `AUTH_ORIGIN` or `baseURL`:
+We recommend the following setup to configure your `AUTH_ORIGIN` or `baseURL`:
 
 ::: code-group
 
