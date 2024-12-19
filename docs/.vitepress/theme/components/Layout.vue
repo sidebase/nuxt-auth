@@ -6,12 +6,12 @@ import Banner from './Banner.vue'
 const { Layout } = DefaultTheme
 
 // Banner Configuration
-const isBannerEnabled = false
+const isBannerEnabled = true
 const bannerConfig = {
   // Leave text empty to disable the banner
-  text: '🚀 NuxtAuth v0.9.0 has been released!',
+  text: '🚀 NuxtAuth v0.10.0 has been released!',
   button: {
-    href: '/upgrade/version-0.9.0',
+    href: '/upgrade/version-0.10.0',
     text: 'View upgrade guide',
   },
 }
