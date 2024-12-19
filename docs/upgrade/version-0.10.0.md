@@ -43,48 +43,33 @@ definePageMeta({
 
 ### Adjustments to the computation of `baseURL` and `AUTH_ORIGIN`
 
-In 0.10.0 we spent a considerable amount of time reworking how `@sidebase/nuxt-auth` determine which endpoints to make requests to. If you would like to view the full PR and discussion, you can find it [here](https://github.com/sidebase/nuxt-auth/pull/913).
+In 0.10.0 we spent a considerable amount of time reworking how `@sidebase/nuxt-auth` determines which endpoints to make requests to. If you would like to view the full PR and discussion, you can find it [here](https://github.com/sidebase/nuxt-auth/pull/913).
 
-As a quick overview, `@sidebase/nuxt-auth` will now use the following logic to determine where to make requests to:
+Read more [in a dedicated guide](../guide/advanced/url-resolutions.md).
 
-#### 1. Environment variable and `runtimeConfig`
+Below are some notable changes.
 
-Use the `AUTH_ORIGIN` environment variable or `runtimeConfig.authOrigin` if set. Name can be customized, refer to [`originEnvKey`](/guide/application-side/configuration#originenvkey).
+#### URLs are now joined
 
-#### 2. `baseURL`
+`baseURL` now means exactly that, it will be prepended to a path before making a call. That means you need to adjust your config accordingly:
 
-Use the static [`baseURL`](/guide/application-side/configuration#baseurl) inside the `nuxt.config.ts` if set.
-
-#### 3. Automatically from the incoming `HTTP` request
-
-When the server is running in **development mode**, NuxtAuth can automatically infer it from the incoming request.
-
----
-
-Therefore as of version 0.10.0, we recommend the following setup to set your `AUTH_ORIGIN` or `baseURL`:
-
-::: code-group
-
-```ts diff [nuxt.config.ts]
+```ts diff
 export default defineNuxtConfig({
-  // ...Previous configuration
-  runtimeConfig: { // [!code ++]
-    baseURL: '/api/auth' // [!code ++]
-  }, // [!code ++]
   auth: {
-    baseUrl: 'https://my-backend.com/api/auth', // [!code --]
-    originEnvKey: 'NUXT_BASE_URL', // [!code ++]
+    baseURL: 'https://example.com', // [!code --]
+    baseURL: 'https://example.com/api/auth', // [!code ++]
+
+    provider: {
+      type: 'local',
+      endpoints: {
+        signIn: { path: '/login', method: 'post' },
+      }
+    }
   }
 })
 ```
 
-```env diff [.env]
-NUXT_BASE_URL="https://my-backend.com/api/auth" // [!code ++]
-```
-
-:::
-
-### Adjustments when using an external backend for the `local`-provider
+#### Adjustments when using an external backend for the `local`-provider
 
 In previous versions of `@sidebase/nuxt-auth` a very specific setup was needed to ensure that external backends could properly be used for the `local` provider. In 0.10.0 we reworked the internal handling or URLs to make it more consistent across providers and configurations.
 
@@ -106,7 +91,28 @@ export default defineNuxtConfig({
 })
 ```
 
-You can find a full overview of how `@sidebase/nuxt-auth` handles URLs [here](https://github.com/sidebase/nuxt-auth/pull/913#issuecomment-2359137989) and in spec files for [`authjs` provider](https://github.com/sidebase/nuxt-auth/blob/main/tests/authjs.url.spec.ts) and [`local` provider](https://github.com/sidebase/nuxt-auth/blob/main/tests/local.url.spec.ts).
+---
+
+Therefore as of version 0.10.0, we recommend the following setup to set your `AUTH_ORIGIN` or `baseURL`:
+
+::: code-group
+
+```ts diff [nuxt.config.ts]
+export default defineNuxtConfig({
+  // ... other configuration
+  auth: {
+    baseUrl: 'https://my-backend.com/api/auth', // [!code --]
+    // This is technically not needed as it is the default, but it's here for illustrative purposes
+    originEnvKey: 'AUTH_ORIGIN', // [!code ++]
+  }
+})
+```
+
+```env diff [.env]
+AUTH_ORIGIN="https://my-backend.com/api/auth" // [!code ++]
+```
+
+:::
 
 ## Changelog
 

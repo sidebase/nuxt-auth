@@ -53,7 +53,7 @@ In the example above, we define a [runtime config](https://nuxt.com/docs/guide/g
 
 You can customize each endpoint to fit your needs or disable it by setting it to `false`. For example you may want to disable the `signUp` endpoint.
 
-```ts{7}
+```ts{6}
 export default defineNuxtConfig({
     auth: {
         provider: {
