@@ -43,7 +43,8 @@ Add NuxtAuth to your `nuxt.config`:
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
   modules: [
-    '@sidebase/nuxt-auth'],
+    '@sidebase/nuxt-auth'
+  ],
 })
 ```
 
