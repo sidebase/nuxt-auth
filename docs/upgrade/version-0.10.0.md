@@ -86,7 +86,7 @@ NUXT_BASE_URL="https://my-backend.com/api/auth" // [!code ++]
 
 ### Adjustments when using an external backend for the `local`-provider
 
-In previous versions of `@sidebase/nuxt-auth` a very specific setup was needed to ensure that external backends could properly be used for the `local`-provider. In 0.10.0 we reworked the internal handling or urls to make it more consistent across providers and configurations. 
+In previous versions of `@sidebase/nuxt-auth` a very specific setup was needed to ensure that external backends could properly be used for the `local`-provider. In 0.10.0 we reworked the internal handling or urls to make it more consistent across providers and configurations.
 
 If you were previously using an external backend you can now make the following adjustments:
 
