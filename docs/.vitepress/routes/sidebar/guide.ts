@@ -96,6 +96,7 @@ export const routes: DefaultTheme.SidebarItem[] = [
         ],
       },
       { text: 'Caching', link: '/caching' },
+      { text: 'Pathing logic and baseURL', link: '/url-resolutions' },
     ],
   },
 ]
