@@ -125,5 +125,8 @@ AUTH_ORIGIN="https://my-backend.com/api/auth" // [!code ++]
 * chore: upgrade to nitro 2.10, preparing for nitropack ecosystem switch from `nitropack` to `nitro` by @BracketJohn in https://github.com/sidebase/nuxt-auth/pull/942
 * fix(#927): fix the warnings produced by Nuxt when awaiting runtime config by @phoenix-ru in https://github.com/sidebase/nuxt-auth/pull/959
 * release: 0.10.0-rc.2 by @zoey-kaiser in https://github.com/sidebase/nuxt-auth/pull/960
+* docs: update installation.md by @s0h311 in https://github.com/sidebase/nuxt-auth/pull/955
+* feat: ✨ add flag to disable getSession after signIn on local / refresh provider by @bitfactory-frank-spee in https://github.com/sidebase/nuxt-auth/pull/702
+* doc: adjust docs for the 0.10.0 release by @zoey-kaiser in https://github.com/sidebase/nuxt-auth/pull/963
 
 **Full Changelog**: https://github.com/sidebase/nuxt-auth/compare/0.9.4...0.10.0
