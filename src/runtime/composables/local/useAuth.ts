@@ -5,6 +5,7 @@ import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '..
 import { _fetch } from '../../utils/fetch'
 import { determineCallbackUrl } from '../../utils/url'
 import { getRequestURLWN } from '../common/getRequestURL'
+import { ERROR_PREFIX } from '../../utils/logger'
 import { formatToken } from './utils/token'
 import { type UseAuthStateReturn, useAuthState } from './useAuthState'
 import { callWithNuxt } from '#app/nuxt'
@@ -166,8 +167,17 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
 
 async function signUp(credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions) {
   const nuxt = useNuxtApp()
+  const runtimeConfig = useRuntimeConfig()
+  const config = useTypedBackendConfig(runtimeConfig, 'local')
 
-  const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signUp
+  const signUpEndpoint = config.endpoints.signUp
+
+  if (!signUpEndpoint) {
+    console.warn(`${ERROR_PREFIX} provider.endpoints.signUp is disabled.`)
+    return
+  }
+
+  const { path, method } = signUpEndpoint
   await _fetch(nuxt, path, {
     method,
     body: credentials

@@ -86,11 +86,11 @@ export interface ProviderLocal {
      */
     signOut?: { path?: string, method?: RouterMethod } | false
     /**
-     * What method and path to call to perform the sign-up.
+     * What method and path to call to perform the sign-up. Set to false to disable.
      *
      * @default { path: '/register', method: 'post' }
      */
-    signUp?: { path?: string, method?: RouterMethod }
+    signUp?: { path?: string, method?: RouterMethod } | false
     /**
      * What method and path to call to fetch user / session data from. `nuxt-auth` will send the token received upon sign-in as a header along this request to authenticate.
      *
