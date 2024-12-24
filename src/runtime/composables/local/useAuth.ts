@@ -5,8 +5,8 @@ import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '..
 import { _fetch } from '../../utils/fetch'
 import { determineCallbackUrl } from '../../utils/url'
 import { getRequestURLWN } from '../common/getRequestURL'
-import { formatToken } from './utils/token'
 import { ERROR_PREFIX } from '../../utils/logger'
+import { formatToken } from './utils/token'
 import { type UseAuthStateReturn, useAuthState } from './useAuthState'
 import { callWithNuxt } from '#app/nuxt'
 // @ts-expect-error - #auth not defined
