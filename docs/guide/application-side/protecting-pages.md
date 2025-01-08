@@ -32,7 +32,7 @@ If the global middleware is disabled, you can manually add the middleware to ind
 ```vue
 <script lang="ts" setup>
 definePageMeta({
-  middleware: 'auth'
+  middleware: 'sidebase-auth'
 })
 </script>
 

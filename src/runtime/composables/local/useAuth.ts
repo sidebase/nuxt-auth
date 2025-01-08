@@ -3,9 +3,10 @@ import { type Ref, readonly } from 'vue'
 import type { CommonUseAuthReturn, GetSessionOptions, SecondarySignInOptions, SignInFunc, SignOutFunc, SignUpOptions } from '../../types'
 import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '../../helpers'
 import { _fetch } from '../../utils/fetch'
-import { getRequestURLWN } from '../../utils/callWithNuxt'
 import { determineCallbackUrl } from '../../utils/url'
-import { formatToken } from '../../utils/local'
+import { getRequestURLWN } from '../common/getRequestURL'
+import { ERROR_PREFIX } from '../../utils/logger'
+import { formatToken } from './utils/token'
 import { type UseAuthStateReturn, useAuthState } from './useAuthState'
 import { callWithNuxt } from '#app/nuxt'
 // @ts-expect-error - #auth not defined
@@ -17,7 +18,7 @@ type Credentials = { username?: string, email?: string, password?: string } & Re
 const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, signInParams, signInHeaders) => {
   const nuxt = useNuxtApp()
 
-  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const runtimeConfig = useRuntimeConfig()
   const config = useTypedBackendConfig(runtimeConfig, 'local')
   const { path, method } = config.endpoints.signIn
   const response = await _fetch<Record<string, any>>(nuxt, path, {
@@ -55,9 +56,12 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     rawRefreshToken.value = extractedRefreshToken
   }
 
-  await nextTick(getSession)
+  const { redirect = true, external, callGetSession = true } = signInOptions ?? {}
 
-  const { redirect = true, external } = signInOptions ?? {}
+  if (callGetSession) {
+    await nextTick(getSession)
+  }
+
   
   if (redirect) {
     let { callbackUrl } = signInOptions ?? {}
@@ -77,7 +81,7 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
 
 const signOut: SignOutFunc = async (signOutOptions) => {
   const nuxt = useNuxtApp()
-  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const runtimeConfig = useRuntimeConfig()
   const config = useTypedBackendConfig(runtimeConfig, 'local')
   const { data, token, rawToken, refreshToken, rawRefreshToken }: UseAuthStateReturn = await callWithNuxt(nuxt, useAuthState)
 
@@ -162,8 +166,17 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
 
 async function signUp(credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions) {
   const nuxt = useNuxtApp()
+  const runtimeConfig = useRuntimeConfig()
+  const config = useTypedBackendConfig(runtimeConfig, 'local')
 
-  const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signUp
+  const signUpEndpoint = config.endpoints.signUp
+
+  if (!signUpEndpoint) {
+    console.warn(`${ERROR_PREFIX} provider.endpoints.signUp is disabled.`)
+    return
+  }
+
+  const { path, method } = signUpEndpoint
   await _fetch(nuxt, path, {
     method,
     body: credentials

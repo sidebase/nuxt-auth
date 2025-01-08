@@ -86,11 +86,11 @@ export interface ProviderLocal {
      */
     signOut?: { path?: string, method?: RouterMethod } | false
     /**
-     * What method and path to call to perform the sign-up.
+     * What method and path to call to perform the sign-up. Set to false to disable.
      *
      * @default { path: '/register', method: 'post' }
      */
-    signUp?: { path?: string, method?: RouterMethod }
+    signUp?: { path?: string, method?: RouterMethod } | false
     /**
      * What method and path to call to fetch user / session data from. `nuxt-auth` will send the token received upon sign-in as a header along this request to authenticate.
      *
@@ -425,6 +425,21 @@ export interface ModuleOptions {
    */
   isEnabled?: boolean
   /**
+   * Disables the Nuxt `$fetch` optimization. Do so when your auth logic is not handled by a Nuxt server (e.g. when using an external backend).
+   *
+   * Disabling the optimisation means that NuxtAuth will prefer calling `baseURL` + path instead of just path,
+   * which would often translate to an HTTP call.
+   *
+   * By default, this option is set to `false` for `authjs` provider.
+   * For `local` provider `disableInternalRouting` will default to `true` unless explicitly changed by user.
+   *
+   * ## Example
+   * With `disableInternalRouting: true` and `baseURL: 'https://example.com/api/auth'` your calls would be made to `https://example.com/api/auth` endpoints instead of `/api/auth`.
+   *
+   * @see https://nuxt.com/docs/api/utils/dollarfetch
+   */
+  disableInternalRouting?: boolean
+  /**
    * Forces your server to send a "loading" status on all requests, prompting the client to fetch on the client. If your website has caching, this prevents the server from caching someone's authentication status.
    *
    * This affects the entire site. For route-specific rules add `disableServerSideAuth` on `routeRules` instead:
@@ -537,10 +552,6 @@ export interface CommonUseAuthStateReturn<SessionData> {
   loading: Ref<boolean>
   lastRefreshedAt: Ref<SessionLastRefreshedAt>
   status: ComputedRef<SessionStatus>
-  _internal: {
-    baseURL: string
-    pathname: string
-  }
 }
 
 // Common `useAuth` method-types
@@ -563,6 +574,12 @@ export interface SecondarySignInOptions extends Record<string, unknown> {
    * @default false
    */
   external?: boolean
+  /**
+   * Whether `getSession` needs to be called after a successful sign-in. When set to false, you can manually call `getSession` to obtain the session data.
+   *
+   * @default true
+   */
+  callGetSession?: boolean
 }
 
 export interface SignUpOptions extends SecondarySignInOptions {
@@ -604,15 +621,11 @@ export type SignInFunc<PrimarySignInOptions, SignInResult> = (
 
 export interface ModuleOptionsNormalized extends ModuleOptions {
   isEnabled: boolean
+  baseURL: string
+  disableInternalRouting: boolean
   // Cannot use `DeepRequired` here because it leads to build issues
   provider: Required<NonNullable<ModuleOptions['provider']>>
   sessionRefresh: NonNullable<ModuleOptions['sessionRefresh']>
   globalAppMiddleware: NonNullable<ModuleOptions['globalAppMiddleware']>
   originEnvKey: string
-
-  computed: {
-    origin: string | undefined
-    pathname: string
-    fullBaseUrl: string
-  }
 }
