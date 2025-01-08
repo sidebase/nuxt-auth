@@ -62,7 +62,6 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     await nextTick(getSession)
   }
 
-  
   if (redirect) {
     let { callbackUrl } = signInOptions ?? {}
     if (typeof callbackUrl === 'undefined') {
