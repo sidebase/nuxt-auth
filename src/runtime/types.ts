@@ -629,3 +629,14 @@ export interface ModuleOptionsNormalized extends ModuleOptions {
   globalAppMiddleware: NonNullable<ModuleOptions['globalAppMiddleware']>
   originEnvKey: string
 }
+export interface SessionCookie {
+  lastRefreshedAt?: SessionLastRefreshedAt
+  data?: SessionDataObject
+}
+
+// Augment types
+declare module 'nuxt/schema' {
+  interface PublicRuntimeConfig {
+    auth: ModuleOptionsNormalized
+  }
+}
