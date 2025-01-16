@@ -1,4 +1,3 @@
-import { sanitizeStatusCode } from 'h3'
 import { hasProtocol, isScriptProtocol, joinURL } from 'ufo'
 import { type NuxtApp, abortNavigation, callWithNuxt, useNuxtApp, useRouter, useRuntimeConfig } from '#app'
 
