@@ -24,7 +24,8 @@ let usedSecret: string | undefined
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
 export function NuxtAuthHandler(nuxtAuthOptions?: AuthOptions) {
   const isProduction = process.env.NODE_ENV === 'production'
-  const trustHostUserPreference = useTypedBackendConfig(useRuntimeConfig(), 'authjs').trustHost
+  const runtimeConfig = useRuntimeConfig()
+  const trustHostUserPreference = useTypedBackendConfig(runtimeConfig, 'authjs').trustHost
 
   usedSecret = nuxtAuthOptions?.secret
   if (!usedSecret) {
@@ -46,7 +47,7 @@ export function NuxtAuthHandler(nuxtAuthOptions?: AuthOptions) {
     trustHost: true,
 
     // AuthJS uses `/auth` as default, but we rely on `/api/auth` (same as in previous `next-auth`)
-    basePath: '/api/auth'
+    basePath: runtimeConfig.public.auth.baseURL,
 
     // Uncomment to enable framework-author specific functionality
     // raw: raw as typeof raw
@@ -134,7 +135,7 @@ export async function getServerSession(event: H3Event) {
     cookies: parseCookies(event),
     providerId: undefined,
     error: undefined,
-    host: sessionUrl.origin,
+    host: sessionUrl.href,
     query: Object.fromEntries(sessionUrl.searchParams)
   }
 
@@ -183,7 +184,7 @@ export function getToken<R extends boolean = false>({ event, secureCookie, secre
  */
 async function createRequestForAuthjs(event: H3Event, trustHostUserPreference: boolean): Promise<RequestInternal> {
   const nextRequest: Omit<RequestInternal, 'action'> = {
-    host: getRequestURLFromH3Event(event, trustHostUserPreference).origin,
+    host: getRequestURLFromH3Event(event, trustHostUserPreference).href,
     body: undefined,
     cookies: parseCookies(event),
     query: undefined,
