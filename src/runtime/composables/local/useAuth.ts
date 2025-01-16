@@ -62,17 +62,18 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     await nextTick(getSession)
   }
 
-  let { callbackUrl } = signInOptions ?? {}
-  if (typeof callbackUrl === 'undefined') {
-    const redirectQueryParam = useRoute()?.query?.redirect
-    if (redirectQueryParam) {
-      callbackUrl = redirectQueryParam.toString()
-    }
-    else {
-      callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
-    }
-  }
   if (redirect) {
+    let { callbackUrl } = signInOptions ?? {}
+    if (typeof callbackUrl === 'undefined') {
+      const redirectQueryParam = useRoute()?.query?.redirect
+      if (redirectQueryParam) {
+        callbackUrl = redirectQueryParam.toString()
+      }
+      else {
+        callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
+      }
+    }
+
     return navigateTo(callbackUrl, { external })
   }
 
