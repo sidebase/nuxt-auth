@@ -1,6 +1,6 @@
 {
   "name": "@sidebase/nuxt-auth",
-  "version": "0.10.0",
+  "version": "0.10.1-alpha.1",
   "license": "MIT",
   "type": "module",
   "description": "Authentication built for Nuxt 3! Easily add authentication via OAuth providers, credentials or Email Magic URLs!",
