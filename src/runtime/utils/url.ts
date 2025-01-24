@@ -1,7 +1,7 @@
 import { joinURL, parseURL, withLeadingSlash } from 'ufo'
 
 // Slimmed down type to allow easy unit testing
-interface RuntimeConfig {
+export interface RuntimeConfig {
   public: {
     auth: {
       baseURL: string

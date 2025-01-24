@@ -4,7 +4,8 @@
 import type { NitroApp } from 'nitropack/types'
 import { ERROR_MESSAGES } from '../services/errors'
 import { isProduction } from '../../helpers'
-import { getServerOrigin } from '../services/utils'
+import { getServerOrigin } from '../services/authjs/utils'
+import { useRuntimeConfig } from '#imports'
 
 // type stub
 type NitroAppPlugin = (nitro: NitroApp) => void
@@ -16,7 +17,8 @@ function defineNitroPlugin(def: NitroAppPlugin): NitroAppPlugin {
 // Export runtime plugin
 export default defineNitroPlugin(() => {
   try {
-    getServerOrigin()
+    const runtimeConfig = useRuntimeConfig()
+    getServerOrigin(runtimeConfig)
   }
   catch (error) {
     if (!isProduction) {
