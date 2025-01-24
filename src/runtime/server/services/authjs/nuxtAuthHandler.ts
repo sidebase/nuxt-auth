@@ -1,5 +1,5 @@
 import type { IncomingHttpHeaders } from 'node:http'
-import { createError, eventHandler, getHeaders, getQuery, getRequestHost, getRequestProtocol, getResponseHeader, isMethod, parseCookies, readBody, sendRedirect, setCookie, setResponseHeader } from 'h3'
+import { createError, eventHandler, getHeaders, getQuery, getResponseHeader, isMethod, parseCookies, readBody, sendRedirect, setCookie, setResponseHeader } from 'h3'
 import type { H3Event } from 'h3'
 import type { CookieSerializeOptions } from 'cookie-es'
 
