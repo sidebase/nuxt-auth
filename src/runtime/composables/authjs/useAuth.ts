@@ -188,7 +188,6 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
   }
 
   const headers = await getRequestHeaders(nuxt)
-  console.log('BEFORE doing fetch', headers)
 
   return _fetch<SessionData>(nuxt, '/session', {
     onResponse: ({ response }) => {

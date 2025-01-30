@@ -3,8 +3,8 @@
  */
 import type { NitroApp } from 'nitropack/types'
 import { ERROR_MESSAGES } from '../services/errors'
-import { isProduction } from '../../helpers'
-import { getServerOrigin } from '../services/authjs/utils'
+import { isProduction, useTypedBackendConfig } from '../../helpers'
+import { getServerBaseUrl } from '../services/authjs/utils'
 import { useRuntimeConfig } from '#imports'
 
 // type stub
@@ -18,7 +18,8 @@ function defineNitroPlugin(def: NitroAppPlugin): NitroAppPlugin {
 export default defineNitroPlugin(() => {
   try {
     const runtimeConfig = useRuntimeConfig()
-    getServerOrigin(runtimeConfig)
+    const trustHostUserPreference = useTypedBackendConfig(runtimeConfig, 'authjs').trustHost
+    getServerBaseUrl(runtimeConfig, false, trustHostUserPreference, isProduction)
   }
   catch (error) {
     if (!isProduction) {

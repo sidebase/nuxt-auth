@@ -13,9 +13,9 @@ import { defu } from 'defu'
 import { joinURL } from 'ufo'
 import { ERROR_MESSAGES } from '../errors'
 import { isNonEmptyObject } from '../../../utils/checkSessionResult'
-import { useTypedBackendConfig } from '../../../helpers'
+import { isProduction, useTypedBackendConfig } from '../../../helpers'
 import { resolveApiBaseURL } from '../../../utils/url'
-import { getHostValueForAuthjs, getServerOrigin } from './utils'
+import { getHostValueForAuthjs, getServerBaseUrl } from './utils'
 import { useRuntimeConfig } from '#imports'
 
 type RuntimeConfig = ReturnType<typeof useRuntimeConfig>
@@ -45,7 +45,7 @@ export function NuxtAuthHandler(nuxtAuthOptions?: AuthOptions) {
     logger: undefined,
     providers: [],
 
-    // SAFETY: We trust host here because `getRequestURLFromH3Event` is responsible for producing a trusted URL
+    // SAFETY: We trust host here because `getHostValueForAuthjs` is responsible for producing a trusted URL
     trustHost: true,
 
     // AuthJS uses `/auth` as default, but we rely on `/api/auth` (same as in previous `next-auth`)
@@ -133,7 +133,7 @@ export async function getServerSession(event: H3Event) {
     cookies: parseCookies(event),
     providerId: undefined,
     error: undefined,
-    host: getHostValueForAuthjs(event, runtimeConfig, trustHostUserPreference),
+    host: getHostValueForAuthjs(event, runtimeConfig, trustHostUserPreference, isProduction),
     query: {}
   }
 
@@ -162,6 +162,7 @@ export async function getServerSession(event: H3Event) {
  */
 export function getToken<R extends boolean = false>({ event, secureCookie, secret, ...rest }: Omit<GetTokenParams<R>, 'req'> & { event: H3Event }) {
   const runtimeConfig = useRuntimeConfig()
+  const trustHostUserPreference = useTypedBackendConfig(runtimeConfig, 'authjs').trustHost
 
   return authjsGetToken({
     // @ts-expect-error As our request is not a real next-auth request, we pass down only what's required for the method, as per code from https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L68
@@ -170,7 +171,7 @@ export function getToken<R extends boolean = false>({ event, secureCookie, secre
       headers: getHeaders(event) as IncomingHttpHeaders
     },
     // see https://github.com/nextauthjs/next-auth/blob/8387c78e3fef13350d8a8c6102caeeb05c70a650/packages/next-auth/src/jwt/index.ts#L73
-    secureCookie: secureCookie ?? getServerOrigin(runtimeConfig, event).startsWith('https://'),
+    secureCookie: secureCookie ?? getServerBaseUrl(runtimeConfig, false, trustHostUserPreference, isProduction, event).startsWith('https://'),
     secret: secret || usedSecret,
     ...rest
   })
@@ -189,7 +190,7 @@ async function createRequestForAuthjs(
 ): Promise<RequestInternal> {
   const nextRequest: Omit<RequestInternal, 'action'> = {
     // `authjs` expects the baseURL here despite the param name
-    host: getHostValueForAuthjs(event, runtimeConfig, trustHostUserPreference),
+    host: getHostValueForAuthjs(event, runtimeConfig, trustHostUserPreference, isProduction),
     body: undefined,
     cookies: parseCookies(event),
     query: undefined,
