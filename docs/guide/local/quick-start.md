@@ -205,7 +205,7 @@ export default defineNuxtConfig({
       type: 'local',
       refresh: {
         isEnabled: true,
-        endpoint: { path: '/refresh', method: 'POST' },
+        endpoint: { path: '/refresh', method: 'post' },
         refreshOnlyToken: true,
         token: {
           signInResponseRefreshTokenPointer: '/refresh-token',
