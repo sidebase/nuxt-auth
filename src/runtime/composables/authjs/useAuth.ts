@@ -28,18 +28,16 @@ export type SupportedProviders = LiteralUnion<BuiltInProviderType> | undefined
  * Utilities to make nested async composable calls play nicely with nuxt.
  *
  * Calling nested async composable can lead to "nuxt instance unavailable" errors. See more details here: https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529. To resolve this we can manually ensure that the nuxt-context is set. This module contains `callWithNuxt` helpers for some of the methods that are frequently called in nested `useAuth` composable calls.
- *
  */
-
-// eslint-disable-next-line ts/no-empty-object-type
-async function getRequestCookies(nuxt: NuxtApp): Promise<{ cookie: string } | {}> {
+async function getRequestHeaders(nuxt: NuxtApp, includeCookie = true): Promise<{ cookie?: string, host?: string }> {
   // `useRequestHeaders` is sync, so we narrow it to the awaited return type here
-  const { cookie } = await callWithNuxt(nuxt, () => useRequestHeaders(['cookie']))
-  if (cookie) {
-    return { cookie }
+  const headers = await callWithNuxt(nuxt, () => useRequestHeaders(['cookie', 'host']))
+  if (includeCookie && headers.cookie) {
+    return headers
   }
-  return {}
+  return { host: headers.host }
 }
+
 /**
  * Get the current Cross-Site Request Forgery token.
  *
@@ -47,7 +45,7 @@ async function getRequestCookies(nuxt: NuxtApp): Promise<{ cookie: string } | {}
  */
 async function getCsrfToken() {
   const nuxt = useNuxtApp()
-  const headers = await getRequestCookies(nuxt)
+  const headers = await getRequestHeaders(nuxt)
   return _fetch<{ csrfToken: string }>(nuxt, '/csrf', { headers }).then(response => response.csrfToken)
 }
 function getCsrfTokenWithNuxt(nuxt: NuxtApp) {
@@ -114,9 +112,9 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 
   const csrfToken = await callWithNuxt(nuxt, getCsrfToken)
 
-  const headers: { 'Content-Type': string, 'cookie'?: string | undefined } = {
+  const headers: { 'Content-Type': string, 'cookie'?: string, 'host'?: string } = {
     'Content-Type': 'application/x-www-form-urlencoded',
-    ...(await getRequestCookies(nuxt))
+    ...(await getRequestHeaders(nuxt))
   }
 
   // @ts-expect-error `options` is typed as any, but is a valid parameter for URLSearchParams
@@ -155,8 +153,16 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 /**
  * Get all configured providers from the backend. You can use this method to build your own sign-in page.
  */
-function getProviders() {
-  return _fetch<Record<Exclude<SupportedProviders, undefined>, Omit<AppProvider, 'options'> | undefined>>(useNuxtApp(), '/providers')
+async function getProviders() {
+  const nuxt = useNuxtApp()
+  // Pass the `Host` header when making internal requests
+  const headers = await getRequestHeaders(nuxt, false)
+
+  return _fetch<Record<Exclude<SupportedProviders, undefined>, Omit<AppProvider, 'options'> | undefined>>(
+    nuxt,
+    '/providers',
+    { headers }
+  )
 }
 
 /**
@@ -181,7 +187,8 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
     loading.value = false
   }
 
-  const headers = await getRequestCookies(nuxt)
+  const headers = await getRequestHeaders(nuxt)
+  console.log('BEFORE doing fetch', headers)
 
   return _fetch<SessionData>(nuxt, '/session', {
     onResponse: ({ response }) => {
@@ -247,7 +254,8 @@ const signOut: SignOutFunc = async (options) => {
   const signoutData = await _fetch<{ url: string }>(nuxt, '/signout', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
+      ...(await getRequestHeaders(nuxt))
     },
     onRequest: ({ options }) => {
       options.body = new URLSearchParams({
