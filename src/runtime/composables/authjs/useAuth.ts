@@ -2,12 +2,13 @@ import type { AppProvider, BuiltInProviderType } from 'next-auth/providers/index
 import { defu } from 'defu'
 import { type Ref, readonly } from 'vue'
 import { appendHeader } from 'h3'
-import { determineCallbackUrl, resolveApiUrlPath } from '../../utils/url'
+import { resolveApiUrlPath } from '../../utils/url'
 import { _fetch } from '../../utils/fetch'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
 import type { CommonUseAuthReturn, GetSessionOptions, SignInFunc, SignOutFunc } from '../../types'
 import { useTypedBackendConfig } from '../../helpers'
 import { getRequestURLWN } from '../common/getRequestURL'
+import { determineCallbackUrl } from '../../utils/callbackUrl'
 import type { SessionData } from './useAuthState'
 import { navigateToAuthPageWN } from './utils/navigateToAuthPage'
 import type { NuxtApp } from '#app/nuxt'
@@ -81,11 +82,7 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
   // 3. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
   const { redirect = true } = options ?? {}
 
-  let { callbackUrl } = options ?? {}
-
-  if (typeof callbackUrl === 'undefined' && backendConfig.addDefaultCallbackUrl) {
-    callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
-  }
+  const callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, options?.callbackUrl)
 
   const signinUrl = resolveApiUrlPath('signin', runtimeConfig)
 
@@ -240,16 +237,22 @@ function getSessionWithNuxt(nuxt: NuxtApp) {
  */
 const signOut: SignOutFunc = async (options) => {
   const nuxt = useNuxtApp()
+  const runtimeConfig = useRuntimeConfig()
 
-  const requestURL = await getRequestURLWN(nuxt)
-  const { callbackUrl = requestURL, redirect = true } = options ?? {}
+  const { callbackUrl: userCallbackUrl, redirect = true } = options ?? {}
   const csrfToken = await getCsrfTokenWithNuxt(nuxt)
+
+  // Determine the correct callback URL
+  const callbackUrl = await determineCallbackUrl(
+    runtimeConfig.public.auth,
+    userCallbackUrl,
+    true
+  )
 
   if (!csrfToken) {
     throw createError({ statusCode: 400, statusMessage: 'Could not fetch CSRF Token for signing out' })
   }
 
-  const callbackUrlFallback = requestURL
   const signoutData = await _fetch<{ url: string }>(nuxt, '/signout', {
     method: 'POST',
     headers: {
@@ -259,7 +262,7 @@ const signOut: SignOutFunc = async (options) => {
     onRequest: ({ options }) => {
       options.body = new URLSearchParams({
         csrfToken: csrfToken as string,
-        callbackUrl: callbackUrl || callbackUrlFallback,
+        callbackUrl,
         json: 'true'
       })
     }
