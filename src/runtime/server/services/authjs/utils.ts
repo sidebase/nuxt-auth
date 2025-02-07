@@ -27,7 +27,8 @@ import { ERROR_MESSAGES } from '../errors'
  *
  * @param event The H3 Event containing the request
  * @param runtimeConfig Nuxt RuntimeConfig
- * @param trustHostUserPreference Whether the host can be trusted. If `true`, base will be inferred from the request, otherwise the configured origin will be used. * @returns {string} Value formatted for usage with Authjs
+ * @param trustHostUserPreference Whether the host can be trusted. If `true`, base will be inferred from the request, otherwise the configured origin will be used.
+ * @returns {string} Value formatted for usage with Authjs
  * @throws {Error} When server origin was incorrectly configured or when URL building failed
  */
 export function getHostValueForAuthjs(
@@ -44,7 +45,7 @@ export function getHostValueForAuthjs(
  *
  * @param runtimeConfig Nuxt Runtime Config
  * @param includePath Whether function should output just Origin or the full URL
- * @param trustHostUserPreference Whether the host can be trusted. If `true`, base will be inferred from the request, otherwise the configured origin will be used. * @returns {string} Value formatted for usage with Authjs
+ * @param trustHostUserPreference Whether the host can be trusted. If `true`, base will be inferred from the request, otherwise the configured origin will be used.
  * @param isProduction Whether app is running in production mode. In non-production mode function will try to infer the result from the passed event.
  * @param event The H3 Event for inferring the result (optional)
  * @throws {Error} When the calculated result did not include a valid Origin, e.g. it will throw for the result of `/api/auth`, but will succeed for `https://example.com/api/auth`
