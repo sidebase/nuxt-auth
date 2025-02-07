@@ -15,14 +15,15 @@ import { ERROR_MESSAGES } from '../errors'
  *
  * @example
  * ```
+ * // configured baseURL = https://your.domain/api/auth
+ *
  * // Without `trustHost`
  * // event path = https://example.com/auth/path/signin/github?callbackUrl=foo
- * // configured baseURL = https://your.domain/api/auth
  * getHostValueForAuthjs(event, runtimeConfig, false) === 'https://your.domain/api/auth'
  *
  * // With `trustHost`
  * // event path = https://example.com/auth/path/signin/github?callbackUrl=foo
- * getHostValueForAuthjs(event, runtimeConfig, true) === 'https://example.com/auth/path'
+ * getHostValueForAuthjs(event, runtimeConfig, true) === 'https://example.com/api/auth'
  * ```
  *
  * @param event The H3 Event containing the request
