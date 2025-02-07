@@ -3,7 +3,7 @@ import { definePageMeta } from '#imports'
 
 // Note: This is only for testing, it does not make sense to do this with `globalAppMiddleware` turned on
 definePageMeta({
-  middleware: 'auth'
+  middleware: 'sidebase-auth'
 })
 </script>
 
