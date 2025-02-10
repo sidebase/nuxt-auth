@@ -141,8 +141,8 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
     data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
   }
   catch (err) {
-    if (config.getSessionOnError) {
-      return config.getSessionOnError(err)
+    if (config.session.getSessionOnError) {
+      return config.session.getSessionOnError(err)
     }
 
     if (!data.value && err instanceof Error) {
