@@ -141,6 +141,10 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
     data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
   }
   catch (err) {
+    if (config.getSessionOnError) {
+      return config.getSessionOnError(err)
+    }
+
     if (!data.value && err instanceof Error) {
       console.error(`Session: unable to extract session, ${err.message}`)
     }

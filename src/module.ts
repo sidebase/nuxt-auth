@@ -70,7 +70,8 @@ const defaultsByBackend: {
     },
     session: {
       dataType: { id: 'string | number' },
-      dataResponsePointer: '/'
+      dataResponsePointer: '/',
+      getSessionOnError: undefined
     },
     refresh: {
       isEnabled: false,

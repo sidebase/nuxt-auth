@@ -214,6 +214,7 @@ export interface ProviderLocal {
      * @example /data/user  Access the `data/user` property of the session response object
      */
     dataResponsePointer?: string
+    getSessionOnError?: (error: Error) => void
   }
   /**
    * Configuration for the refresh token logic of the `local` provider.
