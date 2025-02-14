@@ -54,7 +54,7 @@ export default defineNuxtConfig({
       }, // [!code --]
       refresh: { // [!code ++]
         isEnabled: true, // [!code ++]
-        endpoint: { path: '/refresh', method: 'POST' }, // [!code ++]
+        endpoint: { path: '/refresh', method: 'post' }, // [!code ++]
         refreshOnlyToken: true, // [!code ++]
         token: { // [!code ++]
           signInResponseRefreshTokenPointer: '/refresh-token', // [!code ++]

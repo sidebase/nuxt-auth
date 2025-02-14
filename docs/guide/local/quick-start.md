@@ -249,7 +249,7 @@ export default defineNuxtConfig({
       refresh: {
         endpoint: {
           path: '/refresh',
-          method: 'POST'
+          method: 'post'
         }
       }
     }
