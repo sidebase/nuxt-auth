@@ -1,6 +1,7 @@
-import { determineCallbackUrl, isExternalUrl } from '../utils/url'
+import { isExternalUrl } from '../utils/url'
 import { isProduction } from '../helpers'
 import { ERROR_PREFIX } from '../utils/logger'
+import { determineCallbackUrlForRouteMiddleware } from '../utils/callbackUrl'
 import { defineNuxtRouteMiddleware, navigateTo, useAuth, useRuntimeConfig } from '#imports'
 
 type MiddlewareMeta = boolean | {
@@ -88,9 +89,14 @@ export default defineNuxtRouteMiddleware((to) => {
   }
 
   if (authConfig.provider.type === 'authjs') {
-    const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.fullPath) }
-    // eslint-disable-next-line ts/ban-ts-comment
-    // @ts-ignore This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
+    const callbackUrl = determineCallbackUrlForRouteMiddleware(authConfig, to)
+
+    const signInOptions: Parameters<typeof signIn>[1] = {
+      error: 'SessionRequired',
+      callbackUrl
+    }
+
+    // @ts-expect-error This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
     return signIn(undefined, signInOptions) as Promise<void>
   }
 

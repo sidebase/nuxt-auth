@@ -3,9 +3,9 @@ import { type Ref, readonly } from 'vue'
 import type { CommonUseAuthReturn, GetSessionOptions, SecondarySignInOptions, SignInFunc, SignOutFunc, SignUpOptions } from '../../types'
 import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '../../helpers'
 import { _fetch } from '../../utils/fetch'
-import { determineCallbackUrl } from '../../utils/url'
 import { getRequestURLWN } from '../common/getRequestURL'
 import { ERROR_PREFIX } from '../../utils/logger'
+import { determineCallbackUrl } from '../../utils/callbackUrl'
 import { formatToken } from './utils/token'
 import { type UseAuthStateReturn, useAuthState } from './useAuthState'
 import { callWithNuxt } from '#app/nuxt'
@@ -63,15 +63,10 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
   }
 
   if (redirect) {
-    let { callbackUrl } = signInOptions ?? {}
+    let callbackUrl = signInOptions?.callbackUrl
     if (typeof callbackUrl === 'undefined') {
       const redirectQueryParam = useRoute()?.query?.redirect
-      if (redirectQueryParam) {
-        callbackUrl = redirectQueryParam.toString()
-      }
-      else {
-        callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
-      }
+      callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, redirectQueryParam?.toString())
     }
 
     return navigateTo(callbackUrl, { external })
@@ -108,9 +103,15 @@ const signOut: SignOutFunc = async (signOutOptions) => {
     res = await _fetch(nuxt, path, { method, headers, body })
   }
 
-  const { callbackUrl, redirect = true, external } = signOutOptions ?? {}
+  const { redirect = true, external } = signOutOptions ?? {}
+
   if (redirect) {
-    await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external })
+    let callbackUrl = signOutOptions?.callbackUrl
+    if (typeof callbackUrl === 'undefined') {
+      const redirectQueryParam = useRoute()?.query?.redirect
+      callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, redirectQueryParam?.toString(), true)
+    }
+    await navigateTo(callbackUrl, { external })
   }
 
   return res
