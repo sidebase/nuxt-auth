@@ -26,6 +26,8 @@ export async function determineCallbackUrl(
  * - uses a hardcoded path the user provided,
  * - determines the callback based on the target the user wanted to reach
  *
+ * Remember to wrap this with `callWithNuxt` to avoid hard-to-catch `500 [nuxt] instance unavailable`
+ *
  * @param authConfig Authentication runtime module config
  * @param userCallbackUrl Callback URL provided by a user, e.g. as options to `signIn`
  * @param inferFromRequest When `true`, will always do inference.

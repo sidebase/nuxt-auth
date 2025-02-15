@@ -1,5 +1,5 @@
-import { hasProtocol, isScriptProtocol, joinURL } from 'ufo'
-import { type NuxtApp, abortNavigation, callWithNuxt, useNuxtApp, useRouter, useRuntimeConfig } from '#app'
+import { hasProtocol, isScriptProtocol } from 'ufo'
+import { type NuxtApp, abortNavigation, callWithNuxt, useNuxtApp, useRouter } from '#app'
 
 export function navigateToAuthPageWN(nuxt: NuxtApp, href: string) {
   return callWithNuxt(nuxt, navigateToAuthPage, [href])
@@ -33,8 +33,8 @@ export function navigateToAuthPage(href: string) {
         }
       }
 
-      const fullPath = isExternalHost ? href : router.resolve(href).fullPath || '/'
-      const location = isExternalHost ? href : joinURL(useRuntimeConfig().app.baseURL, fullPath)
+      // This is a difference with `nuxt/nuxt` - we do not add `app.baseURL` here because all consumers are responsible for it
+      const location = isExternalHost ? href : router.resolve(href).fullPath || '/'
 
       // TODO: consider deprecating in favour of `app:rendered` and removing
       return nuxtApp.callHook('app:redirected').then(() => {

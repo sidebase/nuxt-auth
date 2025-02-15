@@ -82,7 +82,7 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
   // 3. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
   const { redirect = true } = options ?? {}
 
-  const callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, options?.callbackUrl)
+  const callbackUrl = await callWithNuxt(nuxt, () => determineCallbackUrl(runtimeConfig.public.auth, options?.callbackUrl))
 
   const signinUrl = resolveApiUrlPath('signin', runtimeConfig)
 
