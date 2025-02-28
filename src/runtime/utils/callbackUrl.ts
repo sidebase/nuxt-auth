@@ -1,4 +1,5 @@
 import { getRequestURLWN } from '../composables/common/getRequestURL'
+import { isExternalUrl } from './url'
 import type { RouteMiddleware } from '#app'
 import { callWithNuxt, useNuxtApp, useRouter } from '#app'
 
@@ -107,6 +108,10 @@ export function determineCallbackUrlForRouteMiddleware(
  * @see https://github.com/sidebase/nuxt-auth/issues/990#issuecomment-2630143443
  */
 async function normalizeCallbackUrl(rawCallbackUrl: string) {
+  if (isExternalUrl(rawCallbackUrl)) {
+    return rawCallbackUrl
+  }
+
   const nuxt = useNuxtApp()
   const router = await callWithNuxt(nuxt, useRouter)
 
