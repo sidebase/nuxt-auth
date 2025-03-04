@@ -1,8 +1,8 @@
-import { hasProtocol, isScriptProtocol, joinURL } from 'ufo'
-import { type NuxtApp, abortNavigation, callWithNuxt, useNuxtApp, useRouter, useRuntimeConfig } from '#app'
+import { hasProtocol, isScriptProtocol } from 'ufo'
+import { type NuxtApp, abortNavigation, callWithNuxt, useRouter } from '#app'
 
-export function navigateToAuthPageWN(nuxt: NuxtApp, href: string) {
-  return callWithNuxt(nuxt, navigateToAuthPage, [href])
+export function navigateToAuthPageWN(nuxt: NuxtApp, href: string, isInternalRouting?: boolean) {
+  return callWithNuxt(nuxt, navigateToAuthPage, [nuxt, href, isInternalRouting])
 }
 
 const URL_QUOTE_RE = /"/g
@@ -17,14 +17,14 @@ const URL_QUOTE_RE = /"/g
  *
  * Adapted from https://github.com/nuxt/nuxt/blob/16d213bbdcc69c0cc72afb355755ff877654a374/packages/nuxt/src/app/composables/router.ts#L119-L217
  *
+ * @param nuxt Nuxt app context
  * @param href HREF / URL to navigate to
  */
-export function navigateToAuthPage(href: string) {
+function navigateToAuthPage(nuxt: NuxtApp, href: string, isInternalRouting = false) {
   const router = useRouter()
-  const nuxtApp = useNuxtApp()
 
   if (import.meta.server) {
-    if (nuxtApp.ssrContext) {
+    if (nuxt.ssrContext) {
       const isExternalHost = hasProtocol(href, { acceptRelative: true })
       if (isExternalHost) {
         const { protocol } = new URL(href, 'http://localhost')
@@ -33,14 +33,15 @@ export function navigateToAuthPage(href: string) {
         }
       }
 
-      const fullPath = isExternalHost ? href : router.resolve(href).fullPath || '/'
-      const location = isExternalHost ? href : joinURL(useRuntimeConfig().app.baseURL, fullPath)
+      // This is a difference with `nuxt/nuxt` - we do not add `app.baseURL` here because all consumers are responsible for it
+      // We also skip resolution for internal routing to avoid triggering `No match found` warning from Vue Router
+      const location = isExternalHost || isInternalRouting ? href : router.resolve(href).fullPath || '/'
 
       // TODO: consider deprecating in favour of `app:rendered` and removing
-      return nuxtApp.callHook('app:redirected').then(() => {
+      return nuxt.callHook('app:redirected').then(() => {
         const encodedLoc = location.replace(URL_QUOTE_RE, '%22')
         const encodedHeader = encodeURL(location, isExternalHost)
-        nuxtApp.ssrContext!._renderResponse = {
+        nuxt.ssrContext!._renderResponse = {
           statusCode: 302,
           body: `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=${encodedLoc}"></head></html>`,
           headers: { location: encodedHeader },
