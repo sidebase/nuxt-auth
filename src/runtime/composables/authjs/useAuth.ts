@@ -69,7 +69,7 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
   const configuredProviders = await getProviders()
   if (!configuredProviders) {
     const errorUrl = resolveApiUrlPath('error', runtimeConfig)
-    return navigateToAuthPageWN(nuxt, errorUrl)
+    return navigateToAuthPageWN(nuxt, errorUrl, true)
   }
 
   // 2. If no `provider` was given, either use the configured `defaultProvider` or `undefined` (leading to a forward to the `/login` page with all providers)
@@ -89,12 +89,12 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
   const queryParams = callbackUrl ? `?${new URLSearchParams({ callbackUrl })}` : ''
   const hrefSignInAllProviderPage = `${signinUrl}${queryParams}`
   if (!provider) {
-    return navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage)
+    return navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage, true)
   }
 
   const selectedProvider = configuredProviders[provider]
   if (!selectedProvider) {
-    return navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage)
+    return navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage, true)
   }
 
   // 4. Perform a sign-in straight away with the selected provider

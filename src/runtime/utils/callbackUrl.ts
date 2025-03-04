@@ -115,9 +115,12 @@ async function normalizeCallbackUrl(rawCallbackUrl: string) {
   const nuxt = useNuxtApp()
   const router = await callWithNuxt(nuxt, useRouter)
 
-  const resolvedUserRoute = router.resolve(rawCallbackUrl)
-  // no check for `resolvedUserRoute.matched` - prefer to show default 404 instead
+  // Adapted from https://github.com/vuejs/router/blob/165a4b2934f7b2b8fe6efa7a0566db9c60209e29/packages/router/src/router.ts#L459-L599
+  // to avoid `router.resolve` generating `No match found` warnings for `/api/auth` routes.
+  // The difference with `router.resolve` is that relative paths (`./example`) are not supported
+  // because they make little sense for authentication routes which can be `/api/auth/signin` and `/api/auth/signin/provider`,
+  // i.e. different levels. Users should prefer their own resolution instead of relying on relative paths.
+  const resolvedUserRoute = router.options.history.createHref(rawCallbackUrl)
 
-  // Use `href` to include any possible `app.baseURL`
-  return resolvedUserRoute.href
+  return resolvedUserRoute
 }
