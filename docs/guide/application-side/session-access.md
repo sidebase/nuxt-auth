@@ -213,6 +213,9 @@ await signIn(credentials, { callbackUrl: 'https://nuxt.org', external: true })
 
 // Trigger a signIn without calling getSession directly. You have to manually call it to get session data.
 await signIn(credentials, { callGetSession: false })
+
+// Trigger a signIn and use the data sent by the provider
+const res = await signIn(credentials)
 ```
 
 :::
