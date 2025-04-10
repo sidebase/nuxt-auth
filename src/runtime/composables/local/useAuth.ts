@@ -1,5 +1,4 @@
 import { type Ref, readonly } from 'vue'
-
 import type { CommonUseAuthReturn, GetSessionOptions, SecondarySignInOptions, SignInFunc, SignOutFunc, SignUpOptions } from '../../types'
 import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '../../helpers'
 import { _fetch } from '../../utils/fetch'
@@ -166,7 +165,7 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
   return data.value
 }
 
-async function signUp(credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions) {
+async function signUp<T>(credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions): Promise<T | undefined> {
   const nuxt = useNuxtApp()
   const runtimeConfig = useRuntimeConfig()
   const config = useTypedBackendConfig(runtimeConfig, 'local')
@@ -179,13 +178,15 @@ async function signUp(credentials: Credentials, signInOptions?: SecondarySignInO
   }
 
   const { path, method } = signUpEndpoint
-  await _fetch(nuxt, path, {
+
+  // Holds result from fetch to be returned if signUpOptions?.preventLoginFlow is true
+  const result = await _fetch<T>(nuxt, path, {
     method,
     body: credentials
   })
 
   if (signUpOptions?.preventLoginFlow) {
-    return
+    return result
   }
 
   return signIn(credentials, signInOptions)
