@@ -1,6 +1,5 @@
 import { createError, eventHandler, getRequestHeader, readBody } from 'h3'
-import { sign, verify } from 'jsonwebtoken'
-import { checkUserTokens, decodeToken, extractTokenFromAuthorizationHeader, getTokensByUser, invalidateAccessToken, refreshUserAccessToken } from '~/server/utils/session'
+import { checkUserTokens, decodeToken, extractTokenFromAuthorizationHeader, getTokensByUser, refreshUserAccessToken } from '~/server/utils/session'
 
 /*
  * DISCLAIMER!
