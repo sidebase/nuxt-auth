@@ -31,9 +31,9 @@ definePageMeta({
   <div>
     <form @submit.prevent="register">
       <p><i>*password should have at least 6 characters</i></p>
-      <input v-model="username" type="text" placeholder="Username" data-testid="username">
-      <input v-model="password" type="password" placeholder="Password" data-testid="password">
-      <button type="submit" data-testid="submit">
+      <input v-model="username" type="text" placeholder="Username" data-testid="register-username">
+      <input v-model="password" type="password" placeholder="Password" data-testid="register-password">
+      <button type="submit" data-testid="register-submit">
         sign up
       </button>
     </form>
