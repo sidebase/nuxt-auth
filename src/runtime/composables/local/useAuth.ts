@@ -71,6 +71,8 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
 
     return navigateTo(callbackUrl, { external })
   }
+
+  return response
 }
 
 const signOut: SignOutFunc = async (signOutOptions) => {
