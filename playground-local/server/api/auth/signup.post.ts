@@ -1,40 +1,24 @@
 import { createError, eventHandler, readBody } from 'h3'
-import { z } from 'zod'
-import { sign } from 'jsonwebtoken'
-
-export const SECRET = 'dummy'
+import { createUserTokens, credentialsSchema, getUser } from '~/server/utils/session'
 
 export default eventHandler(async (event) => {
-  // Define the schema for validating the incoming data
-  const result = z.object({
-    username: z.string(),
-    password: z.string().min(6)
-  }).safeParse(await readBody(event))
-
-  // If validation fails, return an error
+  const result = credentialsSchema.safeParse(await readBody(event))
   if (!result.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Invalid input, please provide a valid email and a password of at least 6 characters.'
+      statusMessage: `Invalid input, please provide a valid username, and a password must be 'hunter2' for this demo.`
     })
   }
 
-  const { username } = result.data
+  // Emulate successful registration
+  const user = await getUser(result.data.username)
 
-  const expiresIn = '1h' // token expiry (1 hour)
-  const user = { username } // Payload for the token, includes the email
-
-  // Sign the JWT with the user payload and secret
-  const accessToken = sign(user, SECRET, { expiresIn })
+  // Create the sign-in tokens
+  const tokens = await createUserTokens(user)
 
   // Return a success response with the email and the token
   return {
-    message: 'Signup successful!',
-    user: {
-      username
-    },
-    token: {
-      accessToken
-    }
+    user,
+    token: tokens
   }
 })

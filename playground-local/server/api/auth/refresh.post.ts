@@ -1,6 +1,6 @@
 import { createError, eventHandler, getRequestHeader, readBody } from 'h3'
 import { sign, verify } from 'jsonwebtoken'
-import { type JwtPayload, SECRET, type User, extractToken, tokensByUser } from './login.post'
+import { checkUserTokens, decodeToken, extractTokenFromAuthorizationHeader, getTokensByUser, invalidateAccessToken, refreshUserAccessToken } from '~/server/utils/session'
 
 /*
  * DISCLAIMER!
@@ -20,7 +20,7 @@ export default eventHandler(async (event) => {
   }
 
   // Verify
-  const decoded = verify(refreshToken, SECRET) as JwtPayload | undefined
+  const decoded = decodeToken(refreshToken)
   if (!decoded) {
     throw createError({
       statusCode: 401,
@@ -28,8 +28,8 @@ export default eventHandler(async (event) => {
     })
   }
 
-  // Get tokens
-  const userTokens = tokensByUser.get(decoded.username)
+  // Get the helper (only for demo, use a DB in your implementation)
+  const userTokens = getTokensByUser(decoded.username)
   if (!userTokens) {
     throw createError({
       statusCode: 401,
@@ -38,12 +38,12 @@ export default eventHandler(async (event) => {
   }
 
   // Check against known token
-  const requestAccessToken = extractToken(authorizationHeader)
-  const knownAccessToken = userTokens.refresh.get(body.refreshToken)
-  if (!knownAccessToken || knownAccessToken !== requestAccessToken) {
+  const requestAccessToken = extractTokenFromAuthorizationHeader(authorizationHeader)
+  const tokensValidityCheck = checkUserTokens(userTokens, requestAccessToken, refreshToken)
+  if (!tokensValidityCheck.valid) {
     console.log({
       msg: 'Tokens mismatch',
-      knownAccessToken,
+      knownAccessToken: tokensValidityCheck.knownAccessToken,
       requestAccessToken
     })
     throw createError({
@@ -52,25 +52,10 @@ export default eventHandler(async (event) => {
     })
   }
 
-  // Invalidate old access token
-  userTokens.access.delete(knownAccessToken)
-
-  const user: User = {
-    username: decoded.username,
-    picture: decoded.picture,
-    name: decoded.name
-  }
-
-  const accessToken = sign({ ...user, scope: ['test', 'user'] }, SECRET, {
-    expiresIn: 60 * 5 // 5 minutes
-  })
-  userTokens.refresh.set(refreshToken, accessToken)
-  userTokens.access.set(accessToken, refreshToken)
+  // Call the token refresh logic
+  const tokens = await refreshUserAccessToken(userTokens, refreshToken)
 
   return {
-    token: {
-      accessToken,
-      refreshToken
-    }
+    token: tokens
   }
 })
