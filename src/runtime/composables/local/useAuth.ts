@@ -2,9 +2,10 @@ import { type Ref, readonly } from 'vue'
 import type { CommonUseAuthReturn, GetSessionOptions, SecondarySignInOptions, SignInFunc, SignOutFunc, SignUpOptions } from '../../types'
 import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '../../helpers'
 import { _fetch } from '../../utils/fetch'
-import { getRequestURLWN } from '../../utils/callWithNuxt'
-import { determineCallbackUrl } from '../../utils/url'
-import { formatToken } from '../../utils/local'
+import { getRequestURLWN } from '../common/getRequestURL'
+import { ERROR_PREFIX } from '../../utils/logger'
+import { determineCallbackUrl } from '../../utils/callbackUrl'
+import { formatToken } from './utils/token'
 import { type UseAuthStateReturn, useAuthState } from './useAuthState'
 import { callWithNuxt } from '#app/nuxt'
 // @ts-expect-error - #auth not defined
@@ -16,7 +17,7 @@ type Credentials = { username?: string, email?: string, password?: string } & Re
 const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, signInParams, signInHeaders) => {
   const nuxt = useNuxtApp()
 
-  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const runtimeConfig = useRuntimeConfig()
   const config = useTypedBackendConfig(runtimeConfig, 'local')
   const { path, method } = config.endpoints.signIn
   const response = await _fetch<Record<string, any>>(nuxt, path, {
@@ -54,27 +55,28 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
     rawRefreshToken.value = extractedRefreshToken
   }
 
-  await nextTick(getSession)
+  const { redirect = true, external, callGetSession = true } = signInOptions ?? {}
 
-  const { redirect = true, external } = signInOptions ?? {}
-  let { callbackUrl } = signInOptions ?? {}
-  if (typeof callbackUrl === 'undefined') {
-    const redirectQueryParam = useRoute()?.query?.redirect
-    if (redirectQueryParam) {
-      callbackUrl = redirectQueryParam.toString()
-    }
-    else {
-      callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
-    }
+  if (callGetSession) {
+    await nextTick(getSession)
   }
+
   if (redirect) {
+    let callbackUrl = signInOptions?.callbackUrl
+    if (typeof callbackUrl === 'undefined') {
+      const redirectQueryParam = useRoute()?.query?.redirect
+      callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, redirectQueryParam?.toString())
+    }
+
     return navigateTo(callbackUrl, { external })
   }
+
+  return response
 }
 
 const signOut: SignOutFunc = async (signOutOptions) => {
   const nuxt = useNuxtApp()
-  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
+  const runtimeConfig = useRuntimeConfig()
   const config = useTypedBackendConfig(runtimeConfig, 'local')
   const { data, token, rawToken, refreshToken, rawRefreshToken }: UseAuthStateReturn = await callWithNuxt(nuxt, useAuthState)
 
@@ -102,9 +104,15 @@ const signOut: SignOutFunc = async (signOutOptions) => {
     res = await _fetch(nuxt, path, { method, headers, body })
   }
 
-  const { callbackUrl, redirect = true, external } = signOutOptions ?? {}
+  const { redirect = true, external } = signOutOptions ?? {}
+
   if (redirect) {
-    await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external })
+    let callbackUrl = signOutOptions?.callbackUrl
+    if (typeof callbackUrl === 'undefined') {
+      const redirectQueryParam = useRoute()?.query?.redirect
+      callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, redirectQueryParam?.toString(), true)
+    }
+    await navigateTo(callbackUrl, { external })
   }
 
   return res
@@ -151,9 +159,7 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
     if (onUnauthenticated) {
       return onUnauthenticated()
     }
-    else {
-      await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external })
-    }
+    await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external })
   }
 
   return data.value
@@ -161,8 +167,17 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
 
 async function signUp<T>(credentials: Credentials, signInOptions?: SecondarySignInOptions, signUpOptions?: SignUpOptions): Promise<T> {
   const nuxt = useNuxtApp()
+  const runtimeConfig = useRuntimeConfig()
+  const config = useTypedBackendConfig(runtimeConfig, 'local')
 
-  const { path, method } = useTypedBackendConfig(useRuntimeConfig(), 'local').endpoints.signUp
+  const signUpEndpoint = config.endpoints.signUp
+
+  if (!signUpEndpoint) {
+    console.warn(`${ERROR_PREFIX} provider.endpoints.signUp is disabled.`)
+    return
+  }
+
+  const { path, method } = signUpEndpoint
 
   // Holds result from fetch to be returned if signUpOptions?.preventLoginFlow is true
   const result = await _fetch<T>(nuxt, path, {
@@ -202,11 +217,12 @@ async function refresh(getSessionOptions?: GetSessionOptions) {
   })
 
   // Extract the new token from the refresh response
-  const extractedToken = jsonPointerGet(response, config.token.signInResponseTokenPointer)
+  const tokenPointer = config.refresh.token.refreshResponseTokenPointer || config.token.signInResponseTokenPointer
+  const extractedToken = jsonPointerGet(response, tokenPointer)
   if (typeof extractedToken !== 'string') {
     console.error(
       `Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. `
-      + `Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`
+      + `Tried to find token at ${tokenPointer} in ${JSON.stringify(response)}`
     )
     return
   }
@@ -221,9 +237,8 @@ async function refresh(getSessionOptions?: GetSessionOptions) {
       )
       return
     }
-    else {
-      rawRefreshToken.value = extractedRefreshToken
-    }
+
+    rawRefreshToken.value = extractedRefreshToken
   }
 
   rawToken.value = extractedToken

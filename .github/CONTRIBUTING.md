@@ -70,10 +70,10 @@ To start developing on this package, please follow the quick start guide below.
    git checkout main
    git pull
    ```
-2. Set up the correct ppm version, using [Corepack](https://nodejs.org/api/corepack.html) and install the dependencies
+2. Set up the correct pnpm version, using [Corepack](https://nodejs.org/api/corepack.html) and install the dependencies
    ```sh
-   corepack enable ppm
-   ppm install
+   corepack enable pnpm
+   pnpm install
    ```
 4. Create a new branch (based on the `main` branch):
    ```sh
@@ -83,14 +83,14 @@ To start developing on this package, please follow the quick start guide below.
 6. Add or update any tests that relate to your changes.
 7. Ensure that the `tests,` `lint,` and `prepack` all pass
    ```sh
-   ppm prepack
-   ppm lint
-   ppm type check
+   pnpm prepack
+   pnpm lint
+   pnpm typecheck
 
    # Test any provider that you have modified
    cd playground-<provider>
-   ppm build
-   ppm test:e2e
+   pnpm build
+   pnpm test:e2e
    ```
 8. [Open a Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests), and fill out the provided fields.
 

@@ -32,7 +32,7 @@ If the global middleware is disabled, you can manually add the middleware to ind
 ```vue
 <script lang="ts" setup>
 definePageMeta({
-  middleware: 'auth'
+  middleware: 'sidebase-auth'
 })
 </script>
 
@@ -78,10 +78,12 @@ definePageMeta({
 
 #### `unauthenticatedOnly`
 
-Whether to only allow unauthenticated users to access this page. Authenticated users will be redirected to / or the route defined in `navigateAuthenticatedTo`.
+Whether to allow only unauthenticated users to access this page. Authenticated users will be redirected to `/` or to the route specified in `navigateAuthenticatedTo`.
 
-:::tip
-Setting `unauthenticatedOnly: false` is equivalent to setting `auth: false` from the user perspective, but requires some extra middleware steps, so it is a bit less efficient. Therefore it is recommended to use `auth: false` instead.
+If you want to let everyone see the page, set `auth: false` instead (see [Local Middleware](#local-middleware)).
+
+:::warning
+This option is required from `0.9.4` onwards to prevent ambiguity ([related issue](https://github.com/sidebase/nuxt-auth/issues/926)). Make sure you set it, otherwise [Guest Mode](#guest-mode) will be **enabled** by default — your guests would be able to see the page, but your authenticated users would be redirected away.
 :::
 
 #### `navigateAuthenticatedTo`

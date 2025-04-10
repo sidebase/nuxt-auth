@@ -1,10 +1,11 @@
 /**
  * Due to an upstream bug in Nuxt 3 we need to stub the plugin here, track: https://github.com/nuxt/nuxt/issues/18556
  */
-import type { NitroApp } from 'nitropack'
+import type { NitroApp } from 'nitropack/types'
 import { ERROR_MESSAGES } from '../services/errors'
-import { isProduction } from '../../helpers'
-import { getServerOrigin } from '../services/utils'
+import { isProduction, useTypedBackendConfig } from '../../helpers'
+import { getServerBaseUrl } from '../services/authjs/utils'
+import { useRuntimeConfig } from '#imports'
 
 // type stub
 type NitroAppPlugin = (nitro: NitroApp) => void
@@ -16,7 +17,9 @@ function defineNitroPlugin(def: NitroAppPlugin): NitroAppPlugin {
 // Export runtime plugin
 export default defineNitroPlugin(() => {
   try {
-    getServerOrigin()
+    const runtimeConfig = useRuntimeConfig()
+    const trustHostUserPreference = useTypedBackendConfig(runtimeConfig, 'authjs').trustHost
+    getServerBaseUrl(runtimeConfig, false, trustHostUserPreference, isProduction)
   }
   catch (error) {
     if (!isProduction) {

@@ -51,7 +51,7 @@ export default defineNuxtConfig({
 ```
 :::
 
-You can read additional information on `origin` determining [here](/resources/error-reference#auth-no-origin).
+You can read additional information on `origin` and `baseURL` determining [here](/resources/error-reference#auth-no-origin).
 
 ## `disableServerSideAuth`
 
@@ -63,33 +63,13 @@ Forces your server to send a "loading" authentication status on all requests, th
 ## `baseURL`
 
 - **Type**: `string | undefined`
-- **Default**:
-  - AuthJS Provider:
-    - _Development_: `http://localhost:3000/api/auth`
-    - _Production_: `undefined`
-  - Local / Refresh Provider: `/api/auth`
 
-The full url at which the app will run combined with the path to authentication. You can set this differently depending on your selected authentication-provider:
+The full URL at which the app will run combined with the path to authentication. You should only use `baseURL` if you want to set it statically for your application.
 
-- `authjs`: You must set the full URL, with origin and path in production. You can leave this empty in development
-- `local`: You can set a full URL, but can also leave this empty to fallback to the default value of `/api/auth` or set only the path.
+You can read additional information on `origin` and `baseURL` determining [here](/resources/error-reference#auth-no-origin).
 
-### `authjs` Provider
-
-`baseURL` can be `undefined` during development but _must_ be set to the combination of origin + path that points to your `NuxtAuthHandler` for production. The origin consists out of:
-- **scheme**: http / https
-- **host**: e.g., localhost, example.org, google.com
-- **port**: _empty_ (implies `:80` for http and `:443` for https), :3000, :8888
-- **path**: the path that directs to the location of your `NuxtAuthHandler` e.g. `/api/auth`
-
-### `local` Provider
-
-Defaults to `/api/auth` for both development and production. Setting this is optional, if you set it you can set it to either:
-- just a path: Will lead to `nuxt-auth` using `baseURL` as a relative path appended to the origin you deploy to. Example: `/backend/auth`
-- an origin and a path: Will lead to `nuxt-auth` using `baseURL` as an absolute request path to perform requests to. Example: `https://example.com/auth`
-
-:::warning
-If you point to a different origin than the one you deploy to you likely have to take care of CORS: Allowing cross origin requests.
+::: tip
+If you would like to overwrite the `baseURL` at the runtime you can use the [`originEnvKey`](#originenvkey).
 :::
 
 ## `provider`
@@ -111,7 +91,7 @@ Configuration of the application-side session. You can configure the following a
 ### `enablePeriodically`
 
 - **Type**: `boolean | number`
-- **Default**: `undefined`
+- **Default**: `false`
 
 Whether to refresh the session every `X` milliseconds. The refresh will only happen if a session already exists.
 Setting this to a number `X` will refresh the session every `X` milliseconds.

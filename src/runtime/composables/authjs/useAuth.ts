@@ -2,13 +2,15 @@ import type { AppProvider, BuiltInProviderType } from 'next-auth/providers/index
 import { defu } from 'defu'
 import { type Ref, readonly } from 'vue'
 import { appendHeader } from 'h3'
-import { determineCallbackUrl } from '../../utils/url'
-import { getRequestURLWN, joinPathToApiURLWN, makeCWN, navigateToAuthPageWN } from '../../utils/callWithNuxt'
+import { resolveApiUrlPath } from '../../utils/url'
 import { _fetch } from '../../utils/fetch'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
 import type { CommonUseAuthReturn, GetSessionOptions, SignInFunc, SignOutFunc } from '../../types'
 import { useTypedBackendConfig } from '../../helpers'
+import { getRequestURLWN } from '../common/getRequestURL'
+import { determineCallbackUrl } from '../../utils/callbackUrl'
 import type { SessionData } from './useAuthState'
+import { navigateToAuthPageWN } from './utils/navigateToAuthPage'
 import type { NuxtApp } from '#app/nuxt'
 import { callWithNuxt } from '#app/nuxt'
 import { createError, useAuthState, useNuxtApp, useRequestHeaders, useRuntimeConfig } from '#imports'
@@ -27,18 +29,16 @@ export type SupportedProviders = LiteralUnion<BuiltInProviderType> | undefined
  * Utilities to make nested async composable calls play nicely with nuxt.
  *
  * Calling nested async composable can lead to "nuxt instance unavailable" errors. See more details here: https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529. To resolve this we can manually ensure that the nuxt-context is set. This module contains `callWithNuxt` helpers for some of the methods that are frequently called in nested `useAuth` composable calls.
- *
  */
-
-// eslint-disable-next-line ts/no-empty-object-type
-async function getRequestCookies(nuxt: NuxtApp): Promise<{ cookie: string } | {}> {
+async function getRequestHeaders(nuxt: NuxtApp, includeCookie = true): Promise<{ cookie?: string, host?: string }> {
   // `useRequestHeaders` is sync, so we narrow it to the awaited return type here
-  const { cookie } = await callWithNuxt(nuxt, () => useRequestHeaders(['cookie']))
-  if (cookie) {
-    return { cookie }
+  const headers = await callWithNuxt(nuxt, () => useRequestHeaders(['cookie', 'host']))
+  if (includeCookie && headers.cookie) {
+    return headers
   }
-  return {}
+  return { host: headers.host }
 }
+
 /**
  * Get the current Cross-Site Request Forgery token.
  *
@@ -46,10 +46,12 @@ async function getRequestCookies(nuxt: NuxtApp): Promise<{ cookie: string } | {}
  */
 async function getCsrfToken() {
   const nuxt = useNuxtApp()
-  const headers = await getRequestCookies(nuxt)
+  const headers = await getRequestHeaders(nuxt)
   return _fetch<{ csrfToken: string }>(nuxt, '/csrf', { headers }).then(response => response.csrfToken)
 }
-const getCsrfTokenWithNuxt = makeCWN(getCsrfToken)
+function getCsrfTokenWithNuxt(nuxt: NuxtApp) {
+  return callWithNuxt(nuxt, getCsrfToken)
+}
 
 /**
  * Trigger a sign in flow for the passed `provider`. If no provider is given the sign in page for all providers will be shown.
@@ -61,17 +63,16 @@ const getCsrfTokenWithNuxt = makeCWN(getCsrfToken)
 type SignInResult = void | { error: string | null, status: number, ok: boolean, url: any }
 const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, options, authorizationParams) => {
   const nuxt = useNuxtApp()
+  const runtimeConfig = useRuntimeConfig()
 
   // 1. Lead to error page if no providers are available
   const configuredProviders = await getProviders()
   if (!configuredProviders) {
-    const errorUrl = await joinPathToApiURLWN(nuxt, 'error')
-    return navigateToAuthPageWN(nuxt, errorUrl)
+    const errorUrl = resolveApiUrlPath('error', runtimeConfig)
+    return navigateToAuthPageWN(nuxt, errorUrl, true)
   }
 
   // 2. If no `provider` was given, either use the configured `defaultProvider` or `undefined` (leading to a forward to the `/login` page with all providers)
-  const runtimeConfig = await callWithNuxt(nuxt, useRuntimeConfig)
-
   const backendConfig = useTypedBackendConfig(runtimeConfig, 'authjs')
   if (typeof provider === 'undefined') {
     // NOTE: `provider` might be an empty string
@@ -81,23 +82,19 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
   // 3. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected
   const { redirect = true } = options ?? {}
 
-  let { callbackUrl } = options ?? {}
+  const callbackUrl = await callWithNuxt(nuxt, () => determineCallbackUrl(runtimeConfig.public.auth, options?.callbackUrl))
 
-  if (typeof callbackUrl === 'undefined' && backendConfig.addDefaultCallbackUrl) {
-    callbackUrl = await determineCallbackUrl(runtimeConfig.public.auth, () => getRequestURLWN(nuxt))
-  }
-
-  const signinUrl = await joinPathToApiURLWN(nuxt, 'signin')
+  const signinUrl = resolveApiUrlPath('signin', runtimeConfig)
 
   const queryParams = callbackUrl ? `?${new URLSearchParams({ callbackUrl })}` : ''
   const hrefSignInAllProviderPage = `${signinUrl}${queryParams}`
   if (!provider) {
-    return navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage)
+    return navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage, true)
   }
 
   const selectedProvider = configuredProviders[provider]
   if (!selectedProvider) {
-    return navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage)
+    return navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage, true)
   }
 
   // 4. Perform a sign-in straight away with the selected provider
@@ -112,9 +109,9 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 
   const csrfToken = await callWithNuxt(nuxt, getCsrfToken)
 
-  const headers: { 'Content-Type': string, 'cookie'?: string | undefined } = {
+  const headers: { 'Content-Type': string, 'cookie'?: string, 'host'?: string } = {
     'Content-Type': 'application/x-www-form-urlencoded',
-    ...(await getRequestCookies(nuxt))
+    ...(await getRequestHeaders(nuxt))
   }
 
   // @ts-expect-error `options` is typed as any, but is a valid parameter for URLSearchParams
@@ -140,7 +137,6 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 
   // At this point the request succeeded (i.e., it went through)
   const error = new URL(data.url).searchParams.get('error')
-  // eslint-disable-next-line ts/no-use-before-define
   await getSessionWithNuxt(nuxt)
 
   return {
@@ -154,8 +150,16 @@ const signIn: SignInFunc<SupportedProviders, SignInResult> = async (provider, op
 /**
  * Get all configured providers from the backend. You can use this method to build your own sign-in page.
  */
-function getProviders() {
-  return _fetch<Record<Exclude<SupportedProviders, undefined>, Omit<AppProvider, 'options'> | undefined>>(useNuxtApp(), '/providers')
+async function getProviders() {
+  const nuxt = useNuxtApp()
+  // Pass the `Host` header when making internal requests
+  const headers = await getRequestHeaders(nuxt, false)
+
+  return _fetch<Record<Exclude<SupportedProviders, undefined>, Omit<AppProvider, 'options'> | undefined>>(
+    nuxt,
+    '/providers',
+    { headers }
+  )
 }
 
 /**
@@ -163,7 +167,7 @@ function getProviders() {
  *
  * @param getSessionOptions - Options for getting the session, e.g., set `required: true` to enforce that a session _must_ exist, the user will be directed to a login page otherwise.
  */
-async function getSession(getSessionOptions?: GetSessionOptions): Promise<SessionData> {
+async function getSession(getSessionOptions?: GetSessionOptions): Promise<SessionData | null> {
   const nuxt = useNuxtApp()
 
   const callbackUrlFallback = await getRequestURLWN(nuxt)
@@ -180,7 +184,7 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
     loading.value = false
   }
 
-  const headers = await getRequestCookies(nuxt)
+  const headers = await getRequestHeaders(nuxt)
 
   return _fetch<SessionData>(nuxt, '/session', {
     onResponse: ({ response }) => {
@@ -222,7 +226,9 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
     headers
   })
 }
-const getSessionWithNuxt = makeCWN(getSession)
+function getSessionWithNuxt(nuxt: NuxtApp) {
+  return callWithNuxt(nuxt, getSession)
+}
 
 /**
  * Sign out the current user.
@@ -231,25 +237,32 @@ const getSessionWithNuxt = makeCWN(getSession)
  */
 const signOut: SignOutFunc = async (options) => {
   const nuxt = useNuxtApp()
+  const runtimeConfig = useRuntimeConfig()
 
-  const requestURL = await getRequestURLWN(nuxt)
-  const { callbackUrl = requestURL, redirect = true } = options ?? {}
+  const { callbackUrl: userCallbackUrl, redirect = true } = options ?? {}
   const csrfToken = await getCsrfTokenWithNuxt(nuxt)
+
+  // Determine the correct callback URL
+  const callbackUrl = await determineCallbackUrl(
+    runtimeConfig.public.auth,
+    userCallbackUrl,
+    true
+  )
 
   if (!csrfToken) {
     throw createError({ statusCode: 400, statusMessage: 'Could not fetch CSRF Token for signing out' })
   }
 
-  const callbackUrlFallback = requestURL
   const signoutData = await _fetch<{ url: string }>(nuxt, '/signout', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
+      ...(await getRequestHeaders(nuxt))
     },
     onRequest: ({ options }) => {
       options.body = new URLSearchParams({
         csrfToken: csrfToken as string,
-        callbackUrl: callbackUrl || callbackUrlFallback,
+        callbackUrl,
         json: 'true'
       })
     }

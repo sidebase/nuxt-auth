@@ -28,6 +28,7 @@ export default defineNuxtConfig({
         endpoint: { path: '/refresh', method: 'post' },
         token: {
           signInResponseRefreshTokenPointer: '/token/refreshToken',
+          refreshResponseTokenPointer: '',
           refreshRequestTokenPointer: '/refreshToken'
         },
       }
