@@ -497,7 +497,7 @@ export interface ModuleOptions {
   /**
    * Configuration of the authentication provider. Different providers are supported:
    * - auth.js: OAuth focused provider for non-static Nuxt 3 applications
-   * - local: Provider for credentials & token based backends, e.g., written by yourself or provided by something like Laraval
+   * - local: Provider for credentials & token based backends, e.g., written by yourself or provided by something like Laravel
    *
    * Find more about supported providers here: https://sidebase.io/nuxt-auth/v0.6/getting-started
    *
@@ -610,7 +610,7 @@ export type GetSessionOptions = Partial<{
   force?: boolean
 }>
 
-// TODO: These types could be nicer and more general, or located withing `useAuth` files and more specific
+// TODO: These types could be nicer and more general, or located within `useAuth` files and more specific
 export type SignOutFunc = (options?: SignOutOptions) => Promise<any>
 export type SignInFunc<PrimarySignInOptions, SignInResult> = (
   primaryOptions: PrimarySignInOptions,

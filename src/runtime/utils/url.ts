@@ -1,7 +1,7 @@
 import { joinURL, parseURL, withLeadingSlash } from 'ufo'
 
 // Slimmed down type to allow easy unit testing
-interface RuntimeConfig {
+export interface RuntimeConfig {
   public: {
     auth: {
       baseURL: string
@@ -53,47 +53,6 @@ export function resolveApiBaseURL(runtimeConfig: RuntimeConfig, returnOnlyPathna
   }
 
   return baseURL
-}
-
-/** Slimmed down auth runtime config for `determineCallbackUrl` */
-interface AuthRuntimeConfigForCallbackUrl {
-  globalAppMiddleware: {
-    addDefaultCallbackUrl?: string | boolean
-  } | boolean
-}
-
-/**
- * Determines the desired callback url based on the users desires. Either:
- * - uses a hardcoded path the user provided,
- * - determines the callback based on the target the user wanted to reach
- *
- * @param authConfig Authentication runtime module config
- * @param getOriginalTargetPath Function that returns the original location the user wanted to reach
- */
-export function determineCallbackUrl<T extends string | Promise<string>>(
-  authConfig: AuthRuntimeConfigForCallbackUrl,
-  getOriginalTargetPath: () => T
-): T | string | undefined {
-  const authConfigCallbackUrl = typeof authConfig.globalAppMiddleware === 'object'
-    ? authConfig.globalAppMiddleware.addDefaultCallbackUrl
-    : undefined
-
-  if (typeof authConfigCallbackUrl !== 'undefined') {
-    // If string was set, always callback to that string
-    if (typeof authConfigCallbackUrl === 'string') {
-      return authConfigCallbackUrl
-    }
-
-    // If boolean was set, set to current path if set to true
-    if (typeof authConfigCallbackUrl === 'boolean') {
-      if (authConfigCallbackUrl) {
-        return getOriginalTargetPath()
-      }
-    }
-  }
-  else if (authConfig.globalAppMiddleware === true) {
-    return getOriginalTargetPath()
-  }
 }
 
 /**
