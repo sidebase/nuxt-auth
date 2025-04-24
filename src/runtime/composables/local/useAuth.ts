@@ -12,7 +12,7 @@ import type { UseAuthStateReturn } from './useAuthState'
 import { callWithNuxt } from '#app/nuxt'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
-import { navigateTo, nextTick, useNuxtApp, useRoute, useRuntimeConfig } from '#imports'
+import { navigateTo, nextTick, useNuxtApp, useRequestHeaders, useRoute, useRuntimeConfig } from '#imports'
 
 type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
 
@@ -136,7 +136,10 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
     return
   }
 
-  const headers = new Headers(token ? { [config.token.headerName]: token } as HeadersInit : undefined)
+  const headers = new Headers(useRequestHeaders(['cookie']))
+  if (token) {
+    headers.append(config.token.headerName, token)
+  }
 
   loading.value = true
   try {
