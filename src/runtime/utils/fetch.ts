@@ -1,6 +1,7 @@
 import { resolveApiUrlPath } from './url'
 import { ERROR_PREFIX } from './logger'
-import { type useNuxtApp, useRuntimeConfig } from '#imports'
+import { useRuntimeConfig } from '#imports'
+import type { useNuxtApp } from '#imports'
 import { callWithNuxt } from '#app/nuxt'
 
 export async function _fetch<T>(nuxt: ReturnType<typeof useNuxtApp>, path: string, fetchOptions?: Parameters<typeof $fetch>[1]): Promise<T> {

@@ -1,4 +1,5 @@
-import { type ComputedRef, computed, getCurrentInstance, watch } from 'vue'
+import { computed, getCurrentInstance, watch } from 'vue'
+import type { ComputedRef } from 'vue'
 import type { CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
 import { useTypedBackendConfig } from '../../helpers'

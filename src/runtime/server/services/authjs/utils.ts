@@ -1,7 +1,8 @@
 import type { H3Event } from 'h3'
 import { getRequestURL } from 'h3'
 import { parseURL, withLeadingSlash } from 'ufo'
-import { type RuntimeConfig, resolveApiBaseURL } from '../../../utils/url'
+import { resolveApiBaseURL } from '../../../utils/url'
+import type { RuntimeConfig } from '../../../utils/url'
 import { ERROR_MESSAGES } from '../errors'
 
 /**

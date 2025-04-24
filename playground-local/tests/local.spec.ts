@@ -1,6 +1,6 @@
-import { describe, it } from 'vitest'
 import { createPage, setup } from '@nuxt/test-utils/e2e'
-import { expect as playwrightExpect } from '@playwright/test'
+import { expect as playwrightExpect } from '@nuxt/test-utils/playwright'
+import { describe, it } from 'vitest'
 
 const STATUS_AUTHENTICATED = 'authenticated'
 const STATUS_UNAUTHENTICATED = 'unauthenticated'

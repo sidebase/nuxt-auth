@@ -1,5 +1,6 @@
 import { withoutBase, withoutTrailingSlash } from 'ufo'
-import { type RouteMatcher, createRouter, toRouteMatcher } from 'radix3'
+import { createRouter, toRouteMatcher } from 'radix3'
+import type { RouteMatcher } from 'radix3'
 import type { RouteOptions } from '../types'
 import { useRuntimeConfig } from '#imports'
 
