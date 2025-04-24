@@ -1,5 +1,6 @@
 import { hasProtocol, isScriptProtocol } from 'ufo'
-import { type NuxtApp, abortNavigation, callWithNuxt, useRouter } from '#app'
+import { abortNavigation, callWithNuxt, useRouter } from '#app'
+import type { NuxtApp } from '#app'
 
 export function navigateToAuthPageWN(nuxt: NuxtApp, href: string, isInternalRouting?: boolean) {
   return callWithNuxt(nuxt, navigateToAuthPage, [nuxt, href, isInternalRouting])

@@ -1,6 +1,7 @@
 import type { AppProvider, BuiltInProviderType } from 'next-auth/providers/index'
 import { defu } from 'defu'
-import { type Ref, readonly } from 'vue'
+import { readonly } from 'vue'
+import type { Ref } from 'vue'
 import { appendHeader } from 'h3'
 import { resolveApiUrlPath } from '../../utils/url'
 import { _fetch } from '../../utils/fetch'

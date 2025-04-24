@@ -1,5 +1,6 @@
 import { createError, eventHandler, getRequestHeader } from 'h3'
-import { type JwtPayload, checkUserAccessToken, decodeToken, extractTokenFromAuthorizationHeader, getTokensByUser } from '~/server/utils/session'
+import { checkUserAccessToken, decodeToken, extractTokenFromAuthorizationHeader, getTokensByUser } from '~/server/utils/session'
+import type { JwtPayload } from '~/server/utils/session'
 
 export default eventHandler((event) => {
   const authorizationHeader = getRequestHeader(event, 'Authorization')
