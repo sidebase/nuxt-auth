@@ -1,4 +1,5 @@
 <script setup>
+import { FetchError } from 'ofetch'
 import { ref } from 'vue'
 import { definePageMeta, useAuth } from '#imports'
 
@@ -10,11 +11,18 @@ const response = ref()
 
 async function register() {
   try {
-    const signUpResponse = await signUp({ username: username.value, password: password.value }, undefined, { preventLoginFlow: true })
-    response.value = signUpResponse
+    response.value = await signUp({
+      username: username.value,
+      password: password.value
+    }, undefined, { preventLoginFlow: true })
   }
   catch (error) {
-    response.value = { error: 'Failed to sign up' }
+    if (error instanceof FetchError) {
+      response.value = { error: error.message }
+    }
+    else {
+      response.value = { error: 'Failed to sign up' }
+    }
     console.error(error)
   }
 }
