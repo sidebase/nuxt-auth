@@ -12,7 +12,7 @@ import type { UseAuthStateReturn } from './useAuthState'
 import { callWithNuxt } from '#app/nuxt'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
-import { navigateTo, nextTick, useNuxtApp, useRoute, useRuntimeConfig } from '#imports'
+import { navigateTo, nextTick, useCookie, useNuxtApp, useRoute, useRuntimeConfig } from '#imports'
 
 type Credentials = { username?: string, email?: string, password?: string } & Record<string, any>
 
@@ -138,11 +138,22 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
 
   const headers = new Headers(token ? { [config.token.headerName]: token } as HeadersInit : undefined)
 
+  const sessionCookie = useCookie<object | null>('auth:sessionCookie', {
+    default: () => null,
+    maxAge: config.token.maxAgeInSeconds,
+    sameSite: config.token.sameSiteAttribute
+  })
+
   loading.value = true
   try {
     const result = await _fetch<any>(nuxt, path, { method, headers })
     const { dataResponsePointer: sessionDataResponsePointer } = config.session
     data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
+
+    sessionCookie.value = {
+      lastRefreshedAt: lastRefreshedAt.value,
+      data: data.value
+    }
   }
   catch (err) {
     if (!data.value && err instanceof Error) {
@@ -152,6 +163,7 @@ async function getSession(getSessionOptions?: GetSessionOptions): Promise<Sessio
     // Clear all data: Request failed so we must not be authenticated
     data.value = null
     rawToken.value = null
+    sessionCookie.value = null
   }
   loading.value = false
   lastRefreshedAt.value = new Date()
