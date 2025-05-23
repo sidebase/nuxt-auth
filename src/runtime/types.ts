@@ -537,13 +537,18 @@ export interface RouteOptions {
 export type SessionLastRefreshedAt = Date | undefined
 export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 type WrappedSessionData<SessionData> = Ref<SessionData | null | undefined>
-export interface CommonUseAuthReturn<SignIn, SignOut, GetSession, SessionData> {
+
+export interface GetSessionFunc<SessionData> {
+  (getSessionOptions?: GetSessionOptions): Promise<SessionData | null | void>
+}
+
+export interface CommonUseAuthReturn<SignIn, SignOut, SessionData> {
   data: Readonly<WrappedSessionData<SessionData>>
   lastRefreshedAt: Readonly<Ref<SessionLastRefreshedAt>>
   status: ComputedRef<SessionStatus>
   signIn: SignIn
   signOut: SignOut
-  getSession: GetSession
+  getSession: GetSessionFunc<SessionData>
   refresh: () => Promise<unknown>
 }
 
@@ -597,7 +602,7 @@ export interface SignOutOptions {
   external?: boolean
 }
 
-export type GetSessionOptions = Partial<{
+export interface GetSessionOptions {
   required?: boolean
   callbackUrl?: string
   external?: boolean
@@ -608,16 +613,7 @@ export type GetSessionOptions = Partial<{
    * @default false
    */
   force?: boolean
-}>
-
-// TODO: These types could be nicer and more general, or located within `useAuth` files and more specific
-export type SignOutFunc = (options?: SignOutOptions) => Promise<any>
-export type SignInFunc<PrimarySignInOptions, SignInResult> = (
-  primaryOptions: PrimarySignInOptions,
-  signInOptions?: SecondarySignInOptions,
-  paramsOptions?: Record<string, string>,
-  headersOptions?: Record<string, string>
-) => Promise<SignInResult>
+}
 
 export interface ModuleOptionsNormalized extends ModuleOptions {
   isEnabled: boolean
