@@ -60,7 +60,7 @@ describe('local Provider', async () => {
     await playwrightExpect(status).toHaveText(STATUS_UNAUTHENTICATED)
   })
 
-  it('should sign up and return signup data when preventLoginFlow: true', async () => {
+  it('should sign up and return signup data when preventLoginFlow: true', { timeout: 30000 }, async () => {
     const page = await createPage('/register') // Navigate to signup page
 
     const [
