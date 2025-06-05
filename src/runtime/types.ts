@@ -569,6 +569,7 @@ export interface SecondarySignInOptions extends Record<string, unknown> {
   callbackUrl?: string
   /**
    * Whether to redirect users after the method succeeded.
+   * Note that redirect will always happen on a failure for `authjs` provider.
    *
    * @default true
    */

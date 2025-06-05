@@ -39,7 +39,7 @@ export interface SignInFunc {
     signInOptions?: SecondarySignInOptions,
     paramsOptions?: Record<string, string>,
     headersOptions?: Record<string, string>
-  ): Promise<SignInResult | void>
+  ): Promise<SignInResult>
 }
 
 export interface SignOutFunc<T = unknown> {
@@ -87,12 +87,21 @@ export function useAuth(): UseAuthReturn {
     provider: SupportedProviders,
     options?: SecondarySignInOptions,
     authorizationParams?: Record<string, string>
-  ): Promise<SignInResult | void> {
+  ): Promise<SignInResult> {
     // 1. Lead to error page if no providers are available
     const configuredProviders = await getProviders()
     if (!configuredProviders) {
       const errorUrl = resolveApiUrlPath('error', runtimeConfig)
-      return navigateToAuthPageWN(nuxt, errorUrl, true)
+      await navigateToAuthPageWN(nuxt, errorUrl, true)
+
+      return {
+        // Future AuthJS compat here and in other places
+        // https://authjs.dev/reference/core/errors#invalidprovider
+        error: 'InvalidProvider',
+        ok: false,
+        status: 500,
+        url: errorUrl
+      }
     }
 
     // 2. If no `provider` was given, either use the configured `defaultProvider` or `undefined` (leading to a forward to the `/login` page with all providers)
@@ -110,13 +119,18 @@ export function useAuth(): UseAuthReturn {
 
     const queryParams = callbackUrl ? `?${new URLSearchParams({ callbackUrl })}` : ''
     const hrefSignInAllProviderPage = `${signinUrl}${queryParams}`
-    if (!provider) {
-      return navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage, true)
-    }
 
-    const selectedProvider = configuredProviders[provider]
+    const selectedProvider = provider && configuredProviders[provider]
     if (!selectedProvider) {
-      return navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage, true)
+      await navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage, true)
+
+      return {
+        // https://authjs.dev/reference/core/errors#invalidprovider
+        error: 'InvalidProvider',
+        ok: false,
+        status: 400,
+        url: hrefSignInAllProviderPage
+      }
     }
 
     // 4. Perform a sign-in straight away with the selected provider
@@ -124,10 +138,7 @@ export function useAuth(): UseAuthReturn {
     const isEmail = selectedProvider.type === 'email'
     const isSupportingReturn = isCredentials || isEmail
 
-    let action: 'callback' | 'signin' = 'signin'
-    if (isCredentials) {
-      action = 'callback'
-    }
+    const action: 'callback' | 'signin' = isCredentials ? 'callback' : 'signin'
 
     const csrfToken = await getCsrfTokenWithNuxt(nuxt)
 
@@ -154,7 +165,17 @@ export function useAuth(): UseAuthReturn {
 
     if (redirect || !isSupportingReturn) {
       const href = data.url ?? callbackUrl
-      return navigateToAuthPageWN(nuxt, href)
+      await navigateToAuthPageWN(nuxt, href)
+
+      // We use `http://_` as a base to allow relative URLs in `callbackUrl`. We only need the `error` query param
+      const error = new URL(href, 'http://_').searchParams.get('error')
+
+      return {
+        error,
+        ok: true,
+        status: 302,
+        url: href
+      }
     }
 
     // At this point the request succeeded (i.e., it went through)
