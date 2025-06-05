@@ -14,7 +14,7 @@ async function register() {
     response.value = await signUp({
       username: username.value,
       password: password.value
-    }, undefined, { preventLoginFlow: true })
+    }, { preventLoginFlow: true })
   }
   catch (error) {
     if (error instanceof FetchError) {
