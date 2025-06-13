@@ -55,8 +55,10 @@ This was done to remove the previously missing `| void` from the signature, impr
 ```ts diff
 const signInResponse = await signIn(/* ... */)
 
-if (signInResponse) { // [!code --]
-if (signInResponse.error === null) { // [!code ++]
+const isResponseDefined = signInResponse // [!code --]
+const isResponseDefined = signInResponse.error === null // [!code ++]
+
+if (isResponseDefined) {
   // ...
 }
 ```
