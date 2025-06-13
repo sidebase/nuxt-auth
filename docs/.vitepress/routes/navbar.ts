@@ -44,8 +44,12 @@ export const routes: DefaultTheme.Config['nav'] = [
     ],
   },
   {
-    text: '0.10.0',
+    text: '1.0.0-rc.1',
     items: [
+      {
+        text: '0.10.0',
+        link: 'https://github.com/sidebase/nuxt-auth/tree/0.10.1/docs',
+      },
       {
         text: '0.9.4',
         link: 'https://github.com/sidebase/nuxt-auth/tree/0.9.4/docs',
