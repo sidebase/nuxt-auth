@@ -1,6 +1,4 @@
-# Upgrade to 1.0.0-rc.1
-
-> This is a pre-release. We encourage you to test it out and report all the issues you find with it.
+# Upgrade to 1.0.0
 
 > This release contains breaking changes for `signIn` and `signUp` functions
 
@@ -11,15 +9,15 @@
 ::: code-group
 
 ```bash [npm]
-npm i -D @sidebase/nuxt-auth@^1.0.0-rc.1
+npm i -D @sidebase/nuxt-auth@^1.0.0
 ```
 
 ```bash [pnpm]
-pnpm i -D @sidebase/nuxt-auth@^1.0.0-rc.1
+pnpm i -D @sidebase/nuxt-auth@^1.0.0
 ```
 
 ```bash [yarn]
-yarn add --dev @sidebase/nuxt-auth@^1.0.0-rc.1
+yarn add --dev @sidebase/nuxt-auth@^1.0.0
 ```
 
 :::
@@ -71,4 +69,4 @@ if (isResponseDefined) {
 * bump dependencies by @phoenix-ru in https://github.com/sidebase/nuxt-auth/pull/1016
 * chore: refactor useAuth composables to encapsulate context by @phoenix-ru in https://github.com/sidebase/nuxt-auth/pull/1024
 
-**Full Changelog**: https://github.com/sidebase/nuxt-auth/compare/0.10.1...v1.0.0-rc.1
+**Full Changelog**: https://github.com/sidebase/nuxt-auth/compare/0.10.1...v1.0.0
