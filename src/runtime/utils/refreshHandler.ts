@@ -32,8 +32,9 @@ export class DefaultRefreshHandler implements RefreshHandler {
 
     const { enablePeriodically } = this.config
 
-    if (enablePeriodically !== false) {
-      const intervalTime = enablePeriodically === true ? 1000 : enablePeriodically
+    if (enablePeriodically !== false && enablePeriodically !== undefined) {
+      const intervalTime = enablePeriodically === true ? 1000 : safeTimerDelay(enablePeriodically)
+
       this.refetchIntervalTimer = setInterval(() => {
         if (this.auth?.data.value) {
           this.auth.refresh()
@@ -43,7 +44,7 @@ export class DefaultRefreshHandler implements RefreshHandler {
 
     const provider = this.runtimeConfig.provider
     if (provider.type === 'local' && provider.refresh.isEnabled && provider.refresh.token?.maxAgeInSeconds) {
-      const intervalTime = provider.refresh.token.maxAgeInSeconds * 1000
+      const intervalTime = safeTimerDelay(provider.refresh.token.maxAgeInSeconds * 1000)
 
       this.refreshTokenIntervalTimer = setInterval(() => {
         if (this.auth?.refreshToken.value) {
@@ -78,4 +79,11 @@ export class DefaultRefreshHandler implements RefreshHandler {
       this.auth.refresh()
     }
   }
+}
+
+// Fix for https://github.com/sidebase/nuxt-auth/issues/1014
+// See https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval#return_value
+const MAX_SAFE_INTERVAL_MS = 2147483647
+function safeTimerDelay(milliseconds: number): number {
+  return Math.min(milliseconds, MAX_SAFE_INTERVAL_MS)
 }
