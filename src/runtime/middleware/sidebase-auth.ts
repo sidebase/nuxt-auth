@@ -2,7 +2,7 @@ import { isExternalUrl } from '../utils/url'
 import { isProduction } from '../helpers'
 import { ERROR_PREFIX } from '../utils/logger'
 import { determineCallbackUrlForRouteMiddleware } from '../utils/callbackUrl'
-import { defineNuxtRouteMiddleware, navigateTo, useAuth, useRuntimeConfig } from '#imports'
+import { defineNuxtRouteMiddleware, navigateTo, useAuth, useAuthState, useRuntimeConfig } from '#imports'
 
 type MiddlewareMeta = boolean | {
   /**
@@ -37,7 +37,7 @@ declare module 'vue-router' {
   }
 }
 
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware(async (to) => {
   // Normalize options. If `undefined` was returned, we need to skip middleware
   const options = normalizeUserOptions(to.meta.auth)
   if (!options) {
@@ -61,6 +61,25 @@ export default defineNuxtRouteMiddleware((to) => {
   else if (isAuthenticated) {
     // Authenticated users don't need any further redirects
     return
+  }
+
+  // Handle the possible loading state by awaiting the data promise
+  // https://github.com/sidebase/nuxt-auth/issues/621
+  if (status.value === 'loading') {
+    const { dataPromise } = useAuthState()
+
+    if (dataPromise.value.promise) {
+      try {
+        const data = await dataPromise.value.promise
+        if (data) {
+          // Data was successfully fetched - user is logged in
+          return
+        }
+      }
+      catch {
+        // an error occurred, proving that we need to continue with the redirect
+      }
+    }
   }
 
   // We do not want to block the login page when the local provider is used

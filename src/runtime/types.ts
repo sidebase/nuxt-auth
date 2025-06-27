@@ -554,6 +554,7 @@ export interface CommonUseAuthReturn<SignIn, SignOut, SessionData> {
 
 export interface CommonUseAuthStateReturn<SessionData> {
   data: WrappedSessionData<SessionData>
+  dataPromise: Ref<{ promise?: Promise<SessionData> | undefined }>
   loading: Ref<boolean>
   lastRefreshedAt: Ref<SessionLastRefreshedAt>
   status: ComputedRef<SessionStatus>
