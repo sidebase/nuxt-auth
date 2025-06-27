@@ -54,6 +54,7 @@ export function useAuth(): UseAuthReturn {
 
   const {
     data,
+    dataPromise,
     status,
     lastRefreshedAt,
     loading,
@@ -184,7 +185,10 @@ export function useAuth(): UseAuthReturn {
 
     loading.value = true
     try {
-      const result = await _fetch<any>(nuxt, path, { method, headers })
+      const promise = _fetch<any>(nuxt, path, { method, headers })
+      dataPromise.value.promise = promise
+
+      const result = await promise
       const { dataResponsePointer: sessionDataResponsePointer } = config.session
       data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
     }
@@ -197,7 +201,9 @@ export function useAuth(): UseAuthReturn {
       data.value = null
       rawToken.value = null
     }
+
     loading.value = false
+    dataPromise.value.promise = undefined
     lastRefreshedAt.value = new Date()
 
     const { required = false, callbackUrl, onUnauthenticated, external } = getSessionOptions ?? {}
