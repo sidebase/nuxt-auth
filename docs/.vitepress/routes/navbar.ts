@@ -1,4 +1,5 @@
 import type { DefaultTheme } from 'vitepress'
+import packageJson from '../../../package.json'
 
 export const routes: DefaultTheme.Config['nav'] = [
   {
@@ -44,7 +45,7 @@ export const routes: DefaultTheme.Config['nav'] = [
     ],
   },
   {
-    text: '1.0.0-rc.1',
+    text: packageJson.version,
     items: [
       {
         text: '0.10.0',
