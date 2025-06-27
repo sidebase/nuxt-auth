@@ -10,9 +10,9 @@ const { Layout } = DefaultTheme
 const isBannerEnabled = true
 const bannerConfig = {
   // Leave text empty to disable the banner
-  text: '🚀 NuxtAuth v0.10.0 has been released!',
+  text: '🚀 NuxtAuth v1.0.0 has been released!',
   button: {
-    href: '/upgrade/version-0.10.0',
+    href: '/upgrade/version-1.0',
     text: 'View upgrade guide',
   },
 }
@@ -29,8 +29,8 @@ const bannerConfig = {
     </template>
 
     <template #home-hero-info-before>
-      <a href="/upgrade/version-0.10.0">
-        <Tag text="Version 0.10.0" />
+      <a href="/upgrade/version-1.0">
+        <Tag text="Version 1.0.0" />
       </a>
     </template>
   </Layout>
