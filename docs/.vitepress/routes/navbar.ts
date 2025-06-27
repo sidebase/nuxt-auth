@@ -1,4 +1,5 @@
 import type { DefaultTheme } from 'vitepress'
+import packageJson from '../../../package.json'
 
 export const routes: DefaultTheme.Config['nav'] = [
   {
@@ -44,8 +45,12 @@ export const routes: DefaultTheme.Config['nav'] = [
     ],
   },
   {
-    text: '0.10.0',
+    text: packageJson.version,
     items: [
+      {
+        text: '0.10.0',
+        link: 'https://github.com/sidebase/nuxt-auth/tree/0.10.1/docs',
+      },
       {
         text: '0.9.4',
         link: 'https://github.com/sidebase/nuxt-auth/tree/0.9.4/docs',
