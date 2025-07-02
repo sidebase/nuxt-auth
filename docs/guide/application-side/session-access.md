@@ -161,10 +161,10 @@ await signUp(credentials, { callbackUrl: '/profile', redirect: true })
 await signUp(credentials, { callbackUrl: 'https://external.example.com', redirect: true, external: true })
 
 // Trigger a sign-up without auto sign-in and redirect to the home page within the application
-await signUp(credentials, { callbackUrl: '/', redirect: true }, { preventLoginFlow: true })
+await signUp(credentials, { callbackUrl: '/', redirect: true, preventLoginFlow: true })
 
 // Trigger a sign-up without auto sign-in and doesn't redirect anywhere
-await signUp(credentials, undefined, { preventLoginFlow: true })
+await signUp(credentials, { preventLoginFlow: true })
 ```
 
 :::info
