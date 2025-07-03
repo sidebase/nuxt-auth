@@ -161,10 +161,10 @@ await signUp(credentials, { callbackUrl: '/profile', redirect: true })
 await signUp(credentials, { callbackUrl: 'https://external.example.com', redirect: true, external: true })
 
 // Trigger a sign-up without auto sign-in and redirect to the home page within the application
-await signUp(credentials, { callbackUrl: '/', redirect: true }, { preventLoginFlow: true })
+await signUp(credentials, { callbackUrl: '/', redirect: true, preventLoginFlow: true })
 
 // Trigger a sign-up without auto sign-in and doesn't redirect anywhere
-await signUp(credentials, undefined, { preventLoginFlow: true })
+await signUp(credentials, { preventLoginFlow: true })
 ```
 
 :::info
@@ -213,6 +213,9 @@ await signIn(credentials, { callbackUrl: 'https://nuxt.org', external: true })
 
 // Trigger a signIn without calling getSession directly. You have to manually call it to get session data.
 await signIn(credentials, { callGetSession: false })
+
+// Trigger a signIn and use the data sent by the provider
+const res = await signIn(credentials)
 ```
 
 :::

@@ -91,7 +91,7 @@ Configuration of the application-side session. You can configure the following a
 ### `enablePeriodically`
 
 - **Type**: `boolean | number`
-- **Default**: `undefined`
+- **Default**: `false`
 
 Whether to refresh the session every `X` milliseconds. The refresh will only happen if a session already exists.
 Setting this to a number `X` will refresh the session every `X` milliseconds.

@@ -36,5 +36,6 @@ export default antfu({
     'style/comma-dangle': 'off',
     'curly': ['error', 'all'],
     'node/prefer-global/process': ['error', 'always'],
+    'perfectionist/sort-imports': ['off']
   },
 })

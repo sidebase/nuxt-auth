@@ -1,27 +1,24 @@
 import { createError, eventHandler, readBody } from 'h3'
 import { createUserTokens, credentialsSchema, getUser } from '~/server/utils/session'
 
-/*
- * DISCLAIMER!
- * This is a demo implementation, please create your own handlers
- */
-
 export default eventHandler(async (event) => {
   const result = credentialsSchema.safeParse(await readBody(event))
   if (!result.success) {
     throw createError({
-      statusCode: 403,
-      statusMessage: 'Unauthorized, hint: try `hunter2` as password'
+      statusCode: 400,
+      statusMessage: `Invalid input, please provide a valid username, and a password must be 'hunter2' for this demo.`
     })
   }
 
-  // Emulate successful login
+  // Emulate successful registration
   const user = await getUser(result.data.username)
 
-  // Sign the tokens
+  // Create the sign-in tokens
   const tokens = await createUserTokens(user)
 
+  // Return a success response with the email and the token
   return {
+    user,
     token: tokens
   }
 })

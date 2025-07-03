@@ -1,5 +1,6 @@
 import getURL from 'requrl'
-import { type NuxtApp, callWithNuxt, useRequestEvent } from '#app'
+import { callWithNuxt, useRequestEvent } from '#app'
+import type { NuxtApp } from '#app'
 
 export function getRequestURL(includePath = true) {
   return getURL(useRequestEvent()?.node.req, includePath)

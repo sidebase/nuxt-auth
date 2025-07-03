@@ -497,7 +497,7 @@ export interface ModuleOptions {
   /**
    * Configuration of the authentication provider. Different providers are supported:
    * - auth.js: OAuth focused provider for non-static Nuxt 3 applications
-   * - local: Provider for credentials & token based backends, e.g., written by yourself or provided by something like Laraval
+   * - local: Provider for credentials & token based backends, e.g., written by yourself or provided by something like Laravel
    *
    * Find more about supported providers here: https://sidebase.io/nuxt-auth/v0.6/getting-started
    *
@@ -537,13 +537,18 @@ export interface RouteOptions {
 export type SessionLastRefreshedAt = Date | undefined
 export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 type WrappedSessionData<SessionData> = Ref<SessionData | null | undefined>
-export interface CommonUseAuthReturn<SignIn, SignOut, GetSession, SessionData> {
+
+export interface GetSessionFunc<SessionData> {
+  (getSessionOptions?: GetSessionOptions): Promise<SessionData | null | void>
+}
+
+export interface CommonUseAuthReturn<SignIn, SignOut, SessionData> {
   data: Readonly<WrappedSessionData<SessionData>>
   lastRefreshedAt: Readonly<Ref<SessionLastRefreshedAt>>
   status: ComputedRef<SessionStatus>
   signIn: SignIn
   signOut: SignOut
-  getSession: GetSession
+  getSession: GetSessionFunc<SessionData>
   refresh: () => Promise<unknown>
 }
 
@@ -564,6 +569,7 @@ export interface SecondarySignInOptions extends Record<string, unknown> {
   callbackUrl?: string
   /**
    * Whether to redirect users after the method succeeded.
+   * Note that redirect will always happen on a failure for `authjs` provider.
    *
    * @default true
    */
@@ -597,7 +603,7 @@ export interface SignOutOptions {
   external?: boolean
 }
 
-export type GetSessionOptions = Partial<{
+export interface GetSessionOptions {
   required?: boolean
   callbackUrl?: string
   external?: boolean
@@ -608,16 +614,7 @@ export type GetSessionOptions = Partial<{
    * @default false
    */
   force?: boolean
-}>
-
-// TODO: These types could be nicer and more general, or located withing `useAuth` files and more specific
-export type SignOutFunc = (options?: SignOutOptions) => Promise<any>
-export type SignInFunc<PrimarySignInOptions, SignInResult> = (
-  primaryOptions: PrimarySignInOptions,
-  signInOptions?: SecondarySignInOptions,
-  paramsOptions?: Record<string, string>,
-  headersOptions?: Record<string, string>
-) => Promise<SignInResult>
+}
 
 export interface ModuleOptionsNormalized extends ModuleOptions {
   isEnabled: boolean

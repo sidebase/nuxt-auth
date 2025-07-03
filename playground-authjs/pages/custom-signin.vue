@@ -19,6 +19,8 @@ async function mySignInHandler({ username, password, callbackUrl }: { username: 
   }
   else {
     // No error, continue with the sign in, e.g., by following the returned redirect:
+    // Note that in failure cases (when `error` is not null) redirect is followed automatically,
+    // i.e. `redirect` param only applies to successful sign-in.
     return navigateTo(url, { external: true })
   }
 }

@@ -1,6 +1,6 @@
 import { createError, eventHandler, getRequestHeader } from 'h3'
-import { verify } from 'jsonwebtoken'
-import { type JwtPayload, SECRET, extractToken, tokensByUser } from './login.post'
+import { checkUserAccessToken, decodeToken, extractTokenFromAuthorizationHeader, getTokensByUser } from '~/server/utils/session'
+import type { JwtPayload } from '~/server/utils/session'
 
 export default eventHandler((event) => {
   const authorizationHeader = getRequestHeader(event, 'Authorization')
@@ -8,10 +8,15 @@ export default eventHandler((event) => {
     throw createError({ statusCode: 403, statusMessage: 'Need to pass valid Bearer-authorization header to access this endpoint' })
   }
 
-  const extractedToken = extractToken(authorizationHeader)
+  const requestAccessToken = extractTokenFromAuthorizationHeader(authorizationHeader)
   let decoded: JwtPayload
   try {
-    decoded = verify(extractedToken, SECRET) as JwtPayload
+    const decodeTokenResult = decodeToken(requestAccessToken)
+
+    if (!decodeTokenResult) {
+      throw new Error('Expected decoded JwtPayload to be non-empty')
+    }
+    decoded = decodeTokenResult
   }
   catch (error) {
     console.error({
@@ -21,9 +26,18 @@ export default eventHandler((event) => {
     throw createError({ statusCode: 403, statusMessage: 'You must be logged in to use this endpoint' })
   }
 
+  // Get tokens of a user (only for demo, use a DB in your implementation)
+  const userTokens = getTokensByUser(decoded.username)
+  if (!userTokens) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'User not found'
+    })
+  }
+
   // Check against known token
-  const userTokens = tokensByUser.get(decoded.username)
-  if (!userTokens || !userTokens.access.has(extractedToken)) {
+  const tokensValidityCheck = checkUserAccessToken(userTokens, requestAccessToken)
+  if (!tokensValidityCheck.valid) {
     throw createError({
       statusCode: 401,
       statusMessage: 'Unauthorized, user is not logged in'

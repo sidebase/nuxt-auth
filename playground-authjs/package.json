@@ -9,8 +9,8 @@
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
-    "nuxt": "^3.14.1592",
-    "typescript": "^5.5.4",
-    "vue-tsc": "^2.1.10"
+    "nuxt": "^3.15.4",
+    "typescript": "^5.8.3",
+    "vue-tsc": "^2.2.10"
   }
 }
