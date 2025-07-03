@@ -69,6 +69,7 @@ export default defineNuxtConfig({
 ```ts
 // ~/server/api/auth/[...].ts
 import { NuxtAuthHandler } from '#auth'
+
 const { passport } = useRuntimeConfig() // get the values from the runtimeConfig
 
 export default NuxtAuthHandler({

@@ -38,6 +38,7 @@ export default defineNuxtConfig({
 // file: ~/server/api/auth/[...].ts
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { NuxtAuthHandler } from '#auth'
+
 const config = useRuntimeConfig()
 
 export default NuxtAuthHandler({
