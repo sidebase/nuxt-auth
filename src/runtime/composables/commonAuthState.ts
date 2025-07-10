@@ -5,6 +5,19 @@ import { useState } from '#imports'
 export function makeCommonAuthState<SessionData>() {
   const data = useState<SessionData | undefined | null>('auth:data', () => undefined)
 
+  // Store non-hydratable promise in useState, promise would be skipped by JSON.stringify
+  const dataPromise = useState('auth:dataPromise', () => {
+    const holder = {
+      promise: undefined as Promise<SessionData> | undefined,
+    }
+
+    Object.defineProperty(holder, 'promise', {
+      enumerable: false
+    })
+
+    return holder
+  })
+
   const hasInitialSession = computed(() => !!data.value)
 
   // If session exists, initialize as already synced
@@ -30,6 +43,7 @@ export function makeCommonAuthState<SessionData>() {
 
   return {
     data,
+    dataPromise,
     loading,
     lastRefreshedAt,
     status,
