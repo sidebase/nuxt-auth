@@ -1,6 +1,7 @@
 {
   "private": true,
   "name": "nuxt-auth-playground-local",
+  "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "dev": "nuxi prepare && nuxi dev",
