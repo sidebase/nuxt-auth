@@ -11,7 +11,7 @@ export default eventHandler(async (event) => {
   if (!result.success) {
     throw createError({
       statusCode: 403,
-      statusMessage: 'Unauthorized, hint: try `hunter2` as password'
+      message: 'Unauthorized, hint: try `hunter2` as password'
     })
   }
 

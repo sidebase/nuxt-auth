@@ -6,7 +6,7 @@ export default eventHandler(async (event) => {
   if (!result.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: `Invalid input, please provide a valid username, and a password must be 'hunter2' for this demo.`
+      message: `Invalid input, please provide a valid username, and a password must be 'hunter2' for this demo.`
     })
   }
 

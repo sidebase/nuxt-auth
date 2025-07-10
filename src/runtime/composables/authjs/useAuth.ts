@@ -286,7 +286,7 @@ export function useAuth(): UseAuthReturn {
     )
 
     if (!csrfToken) {
-      throw createError({ statusCode: 400, statusMessage: 'Could not fetch CSRF Token for signing out' })
+      throw createError({ statusCode: 400, message: 'Could not fetch CSRF Token for signing out' })
     }
 
     const signoutData = await _fetch<{ url: string }>(nuxt, '/signout', {

@@ -14,7 +14,7 @@ export default eventHandler(async (event) => {
   if (!refreshToken || !authorizationHeader) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Unauthorized, no refreshToken or no Authorization header'
+      message: 'Unauthorized, no refreshToken or no Authorization header'
     })
   }
 
@@ -23,7 +23,7 @@ export default eventHandler(async (event) => {
   if (!decoded) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Unauthorized, refreshToken can\'t be verified'
+      message: 'Unauthorized, refreshToken can\'t be verified'
     })
   }
 
@@ -32,7 +32,7 @@ export default eventHandler(async (event) => {
   if (!userTokens) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Unauthorized, user is not logged in'
+      message: 'Unauthorized, user is not logged in'
     })
   }
 
@@ -47,7 +47,7 @@ export default eventHandler(async (event) => {
     })
     throw createError({
       statusCode: 401,
-      statusMessage: 'Tokens mismatch - this is not good'
+      message: 'Tokens mismatch - this is not good'
     })
   }
 
