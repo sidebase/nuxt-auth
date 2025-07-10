@@ -12,17 +12,17 @@
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.2",
-    "zod": "^3.24.3"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@nuxt/test-utils": "^3.17.2",
-    "@playwright/test": "^1.52.0",
-    "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^20.17.30",
+    "@nuxt/test-utils": "^3.19.2",
+    "@playwright/test": "^1.54.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20.19.6",
     "@vue/test-utils": "^2.4.6",
-    "nuxt": "^3.15.4",
+    "nuxt": "^3.17.6",
     "typescript": "^5.8.3",
-    "vitest": "^1.6.1",
-    "vue-tsc": "^2.2.10"
+    "vitest": "^3.2.4",
+    "vue-tsc": "^2.2.12"
   }
 }
