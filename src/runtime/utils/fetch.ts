@@ -1,10 +1,16 @@
 import { resolveApiUrlPath } from './url'
 import { ERROR_PREFIX } from './logger'
-import { useRuntimeConfig } from '#imports'
+import { useRequestEvent, useRuntimeConfig } from '#imports'
 import type { useNuxtApp } from '#imports'
 import { callWithNuxt } from '#app/nuxt'
+import type { H3Event } from 'h3'
 
-export async function _fetch<T>(nuxt: ReturnType<typeof useNuxtApp>, path: string, fetchOptions?: Parameters<typeof $fetch>[1]): Promise<T> {
+export async function _fetch<T>(
+  nuxt: ReturnType<typeof useNuxtApp>,
+  path: string,
+  fetchOptions?: Parameters<typeof $fetch>[1],
+  proxyCookies = false
+): Promise<T> {
   // This fixes https://github.com/sidebase/nuxt-auth/issues/927
   const runtimeConfigOrPromise = callWithNuxt(nuxt, useRuntimeConfig)
   const runtimeConfig = 'public' in runtimeConfigOrPromise
@@ -22,8 +28,34 @@ export async function _fetch<T>(nuxt: ReturnType<typeof useNuxtApp>, path: strin
     }
   }
 
+  // Add browser cookies to the request on server when `proxyCookies` param is set
+  let event: H3Event | undefined
+  if (import.meta.server && proxyCookies) {
+    const fetchOptionsHeaders = new Headers(fetchOptions?.headers ?? {})
+
+    event = await callWithNuxt(nuxt, useRequestEvent)
+
+    // Only set when headers were not set already
+    if (event && fetchOptionsHeaders.getSetCookie().length === 0) {
+      const cookies = event.node.req.headers.cookie
+      if (cookies) {
+        fetchOptionsHeaders.set('cookie', cookies)
+        fetchOptions ??= {}
+        fetchOptions.headers = fetchOptionsHeaders
+      }
+    }
+  }
+
   try {
-    return $fetch(joinedPath, fetchOptions)
+    // Adapted from https://nuxt.com/docs/getting-started/data-fetching#pass-cookies-from-server-side-api-calls-on-ssr-response
+    const res = await $fetch.raw(joinedPath, fetchOptions)
+
+    if (import.meta.server && proxyCookies && event) {
+      const cookies = res.headers.getSetCookie()
+      event.node.res.appendHeader('set-cookie', cookies)
+    }
+
+    return res._data as T
   }
   catch (error) {
     let errorMessage = `${ERROR_PREFIX} Error while requesting ${joinedPath}.`
