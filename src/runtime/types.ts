@@ -36,8 +36,7 @@ interface GlobalMiddlewareOptions {
   addDefaultCallbackUrl?: boolean | string
 }
 
-type DataObjectPrimitives =
-  | 'string'
+type DataObjectPrimitives = 'string'
   | 'number'
   | 'boolean'
   | 'any'
@@ -365,9 +364,7 @@ export interface ProviderAuthjs {
   addDefaultCallbackUrl?: boolean | string
 }
 
-export type AuthProviders =
-  | ProviderAuthjs
-  | ProviderLocal
+export type AuthProviders = ProviderAuthjs | ProviderLocal
 
 export interface RefreshHandler {
   /**
