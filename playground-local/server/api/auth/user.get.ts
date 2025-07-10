@@ -5,7 +5,7 @@ import type { JwtPayload } from '~/server/utils/session'
 export default eventHandler((event) => {
   const authorizationHeader = getRequestHeader(event, 'Authorization')
   if (typeof authorizationHeader === 'undefined') {
-    throw createError({ statusCode: 403, statusMessage: 'Need to pass valid Bearer-authorization header to access this endpoint' })
+    throw createError({ statusCode: 403, message: 'Need to pass valid Bearer-authorization header to access this endpoint' })
   }
 
   const requestAccessToken = extractTokenFromAuthorizationHeader(authorizationHeader)
@@ -23,7 +23,7 @@ export default eventHandler((event) => {
       msg: 'Login failed. Here\'s the raw error:',
       error
     })
-    throw createError({ statusCode: 403, statusMessage: 'You must be logged in to use this endpoint' })
+    throw createError({ statusCode: 403, message: 'You must be logged in to use this endpoint' })
   }
 
   // Get tokens of a user (only for demo, use a DB in your implementation)
@@ -31,7 +31,7 @@ export default eventHandler((event) => {
   if (!userTokens) {
     throw createError({
       statusCode: 404,
-      statusMessage: 'User not found'
+      message: 'User not found'
     })
   }
 
@@ -40,7 +40,7 @@ export default eventHandler((event) => {
   if (!tokensValidityCheck.valid) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Unauthorized, user is not logged in'
+      message: 'Unauthorized, user is not logged in'
     })
   }
 

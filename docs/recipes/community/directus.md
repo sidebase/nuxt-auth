@@ -124,7 +124,7 @@ export default NuxtAuthHandler({
           if (!userTokens || !userTokens.data || !userDetails || !userDetails.data) {
             throw createError({
               statusCode: 500,
-              statusMessage: 'Next auth failed',
+              message: 'Next auth failed',
             })
           }
 
@@ -151,7 +151,7 @@ export default NuxtAuthHandler({
           if (!allowedRoles.includes(user.role)) {
             throw createError({
               statusCode: 403,
-              statusMessage: 'Not allowed',
+              message: 'Not allowed',
             })
           }
 

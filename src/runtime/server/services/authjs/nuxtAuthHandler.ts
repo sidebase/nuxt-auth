@@ -120,7 +120,7 @@ export async function getServerSession(event: H3Event) {
     // This call gives it a chance to load + initialize the variable. If it fails we still throw. This edge-case has happened to user matijao#7025 on discord.
     await $fetch(sessionUrlPath, { headers }).catch(error => error.data)
     if (!preparedAuthjsHandler) {
-      throw createError({ statusCode: 500, statusMessage: 'Tried to get server session without setting up an endpoint to handle authentication (see https://github.com/sidebase/nuxt-auth#quick-start)' })
+      throw createError({ statusCode: 500, message: 'Tried to get server session without setting up an endpoint to handle authentication (see https://github.com/sidebase/nuxt-auth#quick-start)' })
     }
   }
 
@@ -205,7 +205,7 @@ async function createRequestForAuthjs(
   const { action, providerId } = parseActionAndProvider(event)
   const error = query.error
   if (Array.isArray(error)) {
-    throw createError({ statusCode: 400, statusMessage: 'Error query parameter can only appear once' })
+    throw createError({ statusCode: 400, message: 'Error query parameter can only appear once' })
   }
 
   // Parse a body if the request method is supported, use `undefined` otherwise
@@ -235,7 +235,7 @@ function parseActionAndProvider({ context }: H3Event): { action: AuthAction, pro
   const params: string[] | undefined = context.params?._?.split('/')
 
   if (!params || ![1, 2].includes(params.length)) {
-    throw createError({ statusCode: 400, statusMessage: `Invalid path used for auth-endpoint. Supply either one path parameter (e.g., \`/api/auth/session\`) or two (e.g., \`/api/auth/signin/github\` after the base path (in previous examples base path was: \`/api/auth/\`. Received \`${params}\`` })
+    throw createError({ statusCode: 400, message: `Invalid path used for auth-endpoint. Supply either one path parameter (e.g., \`/api/auth/session\`) or two (e.g., \`/api/auth/signin/github\` after the base path (in previous examples base path was: \`/api/auth/\`. Received \`${params}\`` })
   }
 
   const [unvalidatedAction, providerId] = params
@@ -243,7 +243,7 @@ function parseActionAndProvider({ context }: H3Event): { action: AuthAction, pro
   // Get TS to correctly infer the type of `unvalidatedAction`
   const action = SUPPORTED_ACTIONS.find(action => action === unvalidatedAction)
   if (!action) {
-    throw createError({ statusCode: 400, statusMessage: `Called endpoint with unsupported action ${unvalidatedAction}. Only the following actions are supported: ${SUPPORTED_ACTIONS.join(', ')}` })
+    throw createError({ statusCode: 400, message: `Called endpoint with unsupported action ${unvalidatedAction}. Only the following actions are supported: ${SUPPORTED_ACTIONS.join(', ')}` })
   }
 
   return { action, providerId }
