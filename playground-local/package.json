@@ -21,7 +21,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.19.29",
     "@vue/test-utils": "^2.4.6",
-    "nuxt": "^3.20.2",
+    "nuxt": "^4.0.0",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4",
     "vue-tsc": "^2.2.12"
