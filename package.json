@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "type": "module",
-  "description": "Authentication built for Nuxt 3! Easily add authentication via OAuth providers, credentials or Email Magic URLs!",
+  "description": "Authentication built for Nuxt 4! Easily add authentication via OAuth providers, credentials or Email Magic URLs!",
   "homepage": "https://auth.sidebase.io",
   "repository": "github:sidebase/nuxt-auth",
   "engines": {
@@ -36,7 +36,7 @@
     "test:unit": "vitest"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.17.6",
+    "@nuxt/kit": "^4.0.0",
     "defu": "^6.1.4",
     "h3": "^1.15.3",
     "knitwork": "^1.2.0",
@@ -50,19 +50,20 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.16.2",
-    "@nuxt/module-builder": "^0.8.4",
-    "@nuxt/schema": "^3.17.6",
-    "@nuxtjs/eslint-config-typescript": "^12.1.0",
+    "@nuxt/module-builder": "^1.0.2",
+    "@nuxt/schema": "^4.0.0",
+    "@nuxt/eslint": "^1.7.1",
     "@types/node": "^20.19.6",
     "eslint": "^9.30.1",
-    "nuxt": "^3.17.6",
+    "nuxt": "^4.0.0",
     "ofetch": "^1.4.1",
     "oxlint": "^0.16.12",
     "ts-essentials": "^9.4.2",
     "typescript": "^5.8.3",
     "vitepress": "^1.6.3",
     "vitest": "^3.2.4",
-    "vue-tsc": "^2.2.12"
+    "vue-tsc": "^2.2.12",
+	  "vite": "^7.0.0"
   },
   "packageManager": "pnpm@9.6.0+sha512.38dc6fba8dba35b39340b9700112c2fe1e12f10b17134715a4aa98ccf7bb035e76fd981cf0bb384dfa98f8d6af5481c2bef2f4266a24bfa20c34eb7147ce0b5e"
 }
