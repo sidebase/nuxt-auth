@@ -1,5 +1,5 @@
 /**
- * Due to an upstream bug in Nuxt 3 we need to stub the plugin here, track: https://github.com/nuxt/nuxt/issues/18556
+ * Due to an upstream bug in Nuxt 4 we need to stub the plugin here, track: https://github.com/nuxt/nuxt/issues/18556
  */
 import type { NitroApp } from 'nitropack/types'
 import { ERROR_MESSAGES } from '../services/errors'

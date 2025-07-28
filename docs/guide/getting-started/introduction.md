@@ -1,6 +1,6 @@
 # Introduction
 
-NuxtAuth is an open source Nuxt module that provides authentication for Nuxt 3 applications. It supports multiple authentication methods, allowing you to customize the ways users login to your application.
+NuxtAuth is an open source Nuxt module that provides authentication for Nuxt 4 applications. It supports multiple authentication methods, allowing you to customize the ways users login to your application.
 
 Through a direct integration into Nuxt, you can access and utlize the user sessions within your pages, components and composables directly.
 
@@ -28,9 +28,9 @@ Through a direct integration into Nuxt, you can access and utlize the user sessi
 
 ### Why does NuxtAuth require NextAuth?
 
-The `authjs` provider is able to provide all of its features by wrapping [Auth.js / NextAuth.js](https://github.com/nextauthjs/next-auth) under the hood. This gives the reliability & convenience of a >22.000 github star library to the Nuxt 3 ecosystem with a native nuxt developer experience (DX). Wrapping Auth.js / NextAuth.js has the second advantage that many OAuth providers, database adapters, callbacks and more are supported out-of-the-box. This also means that you can use all NextAuth.js and Auth.js guides and documentation to achieve things with the authjs provider of nuxt-auth.
+The `authjs` provider is able to provide all of its features by wrapping [Auth.js / NextAuth.js](https://github.com/nextauthjs/next-auth) under the hood. This gives the reliability & convenience of a >22.000 github star library to the Nuxt 4 ecosystem with a native nuxt developer experience (DX). Wrapping Auth.js / NextAuth.js has the second advantage that many OAuth providers, database adapters, callbacks and more are supported out-of-the-box. This also means that you can use all NextAuth.js and Auth.js guides and documentation to achieve things with the authjs provider of nuxt-auth.
 
-NuxtAuth also provides Nuxt 3 specific features like a convenient application-side composable to login, logout, access user-authentication data or an authentication middleware and plugin that take care of managing the user authentication lifecycle by fetching authentication data on initial load, refreshing the user authentication on re-focusing the tab and more.
+NuxtAuth also provides Nuxt 4 specific features like a convenient application-side composable to login, logout, access user-authentication data or an authentication middleware and plugin that take care of managing the user authentication lifecycle by fetching authentication data on initial load, refreshing the user authentication on re-focusing the tab and more.
 
 ### What is the difference between Auth.js and NextAuth?
 
