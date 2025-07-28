@@ -23,14 +23,32 @@ export default defineNuxtConfig({
 })
 ```
 
-If you'd like to further customize the global middleware, you can pass an object of configurations to `globalAppMiddleware`. See the API reference [here](./configuration#globalappmiddleware).
+If you like to further customize the global middleware, you can pass an object of configurations to `globalAppMiddleware`. See the API reference here.
 
-When you use the global middleware, but want to disable it on some pages, use the [`definePageMeta`](https://nuxt.com/docs/api/utils/define-page-meta) macro to set the authentication metadata for a single page.
+### Disabling the Global Middleware
+
+If the global middleware is disabled, you can manually add the middleware to individual pages. This is only available if the global middleware is disabled, as you will get an error along the lines of `Error: Unknown route middleware: 'auth'`. This is because the auth middleware is then added globally and not available to use as a local, page-specific middleware.
+
+```vue
+<script lang="ts" setup>
+definePageMeta({
+  middleware: 'sidebase-auth'
+})
+</script>
+
+<template>
+  Only I am protected!
+</template>
+```
+
+## Local Middleware
+
+To locally enable or disable the middleware on a single page, you can use the [`definePageMeta`](https://nuxt.com/docs/api/utils/define-page-meta) macro to set the authentication metadata for a single page.
 
 ```vue
 <script setup lang="ts">
 definePageMeta({
-  auth: false // This would disable the middleware for the page
+  auth: false
 })
 </script>
 
@@ -38,74 +56,6 @@ definePageMeta({
   I am not protected anymore!
 </template>
 ```
-
-## Local Middleware
-
-When you are not using the global middleware, you can still protect your pages individually using local middleware. To enable or disable the middleware on a single page, use the `auth` property on `definePageMeta`.
-
-By setting `auth` to `true`, you can automatically enable the middleware on the page:
-
-```vue [Add middleware automatically]
-<script lang="ts" setup>
-definePageMeta({
-  auth: true // [!code focus]
-})
-</script>
-
-<template>
-  I am now protected again!
-</template>
-```
-
-:::info
-
-When you use the automatic adding, the middleware will always be added after the other middleware you defined. This means that the following
-
-```ts
-definePageMeta({
-  auth: true,
-  middleware: 'other-middleware'
-})
-```
-
-will be interpreted as:
-
-```ts
-definePageMeta({
-  auth: true,
-  middleware: ['other-middleware', 'sidebase-auth']
-})
-```
-
-:::
-
-### Manually adding local middleware
-
-Another way of enabling the middleware is by manually specifying it:
-
-```vue [Add middleware manually]
-<script lang="ts" setup>
-definePageMeta({
-  middleware: 'sidebase-auth' // [!code focus]
-})
-</script>
-```
-
-This gives you a total control of the order in which the different middlewares are executed:
-
-```vue
-<script lang="ts" setup>
-definePageMeta({
-  middleware: ['first-middleware', 'sidebase-auth', 'last-middleware'] // [!code focus]
-})
-</script>
-```
-
-:::warning
-
-Using local middleware is only available if the global middleware was disabled, as otherwise you will get an error along the lines of `Error: Unknown route middleware: 'auth'`. This is because the auth middleware is then added globally and not available to use as a local, page-specific middleware.
-
-:::
 
 ### Middleware options
 
@@ -132,7 +82,7 @@ Whether to allow only unauthenticated users to access this page. Authenticated u
 
 If you want to let everyone see the page, set `auth: false` instead (see [Local Middleware](#local-middleware)).
 
-:::danger
+:::warning
 This option is required from `0.9.4` onwards to prevent ambiguity ([related issue](https://github.com/sidebase/nuxt-auth/issues/926)). Make sure you set it, otherwise [Guest Mode](#guest-mode) will be **enabled** by default — your guests would be able to see the page, but your authenticated users would be redirected away.
 :::
 
@@ -172,9 +122,13 @@ definePageMeta({
 
 You may create your own application-side middleware in order to implement custom, more advanced authentication logic.
 
+:::warning
+Creating a custom middleware is an advanced, experimental option and may result in unexpected or undesired behavior if you are not familiar with advanced Nuxt 4 concepts.
+:::
+
 To implement your custom middleware:
-- Create an application-side middleware that applies either globally or is named (see the [Nuxt docs](https://nuxt.com/docs/4.x/api/utils/define-page-meta#defining-middleware) for more);
-- Add logic based on [`useAuth`](/guide/application-side/session-access) to it.
+- Create an application-side middleware that applies either globally or is named (see the Nuxt docs for more)
+- Add logic based on [`useAuth`](/guide/application-side/session-access) to it
 
 When adding the logic, you need to watch out when calling other `async` composable functions. This can lead to `context`-problems in Nuxt, see [the explanation for this here](https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529). In order to avoid these problems, you will need to either:
 
@@ -197,15 +151,8 @@ export default defineNuxtRouteMiddleware((to) => {
    * We cannot directly call and/or return `signIn` here as `signIn` uses async composables under the hood, leading to "nuxt instance undefined errors", see https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
    *
    * So to avoid calling it, we return it immediately.
-   *
-   * Important: you need to explicitly handle the value returned by the `signIn`,
-   * for example by changing it to `false` (to abort further navigation) or `undefined` (to process other middleware).
-   * See https://github.com/sidebase/nuxt-auth/issues/1042
    */
-  return signIn(
-    undefined,
-    { callbackUrl: to.path }
-  ).then(() => /* abort further route navigation */ false)
+  return signIn(undefined, { callbackUrl: to.path }) as ReturnType<typeof navigateTo>
 })
 ```
 

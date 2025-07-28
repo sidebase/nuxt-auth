@@ -1,6 +1,6 @@
 # Self Hosting
 
-This guide will explain how you can self-host a Nuxt3 application running NuxtAuth.
+This guide will explain how you can self-host a Nuxt 4 application running NuxtAuth.
 
 ## Authjs Provider
 
