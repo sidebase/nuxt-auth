@@ -23,9 +23,6 @@ importers:
       next-auth:
         specifier: ~4.21.1
         version: 4.21.1(next@13.5.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      nitropack:
-        specifier: ^2.11.13
-        version: 2.12.4(@netlify/blobs@9.1.2)(encoding@0.1.13)
       requrl:
         specifier: ^3.0.2
         version: 3.0.2
@@ -51,6 +48,9 @@ importers:
       eslint:
         specifier: ^9.30.1
         version: 9.30.1(jiti@2.5.1)
+      nitropack:
+        specifier: ^2.11.13
+        version: 2.12.4(@netlify/blobs@9.1.2)(encoding@0.1.13)
       nuxt:
         specifier: ^4.0.0
         version: 4.0.1(@netlify/blobs@9.1.2)(@parcel/watcher@2.4.1)(@types/node@20.19.6)(@vue/compiler-sfc@3.5.17)(db0@0.3.2)(encoding@0.1.13)(eslint@9.30.1(jiti@2.5.1))(ioredis@5.6.1)(magicast@0.3.5)(rollup@4.46.1)(terser@5.30.3)(typescript@5.8.3)(vite@7.0.6(@types/node@20.19.6)(jiti@2.5.1)(terser@5.30.3)(yaml@2.8.0))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.0)
