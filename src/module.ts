@@ -11,7 +11,6 @@ import {
   useLogger
 } from '@nuxt/kit'
 import { defu } from 'defu'
-import { genInterface } from 'knitwork'
 import type { DeepRequired } from 'ts-essentials'
 import type { NuxtModule } from 'nuxt/schema'
 import { isProduction } from './runtime/helpers'
@@ -191,10 +190,13 @@ export default defineNuxtModule<ModuleOptions>({
           'declare module \'#auth\' {',
           `  const { getServerSession, getToken, NuxtAuthHandler }: typeof import('${resolve('./runtime/server/services')}')`,
           ...(options.provider.type === 'local'
-            ? [genInterface(
-                'SessionData',
-                (options.provider as any).session.dataType
-              )]
+            ? [
+                'interface SessionData {',
+                ...Object.entries((options.provider as any).session.dataType).map(
+                  ([key, value]) => `  ${key}: ${value};`
+                ),
+                '}',
+              ]
             : []
           ),
           '}',
