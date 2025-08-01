@@ -36,7 +36,7 @@ export async function _fetch<T>(
     event = await callWithNuxt(nuxt, useRequestEvent)
 
     // Only set when headers were not set already
-    if (event && fetchOptionsHeaders.getSetCookie().length === 0) {
+    if (event && fetchOptionsHeaders.get('cookie') === null) {
       const cookies = event.node.req.headers.cookie
       if (cookies) {
         fetchOptionsHeaders.set('cookie', cookies)
