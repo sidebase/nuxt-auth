@@ -10,17 +10,17 @@ It will be prepended to a path before making a call. For example,
 ```ts
 export default defineNuxtConfig({
   auth: {
-    baseURL: 'https://example.com/api/auth',
+    baseURL: "https://example.com/api/auth",
 
     provider: {
-      type: 'local',
+      type: "local",
       endpoints: {
         // The call would be made to `https://example.com/api/auth/login`
-        signIn: { path: '/login', method: 'post' },
-      }
-    }
-  }
-})
+        signIn: { path: "/login", method: "post" },
+      },
+    },
+  },
+});
 ```
 
 ## Use URL provided in `endpoints` if it is fully specified
@@ -30,20 +30,20 @@ If you provide a full URL to `endpoints`, it will be used when making calls to a
 ```ts {9}
 export default defineNuxtConfig({
   auth: {
-    baseURL: 'https://your.website/api',
+    baseURL: "https://your.website/api",
 
     provider: {
-      type: 'local',
+      type: "local",
       endpoints: {
         // This will call `https://example.com/user`
-        getSession: { path: 'https://example.com/user' },
+        getSession: { path: "https://example.com/user" },
 
         // This will call `https://your.website/api/login`
-        signIn: { path: '/login', method: 'post' },
+        signIn: { path: "/login", method: "post" },
       },
-    }
-  }
-})
+    },
+  },
+});
 ```
 
 ## `runtimeConfig`
@@ -51,8 +51,8 @@ export default defineNuxtConfig({
 Value of `baseURL` is always located at `runtimeConfig.public.auth.baseURL`. You cannot change it directly as of the moment of writing, but you can read the value in your application:
 
 ```ts
-const runtimeConfig = useRuntimeConfig()
-const baseURL = runtimeConfig.public.auth.baseURL
+const runtimeConfig = useRuntimeConfig();
+const baseURL = runtimeConfig.public.auth.baseURL;
 ```
 
 This value is generally the [source of truth](https://github.com/sidebase/nuxt-auth/blob/b5af548c1fc390ae00496e19ad7a91d308af9b12/src/runtime/utils/url.ts#L37-L38). It is being [set in the plugin](https://github.com/sidebase/nuxt-auth/blob/b5af548c1fc390ae00496e19ad7a91d308af9b12/src/runtime/plugin.ts#L20-L24) to also be available on the client.
@@ -64,6 +64,7 @@ Read next to understand how it can be changed.
 ### 1. Environment variables
 
 You have multiple ways of changing the `baseURL` via env variables:
+
 - use `NUXT_PUBLIC_AUTH_BASE_URL`;
 - use `AUTH_ORIGIN` if `originEnvKey` is not set;
 - use the environment variable name set in [`originEnvKey`](/guide/application-side/configuration#originenvkey)
@@ -74,7 +75,7 @@ Environment variables should work in both build-time and runtime.
 
 If you didn't set an environment variable, NuxtAuth will look for [`auth.baseURL`](/guide/application-side/configuration#baseurl) inside the `nuxt.config.ts`.
 
-Note that this variable is always **static**, will only be set during runtime and can still be overriden in runtime using env variables.
+Note that this variable is always **static**, will only be set during build and can still be overriden in runtime using env variables.
 
 Not setting `baseURL` will default to `/api/auth`.
 
@@ -92,11 +93,11 @@ We recommend the following setup to configure your `AUTH_ORIGIN` or `baseURL`:
 export default defineNuxtConfig({
   // ... other configuration
   auth: {
-    baseUrl: 'https://my-backend.com/api/auth', // [!code --]
+    baseUrl: "https://my-backend.com/api/auth", // [!code --]
     // This is technically not needed as it is the default, but it's here for illustrative purposes
-    originEnvKey: 'AUTH_ORIGIN', // [!code ++]
-  }
-})
+    originEnvKey: "AUTH_ORIGIN", // [!code ++]
+  },
+});
 ```
 
 ```env diff [.env]
