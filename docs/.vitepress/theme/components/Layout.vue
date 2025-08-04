@@ -7,7 +7,7 @@ import Tag from './Tag.vue'
 const { Layout } = DefaultTheme
 
 // Banner Configuration
-const isBannerEnabled = true
+const isBannerEnabled = false
 const bannerConfig = {
   // Leave text empty to disable the banner
   text: '🚀 NuxtAuth v1.0.0 has been released!',
@@ -30,7 +30,7 @@ const bannerConfig = {
 
     <template #home-hero-info-before>
       <a href="/upgrade/version-1.0">
-        <Tag text="Version 1.0.0" />
+        <Tag text="Version 1.0.1" />
       </a>
     </template>
   </Layout>
