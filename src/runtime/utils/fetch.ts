@@ -48,14 +48,14 @@ export async function _fetch<T>(
 
   try {
     // Adapted from https://nuxt.com/docs/getting-started/data-fetching#pass-cookies-from-server-side-api-calls-on-ssr-response
-    const res = await $fetch.raw(joinedPath, fetchOptions)
+    return $fetch.raw(joinedPath, fetchOptions).then((res) => {
+      if (import.meta.server && proxyCookies && event) {
+        const cookies = res.headers.getSetCookie()
+        event.node.res.appendHeader('set-cookie', cookies)
+      }
 
-    if (import.meta.server && proxyCookies && event) {
-      const cookies = res.headers.getSetCookie()
-      event.node.res.appendHeader('set-cookie', cookies)
-    }
-
-    return res._data as T
+      return res._data as T
+    })
   }
   catch (error) {
     let errorMessage = `${ERROR_PREFIX} Error while requesting ${joinedPath}.`
