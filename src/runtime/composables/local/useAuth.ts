@@ -10,7 +10,7 @@ import { formatToken } from './utils/token'
 import { useAuthState } from './useAuthState'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
-import { navigateTo, nextTick, useNuxtApp, useRequestHeaders, useRoute, useRuntimeConfig } from '#imports'
+import { navigateTo, nextTick, useNuxtApp, useRoute, useRuntimeConfig } from '#imports'
 
 interface Credentials extends Record<string, any> {
   username?: string
@@ -180,14 +180,14 @@ export function useAuth(): UseAuthReturn {
       return
     }
 
-    const headers = new Headers(useRequestHeaders(['cookie']))
+    const headers = new Headers()
     if (tokenValue) {
       headers.append(config.token.headerName, tokenValue)
     }
 
     loading.value = true
     try {
-      const result = await _fetch<any>(nuxt, path, { method, headers })
+      const result = await _fetch<any>(nuxt, path, { method, headers }, true)
       const { dataResponsePointer: sessionDataResponsePointer } = config.session
       data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
     }

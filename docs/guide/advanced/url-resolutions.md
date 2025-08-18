@@ -74,7 +74,7 @@ Environment variables should work in both build-time and runtime.
 
 If you didn't set an environment variable, NuxtAuth will look for [`auth.baseURL`](/guide/application-side/configuration#baseurl) inside the `nuxt.config.ts`.
 
-Note that this variable is always **static**, will only be set during runtime and can still be overriden in runtime using env variables.
+Note that this variable is always **static**, will only be set during build and can still be overriden in runtime using env variables.
 
 Not setting `baseURL` will default to `/api/auth`.
 
