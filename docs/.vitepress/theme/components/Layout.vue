@@ -1,10 +1,12 @@
 <script setup>
 import DefaultTheme from 'vitepress/theme'
+import packageJson from '../../../../package.json'
 import GithubStarsButton from './GithubStarsButton.vue'
 import Banner from './Banner.vue'
 import Tag from './Tag.vue'
 
 const { Layout } = DefaultTheme
+const version = packageJson.version
 
 // Banner Configuration
 const isBannerEnabled = false
@@ -30,7 +32,7 @@ const bannerConfig = {
 
     <template #home-hero-info-before>
       <a href="/upgrade/version-1.0">
-        <Tag text="Version 1.0.1" />
+        <Tag :text="`Version ${version}`" />
       </a>
     </template>
   </Layout>
