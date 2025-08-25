@@ -20,10 +20,15 @@ jobs:
 
     steps:
       - name: Check out the tag referenced by this release
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.release.tag_name }}
           fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
 
       - name: Setup Node.js and pnpm
         uses: actions/setup-node@v4
@@ -43,9 +48,8 @@ jobs:
             exit 1
           fi
 
-      - name: Enable corepack, install and generate types
+      - name: Install deps
         run: |
-          corepack enable
           pnpm --version
           pnpm install --frozen-lockfile
           pnpm dev:prepare
