@@ -1,0 +1,78 @@
+name: Release on NPM
+
+on:
+  release:
+    types: [published] # runs when a GitHub Release is published
+
+permissions:
+  contents: read
+  id-token: write # required for npm provenance
+
+env:
+  NODE_VER: 22.18
+  CI: true
+
+jobs:
+  publish:
+    name: Publish package from release tag
+    # Run only when tag is in the format `vX.Y.Z` produced by `npm version`
+    if: startsWith(github.event.release.tag_name, 'v')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the tag referenced by this release
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js and pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VER }}
+          cache: 'pnpm'
+          # This is required for `setup-node` to generate the registry URL into .npmrc
+          # See https://github.com/actions/setup-node/blob/5e2628c959b9ade56971c0afcebbe5332d44b398/action.yml#L17-L18
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Verify tag matches package.json version
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "v$PKG_VERSION" != "$TAG" ]; then
+            echo "::error ::Tag ($TAG) does not match package.json version (v$PKG_VERSION)"
+            exit 1
+          fi
+
+      - name: Install deps
+        run: |
+          pnpm --version
+          pnpm install --frozen-lockfile
+          pnpm dev:prepare
+
+      # Note: no build step because npm publish would run `prepack` script which builds the module
+
+      - name: Publish to npm with provenance
+        env:
+          # Environment variable used by `setup-node` action
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+
+          # Stable release (vX.Y.Z)
+          if echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            npm publish --provenance --access public
+
+          # Pre-release (vX.Y.Z-*)
+          elif echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+-'; then
+            npm publish --provenance --access public --tag next
+
+          else
+            echo "Not a valid release tag ($TAG), skipping publish."
+          fi
+
