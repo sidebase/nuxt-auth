@@ -55,9 +55,7 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm dev:prepare
 
-      - name: Build
-        shell: bash
-        run: pnpm build
+      # Note: no build step because npm publish would run `prepack` script which builds the module
 
       - name: Publish to npm with provenance
         env:
@@ -65,16 +63,13 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           TAG="${{ github.event.release.tag_name }}"
-          NAME=$(node -p "require('./package.json').name")
 
           # Stable release (vX.Y.Z)
           if echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "Publishing $NAME@$TAG to npm (latest)"
             npm publish --provenance --access public
 
           # Pre-release (vX.Y.Z-*)
           elif echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+-'; then
-            echo "Publishing $NAME@$TAG to npm (next)"
             npm publish --provenance --access public --tag next
 
           else
