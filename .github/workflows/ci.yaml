@@ -7,7 +7,8 @@ on:
     branches: [main]
 
 env:
-  NODE_VER: 22.11
+  NODE_VER: 22.18
+  PNPM_VER: 10.15
   CI: true
 
 jobs:
@@ -20,13 +21,14 @@ jobs:
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
+          version: ${{ env.PNPM_VER }}
           run_install: false
 
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
-          cache: "pnpm"
+          cache: 'pnpm'
 
       - name: Install deps and prepare types
         run: pnpm i && pnpm dev:prepare

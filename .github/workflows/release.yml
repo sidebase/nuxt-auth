@@ -9,13 +9,15 @@ permissions:
   id-token: write # required for npm provenance
 
 env:
-  NODE_VER: 22.11
+  NODE_VER: 22.18
+  PNPM_VER: 10.15
   CI: true
 
 jobs:
   publish:
     name: Publish package from release tag
-    if: startsWith(github.event.release.tag_name, 'v') # only semver-like tags
+    # Run only when tag is in the format `vX.Y.Z` produced by `npm version`
+    if: startsWith(github.event.release.tag_name, 'v')
     runs-on: ubuntu-latest
 
     steps:
@@ -25,9 +27,10 @@ jobs:
           ref: ${{ github.event.release.tag_name }}
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
+          version: ${{ env.PNPM_VER }}
           run_install: false
 
       - name: Setup Node.js and pnpm
