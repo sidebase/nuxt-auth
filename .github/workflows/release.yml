@@ -1,8 +1,11 @@
 name: Release on NPM
 
 on:
-  release:
-    types: [published] # runs when a GitHub Release is published
+  # release:
+  #   types: [published] # runs when a GitHub Release is published
+  # TODO Remove
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
@@ -16,7 +19,7 @@ jobs:
   publish:
     name: Publish package from release tag
     # Run only when tag is in the format `vX.Y.Z` produced by `npm version`
-    if: startsWith(github.event.release.tag_name, 'v')
+    # if: startsWith(github.event.release.tag_name, 'v')
     runs-on: ubuntu-latest
 
     steps:
@@ -42,7 +45,8 @@ jobs:
 
       - name: Verify tag matches package.json version
         run: |
-          TAG="${{ github.event.release.tag_name }}"
+          # TAG="${{ github.event.release.tag_name }}"
+          TAG="v1.0.2"
           PKG_VERSION=$(node -p "require('./package.json').version")
           if [ "v$PKG_VERSION" != "$TAG" ]; then
             echo "::error ::Tag ($TAG) does not match package.json version (v$PKG_VERSION)"
@@ -66,11 +70,11 @@ jobs:
 
           # Stable release (vX.Y.Z)
           if echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            npm publish --provenance --access public
+            npm publish --provenance --access public --dry-run
 
           # Pre-release (vX.Y.Z-*)
           elif echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+-'; then
-            npm publish --provenance --access public --tag next
+            npm publish --provenance --access public --tag next --dry-run
 
           else
             echo "Not a valid release tag ($TAG), skipping publish."
