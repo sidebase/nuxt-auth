@@ -8,7 +8,6 @@ on:
 
 env:
   NODE_VER: 22.18
-  PNPM_VER: 10.15
   CI: true
 
 jobs:
@@ -21,7 +20,6 @@ jobs:
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
-          version: ${{ env.PNPM_VER }}
           run_install: false
 
       - name: Use Node.js ${{ env.NODE_VER }}
