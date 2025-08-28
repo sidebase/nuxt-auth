@@ -248,7 +248,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 6.5. Automatically add the middleware when `definePageMeta({ auth: true })` usage is detected
     if (!options.globalAppMiddleware || !options.globalAppMiddleware.isEnabled) {
-      nuxt.hook('pages:extend', (pages) => autoAddMiddleware(pages, MIDDLEWARE_NAME))
+      nuxt.hook('pages:extend', pages => autoAddMiddleware(pages, MIDDLEWARE_NAME))
     }
 
     // 7. Add plugin for initial load

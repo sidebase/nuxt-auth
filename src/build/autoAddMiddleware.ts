@@ -16,9 +16,11 @@ export function autoAddMiddleware(pages: NuxtPage[], middlewareName: string) {
 
       if (previousMiddleware === undefined) {
         normalizedMiddleware = []
-      } else if (Array.isArray(previousMiddleware)) {
+      }
+      else if (Array.isArray(previousMiddleware)) {
         normalizedMiddleware = previousMiddleware
-      } else {
+      }
+      else {
         normalizedMiddleware = [previousMiddleware]
       }
 

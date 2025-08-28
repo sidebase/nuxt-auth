@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { autoAddMiddleware, type NuxtPage } from '../src/build/autoAddMiddleware'
+import { describe, expect, it } from 'vitest'
+import { autoAddMiddleware } from '../src/build/autoAddMiddleware'
+import type { NuxtPage } from '../src/build/autoAddMiddleware'
 
 const MIDDLEWARE_NAME = 'sidebase-auth'
 
@@ -125,4 +126,3 @@ function testMiddleware(page: NuxtPage, expected: unknown) {
   autoAddMiddleware(pages, MIDDLEWARE_NAME)
   expect(pages[0].meta?.middleware).toEqual(expected)
 }
-
