@@ -5,7 +5,7 @@ title: Auth
 
 hero:
   name: NuxtAuth
-  text: Authentication for Nuxt 3!
+  text: Authentication for Nuxt 4!
   tagline: User authentication and sessions via authjs!
   actions:
     - theme: brand
@@ -22,7 +22,7 @@ features:
   - icon:
         src: /icons/Github.png
     title: OAuth
-    details: Effortlessly connect your Nuxt 3 application with Google, Github, Azure and countless others.
+    details: Effortlessly connect your Nuxt 4 application with Google, Github, Azure and countless others.
   - icon:
         src: /icons/Database.png
     title: Use your own backend

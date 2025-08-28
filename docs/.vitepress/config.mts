@@ -6,7 +6,7 @@ import { headConfig, sitemapConfig } from './head'
 export default defineConfig({
   title: 'NuxtAuth',
   titleTemplate: ':title - by sidebase',
-  description: 'Authentication for Nuxt 3',
+  description: 'Authentication for Nuxt 4',
   base: '/',
   cleanUrls: true,
   lang: 'en-US',

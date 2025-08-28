@@ -493,7 +493,7 @@ export interface ModuleOptions {
   baseURL?: string
   /**
    * Configuration of the authentication provider. Different providers are supported:
-   * - auth.js: OAuth focused provider for non-static Nuxt 3 applications
+   * - auth.js: OAuth focused provider for non-static Nuxt 4 applications
    * - local: Provider for credentials & token based backends, e.g., written by yourself or provided by something like Laravel
    *
    * Find more about supported providers here: https://sidebase.io/nuxt-auth/v0.6/getting-started

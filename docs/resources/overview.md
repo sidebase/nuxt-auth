@@ -15,7 +15,7 @@ There are some terms we use in this documentation that may not be known to every
 
 ## Module Concept
 
-The idea of this library is to re-use all the open-source implementation that already exist in the JS ecosystem instead of rolling our own. The idea was born when researching through the ecosystem of framework-specific authentication libraries to figure out what the best implementation approach for a state-of-the-art Nuxt 3 authentication library would be.
+The idea of this library is to re-use all the open-source implementation that already exist in the JS ecosystem instead of rolling our own. The idea was born when researching through the ecosystem of framework-specific authentication libraries to figure out what the best implementation approach for a state-of-the-art Nuxt 4 authentication library would be.
 
 During research it became clear that implementing everything from scratch will be:
 - a lot of work that has already been open-sourced by others,
@@ -30,6 +30,6 @@ In our investigation we found prior attempts to make NextAuth.js framework agnos
 - [NextAuth.js app examples](https://github.com/nextauthjs/next-auth/tree/main/apps)
 - [Various comments, proposals, ...or this thread](https://github.com/nextauthjs/next-auth/discussions/3942), special thanks to [brillout](https://github.com/brillout) for starting the discussion, [balazsorban44](https://github.com/balazsorban44) for NextAuth.js and encouraging the discussion, [wobsoriano](https://github.com/wobsoriano) for adding PoCs for multiple languages
 
-The main part of the work was to piece everything together, resolve some outstanding issues with existing PoCs, add new things where nothing existed yet, e.g., for the `useAuth` composable by going through the NextAuth.js client code and translating it to a Nuxt 3 approach.
+The main part of the work was to piece everything together, resolve some outstanding issues with existing PoCs, add new things where nothing existed yet, e.g., for the `useAuth` composable by going through the NextAuth.js client code and translating it to a Nuxt 4 approach.
 
 The module had another big iteration in collaboration with [JoaoPedroAS51](https://github.com/JoaoPedroAS51) to make `useAuth` a sync operation and trigger the session lifecycle from a plugin rather than the `useAuth` composable itself.

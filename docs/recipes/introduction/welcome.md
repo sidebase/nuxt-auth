@@ -1,6 +1,6 @@
 # Recipes
 
-The following pages contain recipes for commonly asked patterns, questions, and implementations. The recipes are mostly provided by the community and can serve as guidelines to implement something similar in your Nuxt 3 application.
+The following pages contain recipes for commonly asked patterns, questions, and implementations. The recipes are mostly provided by the community and can serve as guidelines to implement something similar in your Nuxt 4 application.
 
 ## What are recipes?
 

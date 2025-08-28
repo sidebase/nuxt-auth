@@ -28,7 +28,7 @@
 </p>
 <!-- Badges End -->
 
-> Authentication built for Nuxt 3! Easily add authentication via OAuth providers, credentials or Email Magic URLs!
+> Authentication built for Nuxt 4! Easily add authentication via OAuth providers, credentials or Email Magic URLs!
 
 ## Quick Start
 
@@ -62,8 +62,8 @@ Then visit the [Quick Start documentation](https://auth.sidebase.io/guide/gettin
 
 ## Features
 
-`@sidebase/nuxt-auth` is a library with the goal of supporting authentication for any universal Nuxt 3 application. At the moment three providers are supported:
-- [`authjs`](https://auth.sidebase.io/guide/authjs/quick-start): for non-static apps that want to use [Auth.js / NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 23k star library to the Nuxt 3 ecosystem with a native developer experience (DX)
+`@sidebase/nuxt-auth` is a library with the goal of supporting authentication for any universal Nuxt 4 application. At the moment three providers are supported:
+- [`authjs`](https://auth.sidebase.io/guide/authjs/quick-start): for non-static apps that want to use [Auth.js / NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 23k star library to the Nuxt 4 ecosystem with a native developer experience (DX)
 - [`local`](https://auth.sidebase.io/guide/local/quick-start): for static pages that rely on an external backend with a credential flow for authentication. The Local Provider also supports refresh tokens since `v0.9.0`. Read more [here](https://auth.sidebase.io/upgrade/version-0.9.0).
 
 You can find a full list of our features, as well as which provider supports each feature [on our docs](https://auth.sidebase.io/guide/getting-started/choose-provider).
@@ -142,9 +142,9 @@ We have one playground per provider:
 - [`authjs`](./playground-authjs)
 - [`local`](./playground-local)
 
-##### How to test static Nuxt 3 apps?
+##### How to test static Nuxt 4 apps?
 
-To test static Nuxt 3 apps we want to run a static frontend and a separate backend that will take over authentication:
+To test static Nuxt 4 apps we want to run a static frontend and a separate backend that will take over authentication:
 1. `playground-local/nuxt.config.ts`: Add `baseURL: 'http://localhost:3001'` to the `auth`-config
 2. Start the static frontend:
     ```sh
@@ -154,7 +154,7 @@ To test static Nuxt 3 apps we want to run a static frontend and a separate backe
 
     pnpm start
     ```
-3. Start the authentication backend (we use a second instance of the same nuxt3 app):
+3. Start the authentication backend (we use a second instance of the same Nuxt 4 app):
     ```sh
     cd playground-local
 
@@ -171,7 +171,7 @@ Thank you to everyone who has contributed to this project by writing issues or o
 
 ## Acknowledgments
 
-`@sidebase/nuxt-auth` is supported by all of our amazing contributors and the [Nuxt 3 team](https://nuxters.nuxt.com/)!
+`@sidebase/nuxt-auth` is supported by all of our amazing contributors and the [Nuxt 4 team](https://nuxters.nuxt.com/)!
 
 <a href="https://github.com/sidebase/nuxt-auth/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=sidebase/nuxt-auth" />

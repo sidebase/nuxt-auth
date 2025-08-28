@@ -123,7 +123,7 @@ definePageMeta({
 You may create your own application-side middleware in order to implement custom, more advanced authentication logic.
 
 :::warning
-Creating a custom middleware is an advanced, experimental option and may result in unexpected or undesired behavior if you are not familiar with advanced Nuxt 3 concepts.
+Creating a custom middleware is an advanced, experimental option and may result in unexpected or undesired behavior if you are not familiar with advanced Nuxt 4 concepts.
 :::
 
 To implement your custom middleware:
