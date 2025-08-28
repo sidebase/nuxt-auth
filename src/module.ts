@@ -22,6 +22,7 @@ import type {
   RefreshHandler,
   SupportedAuthProviders
 } from './runtime/types'
+import { autoAddMiddleware } from './build/autoAddMiddleware'
 
 const topLevelDefaults = {
   isEnabled: true,
@@ -99,6 +100,7 @@ const defaultsByBackend: {
 }
 
 const PACKAGE_NAME = 'sidebase-auth'
+const MIDDLEWARE_NAME = PACKAGE_NAME
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -218,7 +220,6 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     // 5.2. Create refresh handler
-    // const generatedRefreshHandlerPath = resolve('./runtime/refreshHandler.ts')
     const generatedRefreshHandlerPath = addTemplate({
       filename: './refreshHandler.ts',
       async getContents() {
@@ -241,9 +242,14 @@ export default defineNuxtModule<ModuleOptions>({
 
     // 6. Register middleware for autocomplete in definePageMeta
     addRouteMiddleware({
-      name: 'sidebase-auth',
+      name: MIDDLEWARE_NAME,
       path: resolve('./runtime/middleware/sidebase-auth')
     })
+
+    // 6.5. Automatically add the middleware when `definePageMeta({ auth: true })` usage is detected
+    if (!options.globalAppMiddleware || !options.globalAppMiddleware.isEnabled) {
+      nuxt.hook('pages:extend', pages => autoAddMiddleware(pages, MIDDLEWARE_NAME))
+    }
 
     // 7. Add plugin for initial load
     addPlugin(resolve('./runtime/plugin'))

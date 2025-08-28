@@ -88,6 +88,11 @@ export default defineNuxtRouteMiddleware((to) => {
     }
   }
 
+  // Redirect path was provided
+  if (options.navigateUnauthenticatedTo) {
+    return navigateTo(options.navigateUnauthenticatedTo)
+  }
+
   if (authConfig.provider.type === 'authjs') {
     const callbackUrl = determineCallbackUrlForRouteMiddleware(authConfig, to)
 
@@ -98,11 +103,6 @@ export default defineNuxtRouteMiddleware((to) => {
 
     // @ts-expect-error This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
     return signIn(undefined, signInOptions) as Promise<void>
-  }
-
-  // Redirect path was provided
-  if (options.navigateUnauthenticatedTo) {
-    return navigateTo(options.navigateUnauthenticatedTo)
   }
 
   const loginPage = authConfig.provider.pages.login
