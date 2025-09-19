@@ -101,8 +101,23 @@ export default defineNuxtRouteMiddleware((to) => {
       callbackUrl
     }
 
-    // @ts-expect-error This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
-    return signIn(undefined, signInOptions) as Promise<void>
+    return signIn(
+      // @ts-expect-error This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
+      undefined,
+      signInOptions
+    ).then((signInResult) => {
+      // `signIn` function automatically navigates to the correct page,
+      // we need to tell `vue-router` what page we navigated to by returning the value.
+      if (signInResult) {
+        return signInResult.navigationResult
+      }
+
+      // When no result was provided, allow other middleware to run by default.
+      // When `false` is used, other middleware will be skipped.
+      // See: https://router.vuejs.org/guide/advanced/navigation-guards.html#Global-Before-Guards
+      // See: https://github.com/nuxt/nuxt/blob/dc69e26c5b9adebab3bf4e39417288718b8ddf07/packages/nuxt/src/pages/runtime/plugins/router.ts#L241-L250
+      return true
+    })
   }
 
   const loginPage = authConfig.provider.pages.login
