@@ -197,8 +197,15 @@ export default defineNuxtRouteMiddleware((to) => {
    * We cannot directly call and/or return `signIn` here as `signIn` uses async composables under the hood, leading to "nuxt instance undefined errors", see https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529
    *
    * So to avoid calling it, we return it immediately.
+   *
+   * Important: you need to explicitly handle the value returned by the `signIn`,
+   * for example by changing it to `false` (to abort further navigation) or `undefined` (to process other middleware).
+   * See https://github.com/sidebase/nuxt-auth/issues/1042
    */
-  return signIn(undefined, { callbackUrl: to.path }) as ReturnType<typeof navigateTo>
+  return signIn(
+    undefined,
+    { callbackUrl: to.path }
+  ).then(() => /* abort further route navigation */ false)
 })
 ```
 

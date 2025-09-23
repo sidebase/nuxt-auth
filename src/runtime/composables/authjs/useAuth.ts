@@ -31,6 +31,11 @@ interface SignInResult {
   status: number
   ok: boolean
   url: any
+  /**
+   * Result returned by `navigateToAuthPage`, which needs to be passed back to vue-router by the middleware.
+   * @see https://github.com/sidebase/nuxt-auth/pull/1057
+   */
+  navigationResult: boolean | string | void | undefined
 }
 
 export interface SignInFunc {
@@ -92,7 +97,7 @@ export function useAuth(): UseAuthReturn {
     const configuredProviders = await getProviders()
     if (!configuredProviders) {
       const errorUrl = resolveApiUrlPath('error', runtimeConfig)
-      await navigateToAuthPageWN(nuxt, errorUrl, true)
+      const navigationResult = await navigateToAuthPageWN(nuxt, errorUrl, true)
 
       return {
         // Future AuthJS compat here and in other places
@@ -100,7 +105,8 @@ export function useAuth(): UseAuthReturn {
         error: 'InvalidProvider',
         ok: false,
         status: 500,
-        url: errorUrl
+        url: errorUrl,
+        navigationResult,
       }
     }
 
@@ -122,14 +128,15 @@ export function useAuth(): UseAuthReturn {
 
     const selectedProvider = provider && configuredProviders[provider]
     if (!selectedProvider) {
-      await navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage, true)
+      const navigationResult = await navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage, true)
 
       return {
         // https://authjs.dev/reference/core/errors#invalidprovider
         error: 'InvalidProvider',
         ok: false,
         status: 400,
-        url: hrefSignInAllProviderPage
+        url: hrefSignInAllProviderPage,
+        navigationResult,
       }
     }
 
@@ -165,7 +172,7 @@ export function useAuth(): UseAuthReturn {
 
     if (redirect || !isSupportingReturn) {
       const href = data.url ?? callbackUrl
-      await navigateToAuthPageWN(nuxt, href)
+      const navigationResult = await navigateToAuthPageWN(nuxt, href)
 
       // We use `http://_` as a base to allow relative URLs in `callbackUrl`. We only need the `error` query param
       const error = new URL(href, 'http://_').searchParams.get('error')
@@ -174,7 +181,8 @@ export function useAuth(): UseAuthReturn {
         error,
         ok: true,
         status: 302,
-        url: href
+        url: href,
+        navigationResult,
       }
     }
 
@@ -186,7 +194,8 @@ export function useAuth(): UseAuthReturn {
       error,
       status: 200,
       ok: true,
-      url: error ? null : data.url
+      url: error ? null : data.url,
+      navigationResult: undefined,
     }
   }
 

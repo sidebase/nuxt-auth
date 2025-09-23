@@ -1,5 +1,5 @@
 import { hasProtocol, isScriptProtocol } from 'ufo'
-import { abortNavigation, callWithNuxt, useRouter } from '#app'
+import { callWithNuxt, useRouter } from '#app'
 import type { NuxtApp } from '#app'
 
 export function navigateToAuthPageWN(nuxt: NuxtApp, href: string, isInternalRouting?: boolean) {
@@ -16,16 +16,19 @@ const URL_QUOTE_RE = /"/g
  *    manually set `window.location.href` on the client **and then fake return a Promise that does not immediately resolve to block navigation (although it will not actually be fully awaited, but just be awaited long enough for the naviation to complete)**.
  * 2. Additionally on the server-side, we cannot use `navigateTo(signInUrl)` as this uses `vue-router` internally which does not know the "external" sign-in page of next-auth and thus will log a warning which we want to avoid.
  *
- * Adapted from https://github.com/nuxt/nuxt/blob/16d213bbdcc69c0cc72afb355755ff877654a374/packages/nuxt/src/app/composables/router.ts#L119-L217
+ * Adapted from https://github.com/nuxt/nuxt/blob/dc69e26c5b9adebab3bf4e39417288718b8ddf07/packages/nuxt/src/app/composables/router.ts#L130-L247
  *
- * @param nuxt Nuxt app context
+ * @param nuxtApp Nuxt app context
  * @param href HREF / URL to navigate to
  */
-function navigateToAuthPage(nuxt: NuxtApp, href: string, isInternalRouting = false) {
+function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = false) {
   const router = useRouter()
 
+  // https://github.com/nuxt/nuxt/blob/dc69e26c5b9adebab3bf4e39417288718b8ddf07/packages/nuxt/src/app/composables/router.ts#L84-L93
+  const inMiddleware = Boolean(nuxtApp._processingMiddleware)
+
   if (import.meta.server) {
-    if (nuxt.ssrContext) {
+    if (nuxtApp.ssrContext) {
       const isExternalHost = hasProtocol(href, { acceptRelative: true })
       if (isExternalHost) {
         const { protocol } = new URL(href, 'http://localhost')
@@ -38,17 +41,31 @@ function navigateToAuthPage(nuxt: NuxtApp, href: string, isInternalRouting = fal
       // We also skip resolution for internal routing to avoid triggering `No match found` warning from Vue Router
       const location = isExternalHost || isInternalRouting ? href : router.resolve(href).fullPath || '/'
 
-      // TODO: consider deprecating in favour of `app:rendered` and removing
-      return nuxt.callHook('app:redirected').then(() => {
+      async function redirect(response: false | undefined) {
+        // TODO: consider deprecating in favour of `app:rendered` and removing
+        await nuxtApp.callHook('app:redirected')
         const encodedLoc = location.replace(URL_QUOTE_RE, '%22')
         const encodedHeader = encodeURL(location, isExternalHost)
-        nuxt.ssrContext!._renderResponse = {
+
+        nuxtApp.ssrContext!._renderResponse = {
           statusCode: 302,
           body: `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=${encodedLoc}"></head></html>`,
           headers: { location: encodedHeader },
         }
-        abortNavigation()
-      })
+        return response
+      }
+
+      // We wait to perform the redirect last in case any other middleware will intercept the redirect
+      // and redirect somewhere else instead.
+      if (!isExternalHost && inMiddleware) {
+        // For an unknown reason, `final.fullPath` received here is not percent-encoded, leading to the check always failing.
+        // To preserve compatibility with NuxtAuth < 1.0, we simply return `undefined`.
+        // TODO: Find the reason or report the issue to Nuxt if `navigateTo` has the same problem (`router.resolve` handles the `%2F` in callback URL correctly)
+        // router.afterEach(final => final.fullPath === location ? redirect(false) : undefined)
+        // return href
+        return redirect(undefined)
+      }
+      return redirect(!inMiddleware ? undefined : /* abort further route navigation */ false)
     }
   }
 
