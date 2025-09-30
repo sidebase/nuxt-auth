@@ -97,6 +97,45 @@ Some uses-cases for each callback could be:
 
 You can read more on each of these callbacks, what data they provide and what return value they expect on the offical [NextAuth docs](https://next-auth.js.org/configuration/callbacks).
 
+## Adapters
+
+By default AuthJS only uses JWT tokens to handle authentication and does not save this data anywhere else. To persist user sessions, accounts, and related data, you can use [AuthJS adapters](https://next-auth.js.org/adapters), i.e. modules that implement a database interface. NuxtAuth is adapter-agnostic and you can use both the official and the custom adapters.
+
+```ts
+import { PrismaAdapter } from '@sidebase/authjs-prisma-adapter'
+import { prismaClient } from './your-prisma-client'
+
+export default NuxtAuthHandler({
+  adapter: PrismaAdapter(prismaClient),
+})
+```
+
+### Install correct official adapters
+
+When installing official adapters, please use `@next-auth` scoped packages as they are made for `next-auth@4`, in contrast to `@auth` scoped packages made for `authjs@5`.
+
+### Install Sidebase adapter for Prisma 6
+
+The official [`@next-auth/prisma-adapter`](https://www.npmjs.com/package/@next-auth/prisma-adapter) assumes a fixed import path from `@prisma/client`. However, starting from Prisma 6 you can now [specify a custom client output path](https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/generating-prisma-client#using-a-custom-output-path) which breaks compatibility with AuthJS as it cannot import the correct client anymore.
+
+For this purpose NuxtAuth provides a custom adapter implementation which does not import anything from `@prisma`. You can find it [here](https://github.com/sidebase/authjs-prisma-adapter) and install it using:
+
+::: code-group
+
+```bash [npm]
+npm install @sidebase/authjs-prisma-adapter
+```
+
+```bash [pnpm]
+pnpm install @sidebase/authjs-prisma-adapter
+```
+
+```bash [yarn]
+yarn add @sidebase/authjs-prisma-adapter
+```
+
+:::
+
 ## Events
 
 Events are asynchronous callback functions invoked during certain actions in the authentication flow. They can be used to log certain events or debug your authentication flow.
