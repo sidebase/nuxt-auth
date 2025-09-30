@@ -114,6 +114,11 @@ export default NuxtAuthHandler({
 
 When installing official adapters, please use `@next-auth` scoped packages as they are made for `next-auth@4`, in contrast to `@auth` scoped packages made for `authjs@5`.
 
+```diff
+-npm i @auth/prisma-adapter
++npm i @next-auth/prisma-adapter
+```
+
 ### Install Sidebase adapter for Prisma 6
 
 The official [`@next-auth/prisma-adapter`](https://www.npmjs.com/package/@next-auth/prisma-adapter) assumes a fixed import path from `@prisma/client`. However, starting from Prisma 6 you can now [specify a custom client output path](https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/generating-prisma-client#using-a-custom-output-path) which breaks compatibility with AuthJS as it cannot import the correct client anymore.
