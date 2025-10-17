@@ -4,13 +4,23 @@ import { useRequestEvent, useRuntimeConfig } from '#imports'
 import type { useNuxtApp } from '#imports'
 import { callWithNuxt } from '#app/nuxt'
 import type { H3Event } from 'h3'
+import type { FetchResponse } from 'ofetch'
 
 export async function _fetch<T>(
   nuxt: ReturnType<typeof useNuxtApp>,
   path: string,
   fetchOptions?: Parameters<typeof $fetch>[1],
-  proxyCookies = false
+  proxyCookies = false,
 ): Promise<T> {
+  return _fetchRaw<T>(nuxt, path, fetchOptions, proxyCookies).then(res => res._data as T)
+}
+
+export async function _fetchRaw<T>(
+  nuxt: ReturnType<typeof useNuxtApp>,
+  path: string,
+  fetchOptions?: Parameters<typeof $fetch>[1],
+  proxyCookies = false,
+): Promise<FetchResponse<T>> {
   // This fixes https://github.com/sidebase/nuxt-auth/issues/927
   const runtimeConfigOrPromise = callWithNuxt(nuxt, useRuntimeConfig)
   const runtimeConfig = 'public' in runtimeConfigOrPromise
@@ -48,13 +58,13 @@ export async function _fetch<T>(
 
   try {
     // Adapted from https://nuxt.com/docs/getting-started/data-fetching#pass-cookies-from-server-side-api-calls-on-ssr-response
-    return $fetch.raw(joinedPath, fetchOptions).then((res) => {
+    return $fetch.raw<T>(joinedPath, fetchOptions).then((res) => {
       if (import.meta.server && proxyCookies && event) {
         const cookies = res.headers.getSetCookie()
         event.node.res.appendHeader('set-cookie', cookies)
       }
 
-      return res._data as T
+      return res
     })
   }
   catch (error) {
