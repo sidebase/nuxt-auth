@@ -1,6 +1,6 @@
-import type { Hooks } from './types'
+import type { HooksAdapter } from './types'
 
-export function defineHooks<SessionDataType = unknown>(hooks: Hooks<SessionDataType>): Hooks<SessionDataType> {
+export function defineHooksAdapter<SessionDataType = unknown>(hooks: HooksAdapter<SessionDataType>): HooksAdapter<SessionDataType> {
   return hooks
 }
 
@@ -8,7 +8,7 @@ interface Session {
   // Data of users returned by `getSession` endpoint
 }
 
-export default defineHooks<Session>({
+export default defineHooksAdapter<Session>({
   signIn: {
     createRequest(credentials, authState, nuxt) {
       // todo

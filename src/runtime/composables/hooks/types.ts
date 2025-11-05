@@ -82,7 +82,7 @@ export interface SignUpCreateRequestData {
 
 // TODO Use full UseAuthStateReturn, not the CommonUseAuthStateReturn
 
-export interface Hooks<SessionDataType> {
+export interface HooksAdapter<SessionDataType> {
   // Required endpoints
   signIn: EndpointHooks<SessionDataType, SignInCreateRequestData, ResponseAccept<SessionDataType>>
   getSession: EndpointHooks<SessionDataType, GetSessionOptions | undefined, SessionDataType | null>
