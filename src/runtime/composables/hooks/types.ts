@@ -1,5 +1,5 @@
 import type { NitroFetchOptions, NitroFetchRequest } from 'nitropack'
-import type { CommonUseAuthStateReturn, GetSessionOptions, SecondarySignInOptions, SignUpOptions } from '../../types'
+import type { CommonUseAuthStateReturn, GetSessionOptions, SecondarySignInOptions, SignOutOptions, SignUpOptions } from '../../types'
 import type { useNuxtApp } from '#imports'
 import type { FetchResponse } from 'ofetch'
 
@@ -63,7 +63,7 @@ export interface ResponseAccept<SessionDataType> {
   token?: string | null
 
   /** Omit or set to `undefined` if you don't use it */
-  refreshToken?: string
+  refreshToken?: string | null
 
   /**
    * When the session is provided, method will not call `getSession` and the session will be returned.
@@ -88,7 +88,7 @@ export interface Hooks<SessionDataType> {
   getSession: EndpointHooks<SessionDataType, GetSessionOptions | undefined, SessionDataType | null>
 
   // Optional endpoints
-  signOut?: EndpointHooks<SessionDataType, never, never>
+  signOut?: EndpointHooks<SessionDataType, SignOutOptions | undefined, ResponseAccept<SessionDataType> | undefined>
   signUp?: EndpointHooks<SessionDataType, SignUpCreateRequestData, ResponseAccept<SessionDataType> | undefined>
   refresh?: EndpointHooks<SessionDataType, GetSessionOptions | undefined, ResponseAccept<SessionDataType>>
 }

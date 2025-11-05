@@ -2,12 +2,11 @@ import { readonly } from 'vue'
 import type { Ref } from 'vue'
 import type { FetchResponse } from 'ofetch'
 import type { CommonUseAuthReturn, GetSessionOptions, SecondarySignInOptions, SignOutOptions, SignUpOptions } from '../../types'
-import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '../../helpers'
+import { useTypedBackendConfig } from '../../helpers'
 import { _fetch, _fetchRaw } from '../../utils/fetch'
 import { getRequestURLWN } from '../common/getRequestURL'
 import { ERROR_PREFIX } from '../../utils/logger'
 import { determineCallbackUrl } from '../../utils/callbackUrl'
-import { formatToken } from './utils/token'
 import { useAuthState } from './useAuthState'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
@@ -129,49 +128,44 @@ export function useAuth(): UseAuthReturn {
   }
 
   async function signOut<T = unknown>(signOutOptions?: SignOutOptions): Promise<T | undefined> {
-    // TODO Migrate to hooks
-    const signOutConfig = config.endpoints.signOut
+    const hooks = userHooks.signOut
 
-    let request: RequestOptions | undefined
-    if (signOutConfig) {
-      request = {
-        method: signOutConfig.method,
-        headers: new Headers({ [config.token.headerName]: token.value } as HeadersInit),
+    let res: T | undefined
+    let shouldResetData = true
+
+    if (hooks) {
+      // Create request
+      const createRequestResult = await Promise.resolve(hooks.createRequest(signOutOptions, authState, nuxt))
+      if (createRequestResult === false) {
+        return
       }
 
-      // If the refresh provider is used, include the refreshToken in the body
-      if (config.refresh.isEnabled && ['post', 'put', 'patch', 'delete'].includes(signOutConfig.method.toLowerCase())) {
-        // This uses refresh token pointer as we are passing `refreshToken`
-        const signoutRequestRefreshTokenPointer = config.refresh.token.refreshRequestTokenPointer
-        request.body = objectFromJsonPointer(signoutRequestRefreshTokenPointer, refreshToken.value)
+      // Fetch
+      const response = await _fetchRaw<T>(nuxt, createRequestResult.path, createRequestResult.request)
+      res = response._data
+
+      // Accept what was returned by the user.
+      // If `false` was returned - do not proceed.
+      // `undefined` will reset data and continue with execution.
+      // Object:
+      //   If a field was set to `null`, it will be reset.
+      //   Omitting a field or setting to `undefined` would not modify it.
+      // TODO: Document this behaviour
+      const signInResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt))
+      if (signInResponseAccept === false) {
+        return
+      } else if (signInResponseAccept !== undefined) {
+        await acceptResponse(signInResponseAccept, false)
+        shouldResetData = false
       }
     }
 
-    data.value = null
-    rawToken.value = null
-    rawRefreshToken.value = null
-
-    let res: T | undefined
-    if (signOutConfig) {
-      const { path } = signOutConfig
-
-      const hooks = userHooks.signOut
-      if (hooks) {
-        const canContinue = await Promise.resolve(hooks.createRequest(undefined, authState, nuxt))
-        if (canContinue === false) {
-          return
-        }
-
-        const response = await _fetchRaw<T>(nuxt, path, request)
-        signInResponseData = response._data
-
-        const signInResponseAccept = await Promise.resolve(hooks.onResponse?.(response, authState, nuxt))
-        if (signInResponseAccept === false) {
-          return
-        }
-      } else {
-        res = await _fetch(nuxt, path, request)
-      }
+    if (shouldResetData) {
+      await acceptResponse({
+        session: null,
+        token: null,
+        refreshToken: null,
+      }, false)
     }
 
     const { redirect = true, external } = signOutOptions ?? {}
