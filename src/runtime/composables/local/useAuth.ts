@@ -76,7 +76,7 @@ export function useAuth(): UseAuthReturn {
       body: credentials,
       params: signInParams ?? {},
       headers: signInHeaders ?? {}
-    })
+    }, /* proxyCookies = */ true)
 
     if (typeof response !== 'object' || response === null) {
       console.error(`${ERROR_PREFIX} signIn returned non-object value`)
@@ -187,7 +187,7 @@ export function useAuth(): UseAuthReturn {
 
     loading.value = true
     try {
-      const result = await _fetch<any>(nuxt, path, { method, headers }, true)
+      const result = await _fetch<any>(nuxt, path, { method, headers }, /* proxyCookies = */ true)
       const { dataResponsePointer: sessionDataResponsePointer } = config.session
       data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
     }
