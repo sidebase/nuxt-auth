@@ -12,13 +12,18 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/types.d.ts",
-      "import": "./dist/module.mjs",
-      "require": "./dist/module.cjs"
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
     }
   },
-  "main": "./dist/module.cjs",
-  "types": "./dist/types.d.ts",
+  "main": "./dist/module.mjs",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/types.d.mts"
+      ]
+    }
+  },
   "files": [
     "dist"
   ],
@@ -50,7 +55,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.16.2",
-    "@nuxt/module-builder": "^0.8.4",
+    "@nuxt/module-builder": "^1.0.2",
     "@nuxt/schema": "^3.17.6",
     "@nuxtjs/eslint-config-typescript": "^12.1.0",
     "@types/node": "^20.19.6",
@@ -60,7 +65,7 @@
     "oxlint": "^0.16.12",
     "ts-essentials": "^9.4.2",
     "typescript": "^5.8.3",
-    "vitepress": "^1.6.3",
+    "vitepress": "^1.6.4",
     "vitest": "^3.2.4",
     "vue-tsc": "^2.2.12"
   },
