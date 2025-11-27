@@ -171,8 +171,9 @@ export function useAuth(): UseAuthReturn {
         headers,
         body
       },
-      /* proxyCookies = */ true)
-    .catch<Record<string, any>>((error: { data: any }) => error.data)
+      /* proxyCookies = */ true
+    )
+      .catch<Record<string, any>>((error: { data: any }) => error.data)
 
     const data = await callWithNuxt(nuxt, fetchSignIn)
 
