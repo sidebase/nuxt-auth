@@ -36,7 +36,7 @@ export function getNitroRouteRules(path: string): Partial<RouteOptions> {
 
   const matches = routeMatcher.matchAll(
     withoutBase(withoutTrailingSlash(withoutQuery(path)), app.baseURL)
-  ).reverse()
+  ).toReversed()
 
   for (const match of matches) {
     options.disableServerSideAuth ??= match.auth?.disableServerSideAuth
