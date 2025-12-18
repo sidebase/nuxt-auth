@@ -320,6 +320,10 @@ export interface ModulePublicRuntimeConfig {
   auth: ModuleOptionsNormalized
 }
 
+// Allow importing hooks provider helpers from the module
+export { defineHooksAdapter } from './runtime/composables/hooks/defineHooksAdapter'
+export type { HooksAdapter } from './runtime/composables/hooks/types'
+
 // Augment types for type inference in source code
 declare module '@nuxt/schema' {
   interface PublicRuntimeConfig {

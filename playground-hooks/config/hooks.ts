@@ -1,13 +1,6 @@
 import { array, jwt, object, optional, string } from 'zod/mini'
 import type { z } from 'zod/mini'
-
-// TODO Export this from the `@sidebase/nuxt-auth' module
-import type { HooksAdapter } from '../../src/runtime/composables/hooks/types'
-
-// TODO Export this from module
-export function defineHooksAdapter<SessionDataType = unknown>(hooks: HooksAdapter<SessionDataType>): HooksAdapter<SessionDataType> {
-  return hooks
-}
+import { defineHooksAdapter } from '../../src/runtime/composables/hooks/defineHooksAdapter'
 
 /** Expected shape of the user object received from `getSession` demo endpoint */
 const sessionSchema = object({
