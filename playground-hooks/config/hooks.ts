@@ -14,7 +14,7 @@ const sessionSchema = object({
   username: string(),
   name: string(),
   picture: optional(string()),
-  scope: array(string()),
+  scope: optional(array(string())),
 })
 /** Demo user data */
 type Session = z.infer<typeof sessionSchema>
