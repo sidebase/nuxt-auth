@@ -384,6 +384,18 @@ export interface ProviderHooks {
   adapter: string
 
   /**
+   * Pages that `nuxt-auth` needs to know the location off for redirects.
+   */
+  pages?: {
+    /**
+     * Path of the login-page that the user should be redirected to, when they try to access a protected page without being logged in.
+     *
+     * @default '/login'
+     */
+    login?: string
+  }
+
+  /**
    * Settings for the access token that `nuxt-auth` receives from the endpoints and that can be used to authenticate subsequent requests.
    */
   token?: {

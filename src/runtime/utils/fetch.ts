@@ -18,7 +18,7 @@ export async function _fetch<T>(
 export async function _fetchRaw<T>(
   nuxt: ReturnType<typeof useNuxtApp>,
   path: string,
-  fetchOptions?: Parameters<typeof $fetch>[1],
+  fetchOptions: Parameters<typeof $fetch>[1] = {},
   proxyCookies = false,
 ): Promise<FetchResponse<T>> {
   // This fixes https://github.com/sidebase/nuxt-auth/issues/927

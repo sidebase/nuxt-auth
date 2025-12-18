@@ -102,6 +102,9 @@ const defaultsByBackend: {
   hooks: {
     type: 'hooks',
     adapter: '', // this satisfies Required and also gets caught at `!adapter` check
+    pages: {
+      login: '/login'
+    },
     token: {
       // TODO Remove `as Required` cast and allow omitting properties in defaults
       internalCookie: {
