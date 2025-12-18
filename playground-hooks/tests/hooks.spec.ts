@@ -81,7 +81,7 @@ describe('local Provider', async () => {
     // Test `preventLoginFlow`
     let loginCalled = false
 
-    page.on('request', request => {
+    page.on('request', (request) => {
       if (request.url().includes('/api/auth/login')) {
         loginCalled = true
       }
