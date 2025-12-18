@@ -9,7 +9,9 @@ export default defineNuxtConfig({
       type: 'hooks',
       adapter: '~/config/hooks.ts',
       refresh: {
-        isEnabled: true,
+        // This is usually a static configuration `true` or `false`.
+        // We do an environment variable for E2E testing both options.
+        isEnabled: process.env.NUXT_AUTH_REFRESH_ENABLED !== 'false',
       },
     },
     sessionRefresh: {
