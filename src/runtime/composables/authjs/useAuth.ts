@@ -162,12 +162,19 @@ export function useAuth(): UseAuthReturn {
       json: true
     })
 
-    const fetchSignIn = () => _fetch<{ url: string }>(nuxt, `/${action}/${provider}`, {
-      method: 'post',
-      params: authorizationParams,
-      headers,
-      body
-    }).catch<Record<string, any>>((error: { data: any }) => error.data)
+    const fetchSignIn = () => _fetch<{ url: string }>(
+      nuxt,
+      `/${action}/${provider}`,
+      {
+        method: 'post',
+        params: authorizationParams,
+        headers,
+        body
+      },
+      /* proxyCookies = */ true
+    )
+      .catch<Record<string, any>>((error: { data: any }) => error.data)
+
     const data = await callWithNuxt(nuxt, fetchSignIn)
 
     if (redirect || !isSupportingReturn) {
@@ -272,7 +279,7 @@ export function useAuth(): UseAuthReturn {
       onRequestError: onError,
       onResponseError: onError,
       headers
-    })
+    }, /* proxyCookies = */ true)
   }
   function getSessionWithNuxt(nuxt: NuxtApp) {
     return callWithNuxt(nuxt, getSession)

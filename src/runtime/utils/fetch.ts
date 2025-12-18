@@ -9,7 +9,7 @@ import type { FetchResponse } from 'ofetch'
 export async function _fetch<T>(
   nuxt: ReturnType<typeof useNuxtApp>,
   path: string,
-  fetchOptions?: Parameters<typeof $fetch>[1],
+  fetchOptions: Parameters<typeof $fetch>[1] = {},
   proxyCookies = false,
 ): Promise<T> {
   return _fetchRaw<T>(nuxt, path, fetchOptions, proxyCookies).then(res => res._data as T)
@@ -38,10 +38,16 @@ export async function _fetchRaw<T>(
     }
   }
 
+  // Always include cookies to the request on browser by default
+  // https://github.com/sidebase/nuxt-auth/issues/1063
+  if (!fetchOptions.credentials) {
+    fetchOptions.credentials = 'include'
+  }
+
   // Add browser cookies to the request on server when `proxyCookies` param is set
   let event: H3Event | undefined
   if (import.meta.server && proxyCookies) {
-    const fetchOptionsHeaders = new Headers(fetchOptions?.headers ?? {})
+    const fetchOptionsHeaders = new Headers(fetchOptions.headers ?? {})
 
     event = await callWithNuxt(nuxt, useRequestEvent)
 
@@ -50,7 +56,6 @@ export async function _fetchRaw<T>(
       const cookies = event.node.req.headers.cookie
       if (cookies) {
         fetchOptionsHeaders.set('cookie', cookies)
-        fetchOptions ??= {}
         fetchOptions.headers = fetchOptionsHeaders
       }
     }
