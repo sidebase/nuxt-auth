@@ -10,7 +10,7 @@ type Awaitable<T> = T | Promise<T>
 /**
  * The main interface defining hooks for an endpoint
  */
-export interface EndpointHooks<SessionDataType, CreateRequestData, ResponseAccept> {
+export interface EndpointHooks<SessionDataType, CreateRequestData, ResponseAcceptType> {
   createRequest(
     data: CreateRequestData,
     authState: CommonUseAuthStateReturn<SessionDataType>,
@@ -21,7 +21,13 @@ export interface EndpointHooks<SessionDataType, CreateRequestData, ResponseAccep
     response: FetchResponse<unknown>,
     authState: CommonUseAuthStateReturn<SessionDataType>,
     nuxt: NuxtApp,
-  ): Awaitable<ResponseAccept | false>
+  ): Awaitable<ResponseAcceptType | false>
+
+  onError?(
+    errorCtx: ErrorContext,
+    authState: CommonUseAuthStateReturn<SessionDataType>,
+    nuxt: NuxtApp,
+  ): Awaitable<void>
 }
 
 /** Object that needs to be returned from `createRequest` in order to continue with data fetching */
@@ -80,12 +86,18 @@ export interface SignUpCreateRequestData {
   options?: SignUpOptions
 }
 
+/** Context provided to onError hook */
+export interface ErrorContext {
+  error: Error
+  requestData: CreateRequestResult
+}
+
 // TODO Use full UseAuthStateReturn, not the CommonUseAuthStateReturn
 
 export interface HooksAdapter<SessionDataType> {
   // Required endpoints
   signIn: EndpointHooks<SessionDataType, SignInCreateRequestData, ResponseAccept<SessionDataType>>
-  getSession: EndpointHooks<SessionDataType, GetSessionOptions | undefined, SessionDataType | null>
+  getSession: EndpointHooks<SessionDataType, GetSessionOptions | undefined, ResponseAccept<SessionDataType>>
 
   // Optional endpoints
   signOut?: EndpointHooks<SessionDataType, SignOutOptions | undefined, ResponseAccept<SessionDataType> | undefined>
