@@ -11,23 +11,23 @@ type Awaitable<T> = T | Promise<T>
  * The main interface defining hooks for an endpoint
  */
 export interface EndpointHooks<SessionDataType, CreateRequestData, ResponseAcceptType> {
-  createRequest(
+  createRequest: (
     data: CreateRequestData,
     authState: CommonUseAuthStateReturn<SessionDataType>,
     nuxt: NuxtApp,
-  ): Awaitable<CreateRequestResult | false>
+  ) => Awaitable<CreateRequestResult | false>
 
-  onResponse(
+  onResponse: (
     response: FetchResponse<unknown>,
     authState: CommonUseAuthStateReturn<SessionDataType>,
     nuxt: NuxtApp,
-  ): Awaitable<ResponseAcceptType | false>
+  ) => Awaitable<ResponseAcceptType | false>
 
-  onError?(
+  onError?: (
     errorCtx: ErrorContext,
     authState: CommonUseAuthStateReturn<SessionDataType>,
     nuxt: NuxtApp,
-  ): Awaitable<void>
+  ) => Awaitable<void>
 }
 
 /** Object that needs to be returned from `createRequest` in order to continue with data fetching */
@@ -58,9 +58,9 @@ export interface SignInCreateRequestData {
 }
 
 /**
-* Object that can be returned from some `onResponse` endpoints in order to update the auth state
-* and impact the next steps.
-*/
+ * Object that can be returned from some `onResponse` endpoints in order to update the auth state
+ * and impact the next steps.
+ */
 export interface ResponseAccept<SessionDataType> {
   /**
    * The value of the access token to be set.
@@ -104,4 +104,3 @@ export interface HooksAdapter<SessionDataType> {
   signUp?: EndpointHooks<SessionDataType, SignUpCreateRequestData, ResponseAccept<SessionDataType> | undefined>
   refresh?: EndpointHooks<SessionDataType, GetSessionOptions | undefined, ResponseAccept<SessionDataType>>
 }
-

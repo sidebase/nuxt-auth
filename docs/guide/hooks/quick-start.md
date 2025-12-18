@@ -30,9 +30,9 @@ Here's a quick minimal example of an adapter. Only `signIn` and `getSession` end
 ```ts
 export default defineHooksAdapter({
   signIn: {
-    createRequest: (credentials) => ({
+    createRequest: signInData => ({
       path: '/auth/login',
-      request: { method: 'post', body: credentials },
+      request: { method: 'post', body: signInData.credentials },
     }),
 
     onResponse: (response) => {
@@ -51,7 +51,7 @@ export default defineHooksAdapter({
       path: '/auth/profile',
       request: { method: 'get' }
     }),
-    onResponse: (response) => response._data ?? null,
+    onResponse: response => response._data ?? null,
   },
 })
 ```
@@ -76,12 +76,12 @@ Each `EndpointHooks` has two functions: `createRequest` and `onResponse`.
 
 Prepare data for the fetch call.
 
-Must return either an object:
+Must return either an object conforming to:
 
 ```ts
-{
+interface CreateRequestResult {
   // Path to the endpoint
-  path: string,
+  path: string
   // Request: body, headers, etc.
   request: NitroFetchOptions
 }
@@ -103,13 +103,13 @@ The `response` argument is the [`ofetch` raw response](https://github.com/unjs/o
 
 #### `ResponseAccept` shape (what `onResponse` can return)
 
-When `onResponse` returns an object (the `ResponseAccept`), it can contain:
+When `onResponse` returns an object (the `ResponseAccept`), it should conform to:
 
 ```ts
-{
-  token?: string | null,             // set or clear the access token in authState
-  refreshToken?: string | null,      // set or clear the refresh token in authState (if refresh is enabled)
-  session?: any | null               // set or clear the session object (when provided, `getSession` will NOT be called)
+interface ResponseAccept<SessionDataType> {
+  token?: string | null // set or clear the access token in authState
+  refreshToken?: string | null // set or clear the refresh token in authState (if refresh is enabled)
+  session?: SessionDataType // set or clear the session object (when provided, `getSession` will NOT be called)
 }
 ```
 
@@ -163,4 +163,3 @@ export default defineNuxtConfig({
   * `Access-Control-Allow-Credentials: true`
   * `Access-Control-Allow-Origin: <your-front-end-origin>` (cannot be `*` when credentials are used)
 * The default hooks shipped with the module try to extract tokens using the configured token pointers (`token.signInResponseTokenPointer`) and headers. Use hooks only when you need more customization.
-

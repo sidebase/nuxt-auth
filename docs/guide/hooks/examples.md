@@ -65,25 +65,27 @@ export default defineHooks({
 
   getSession: {
     createRequest: () => ({ path: '/auth/profile', request: { method: 'get' } }),
-    onResponse: (response) => response._data ?? null,
+    onResponse: response => response._data ?? null,
   },
 })
 ```
 
-## Fully-hijacking the flow
+## Fully hijacking the flow
 
 If your hook performs a redirect itself or sets cookies, you can stop the default flow by returning `false`:
 
 ```ts
-signIn: {
-  createRequest: (data) => ({ path: '/auth/login', request: { method: 'post', body: data.credentials } }),
-  async onResponse(response, authState, nuxt) {
-    // Handle everything yourself
-    authState.data.value = {}
-    authState.token.value = ''
-    // ...
+defineHooksAdapter<Session>({
+  signIn: {
+    createRequest: data => ({ path: '/auth/login', request: { method: 'post', body: data.credentials } }),
+    async onResponse(response, authState, nuxt) {
+      // Handle everything yourself
+      authState.data.value = {}
+      authState.token.value = ''
+      // ...
 
-    return false
+      return false
+    }
   }
-}
+})
 ```

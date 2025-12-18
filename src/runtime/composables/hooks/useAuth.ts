@@ -3,13 +3,13 @@ import type { Ref } from 'vue'
 import type { FetchResponse } from 'ofetch'
 import type { CommonUseAuthReturn, GetSessionOptions, SecondarySignInOptions, SignOutOptions, SignUpOptions } from '../../types'
 import { useTypedBackendConfig } from '../../helpers'
-import { _fetch, _fetchRaw } from '../../utils/fetch'
+import { _fetchRaw } from '../../utils/fetch'
 import { getRequestURLWN } from '../common/getRequestURL'
 import { ERROR_PREFIX } from '../../utils/logger'
 import { determineCallbackUrl } from '../../utils/callbackUrl'
 import { useAuthState } from './useAuthState'
 import { navigateTo, nextTick, useNuxtApp, useRoute, useRuntimeConfig } from '#imports'
-import type { HooksAdapter, ResponseAccept, Credentials } from './types'
+import type { Credentials, HooksAdapter, ResponseAccept } from './types'
 
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
@@ -78,7 +78,8 @@ export function useAuth(): UseAuthReturn {
     let response: FetchResponse<T>
     try {
       response = await _fetchRaw<T>(nuxt, createRequestResult.path, createRequestResult.request)
-    } catch (e) {
+    }
+    catch (e) {
       if (hooks.onError) {
         await hooks.onError({
           error: transformToError(e),
@@ -166,7 +167,8 @@ export function useAuth(): UseAuthReturn {
       try {
         response = await _fetchRaw<T>(nuxt, createRequestResult.path, createRequestResult.request)
         res = response._data
-      } catch (e) {
+      }
+      catch (e) {
         // If user hook is present, call it and return
         if (hooks.onError) {
           await hooks.onError({
@@ -187,7 +189,8 @@ export function useAuth(): UseAuthReturn {
       const signInResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt))
       if (signInResponseAccept === false) {
         return
-      } else if (signInResponseAccept !== undefined) {
+      }
+      else if (signInResponseAccept !== undefined) {
         await acceptResponse(signInResponseAccept, false)
         shouldResetData = false
       }
@@ -228,21 +231,24 @@ export function useAuth(): UseAuthReturn {
     loading.value = true
     try {
       response = await _fetchRaw<SessionData>(nuxt, createRequestResult.path, createRequestResult.request)
-    } catch (e) {
+    }
+    catch (e) {
       if (hooks.onError) {
         // Prefer user hook if it exists
         await hooks.onError({
           error: transformToError(e),
           requestData: createRequestResult
         }, authState, nuxt)
-      } else {
+      }
+      else {
         // Clear authentication data by default
         console.log('clearing auth state')
         data.value = null
         rawToken.value = null
         console.log(authState)
       }
-    } finally {
+    }
+    finally {
       loading.value = false
     }
 
@@ -341,7 +347,8 @@ export function useAuth(): UseAuthReturn {
     let response: FetchResponse<T>
     try {
       response = await _fetchRaw<T>(nuxt, createRequestResult.path, createRequestResult.request)
-    } catch (e) {
+    }
+    catch (e) {
       if (hooks.onError) {
         // If user hook is present, call it and return
         await hooks.onError({
@@ -349,7 +356,8 @@ export function useAuth(): UseAuthReturn {
           requestData: createRequestResult,
         }, authState, nuxt)
         return
-      } else {
+      }
+      else {
         throw e
       }
     }
@@ -357,7 +365,8 @@ export function useAuth(): UseAuthReturn {
     const signUpResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt))
     if (signUpResponseAccept === false) {
       return
-    } else if (signUpResponseAccept !== undefined) {
+    }
+    else if (signUpResponseAccept !== undefined) {
       // When an object was returned, accept it the same way as for `signIn`
       await acceptResponse(signUpResponseAccept, options?.callGetSession ?? false)
       return response._data
@@ -390,7 +399,8 @@ export function useAuth(): UseAuthReturn {
     let response: FetchResponse<unknown>
     try {
       response = await _fetchRaw(nuxt, createRequestResult.path, createRequestResult.request)
-    } catch (e) {
+    }
+    catch (e) {
       if (hooks.onError) {
         // If user hook is present, call it and return
         await hooks.onError({
@@ -398,7 +408,8 @@ export function useAuth(): UseAuthReturn {
           requestData: createRequestResult,
         }, authState, nuxt)
         return
-      } else {
+      }
+      else {
         throw e
       }
     }
@@ -407,7 +418,8 @@ export function useAuth(): UseAuthReturn {
     const getSessionResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt))
     if (getSessionResponseAccept === false) {
       return
-    } else if (getSessionResponseAccept !== undefined) {
+    }
+    else if (getSessionResponseAccept !== undefined) {
       // When an object was returned, accept it the same way as for `signIn`
       // and always call `getSession` when session was not provided
       return await acceptResponse(getSessionResponseAccept, true, options)
@@ -434,7 +446,8 @@ export function useAuth(): UseAuthReturn {
 function transformToError(e: unknown): Error {
   if (e instanceof Error) {
     return e
-  } else {
+  }
+  else {
     console.error('Unrecognized error thrown during getSession')
     return new Error('Unknown error')
   }

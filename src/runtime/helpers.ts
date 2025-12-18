@@ -1,6 +1,6 @@
 // TODO: This should be merged into `./utils`
 import type { DeepRequired } from 'ts-essentials'
-import type { ProviderAuthjs, ProviderLocal, ProviderHooks, SupportedAuthProviders } from './types'
+import type { ProviderAuthjs, ProviderHooks, ProviderLocal, SupportedAuthProviders } from './types'
 import type { useRuntimeConfig } from '#imports'
 
 export const isProduction = process.env.NODE_ENV === 'production'

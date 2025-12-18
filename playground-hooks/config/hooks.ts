@@ -1,4 +1,5 @@
-import { array, object, jwt, optional, string, type z } from 'zod/mini'
+import { array, jwt, object, optional, string } from 'zod/mini'
+import type { z } from 'zod/mini'
 
 // TODO Export this from the `@sidebase/nuxt-auth' module
 import type { HooksAdapter } from '../../src/runtime/composables/hooks/types'
