@@ -1,6 +1,6 @@
 import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { expect as playwrightExpect } from '@nuxt/test-utils/playwright'
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 const STATUS_AUTHENTICATED = 'authenticated'
 const STATUS_UNAUTHENTICATED = 'unauthenticated'
@@ -78,6 +78,15 @@ describe('local Provider', async () => {
     await usernameInput.fill('newuser')
     await passwordInput.fill('hunter2')
 
+    // Test `preventLoginFlow`
+    let loginCalled = false
+
+    page.on('request', request => {
+      if (request.url().includes('/api/auth/login')) {
+        loginCalled = true
+      }
+    })
+
     // Click button and wait for API to finish
     const responsePromise = page.waitForResponse(/\/api\/auth\/signup/)
     await submitButton.click()
@@ -87,7 +96,16 @@ describe('local Provider', async () => {
     const responseBody = await response.json() // Parse response
     playwrightExpect(responseBody).toBeDefined() // Ensure data is returned
 
-    // Since we use `preventLoginFlow`, status should be unauthenticated
-    await playwrightExpect(status).toHaveText(STATUS_UNAUTHENTICATED)
+    // Note: even though we use `preventLoginFlow` and logically
+    // one may assume that status should be unauthenticated,
+    // the demo signUp endpoint returns the signed in user,
+    // and the adapter hook picks it up, automatically signing the user in
+    // without an extra call to `signIn`. We therefore test this
+    // in a different way by checking that `/api/auth/login` was not called.
+    await playwrightExpect(status).toHaveText(STATUS_AUTHENTICATED)
+
+    // Wait long enough for all network activity to settle
+    await page.waitForTimeout(500)
+    expect(loginCalled).toBe(false)
   })
 })
