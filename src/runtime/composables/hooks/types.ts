@@ -1,11 +1,31 @@
 import type { NitroFetchOptions, NitroFetchRequest } from 'nitropack'
-import type { CommonUseAuthStateReturn, GetSessionOptions, SecondarySignInOptions, SignOutOptions, SignUpOptions } from '../../types'
-import type { useNuxtApp } from '#imports'
 import type { FetchResponse } from 'ofetch'
+import type { ComputedRef } from 'vue'
+import type { CommonUseAuthStateReturn, GetSessionOptions, SecondarySignInOptions, SignOutOptions, SignUpOptions } from '../../types'
+import type { CookieRef } from '#app'
+import type { useNuxtApp } from '#imports'
 
 export type RequestOptions = NitroFetchOptions<NitroFetchRequest>
 type NuxtApp = ReturnType<typeof useNuxtApp>
 type Awaitable<T> = T | Promise<T>
+
+/**
+ * The internal response of the local-specific auth data
+ *
+ * @remarks
+ * The returned value `refreshToken` and `rawRefreshToken` will always be `null` if `refresh.isEnabled` is `false`
+ */
+export interface UseAuthStateReturn<SessionData> extends CommonUseAuthStateReturn<SessionData> {
+  token: ComputedRef<string | null>
+  rawToken: CookieRef<string | null>
+  refreshToken: ComputedRef<string | null>
+  rawRefreshToken: CookieRef<string | null>
+  setToken: (newToken: string | null) => void
+  clearToken: () => void
+  _internal: {
+    rawTokenCookie: CookieRef<string | null>
+  }
+}
 
 /**
  * The main interface defining hooks for an endpoint
@@ -13,19 +33,19 @@ type Awaitable<T> = T | Promise<T>
 export interface EndpointHooks<SessionDataType, CreateRequestData, ResponseAcceptType> {
   createRequest: (
     data: CreateRequestData,
-    authState: CommonUseAuthStateReturn<SessionDataType>,
+    authState: UseAuthStateReturn<SessionDataType>,
     nuxt: NuxtApp,
   ) => Awaitable<CreateRequestResult | false>
 
   onResponse: (
     response: FetchResponse<unknown>,
-    authState: CommonUseAuthStateReturn<SessionDataType>,
+    authState: UseAuthStateReturn<SessionDataType>,
     nuxt: NuxtApp,
   ) => Awaitable<ResponseAcceptType | false>
 
   onError?: (
     errorCtx: ErrorContext,
-    authState: CommonUseAuthStateReturn<SessionDataType>,
+    authState: UseAuthStateReturn<SessionDataType>,
     nuxt: NuxtApp,
   ) => Awaitable<void>
 }
@@ -91,8 +111,6 @@ export interface ErrorContext {
   error: Error
   requestData: CreateRequestResult
 }
-
-// TODO Use full UseAuthStateReturn, not the CommonUseAuthStateReturn
 
 export interface HooksAdapter<SessionDataType> {
   // Required endpoints

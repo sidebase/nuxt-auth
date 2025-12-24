@@ -91,6 +91,10 @@ export const routes: DefaultTheme.SidebarItem[] = [
         link: '/quick-start',
       },
       {
+        text: 'Adapter',
+        link: '/adapter',
+      },
+      {
         text: 'Examples',
         link: '/examples',
       }

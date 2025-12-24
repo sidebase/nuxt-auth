@@ -106,7 +106,7 @@ const defaultsByBackend: {
       login: '/login'
     },
     token: {
-      // TODO Remove `as Required` cast and allow omitting properties in defaults
+      // FIXME Remove `as Required` cast and allow omitting properties in defaults
       internalCookie: {
         name: 'auth.token',
         maxAge: 60 * 30, // 30 minutes
@@ -116,7 +116,7 @@ const defaultsByBackend: {
     refresh: {
       isEnabled: false,
       token: {
-        // TODO Remove `as Required` cast and allow omitting properties in defaults
+        // FIXME Remove `as Required` cast and allow omitting properties in defaults
         internalCookie: {
           name: 'auth.refresh-token',
           maxAge: 60 * 60 * 24 * 7, // 7 days

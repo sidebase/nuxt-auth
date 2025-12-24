@@ -1,32 +1,12 @@
 import { computed, getCurrentInstance, watch } from 'vue'
-import type { ComputedRef } from 'vue'
-import type { CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
 import { useTypedBackendConfig } from '../../helpers'
-import type { CookieRef } from '#app'
+import type { UseAuthStateReturn } from './types'
 import { onMounted, useCookie, useRuntimeConfig, useState } from '#imports'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
 
-/**
- * The internal response of the local-specific auth data
- *
- * @remarks
- * The returned value `refreshToken` and `rawRefreshToken` will always be `null` if `refresh.isEnabled` is `false`
- */
-export interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData> {
-  token: ComputedRef<string | null>
-  rawToken: CookieRef<string | null>
-  refreshToken: ComputedRef<string | null>
-  rawRefreshToken: CookieRef<string | null>
-  setToken: (newToken: string | null) => void
-  clearToken: () => void
-  _internal: {
-    rawTokenCookie: CookieRef<string | null>
-  }
-}
-
-export function useAuthState(): UseAuthStateReturn {
+export function useAuthState(): UseAuthStateReturn<SessionData> {
   const config = useTypedBackendConfig(useRuntimeConfig(), 'hooks')
   const commonAuthState = makeCommonAuthState<SessionData>()
 

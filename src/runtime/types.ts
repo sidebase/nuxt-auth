@@ -377,10 +377,8 @@ export interface ProviderHooks {
 
   /**
    * The location of the adapter implementation.
-   * @see https://auth.sidebase.io/guide/hooks/quick-start#adapter
+   * @see https://auth.sidebase.io/guide/hooks/adapter
    */
-  // TODO Move Adapter in detail to a separate page
-  // TODO Use correct documentation URL above after that
   adapter: string
 
   /**
@@ -680,6 +678,8 @@ export interface GetSessionOptions {
   onUnauthenticated?: () => void
   /**
    * Whether to refetch the session even if the token returned by useAuthState is null.
+   * Note: this option does not apply to `hooks` provider which relies on `getSession` hook
+   * to determine if the session request should happen.
    *
    * @default false
    */

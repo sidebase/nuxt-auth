@@ -21,13 +21,13 @@ export default defineNuxtConfig({
 
 The path should point to a file that exports an adapter implementing `Hooks`.
 
-## Adapter
-
-### Quick example
+## Adapter quick example
 
 Here's a quick minimal example of an adapter. Only `signIn` and `getSession` endpoints are required:
 
 ```ts
+import { defineHooksAdapter } from '@sidebase/nuxt-auth'
+
 export default defineHooksAdapter({
   signIn: {
     createRequest: signInData => ({
@@ -56,86 +56,8 @@ export default defineHooksAdapter({
 })
 ```
 
-### In detail
-
-A hooks provider expects the following adapter implementation for the auth endpoints:
-
-```ts
-export interface HooksAdapter {
-  signIn: EndpointHooks
-  getSession: EndpointHooks
-  signOut?: EndpointHooks
-  signUp?: EndpointHooks
-  refresh?: EndpointHooks
-}
-```
-
-Each `EndpointHooks` has two functions: `createRequest` and `onResponse`.
-
-#### `createRequest(data, authState, nuxt)`
-
-Prepare data for the fetch call.
-
-Must return either an object conforming to:
-
-```ts
-interface CreateRequestResult {
-  // Path to the endpoint
-  path: string
-  // Request: body, headers, etc.
-  request: NitroFetchOptions
-}
-```
-
-or `false` to stop execution (no network call will be performed).
-
-#### `onResponse(response, authState, nuxt)`
-
-Handle the response and optionally instruct the module how to update state.
-
-May return:
-* `false` — stop further processing (module will not update auth state).
-* `undefined` — proceed with default behaviour (e.g., the `signIn` flow will call `getSession` unless `signIn()` options say otherwise).
-* `ResponseAccept` object — instruct the module what to set in `authState` (see below).
-* Throw an `Error` to propagate a failure.
-
-The `response` argument is the [`ofetch` raw response](https://github.com/unjs/ofetch?tab=readme-ov-file#-access-to-raw-response) that the module uses as well. `response._data` usually contains parsed body.
-
-#### `ResponseAccept` shape (what `onResponse` can return)
-
-When `onResponse` returns an object (the `ResponseAccept`), it should conform to:
-
-```ts
-interface ResponseAccept<SessionDataType> {
-  token?: string | null // set or clear the access token in authState
-  refreshToken?: string | null // set or clear the refresh token in authState (if refresh is enabled)
-  session?: SessionDataType // set or clear the session object (when provided, `getSession` will NOT be called)
-}
-```
-
-When `token` is provided (not omitted and not `undefined`) the module will set `authState.token` (or clear it when `null`).
-Same applies for `refreshToken` when refresh was enabled.
-
-When `session` is provided the module will use that session directly and will **not** call `getSession`.
-
-When the `onResponse` hook returns `undefined`, the module may call `getSession` (depending on the flow) to obtain the session.
-
-#### `authState` argument
-
-This argument gives you access to the state of the module, allowing to read or modify session data or tokens.
-
-#### `nuxt` argument
-
-This argument is provided for your convenience and to allow using Nuxt context for invoking other composables. See the [Nuxt documentation](https://nuxt.com/docs/4.x/api/composables/use-nuxt-app) for more information.
-
-### In short
-
-* `createRequest` builds and returns `{ path, request }`. The module will call `_fetchRaw(nuxt, path, request)`.
-
-* `onResponse` determines what the module should do next:
-  * `false` — stop everything (useful when the hook itself handled redirects, cookies or state changes).
-  * `undefined` — default behaviour (module may call `getSession`).
-  * `{ token?, refreshToken?, session? }` — module will set provided tokens/session in `authState`.
+To see more information about setting up your adapter, please refer to [its dedicated page](./adapter.md).
+See the [examples page](./examples.md) to get some inspiration.
 
 ## Pages
 
@@ -162,4 +84,3 @@ export default defineNuxtConfig({
 
   * `Access-Control-Allow-Credentials: true`
   * `Access-Control-Allow-Origin: <your-front-end-origin>` (cannot be `*` when credentials are used)
-* The default hooks shipped with the module try to extract tokens using the configured token pointers (`token.signInResponseTokenPointer`) and headers. Use hooks only when you need more customization.

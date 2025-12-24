@@ -218,6 +218,14 @@ export function useAuth(): UseAuthReturn {
     return res
   }
 
+  /**
+   * Gets the session using the configured `getSession` hook.
+   *
+   * The function normally expects that, given the valid tokens (`token`, `refreshToken`) inside `authState`,
+   * your backend will provide user data, so that `getSession` hook returns `session` from it
+   * which in turn sets authentication state (`data` and `status = authenticated`).
+   * This state then controls how different middleware and plugins behave.
+   */
   async function getSession(getSessionOptions?: GetSessionOptions): Promise<SessionData | null | void> {
     // Create request
     const hooks = userHooks.getSession
@@ -242,10 +250,9 @@ export function useAuth(): UseAuthReturn {
       }
       else {
         // Clear authentication data by default
-        console.log('clearing auth state')
         data.value = null
         rawToken.value = null
-        console.log(authState)
+        rawRefreshToken.value = null
       }
     }
     finally {
@@ -263,63 +270,6 @@ export function useAuth(): UseAuthReturn {
 
       await acceptResponse(getSessionResponseAccept, false)
     }
-
-    // TODO Do use cookies for storing access and refresh tokens, but only to provide them to authState.
-    // How to handle the TTL though? (probably use existing Max-Age and other cookie settings; disallow HTTP-Only?)
-
-    // TODO Add this to README FAQ:
-    // ## My server returns HTTP-Only cookies
-    // You are already set in this case - your browser will automatically send cookies with each request,
-    // as soon as the cookies were configured with the correct domain and path on your server.
-    // NuxtAuth will use `getSession` to query your server - this is how your application
-    // will know the authentication status.
-    //
-    // Please also note that `authState` will not have the tokens available in this case.
-    //
-    // ## My server returns tokens inside Body or Headers
-    // In this case you should extract the tokens inside `onResponse` hook and let NuxtAuth know about them
-    // by returning them from the hook, e.g.
-    // ```ts
-    // return {
-    //   token: response._data.accessToken,
-    //   refreshToken: response.headers.get('X-RefreshToken'),
-    // }
-    // ```
-    //
-    // NuxtAuth will update `authState` accordingly, so you will be able to use the tokens in the later calls.
-    // The tokens you return will be internally stored inside cookies and
-    // you can configure their Max-Age (refer to the relevant documentation).
-
-    // TODO Document accepting the response by different hooks:
-    // ## All hooks
-    // false
-    // Stops the function execution, does not update anything or trigger any other logic.
-    // Useful when hook already handled everything.
-    //
-    // Throw Error
-    // Stops the execution and propagates the error without handling it.
-    // You should be very careful when throwing from `signIn` as it is also used inside middleware.
-    //
-    // ## signIn
-    // Object, depending on which properties are set, will update authState and trigger other logic.
-    //
-    // ## getSession
-    // null - will clear the session. If `required` was used during `getSession` call,
-    // it will call `onUnauthenticated` or navigate the user away.
-    //
-    // Any other value - will set the session to this value.
-    //
-    // ## signOut
-    //
-    // ## signUp
-    // Same as `signIn`, response can be accepted using an object,
-    // in this case `authState` will be updated and function will return.
-    //
-    // Response can also be accepted with `undefined`,
-    // this will trigger `signIn` flow unless `preventLoginFlow` was given.
-
-    // TODO Mention that `force` option does not have any effect in this provider
-    // TODO Deprecate the `force` option altogether in favor of a cookie-less `getSession` (and/or deprecate `local` provider)
 
     const { required = false, callbackUrl, onUnauthenticated, external } = getSessionOptions ?? {}
     if (required && data.value === null) {
