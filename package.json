@@ -48,6 +48,11 @@
   "peerDependencies": {
     "next-auth": "~4.21.1"
   },
+  "peerDependenciesMeta": {
+    "next-auth": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@antfu/eslint-config": "^4.16.2",
     "@nuxt/module-builder": "^0.8.4",
