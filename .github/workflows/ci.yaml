@@ -104,6 +104,43 @@ jobs:
       - name: Run Playwright tests using Vitest with refresh enabled
         run: pnpm test:e2e
 
+  test-playground-hooks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./playground-hooks
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Use Node.js ${{ env.NODE_VER }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VER }}
+          cache: "pnpm"
+
+      - name: Install deps
+        run: pnpm i
+
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+
+      # Check building
+      - run: pnpm build
+
+      - name: Run Playwright tests using Vitest with refresh disabled
+        run: pnpm test:e2e
+        env:
+          NUXT_AUTH_REFRESH_ENABLED: false
+
+      - name: Run Playwright tests using Vitest with refresh enabled
+        run: pnpm test:e2e
+
   test-playground-authjs:
     runs-on: ubuntu-latest
     defaults:

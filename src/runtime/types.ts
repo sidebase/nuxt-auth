@@ -1,5 +1,6 @@
 import type { ComputedRef, Ref } from 'vue'
 import type { RouterMethod } from 'h3'
+import type { CookieSerializeOptions } from 'cookie-es'
 import type { SupportedProviders } from './composables/authjs/useAuth'
 
 /**
@@ -55,7 +56,7 @@ export interface SessionDataObject {
 /**
  * Available `nuxt-auth` authentication providers.
  */
-export type SupportedAuthProviders = 'authjs' | 'local'
+export type SupportedAuthProviders = 'authjs' | 'local' | 'hooks'
 
 /**
  * Configuration for the `local`-provider.
@@ -364,7 +365,77 @@ export interface ProviderAuthjs {
   addDefaultCallbackUrl?: boolean | string
 }
 
-export type AuthProviders = ProviderAuthjs | ProviderLocal
+/**
+ * Configuration for the `hooks` provider.
+ */
+export interface ProviderHooks {
+  /**
+   * Uses the `hooks` provider to facilitate authentication.
+   * Read more here: https://auth.sidebase.io/guide/hooks/quick-start
+   */
+  type: Extract<SupportedAuthProviders, 'hooks'>
+
+  /**
+   * The location of the adapter implementation.
+   * @see https://auth.sidebase.io/guide/hooks/adapter
+   */
+  adapter: string
+
+  /**
+   * Pages that `nuxt-auth` needs to know the location off for redirects.
+   */
+  pages?: {
+    /**
+     * Path of the login-page that the user should be redirected to, when they try to access a protected page without being logged in.
+     *
+     * @default '/login'
+     */
+    login?: string
+  }
+
+  /**
+   * Settings for the access token that `nuxt-auth` receives from the endpoints and that can be used to authenticate subsequent requests.
+   */
+  token?: {
+    /**
+     * Configuration for the internal cookie used by the module for saving the Access Token.
+     * @default { name: 'auth.token', maxAge: 60 * 30, sameSite: 'lax' }
+     */
+    internalCookie?: CookieOptions
+  }
+
+  /**
+   * Configuration for the refresh token logic of the `local` provider.
+   * If set to `undefined` or set to `{ isEnabled: false }`, refresh tokens will not be used.
+   */
+  refresh?: {
+    /**
+     * Whether the refresh logic of the hooks provider is active
+     * @default false
+     */
+    isEnabled?: boolean
+
+    /**
+     * Settings for the refresh-token that `nuxt-auth` receives from the endpoints that is used for the `refresh` call.
+     */
+    token?: {
+      /**
+       * Configuration for the internal cookie used by the module for saving the Refresh Token.
+       * @default { name: 'auth.refresh-token', maxAge: 60 * 60 * 24 * 7, sameSite: 'lax' }
+       */
+      internalCookie?: CookieOptions
+    }
+  }
+}
+
+export type AuthProviders = ProviderAuthjs | ProviderLocal | ProviderHooks
+
+export interface CookieOptions extends Omit<CookieSerializeOptions, 'encode' | 'httpOnly'> {
+  /**
+   * The name of the cookie to use.
+   */
+  name: string
+}
 
 export interface RefreshHandler {
   /**
@@ -607,6 +678,8 @@ export interface GetSessionOptions {
   onUnauthenticated?: () => void
   /**
    * Whether to refetch the session even if the token returned by useAuthState is null.
+   * Note: this option does not apply to `hooks` provider which relies on `getSession` hook
+   * to determine if the session request should happen.
    *
    * @default false
    */

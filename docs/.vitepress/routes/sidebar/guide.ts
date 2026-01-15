@@ -83,6 +83,24 @@ export const routes: DefaultTheme.SidebarItem[] = [
     ],
   },
   {
+    text: 'Hooks Provider',
+    base: '/guide/hooks',
+    items: [
+      {
+        text: 'Quick Start',
+        link: '/quick-start',
+      },
+      {
+        text: 'Adapter',
+        link: '/adapter',
+      },
+      {
+        text: 'Examples',
+        link: '/examples',
+      }
+    ],
+  },
+  {
     text: 'Advanced',
     base: '/guide/advanced',
     items: [

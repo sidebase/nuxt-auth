@@ -17,6 +17,10 @@ export const routes: DefaultTheme.Config['nav'] = [
         text: 'Local guide',
         link: '/guide/local/quick-start',
       },
+      {
+        text: 'Hooks guide',
+        link: '/guide/hooks/quick-start',
+      },
     ],
   },
   {

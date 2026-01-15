@@ -17,6 +17,7 @@ import type { NuxtModule } from 'nuxt/schema'
 import { isProduction } from './runtime/helpers'
 import type {
   AuthProviders,
+  CookieOptions,
   ModuleOptions,
   ModuleOptionsNormalized,
   RefreshHandler,
@@ -96,7 +97,34 @@ const defaultsByBackend: {
     trustHost: false,
     defaultProvider: '', // this satisfies Required and also gets caught at `!provider` check
     addDefaultCallbackUrl: true
-  }
+  },
+
+  hooks: {
+    type: 'hooks',
+    adapter: '', // this satisfies Required and also gets caught at `!adapter` check
+    pages: {
+      login: '/login'
+    },
+    token: {
+      // FIXME Remove `as Required` cast and allow omitting properties in defaults
+      internalCookie: {
+        name: 'auth.token',
+        maxAge: 60 * 30, // 30 minutes
+        sameSite: 'lax',
+      } as Required<CookieOptions>
+    },
+    refresh: {
+      isEnabled: false,
+      token: {
+        // FIXME Remove `as Required` cast and allow omitting properties in defaults
+        internalCookie: {
+          name: 'auth.refresh-token',
+          maxAge: 60 * 60 * 24 * 7, // 7 days
+          sameSite: 'lax',
+        } as Required<CookieOptions>
+      }
+    }
+  },
 }
 
 const PACKAGE_NAME = 'sidebase-auth'
@@ -240,6 +268,24 @@ export default defineNuxtModule<ModuleOptions>({
       from: generatedRefreshHandlerPath
     }])
 
+    // 5.3. Register a virtual import for the adapter
+    if (options.provider.type === 'hooks') {
+      const implementation = options.provider.adapter
+      if (!implementation) {
+        throw new Error(
+          'Adapter implementation is required for the Hooks provider'
+        )
+      }
+
+      addTemplate({
+        filename: 'nuxt-auth/hooks-adapter.ts',
+        async getContents() {
+          const path = (await resolvePath(implementation)).replace(/\.ts$/, '')
+          return `export { default } from '${path}'`
+        }
+      })
+    }
+
     // 6. Register middleware for autocomplete in definePageMeta
     addRouteMiddleware({
       name: MIDDLEWARE_NAME,
@@ -273,6 +319,10 @@ export type { ModuleOptions, RefreshHandler }
 export interface ModulePublicRuntimeConfig {
   auth: ModuleOptionsNormalized
 }
+
+// Allow importing hooks provider helpers from the module
+export { defineHooksAdapter } from './runtime/composables/hooks/defineHooksAdapter'
+export type { HooksAdapter } from './runtime/composables/hooks/types'
 
 // Augment types for type inference in source code
 declare module '@nuxt/schema' {
