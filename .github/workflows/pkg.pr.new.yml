@@ -8,17 +8,14 @@ on:
   pull_request:
 
 env:
-  NODE_VER: 22.11
+  NODE_VER: 22.18
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -32,7 +29,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install deps
-        run: pnpm i
+        run: pnpm i && pnpm dev:prepare
 
       - name: Build and pack
         run: pnpm prepack

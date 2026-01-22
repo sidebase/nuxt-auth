@@ -1,3 +1,7 @@
 packages:
   - 'playground-*/**'
   - docs/**
+
+# https://pnpm.io/supply-chain-security
+minimumReleaseAge: 10080 # 1 week
+trustPolicy: no-downgrade

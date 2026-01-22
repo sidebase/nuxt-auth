@@ -3,6 +3,7 @@ import { autoAddMiddleware } from '../src/build/autoAddMiddleware'
 import type { NuxtPage } from '../src/build/autoAddMiddleware'
 
 const MIDDLEWARE_NAME = 'sidebase-auth'
+function middlewareFunction() {}
 
 describe('setMiddleware', () => {
   it('adds middleware if meta.auth is true', () => {
@@ -21,7 +22,6 @@ describe('setMiddleware', () => {
     testMiddleware({ meta: { auth2: 'foo' } }, undefined)
     testMiddleware({ meta: { middleware: 'foo' } }, 'foo')
     testMiddleware({ meta: { middleware: ['foo'] } }, ['foo'])
-    const middlewareFunction = () => {}
     testMiddleware({ meta: { middleware: middlewareFunction } }, middlewareFunction)
   })
 
@@ -82,10 +82,9 @@ describe('setMiddleware', () => {
   })
 
   it('wraps other middleware options into array', () => {
-    const functionMiddleware = () => {}
     testMiddleware(
-      { meta: { auth: true, middleware: functionMiddleware } },
-      [functionMiddleware, MIDDLEWARE_NAME]
+      { meta: { auth: true, middleware: middlewareFunction } },
+      [middlewareFunction, MIDDLEWARE_NAME]
     )
   })
 

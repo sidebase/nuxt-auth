@@ -12,16 +12,16 @@
     "test:e2e": "vitest"
   },
   "dependencies": {
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@nuxt/test-utils": "^3.19.2",
-    "@playwright/test": "^1.54.0",
+    "@nuxt/test-utils": "^3.23.0",
+    "@playwright/test": "^1.57.0",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^20.19.6",
+    "@types/node": "^20.19.29",
     "@vue/test-utils": "^2.4.6",
-    "nuxt": "^3.17.6",
+    "nuxt": "^3.20.2",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4",
     "vue-tsc": "^2.2.12"
