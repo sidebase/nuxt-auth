@@ -15,7 +15,7 @@ const { data: token } = await useAsyncData(
   async () => {
     const headers = useRequestHeaders(['cookie'])
     const result = await $fetch('/api/token', { headers })
-    return result ?? null
+    return { token: result ?? null }
   }
 )
 
@@ -31,7 +31,7 @@ const route = useRoute()
     <pre>Status: {{ status }}</pre>
     <pre>Data: {{ data || 'no session data present, are you logged in?' }}</pre>
     <pre>Last refreshed at: {{ lastRefreshedAt || 'no refresh happened' }}</pre>
-    <pre>Decoded JWT token: {{ token || 'no token present, are you logged in?' }}</pre>
+    <pre>Decoded JWT token: {{ token?.token || 'no token present, are you logged in?' }}</pre>
     <pre>CSRF Token: {{ csrfToken }}</pre>
     <pre>Providers: {{ providers }}</pre>
     <hr>
