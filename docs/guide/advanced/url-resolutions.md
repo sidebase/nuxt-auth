@@ -99,7 +99,7 @@ export default defineNuxtConfig({
 })
 ```
 
-```env diff [.env]
+```dotenv diff [.env]
 AUTH_ORIGIN="https://my-backend.com/api/auth" // [!code ++]
 ```
 
