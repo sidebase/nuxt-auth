@@ -58,9 +58,6 @@ jobs:
       # Note: no build step because npm publish would run `prepack` script which builds the module
 
       - name: Publish to npm with provenance
-        env:
-          # Environment variable used by `setup-node` action
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           TAG="${{ github.event.release.tag_name }}"
 
