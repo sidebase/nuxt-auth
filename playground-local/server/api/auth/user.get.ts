@@ -1,5 +1,6 @@
 import { createError, eventHandler, getRequestHeader } from 'h3'
-import { checkUserAccessToken, decodeToken, extractTokenFromAuthorizationHeader, getTokensByUser, userSchema, type User } from '~/server/utils/session'
+import { checkUserAccessToken, decodeToken, extractTokenFromAuthorizationHeader, getTokensByUser, userSchema } from '~/server/utils/session'
+import type { User } from '~/server/utils/session'
 
 export default eventHandler(async (event) => {
   const authorizationHeader = getRequestHeader(event, 'Authorization')

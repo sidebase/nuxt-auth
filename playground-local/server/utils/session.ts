@@ -3,7 +3,8 @@
  * This is a demo implementation, please create your own handlers
  */
 
-import { SignJWT, jwtVerify, type JWTPayload } from 'jose'
+import { jwtVerify, SignJWT } from 'jose'
+import type { JWTPayload } from 'jose'
 import { z } from 'zod'
 
 /**
