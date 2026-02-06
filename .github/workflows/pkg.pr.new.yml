@@ -8,7 +8,7 @@ on:
   pull_request:
 
 env:
-  NODE_VER: 22.18
+  NODE_VER: 24.13
 
 jobs:
   build:

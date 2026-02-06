@@ -1,22 +1,25 @@
 import { createError, eventHandler, getRequestHeader } from 'h3'
-import { checkUserAccessToken, decodeToken, extractTokenFromAuthorizationHeader, getTokensByUser } from '~/server/utils/session'
-import type { JwtPayload } from '~/server/utils/session'
+import { checkUserAccessToken, decodeToken, extractTokenFromAuthorizationHeader, getTokensByUser, userSchema, type User } from '~/server/utils/session'
 
-export default eventHandler((event) => {
+export default eventHandler(async (event) => {
   const authorizationHeader = getRequestHeader(event, 'Authorization')
   if (typeof authorizationHeader === 'undefined') {
     throw createError({ statusCode: 403, message: 'Need to pass valid Bearer-authorization header to access this endpoint' })
   }
 
   const requestAccessToken = extractTokenFromAuthorizationHeader(authorizationHeader)
-  let decoded: JwtPayload
+  let decoded: User
   try {
-    const decodeTokenResult = decodeToken(requestAccessToken)
+    const decodeTokenResult = await decodeToken(requestAccessToken)
 
     if (!decodeTokenResult) {
       throw new Error('Expected decoded JwtPayload to be non-empty')
     }
-    decoded = decodeTokenResult
+    const userParseResult = userSchema.safeParse(decodeTokenResult)
+    if (!userParseResult.success) {
+      throw new Error('User shape mismatched')
+    }
+    decoded = userParseResult.data
   }
   catch (error) {
     console.error({
