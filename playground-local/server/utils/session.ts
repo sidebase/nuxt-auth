@@ -3,28 +3,26 @@
  * This is a demo implementation, please create your own handlers
  */
 
-import { sign, verify } from 'jsonwebtoken'
+import { jwtVerify, SignJWT } from 'jose'
+import type { JWTPayload } from 'jose'
 import { z } from 'zod'
 
 /**
  * This is a demo secret.
  * Please ensure that your secret is properly protected.
  */
-const SECRET = 'dummy'
+const SECRET = new TextEncoder().encode('dummy')
 
 /** 30 seconds */
 const ACCESS_TOKEN_TTL = 30
 
-export interface User {
-  username: string
-  name: string
-  picture: string
-}
-
-export interface JwtPayload extends User {
-  scope: Array<'test' | 'user'>
-  exp?: number
-}
+export const userSchema = z.object({
+  username: z.string().min(1),
+  name: z.string(),
+  picture: z.string().optional(),
+  scope: z.enum(['test', 'user']).array().optional(),
+})
+export type User = z.infer<typeof userSchema>
 
 interface TokensByUser {
   access: Map<string, string>
@@ -68,15 +66,10 @@ interface UserTokens {
  * Demo function for signing user tokens.
  * Your implementation may differ.
  */
-export function createUserTokens(user: User): Promise<UserTokens> {
-  const tokenData: JwtPayload = { ...user, scope: ['test', 'user'] }
-  const accessToken = sign(tokenData, SECRET, {
-    expiresIn: ACCESS_TOKEN_TTL
-  })
-  const refreshToken = sign(tokenData, SECRET, {
-    // 1 day
-    expiresIn: 60 * 60 * 24
-  })
+export async function createUserTokens(user: User): Promise<UserTokens> {
+  const tokenData: JWTPayload = { ...user, scope: ['test', 'user'] }
+  const accessToken = await createSignedJwt(tokenData, ACCESS_TOKEN_TTL)
+  const refreshToken = await createSignedJwt(tokenData, /* 1 day */ 60 * 60 * 24)
 
   // Naive implementation - please implement properly yourself!
   const userTokens: TokensByUser = tokensByUser.get(user.username) ?? {
@@ -87,18 +80,18 @@ export function createUserTokens(user: User): Promise<UserTokens> {
   userTokens.refresh.set(refreshToken, accessToken)
   tokensByUser.set(user.username, userTokens)
 
-  // Emulate async work
-  return Promise.resolve({
+  return {
     accessToken,
     refreshToken
-  })
+  }
 }
 
 /**
  * Function for getting the data from a JWT
  */
-export function decodeToken(token: string): JwtPayload | undefined {
-  return verify(token, SECRET) as JwtPayload | undefined
+export async function decodeToken(token: string): Promise<JWTPayload> {
+  const verified = await jwtVerify(token, SECRET)
+  return verified.payload
 }
 
 /**
@@ -138,12 +131,11 @@ export function invalidateAccessToken(tokensByUser: TokensByUser, accessToken: s
   tokensByUser.access.delete(accessToken)
 }
 
-export function refreshUserAccessToken(tokensByUser: TokensByUser, refreshToken: string): Promise<UserTokens | undefined> {
+export async function refreshUserAccessToken(tokensByUser: TokensByUser, refreshToken: string): Promise<UserTokens | undefined> {
   // Get the access token
   const oldAccessToken = tokensByUser.refresh.get(refreshToken)
   if (!oldAccessToken) {
-    // Promises to emulate async work (e.g. of a DB call)
-    return Promise.resolve(undefined)
+    return
   }
 
   // Invalidate old access token
@@ -151,20 +143,17 @@ export function refreshUserAccessToken(tokensByUser: TokensByUser, refreshToken:
 
   // Get the user data. In a real implementation this is likely a DB call.
   // In this demo we simply re-use the existing JWT data
-  const jwtUser = decodeToken(refreshToken)
+  const jwtUser = await decodeToken(refreshToken)
   if (!jwtUser) {
-    return Promise.resolve(undefined)
+    return
   }
 
-  const user: User = {
-    username: jwtUser.username,
-    picture: jwtUser.picture,
-    name: jwtUser.name
+  const user = userSchema.safeParse(jwtUser)
+  if (!user.success) {
+    return
   }
 
-  const accessToken = sign({ ...user, scope: ['test', 'user'] }, SECRET, {
-    expiresIn: 60 * 5 // 5 minutes
-  })
+  const accessToken = await createSignedJwt({ ...user.data, scope: ['test', 'user'] }, /* 5 minutes */ 60 * 5)
   tokensByUser.refresh.set(refreshToken, accessToken)
   tokensByUser.access.set(accessToken, refreshToken)
 
@@ -178,4 +167,13 @@ export function extractTokenFromAuthorizationHeader(authorizationHeader: string)
   return authorizationHeader.startsWith('Bearer ')
     ? authorizationHeader.slice(7)
     : authorizationHeader
+}
+
+function createSignedJwt(payload: JWTPayload, ttlInSeconds: number): Promise<string> {
+  const unixTimestampNow = Math.floor(Date.now() / 1000)
+
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime(unixTimestampNow + ttlInSeconds)
+    .sign(SECRET)
 }

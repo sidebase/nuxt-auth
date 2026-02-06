@@ -1,9 +1,6 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   modules: ['../src/module.ts'],
-  build: {
-    transpile: ['jsonwebtoken']
-  },
   auth: {
     provider: {
       type: 'local',

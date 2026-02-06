@@ -1,5 +1,5 @@
 import { createError, eventHandler, getRequestHeader, readBody } from 'h3'
-import { checkUserTokens, decodeToken, extractTokenFromAuthorizationHeader, getTokensByUser, refreshUserAccessToken } from '~/server/utils/session'
+import { checkUserTokens, decodeToken, extractTokenFromAuthorizationHeader, getTokensByUser, refreshUserAccessToken, userSchema } from '~/server/utils/session'
 
 /*
  * DISCLAIMER!
@@ -19,7 +19,7 @@ export default eventHandler(async (event) => {
   }
 
   // Verify
-  const decoded = decodeToken(refreshToken)
+  const decoded = await decodeToken(refreshToken)
   if (!decoded) {
     throw createError({
       statusCode: 401,
@@ -27,8 +27,16 @@ export default eventHandler(async (event) => {
     })
   }
 
+  const user = userSchema.safeParse(decoded)
+  if (!user.success) {
+    throw createError({
+      statusCode: 401,
+      message: 'Unauthorized, user shape mismatch'
+    })
+  }
+
   // Get the helper (only for demo, use a DB in your implementation)
-  const userTokens = getTokensByUser(decoded.username)
+  const userTokens = getTokensByUser(user.data.username)
   if (!userTokens) {
     throw createError({
       statusCode: 401,
