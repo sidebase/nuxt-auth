@@ -20,7 +20,7 @@
     "@playwright/test": "^1.58.2",
     "@types/node": "^24.10.11",
     "@vue/test-utils": "^2.4.6",
-    "nuxt": "^3.21.0",
+    "nuxt": "^3.20.2",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4",
     "vue-tsc": "^2.2.12"

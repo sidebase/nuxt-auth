@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@nuxt/kit':
-        specifier: ^3.21.0
+        specifier: ^3.20.2
         version: 3.21.0(magicast@0.5.1)
       defu:
         specifier: ^6.1.4
@@ -43,7 +43,7 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2(@nuxt/cli@3.32.0(cac@6.7.14)(magicast@0.5.1))(@vue/compiler-core@3.5.27)(esbuild@0.27.3)(typescript@5.8.3)(vue-tsc@2.2.12(typescript@5.8.3))(vue@3.5.27(typescript@5.8.3))
       '@nuxt/schema':
-        specifier: ^3.21.0
+        specifier: ^3.20.2
         version: 3.21.0
       '@nuxtjs/eslint-config-typescript':
         specifier: ^12.1.0
@@ -55,13 +55,13 @@ importers:
         specifier: ^9.39.2
         version: 9.39.2(jiti@2.6.1)
       nuxt:
-        specifier: ^3.21.0
+        specifier: ^3.20.2
         version: 3.21.0(@netlify/blobs@9.1.2)(@parcel/watcher@2.4.1)(@types/node@24.10.11)(@vue/compiler-sfc@3.5.27)(cac@6.7.14)(db0@0.3.4)(encoding@0.1.13)(eslint@9.39.2(jiti@2.6.1))(ioredis@5.9.2)(magicast@0.5.1)(oxlint@1.43.0)(rollup@4.55.1)(terser@5.30.3)(typescript@5.8.3)(vite@7.3.1(@types/node@24.10.11)(jiti@2.6.1)(terser@5.30.3)(yaml@2.8.2))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.2)
       ofetch:
         specifier: ^1.5.1
         version: 1.5.1
       oxlint:
-        specifier: ^1.43.0
+        specifier: ^1.39.0
         version: 1.43.0
       ts-essentials:
         specifier: ^9.4.2
@@ -82,7 +82,7 @@ importers:
   playground-authjs:
     devDependencies:
       nuxt:
-        specifier: ^3.21.0
+        specifier: ^3.20.2
         version: 3.21.0(@netlify/blobs@9.1.2)(@parcel/watcher@2.4.1)(@types/node@24.10.11)(@vue/compiler-sfc@3.5.27)(cac@6.7.14)(db0@0.3.4)(encoding@0.1.13)(eslint@9.39.2(jiti@2.6.1))(ioredis@5.9.2)(magicast@0.5.1)(oxlint@1.43.0)(rollup@4.55.1)(terser@5.30.3)(typescript@5.8.3)(vite@7.3.1(@types/node@24.10.11)(jiti@2.6.1)(terser@5.30.3)(yaml@2.8.2))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.2)
       typescript:
         specifier: ^5.8.3
@@ -113,7 +113,7 @@ importers:
         specifier: ^2.4.6
         version: 2.4.6
       nuxt:
-        specifier: ^3.21.0
+        specifier: ^3.20.2
         version: 3.21.0(@netlify/blobs@9.1.2)(@parcel/watcher@2.4.1)(@types/node@24.10.11)(@vue/compiler-sfc@3.5.27)(cac@6.7.14)(db0@0.3.4)(encoding@0.1.13)(eslint@9.39.2(jiti@2.6.1))(ioredis@5.9.2)(magicast@0.5.1)(oxlint@1.43.0)(rollup@4.55.1)(terser@5.30.3)(typescript@5.8.3)(vite@7.3.1(@types/node@24.10.11)(jiti@2.6.1)(terser@5.30.3)(yaml@2.8.2))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.2)
       typescript:
         specifier: ^5.8.3
