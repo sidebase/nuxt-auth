@@ -10,6 +10,7 @@ import type { CommonUseAuthReturn, GetSessionOptions, SecondarySignInOptions, Si
 import { useTypedBackendConfig } from '../../helpers'
 import { getRequestURLWN } from '../common/getRequestURL'
 import { determineCallbackUrl } from '../../utils/callbackUrl'
+import { createAuthError, toAuthError } from '../../utils/authError'
 import type { SessionData } from './useAuthState'
 import { navigateToAuthPageWN } from './utils/navigateToAuthPage'
 import type { NuxtApp } from '#app/nuxt'
@@ -78,7 +79,10 @@ export function useAuth(): UseAuthReturn {
     data,
     loading,
     status,
-    lastRefreshedAt
+    lastRefreshedAt,
+    error,
+    setError,
+    clearError
   } = useAuthState()
 
   /**
@@ -93,11 +97,17 @@ export function useAuth(): UseAuthReturn {
     options?: SecondarySignInOptions,
     authorizationParams?: Record<string, string>
   ): Promise<SignInResult> {
+    // Clear previous error
+    clearError()
+
     // 1. Lead to error page if no providers are available
     const configuredProviders = await getProviders()
     if (!configuredProviders) {
       const errorUrl = resolveApiUrlPath('error', runtimeConfig)
       const navigationResult = await navigateToAuthPageWN(nuxt, errorUrl, true)
+
+      const authError = createAuthError.invalidProvider()
+      setError(authError)
 
       return {
         // Future AuthJS compat here and in other places
@@ -129,6 +139,9 @@ export function useAuth(): UseAuthReturn {
     const selectedProvider = provider && configuredProviders[provider]
     if (!selectedProvider) {
       const navigationResult = await navigateToAuthPageWN(nuxt, hrefSignInAllProviderPage, true)
+
+      const authError = createAuthError.invalidProvider(provider)
+      setError(authError)
 
       return {
         // https://authjs.dev/reference/core/errors#invalidprovider
@@ -173,19 +186,28 @@ export function useAuth(): UseAuthReturn {
       },
       /* proxyCookies = */ true
     )
-      .catch<Record<string, any>>((error: { data: any }) => error.data)
+      .catch<Record<string, any>>((err: { data: any }) => {
+        // Set error state for network/server errors
+        const authError = toAuthError(err)
+        setError(authError)
+        return err.data
+      })
 
-    const data = await callWithNuxt(nuxt, fetchSignIn)
+    const responseData = await callWithNuxt(nuxt, fetchSignIn)
 
     if (redirect || !isSupportingReturn) {
-      const href = data.url ?? callbackUrl
+      const href = responseData.url ?? callbackUrl
       const navigationResult = await navigateToAuthPageWN(nuxt, href)
 
       // We use `http://_` as a base to allow relative URLs in `callbackUrl`. We only need the `error` query param
-      const error = new URL(href, 'http://_').searchParams.get('error')
+      const urlError = new URL(href, 'http://_').searchParams.get('error')
+
+      if (urlError) {
+        setError(createAuthError.invalidCredentials(urlError))
+      }
 
       return {
-        error,
+        error: urlError,
         ok: true,
         status: 302,
         url: href,
@@ -194,14 +216,19 @@ export function useAuth(): UseAuthReturn {
     }
 
     // At this point the request succeeded (i.e., it went through)
-    const error = new URL(data.url).searchParams.get('error')
+    const urlError = new URL(responseData.url).searchParams.get('error')
+
+    if (urlError) {
+      setError(createAuthError.invalidCredentials(urlError))
+    }
+
     await getSessionWithNuxt(nuxt)
 
     return {
-      error,
+      error: urlError,
       status: 200,
       ok: true,
-      url: error ? null : data.url,
+      url: urlError ? null : responseData.url,
       navigationResult: undefined,
     }
   }
@@ -213,11 +240,18 @@ export function useAuth(): UseAuthReturn {
     // Pass the `Host` header when making internal requests
     const headers = await getRequestHeaders(nuxt, false)
 
-    return _fetch<GetProvidersResult>(
-      nuxt,
-      '/providers',
-      { headers }
-    )
+    try {
+      return await _fetch<GetProvidersResult>(
+        nuxt,
+        '/providers',
+        { headers }
+      )
+    }
+    catch (err) {
+      const authError = toAuthError(err)
+      setError(authError)
+      return null
+    }
   }
 
   /**
@@ -262,6 +296,11 @@ export function useAuth(): UseAuthReturn {
         data.value = isNonEmptyObject(sessionData) ? sessionData : null
         loading.value = false
 
+        // Clear error on successful session fetch
+        if (data.value) {
+          clearError()
+        }
+
         if (required && status.value === 'unauthenticated') {
           return onUnauthenticated()
         }
@@ -276,8 +315,21 @@ export function useAuth(): UseAuthReturn {
           callbackUrl: callbackUrl || callbackUrlFallback
         }
       },
-      onRequestError: onError,
-      onResponseError: onError,
+      onRequestError: ({ error: fetchError }) => {
+        onError()
+        const authError = toAuthError(fetchError)
+        setError(authError)
+      },
+      onResponseError: ({ error: fetchError, response }) => {
+        onError()
+        if (response?.status === 401) {
+          setError(createAuthError.sessionExpired())
+        }
+        else {
+          const authError = toAuthError(fetchError)
+          setError(authError)
+        }
+      },
       headers
     }, /* proxyCookies = */ true)
   }
@@ -291,6 +343,9 @@ export function useAuth(): UseAuthReturn {
    * @param options - Options for sign out, e.g., to `redirect` the user to a specific page after sign out has completed
    */
   async function signOut(options?: SignOutOptions) {
+    // Clear previous error
+    clearError()
+
     const { callbackUrl: userCallbackUrl, redirect = true } = options ?? {}
     const csrfToken = await getCsrfTokenWithNuxt(nuxt)
 
@@ -302,23 +357,33 @@ export function useAuth(): UseAuthReturn {
     )
 
     if (!csrfToken) {
+      const authError = createAuthError.unknown('Could not fetch CSRF Token for signing out')
+      setError(authError)
       throw createError({ statusCode: 400, message: 'Could not fetch CSRF Token for signing out' })
     }
 
-    const signoutData = await _fetch<{ url: string }>(nuxt, '/signout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        ...(await getRequestHeaders(nuxt))
-      },
-      onRequest: ({ options }) => {
-        options.body = new URLSearchParams({
-          csrfToken: csrfToken as string,
-          callbackUrl,
-          json: 'true'
-        })
-      }
-    }).catch(error => error.data)
+    let signoutData: { url: string }
+    try {
+      signoutData = await _fetch<{ url: string }>(nuxt, '/signout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          ...(await getRequestHeaders(nuxt))
+        },
+        onRequest: ({ options }) => {
+          options.body = new URLSearchParams({
+            csrfToken: csrfToken as string,
+            callbackUrl,
+            json: 'true'
+          })
+        }
+      })
+    }
+    catch (err) {
+      const authError = toAuthError(err)
+      setError(authError)
+      signoutData = (err as any).data ?? { url: callbackUrl }
+    }
 
     if (redirect) {
       const url = signoutData.url ?? callbackUrl
@@ -350,7 +415,15 @@ export function useAuth(): UseAuthReturn {
    */
   async function getCsrfToken() {
     const headers = await getRequestHeaders(nuxt)
-    return _fetch<{ csrfToken: string }>(nuxt, '/csrf', { headers }).then(response => response.csrfToken)
+    try {
+      const response = await _fetch<{ csrfToken: string }>(nuxt, '/csrf', { headers })
+      return response.csrfToken
+    }
+    catch (err) {
+      const authError = toAuthError(err)
+      setError(authError)
+      throw err
+    }
   }
   function getCsrfTokenWithNuxt(nuxt: NuxtApp) {
     return callWithNuxt(nuxt, getCsrfToken)
@@ -360,6 +433,8 @@ export function useAuth(): UseAuthReturn {
     status,
     data: readonly(data) as Readonly<Ref<SessionData | null | undefined>>,
     lastRefreshedAt: readonly(lastRefreshedAt),
+    error: readonly(error),
+    clearError,
     getSession,
     getCsrfToken,
     getProviders,

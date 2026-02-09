@@ -543,6 +543,10 @@ export interface CommonUseAuthReturn<SignIn, SignOut, SessionData> {
   data: Readonly<WrappedSessionData<SessionData>>
   lastRefreshedAt: Readonly<Ref<SessionLastRefreshedAt>>
   status: ComputedRef<SessionStatus>
+  /** Current authentication error, if any */
+  error: Readonly<Ref<import('./utils/authError').AuthError | null>>
+  /** Clear the current error */
+  clearError: () => void
   signIn: SignIn
   signOut: SignOut
   getSession: GetSessionFunc<SessionData>
@@ -554,6 +558,12 @@ export interface CommonUseAuthStateReturn<SessionData> {
   loading: Ref<boolean>
   lastRefreshedAt: Ref<SessionLastRefreshedAt>
   status: ComputedRef<SessionStatus>
+  /** Current authentication error, if any */
+  error: Ref<import('./utils/authError').AuthError | null>
+  /** Set an authentication error */
+  setError: (error: import('./utils/authError').AuthError | null) => void
+  /** Clear the current error */
+  clearError: () => void
 }
 
 // Common `useAuth` method-types
