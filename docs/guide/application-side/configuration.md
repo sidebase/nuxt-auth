@@ -31,7 +31,7 @@ Whether the module is enabled at all
 - **Type**: `string`
 - **Default**: `AUTH_ORIGIN`
 
-The name of the environment variable that holds the origin of the application. This is used to determine the origin of your application in production.
+The name of the environment variable that holds the base URL of the application. This is used to determine the base URL of your application in production.
 
 By default, NuxtAuth will look at `AUTH_ORIGIN` environment variable and `runtimeConfig.authOrigin`.
 
@@ -39,9 +39,10 @@ By default, NuxtAuth will look at `AUTH_ORIGIN` environment variable and `runtim
 If you want to use `runtimeConfig` and `NUXT_` prefixed environment variables, you need to make sure to also define the key inside `runtimeConfig`,
 because otherwise Nuxt will not acknowledge your env variable ([issue #906](https://github.com/sidebase/nuxt-auth/issues/906), read more [here](https://nuxt.com/docs/guide/going-further/runtime-config#environment-variables)).
 
-```ts
+```ts [nuxt.config.ts]
 export default defineNuxtConfig({
   auth: {
+    // NUXT_YOUR_ORIGIN=https://example.com/api/auth
     originEnvKey: 'NUXT_YOUR_ORIGIN'
   },
   runtimeConfig: {
@@ -51,7 +52,13 @@ export default defineNuxtConfig({
 ```
 :::
 
-You can read additional information on `origin` and `baseURL` determining [here](/resources/error-reference#auth-no-origin).
+::: warning
+Please note the despite the misleading name of "origin", this variable actually expects the **full** base URL, including the origin and pathname, e.g. `http://localhost:3000/api/auth`.
+
+The configuration field name was chosen when the module relied on origins only. For better clarity the `originEnvKey` name will be deprecated in v1 and fully renamed in v2 in favor of a more speaking configuration.
+:::
+
+You can read additional information on `baseURL` determining [here](../advanced/url-resolutions.md).
 
 ## `disableServerSideAuth`
 
