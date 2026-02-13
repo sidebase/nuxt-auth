@@ -31,7 +31,7 @@ Whether the module is enabled at all
 - **Type**: `string`
 - **Default**: `AUTH_ORIGIN`
 
-The name of the environment variable that holds the base URL of the application. This is used to determine the base URL of your application in production.
+The name of the environment variable that holds the full base URL of the application. This is used to determine the base URL of your application in production.
 
 By default, NuxtAuth will look at `AUTH_ORIGIN` environment variable and `runtimeConfig.authOrigin`.
 
