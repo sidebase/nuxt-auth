@@ -53,7 +53,7 @@ export default defineNuxtConfig({
 :::
 
 ::: warning
-Please note the despite the misleading name of "origin", this variable actually expects the **full** base URL, including the origin and pathname, e.g. `http://localhost:3000/api/auth`.
+Please note that despite the misleading name of "origin", this variable actually expects the **full** base URL, including the origin and pathname, e.g. `http://localhost:3000/api/auth`.
 
 The configuration field name was chosen when the module relied on origins only. For better clarity the `originEnvKey` name will be deprecated in v1 and fully renamed in v2 in favor of a more speaking configuration.
 :::
