@@ -1,4 +1,16 @@
-import { createError, eventHandler, getHeaders, getRequestURL, getResponseHeader, parseCookies, readBody, sendRedirect, setCookie, setResponseHeader } from 'h3'
+/* eslint-disable react-hooks/rules-of-hooks, no-undef */
+import {
+  createError,
+  eventHandler,
+  getHeaders,
+  getRequestURL,
+  getResponseHeader,
+  parseCookies,
+  readBody,
+  sendRedirect,
+  setCookie,
+  setResponseHeader,
+} from 'h3'
 import type { H3Event } from 'h3'
 import type { CookieSerializeOptions } from 'cookie-es'
 import { Auth, createActionURL, setEnvDefaults } from '@auth/core'
@@ -21,21 +33,22 @@ let authOptions: AuthConfig | undefined
 export function NuxtAuthHandler(nuxtAuthOptions?: AuthConfig) {
   const isProduction = process.env.NODE_ENV === 'production'
   const runtimeConfig = useRuntimeConfig()
-  const trustHostUserPreference = useTypedBackendConfig(runtimeConfig, 'authjs').trustHost
+  const trustHostUserPreference = useTypedBackendConfig(runtimeConfig).trustHost
 
   const secret = nuxtAuthOptions?.secret || process.env.AUTH_SECRET
   if (!secret) {
     if (isProduction) {
       throw new Error(ERROR_MESSAGES.NO_SECRET)
-    }
-    else {
+    } else {
       console.info(ERROR_MESSAGES.NO_SECRET)
     }
   }
 
   // Warn if handler is being set up twice
   if (authOptions) {
-    console.error('You setup the auth handler for a second time - this is likely undesired. Make sure that you only call `NuxtAuthHandler( ... )` once')
+    console.error(
+      'You setup the auth handler for a second time - this is likely undesired. Make sure that you only call `NuxtAuthHandler( ... )` once',
+    )
   }
 
   authOptions = defu(nuxtAuthOptions, {
@@ -50,7 +63,11 @@ export function NuxtAuthHandler(nuxtAuthOptions?: AuthConfig) {
 
   return eventHandler(async (event: H3Event) => {
     // Build a standard Request from the H3 event
-    const request = await createRequestFromH3Event(event, runtimeConfig, trustHostUserPreference)
+    const request = await createRequestFromH3Event(
+      event,
+      runtimeConfig,
+      trustHostUserPreference,
+    )
 
     // Call Auth.js
     const response = await Auth(request, authOptions!)
@@ -63,10 +80,12 @@ export function NuxtAuthHandler(nuxtAuthOptions?: AuthConfig) {
 /**
  * Gets session on server-side
  */
-export async function getServerSession(event: H3Event): Promise<Session | null> {
+export async function getServerSession(
+  event: H3Event,
+): Promise<Session | null> {
   const runtimeConfig = useRuntimeConfig()
   const authBasePathname = resolveApiBaseURL(runtimeConfig, true)
-  const trustHostUserPreference = useTypedBackendConfig(runtimeConfig, 'authjs').trustHost
+  const trustHostUserPreference = useTypedBackendConfig(runtimeConfig).trustHost
 
   // Avoid running auth middleware on auth middleware (see #186)
   if (event.path && event.path.startsWith(authBasePathname)) {
@@ -77,16 +96,20 @@ export async function getServerSession(event: H3Event): Promise<Session | null> 
     // Edge-case: If no auth-endpoint was called yet, authOptions was not initialized
     const sessionUrlPath = joinURL(authBasePathname, '/session')
     const headers = getHeaders(event) as HeadersInit
-    await $fetch(sessionUrlPath, { headers }).catch(error => error.data)
+    await $fetch(sessionUrlPath, { headers }).catch((error) => error.data)
     if (!authOptions) {
-      throw createError({ statusCode: 500, message: 'Tried to get server session without setting up an endpoint to handle authentication (see https://github.com/sidebase/nuxt-auth#quick-start)' })
+      throw createError({
+        statusCode: 500,
+        message:
+          'Tried to get server session without setting up an endpoint to handle authentication (see https://github.com/sidebase/nuxt-auth#quick-start)',
+      })
     }
   }
 
   // Create a session URL using Auth.js utilities
   const requestUrl = getRequestURL(event, {
     xForwardedHost: trustHostUserPreference,
-    xForwardedProto: trustHostUserPreference || undefined
+    xForwardedProto: trustHostUserPreference || undefined,
   })
 
   const protocol = requestUrl.protocol.replace(':', '') as 'http' | 'https'
@@ -97,7 +120,7 @@ export async function getServerSession(event: H3Event): Promise<Session | null> 
     protocol,
     headers,
     process.env,
-    authOptions
+    authOptions,
   )
 
   // Create request with cookies
@@ -128,7 +151,13 @@ export async function getServerSession(event: H3Event): Promise<Session | null> 
  * @param eventAndOptions.secureCookie boolean to determine if the protocol is secured with https
  * @param eventAndOptions.secret A secret string used for encryption
  */
-export async function getToken({ event }: { event: H3Event, secureCookie?: boolean, secret?: string }): Promise<unknown> {
+export async function getToken({
+  event,
+}: {
+  event: H3Event
+  secureCookie?: boolean
+  secret?: string
+}): Promise<unknown> {
   // Auth.js Core doesn't export getToken directly, so we need to manually decode the JWT
   // For now, we'll use a simpler approach - get the session which includes the token data
   const session = await getServerSession(event)
@@ -141,11 +170,11 @@ export async function getToken({ event }: { event: H3Event, secureCookie?: boole
 async function createRequestFromH3Event(
   event: H3Event,
   runtimeConfig: RuntimeConfig,
-  trustHostUserPreference: boolean
+  trustHostUserPreference: boolean,
 ): Promise<Request> {
   const requestUrl = getRequestURL(event, {
     xForwardedHost: trustHostUserPreference,
-    xForwardedProto: trustHostUserPreference || undefined
+    xForwardedProto: trustHostUserPreference || undefined,
   })
 
   const headers = new Headers(getHeaders(event) as HeadersInit)
@@ -173,8 +202,7 @@ async function createRequestFromH3Event(
         }
         body = formData.toString()
         headers.set('content-type', 'application/x-www-form-urlencoded')
-      }
-      else {
+      } else {
         body = rawBody
       }
     }
@@ -183,7 +211,7 @@ async function createRequestFromH3Event(
   return new Request(requestUrl.href, {
     method: event.method,
     headers,
-    body
+    body,
   })
 }
 
@@ -193,7 +221,7 @@ async function createRequestFromH3Event(
 async function handleAuthResponse(
   event: H3Event,
   response: Response,
-  originalRequest: Request
+  originalRequest: Request,
 ): Promise<unknown> {
   const { res } = event.node
 
@@ -244,8 +272,10 @@ async function handleAuthResponse(
 /**
  * Parse a Set-Cookie string into name, value, and options
  */
-function parseCookieString(cookieStr: string): { name: string, value: string, options: CookieSerializeOptions } | null {
-  const parts = cookieStr.split(';').map(p => p.trim())
+function parseCookieString(
+  cookieStr: string,
+): { name: string; value: string; options: CookieSerializeOptions } | null {
+  const parts = cookieStr.split(';').map((p) => p.trim())
   if (parts.length === 0) {
     return null
   }
@@ -267,7 +297,7 @@ function parseCookieString(cookieStr: string): { name: string, value: string, op
   const options: CookieSerializeOptions = {}
 
   for (const attr of attrs) {
-    const attrParts = attr.split('=').map(s => s.trim())
+    const attrParts = attr.split('=').map((s) => s.trim())
     const attrName = attrParts[0]
     const attrValue = attrParts[1]
 
@@ -302,7 +332,10 @@ function parseCookieString(cookieStr: string): { name: string, value: string, op
         break
       case 'samesite':
         if (attrValue) {
-          options.sameSite = attrValue.toLowerCase() as 'lax' | 'strict' | 'none'
+          options.sameSite = attrValue.toLowerCase() as
+            | 'lax'
+            | 'strict'
+            | 'none'
         }
         break
     }
@@ -336,7 +369,12 @@ function appendHeaderDeduped(event: H3Event, name: string, value: string) {
  * Adds a cookie, overriding its previous value.
  * Related to https://github.com/sidebase/nuxt-auth/issues/523
  */
-function setCookieDeduped(event: H3Event, name: string, value: string, serializeOptions: CookieSerializeOptions) {
+function setCookieDeduped(
+  event: H3Event,
+  name: string,
+  value: string,
+  serializeOptions: CookieSerializeOptions,
+) {
   // Deduplicate by removing the same name cookie
   let setCookiesHeader = getResponseHeader(event, 'set-cookie')
   if (setCookiesHeader) {
@@ -346,7 +384,9 @@ function setCookieDeduped(event: H3Event, name: string, value: string, serialize
 
     // Safety: `cookie-es` builds up the cookie by using `name + '=' + encodedValue`
     const filterBy = `${name}=`
-    setCookiesHeader = setCookiesHeader.filter(cookie => !cookie.startsWith(filterBy))
+    setCookiesHeader = setCookiesHeader.filter(
+      (cookie) => !cookie.startsWith(filterBy),
+    )
 
     setResponseHeader(event, 'set-cookie', setCookiesHeader)
   }

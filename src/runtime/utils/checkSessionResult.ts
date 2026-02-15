@@ -1,1 +1,3 @@
-export const isNonEmptyObject = (obj: any) => typeof obj === 'object' && obj !== null && Object.keys(obj).length > 0
+export function isNonEmptyObject(obj: unknown) {
+  return typeof obj === 'object' && obj !== null && Object.keys(obj).length > 0
+}

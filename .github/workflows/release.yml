@@ -1,69 +1,48 @@
-name: Release on NPM
+name: Release
 
 on:
-  release:
-    types: [published] # runs when a GitHub Release is published
+  push:
+    branches:
+      - main
+      - beta
 
 permissions:
-  contents: read
-  id-token: write # required for npm provenance
+  contents: write
+  packages: write
+  id-token: write
+  checks: read
 
-env:
-  NODE_VER: 22.18
-  CI: true
+defaults:
+  run:
+    working-directory: ./
 
 jobs:
-  publish:
-    name: Publish package from release tag
-    # Run only when tag is in the format `vX.Y.Z` produced by `npm version`
-    if: startsWith(github.event.release.tag_name, 'v')
+  publish-package:
     runs-on: ubuntu-latest
+    name: To Artifactory
 
     steps:
-      - name: Check out the tag referenced by this release
-        uses: actions/checkout@v5
+      - name: Harden runner
+        uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
         with:
-          ref: ${{ github.event.release.tag_name }}
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: ${{ env.NODE_VER }}
-          cache: 'npm'
-          # This is required for `setup-node` to generate the registry URL into .npmrc
-          # See https://github.com/actions/setup-node/blob/5e2628c959b9ade56971c0afcebbe5332d44b398/action.yml#L17-L18
-          registry-url: 'https://registry.npmjs.org/'
+          node-version: 'lts/*'
 
-      - name: Verify tag matches package.json version
-        run: |
-          TAG="${{ github.event.release.tag_name }}"
-          PKG_VERSION=$(node -p "require('./package.json').version")
-          if [ "v$PKG_VERSION" != "$TAG" ]; then
-            echo "::error ::Tag ($TAG) does not match package.json version (v$PKG_VERSION)"
-            exit 1
-          fi
-
-      - name: Install deps
-        run: |
-          npm --version
-          npm ci
-          npm run dev:prepare
-
-      # Note: no build step because npm publish would run `prepack` script which builds the module
-
-      - name: Publish to npm with provenance
-        run: |
-          TAG="${{ github.event.release.tag_name }}"
-
-          # Stable release (vX.Y.Z)
-          if echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            npm publish --provenance --access public
-
-          # Pre-release (vX.Y.Z-*)
-          elif echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+-'; then
-            npm publish --provenance --access public --tag next
-
-          else
-            echo "Not a valid release tag ($TAG), skipping publish."
-          fi
+      - name: Run semantic-release
+        uses: mridang/action-semantic-release@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          allow-force-install: 'true'
+        env:
+          DOCKER_REGISTRY_USER: ${{ github.actor }}
+          DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}

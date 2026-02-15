@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import type { DefaultRefreshHandlerConfig, RefreshHandler } from '../types'
 import { useAuth } from '#imports'
 
@@ -11,25 +12,28 @@ export class DefaultRefreshHandler implements RefreshHandler {
   /** Because passing `this.visibilityHandler` to `document.addEventHandler` loses `this` context */
   private boundVisibilityHandler: typeof this.visibilityHandler
 
-  constructor(
-    public config: DefaultRefreshHandlerConfig
-  ) {
+  constructor(public config: DefaultRefreshHandlerConfig) {
     this.boundVisibilityHandler = this.visibilityHandler.bind(this)
   }
 
   init(): void {
     this.auth = useAuth()
 
-    document.addEventListener('visibilitychange', this.boundVisibilityHandler, false)
+    document.addEventListener(
+      'visibilitychange',
+      this.boundVisibilityHandler,
+      false,
+    )
 
     const { enablePeriodically } = this.config
 
     if (enablePeriodically !== false && enablePeriodically !== undefined) {
-      const intervalTime = enablePeriodically === true ? 1000 : safeTimerDelay(enablePeriodically)
+      const intervalTime =
+        enablePeriodically === true ? 1000 : safeTimerDelay(enablePeriodically)
 
       this.refetchIntervalTimer = setInterval(() => {
         if (this.auth?.data.value) {
-          this.auth.refresh()
+          void this.auth.refresh()
         }
       }, intervalTime)
     }
@@ -37,7 +41,11 @@ export class DefaultRefreshHandler implements RefreshHandler {
 
   destroy(): void {
     // Clear visibility handler
-    document.removeEventListener('visibilitychange', this.boundVisibilityHandler, false)
+    document.removeEventListener(
+      'visibilitychange',
+      this.boundVisibilityHandler,
+      false,
+    )
 
     // Clear refetch interval
     clearInterval(this.refetchIntervalTimer)
@@ -50,8 +58,12 @@ export class DefaultRefreshHandler implements RefreshHandler {
     // Listen for when the page is visible, if the user switches tabs
     // and makes our tab visible again, re-fetch the session, but only if
     // this feature is not disabled.
-    if (this.config?.enableOnWindowFocus && document.visibilityState === 'visible' && this.auth?.data.value) {
-      this.auth.refresh()
+    if (
+      this.config?.enableOnWindowFocus &&
+      document.visibilityState === 'visible' &&
+      this.auth?.data.value
+    ) {
+      void this.auth.refresh()
     }
   }
 }

@@ -12,7 +12,9 @@ describe('setMiddleware', () => {
 
   it('adds middleware if meta.auth is object', () => {
     testMiddleware({ meta: { auth: {} } }, [MIDDLEWARE_NAME])
-    testMiddleware({ meta: { auth: { navigateUnauthenticatedTo: '/' } } }, [MIDDLEWARE_NAME])
+    testMiddleware({ meta: { auth: { navigateUnauthenticatedTo: '/' } } }, [
+      MIDDLEWARE_NAME,
+    ])
   })
 
   it('ignores pages without meta.auth', () => {
@@ -22,7 +24,10 @@ describe('setMiddleware', () => {
     testMiddleware({ meta: { auth2: 'foo' } }, undefined)
     testMiddleware({ meta: { middleware: 'foo' } }, 'foo')
     testMiddleware({ meta: { middleware: ['foo'] } }, ['foo'])
-    testMiddleware({ meta: { middleware: middlewareFunction } }, middlewareFunction)
+    testMiddleware(
+      { meta: { middleware: middlewareFunction } },
+      middlewareFunction,
+    )
   })
 
   it('does not add when meta.auth is false', () => {
@@ -32,66 +37,58 @@ describe('setMiddleware', () => {
   it('does not add when middleware is already present', () => {
     testMiddleware(
       { meta: { auth: true, middleware: MIDDLEWARE_NAME } },
-      MIDDLEWARE_NAME
+      MIDDLEWARE_NAME,
     )
-    testMiddleware(
-      { meta: { auth: true, middleware: [MIDDLEWARE_NAME] } },
-      [MIDDLEWARE_NAME]
-    )
+    testMiddleware({ meta: { auth: true, middleware: [MIDDLEWARE_NAME] } }, [
+      MIDDLEWARE_NAME,
+    ])
     testMiddleware(
       { meta: { auth: true, middleware: ['foo', MIDDLEWARE_NAME, 'bar'] } },
-      ['foo', MIDDLEWARE_NAME, 'bar']
+      ['foo', MIDDLEWARE_NAME, 'bar'],
     )
-    testMiddleware(
-      { meta: { middleware: MIDDLEWARE_NAME } },
-      MIDDLEWARE_NAME
-    )
-    testMiddleware(
-      { meta: { middleware: [MIDDLEWARE_NAME] } },
-      [MIDDLEWARE_NAME]
-    )
-    testMiddleware(
-      { meta: { middleware: ['foo', MIDDLEWARE_NAME, 'bar'] } },
-      ['foo', MIDDLEWARE_NAME, 'bar']
-    )
+    testMiddleware({ meta: { middleware: MIDDLEWARE_NAME } }, MIDDLEWARE_NAME)
+    testMiddleware({ meta: { middleware: [MIDDLEWARE_NAME] } }, [
+      MIDDLEWARE_NAME,
+    ])
+    testMiddleware({ meta: { middleware: ['foo', MIDDLEWARE_NAME, 'bar'] } }, [
+      'foo',
+      MIDDLEWARE_NAME,
+      'bar',
+    ])
   })
 
   it('adds to an existing array', () => {
-    testMiddleware(
-      { meta: { auth: true, middleware: [] } },
-      [MIDDLEWARE_NAME]
-    )
-    testMiddleware(
-      { meta: { auth: true, middleware: ['foo'] } },
-      ['foo', MIDDLEWARE_NAME]
-    )
+    testMiddleware({ meta: { auth: true, middleware: [] } }, [MIDDLEWARE_NAME])
+    testMiddleware({ meta: { auth: true, middleware: ['foo'] } }, [
+      'foo',
+      MIDDLEWARE_NAME,
+    ])
   })
 
   it('wraps string middleware into array', () => {
-    testMiddleware(
-      { meta: { auth: true, middleware: 'foo' } },
-      ['foo', MIDDLEWARE_NAME]
-    )
+    testMiddleware({ meta: { auth: true, middleware: 'foo' } }, [
+      'foo',
+      MIDDLEWARE_NAME,
+    ])
   })
 
   it('overrides undefined', () => {
-    testMiddleware(
-      { meta: { auth: true, middleware: undefined } },
-      [MIDDLEWARE_NAME]
-    )
+    testMiddleware({ meta: { auth: true, middleware: undefined } }, [
+      MIDDLEWARE_NAME,
+    ])
   })
 
   it('wraps other middleware options into array', () => {
-    testMiddleware(
-      { meta: { auth: true, middleware: middlewareFunction } },
-      [middlewareFunction, MIDDLEWARE_NAME]
-    )
+    testMiddleware({ meta: { auth: true, middleware: middlewareFunction } }, [
+      middlewareFunction,
+      MIDDLEWARE_NAME,
+    ])
   })
 
   it('handles multiple pages', () => {
     const pages: NuxtPage[] = [
       { meta: { auth: true } },
-      { meta: { auth: true, middleware: 'foo' } }
+      { meta: { auth: true, middleware: 'foo' } },
     ]
 
     autoAddMiddleware(pages, MIDDLEWARE_NAME)
@@ -104,10 +101,8 @@ describe('setMiddleware', () => {
     const pages: NuxtPage[] = [
       {
         meta: {},
-        children: [
-          { meta: { auth: true } }
-        ]
-      }
+        children: [{ meta: { auth: true } }],
+      },
     ]
 
     autoAddMiddleware(pages, MIDDLEWARE_NAME)

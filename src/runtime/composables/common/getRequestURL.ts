@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import getURL from 'requrl'
 import { callWithNuxt, useRequestEvent } from '#app'
 import type { NuxtApp } from '#app'

@@ -3,7 +3,14 @@ import authMiddleware from './middleware/sidebase-auth'
 import { getNitroRouteRules } from './utils/kit'
 import { FetchConfigurationError } from './utils/fetch'
 import { resolveApiBaseURL } from './utils/url'
-import { _refreshHandler, addRouteMiddleware, defineNuxtPlugin, useAuth, useAuthState, useRuntimeConfig } from '#imports'
+import {
+  _refreshHandler,
+  addRouteMiddleware,
+  defineNuxtPlugin,
+  useAuth,
+  useAuthState,
+  useRuntimeConfig,
+} from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
@@ -15,7 +22,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const runtimeConfig = wholeRuntimeConfig.public.auth
   const globalAppMiddleware = runtimeConfig.globalAppMiddleware
 
-  const routeRules = import.meta.server ? getNitroRouteRules(nuxtApp._route.path) : {}
+  const routeRules = import.meta.server
+    ? getNitroRouteRules(nuxtApp._route.path)
+    : {}
 
   // Set the correct `baseURL` on the server,
   // because the client would not have access to environment variables
@@ -26,8 +35,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // Skip auth if we're prerendering
   let nitroPrerender = false
   if (nuxtApp.ssrContext) {
-    nitroPrerender
-      = getHeader(nuxtApp.ssrContext.event, 'x-nitro-prerender') !== undefined
+    nitroPrerender =
+      getHeader(nuxtApp.ssrContext.event, 'x-nitro-prerender') !== undefined
   }
 
   // Prioritize `routeRules` setting over `runtimeConfig` settings, fallback to false
@@ -41,17 +50,20 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   // Only fetch session if it was not yet initialized server-side
   const isErrorUrl = nuxtApp.ssrContext?.error === true
-  const requireAuthOnErrorPage = globalAppMiddleware === true || (typeof globalAppMiddleware === 'object' && globalAppMiddleware.allow404WithoutAuth)
-  const shouldFetchSession = typeof data.value === 'undefined'
-    && !nitroPrerender
-    && !disableServerSideAuth
-    && !(isErrorUrl && requireAuthOnErrorPage)
+  const requireAuthOnErrorPage =
+    globalAppMiddleware === true ||
+    (typeof globalAppMiddleware === 'object' &&
+      globalAppMiddleware.allow404WithoutAuth)
+  const shouldFetchSession =
+    typeof data.value === 'undefined' &&
+    !nitroPrerender &&
+    !disableServerSideAuth &&
+    !(isErrorUrl && requireAuthOnErrorPage)
 
   if (shouldFetchSession) {
     try {
       await getSession()
-    }
-    catch (e) {
+    } catch (e) {
       // Do not throw the configuration error as it can lead to infinite recursion
       if (!(e instanceof FetchConfigurationError)) {
         throw e
@@ -63,7 +75,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   nuxtApp.hook('app:mounted', () => {
     _refreshHandler.init()
     if (disableServerSideAuth) {
-      getSession()
+      void getSession()
     }
   })
 
@@ -81,11 +93,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   // 3. Enable the middleware, either globally or as a named `auth` option
   if (
-    globalAppMiddleware === true
-    || (typeof globalAppMiddleware === 'object' && globalAppMiddleware.isEnabled)
+    globalAppMiddleware === true ||
+    (typeof globalAppMiddleware === 'object' && globalAppMiddleware.isEnabled)
   ) {
     addRouteMiddleware('auth', authMiddleware, {
-      global: true
+      global: true,
     })
   }
 })

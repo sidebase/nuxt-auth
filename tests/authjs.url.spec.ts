@@ -18,11 +18,15 @@ describe('endpoint path construction', () => {
     })
 
     it('default value and long endpoint path', () => {
-      expect(testResolve('/api/auth', '/long/signin/path')).toBe('/api/auth/long/signin/path')
+      expect(testResolve('/api/auth', '/long/signin/path')).toBe(
+        '/api/auth/long/signin/path',
+      )
     })
 
     it('default value and long relative endpoint path', () => {
-      expect(testResolve('/api/auth', 'long/signin/path')).toBe('/api/auth/long/signin/path')
+      expect(testResolve('/api/auth', 'long/signin/path')).toBe(
+        '/api/auth/long/signin/path',
+      )
     })
 
     it('slash', () => {
@@ -57,7 +61,9 @@ describe('endpoint path construction', () => {
     })
 
     it('path with relative endpoint path', () => {
-      expect(testResolve('http://localhost:8080/auth', 'signin')).toBe('/auth/signin')
+      expect(testResolve('http://localhost:8080/auth', 'signin')).toBe(
+        '/auth/signin',
+      )
     })
 
     it('path and slash', () => {
@@ -65,7 +71,9 @@ describe('endpoint path construction', () => {
     })
 
     it('path and slash with relative endpoint path', () => {
-      expect(testResolve('http://localhost:8080/auth/', 'signin')).toBe('/auth/signin')
+      expect(testResolve('http://localhost:8080/auth/', 'signin')).toBe(
+        '/auth/signin',
+      )
     })
 
     it('slash', () => {
@@ -92,7 +100,9 @@ describe('endpoint path construction', () => {
     })
 
     it('path with relative endpoint path', () => {
-      expect(testResolve('https://example.com/auth', 'signin')).toBe('/auth/signin')
+      expect(testResolve('https://example.com/auth', 'signin')).toBe(
+        '/auth/signin',
+      )
     })
 
     it('path and slash', () => {
@@ -100,7 +110,9 @@ describe('endpoint path construction', () => {
     })
 
     it('path and slash with relative endpoint path', () => {
-      expect(testResolve('https://example.com/auth/', 'signin')).toBe('/auth/signin')
+      expect(testResolve('https://example.com/auth/', 'signin')).toBe(
+        '/auth/signin',
+      )
     })
 
     it('slash', () => {
@@ -114,9 +126,13 @@ describe('endpoint path construction', () => {
 
   // External endpoint paths should take priority over everything else
   describe('external endpoint path', () => {
-    it ('http and https', () => {
-      expect(testResolve('/api/auth', 'http://example.com/signin')).toBe('http://example.com/signin')
-      expect(testResolve('/api/auth', 'https://example.com/signin')).toBe('https://example.com/signin')
+    it('http and https', () => {
+      expect(testResolve('/api/auth', 'http://example.com/signin')).toBe(
+        'http://example.com/signin',
+      )
+      expect(testResolve('/api/auth', 'https://example.com/signin')).toBe(
+        'https://example.com/signin',
+      )
     })
 
     it('disregards any values', () => {
@@ -139,8 +155,12 @@ describe('endpoint path construction', () => {
     })
 
     it('does not consider malformed', () => {
-      expect(testResolve('/api/auth', 'example.com')).toBe('/api/auth/example.com')
-      expect(testResolve('/api/auth', 'example.com/signin')).toBe('/api/auth/example.com/signin')
+      expect(testResolve('/api/auth', 'example.com')).toBe(
+        '/api/auth/example.com',
+      )
+      expect(testResolve('/api/auth', 'example.com/signin')).toBe(
+        '/api/auth/example.com/signin',
+      )
     })
   })
 
@@ -162,12 +182,16 @@ describe('endpoint path construction', () => {
 
     it('can override using different name', () => {
       vi.stubEnv('OTHER_ENV', '/other')
-      expect(testResolve('/api/auth', undefined, 'OTHER_ENV')).toBe('/other/signin')
+      expect(testResolve('/api/auth', undefined, 'OTHER_ENV')).toBe(
+        '/other/signin',
+      )
     })
 
     it('does not use AUTH_ORIGIN when other env key is given', () => {
       vi.stubEnv('AUTH_ORIGIN', '/other')
-      expect(testResolve('/api/auth', undefined, 'OTHER_ENV')).toBe('/api/auth/signin')
+      expect(testResolve('/api/auth', undefined, 'OTHER_ENV')).toBe(
+        '/api/auth/signin',
+      )
     })
 
     it('can override using NUXT_PUBLIC_AUTH_BASE_URL', () => {
@@ -175,7 +199,9 @@ describe('endpoint path construction', () => {
       // on runtime config with the simple testing setup here.
       // We trust Nuxt to correctly set `runtimeConfig`: https://nuxt.com/docs/guide/going-further/runtime-config#environment-variables
       vi.stubEnv('NUXT_PUBLIC_AUTH_BASE_URL', '/other')
-      expect(testResolve(process.env.NUXT_PUBLIC_AUTH_BASE_URL as string)).toBe('/other/signin')
+      expect(testResolve(process.env.NUXT_PUBLIC_AUTH_BASE_URL as string)).toBe(
+        '/other/signin',
+      )
     })
 
     it('works with double assignment', () => {
@@ -213,7 +239,11 @@ describe('endpoint path construction', () => {
   })
 })
 
-function testResolve(desiredBaseURL: string, endpointPath = '/signin', envVariableName = 'AUTH_ORIGIN'): string {
+function testResolve(
+  desiredBaseURL: string,
+  endpointPath = '/signin',
+  envVariableName = 'AUTH_ORIGIN',
+): string {
   const runtimeConfig = mockRuntimeConfig(desiredBaseURL, envVariableName)
   return resolveApiUrlPath(endpointPath, runtimeConfig)
 }
@@ -224,8 +254,8 @@ function mockRuntimeConfig(desiredBaseURL: string, envVariableName: string) {
       auth: {
         baseURL: desiredBaseURL,
         disableInternalRouting: false,
-        originEnvKey: envVariableName
-      }
-    }
+        originEnvKey: envVariableName,
+      },
+    },
   }
 }

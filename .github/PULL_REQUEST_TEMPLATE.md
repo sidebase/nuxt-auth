@@ -1,26 +1,36 @@
-<!---
-☝️ PR title should follow conventional commits (https://conventionalcommits.org)
--->
+<!--- Provide a general summary of your changes in the Title above -->
 
-### 🔗 Linked issue
+## Description
 
-<!-- Please ensure there is an open issue and mention its number as #123 -->
+<!--- Describe your changes -->
 
-### ❓ Type of change
+## Related Issue
 
-<!-- What types of changes does your code introduce? Put an `x` in all the boxes that apply. -->
+<!--- This project only accepts pull requests related to open issues -->
+<!--- If suggesting a new feature or change, please discuss it in an issue first -->
+<!--- If fixing a bug, there should be an issue describing it with steps to reproduce -->
+<!--- Please link to the issue here: -->
 
-- [ ] 📖 Documentation (updates to the documentation, readme or JSdoc annotations)
-- [ ] 🐞 Bug fix (a non-breaking change that fixes an issue)
-- [ ] 👌 Enhancement (improving an existing functionality like performance)
-- [ ] ✨ New feature (a non-breaking change that adds functionality)
-- [ ] 🧹 Chore (updates to the build process or auxiliary tools and libraries)
-- [ ] ⚠️ Breaking change (fix or feature that would cause existing functionality to change)
+## Motivation and Context
 
-### 📚 Description
+<!--- Why is this change required? What problem does it solve? -->
 
-### 📝 Checklist
+## How Has This Been Tested?
 
-- [ ] I have linked an issue or discussion.
-- [ ] I have added tests (if possible).
+<!--- Please describe in detail how you tested your changes. -->
+<!--- Include details of your testing environment, and the tests you ran to -->
+<!--- see how your change affects other areas of the code, etc. -->
+
+## Documentation:
+
+<!--- Upon PR's approval, link the wiki page for your corresponding changes here. -->
+
+## Checklist:
+
 - [ ] I have updated the documentation accordingly.
+- [ ] I have assigned the correct milestone or created one if non-existent.
+- [ ] I have correctly labeled this pull request.
+- [ ] I have linked the corresponding issue in this description.
+- [ ] I have requested a review from at least 2 reviewers
+- [ ] I have checked the base branch of this pull request
+- [ ] I have checked my code for any possible security vulnerabilities

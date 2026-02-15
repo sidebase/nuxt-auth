@@ -37,9 +37,15 @@ export function getHostValueForAuthjs(
   event: H3Event,
   runtimeConfig: RuntimeConfig,
   trustHostUserPreference: boolean,
-  isProduction: boolean
+  isProduction: boolean,
 ): string {
-  return getServerBaseUrl(runtimeConfig, true, trustHostUserPreference, isProduction, event)
+  return getServerBaseUrl(
+    runtimeConfig,
+    true,
+    trustHostUserPreference,
+    isProduction,
+    event,
+  )
 }
 
 /**
@@ -77,7 +83,7 @@ export function getServerBaseUrl(
   if (event && (!isProduction || trustHostUserPreference)) {
     const requestUrl = getRequestURL(event, {
       xForwardedHost: trustHostUserPreference,
-      xForwardedProto: trustHostUserPreference || undefined
+      xForwardedProto: trustHostUserPreference || undefined,
     })
 
     if (!includePath) {

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks, no-redeclare */
 import { getRequestURLWN } from '../composables/common/getRequestURL'
 import { isExternalUrl } from './url'
 import type { RouteMiddleware } from '#app'
@@ -5,21 +6,23 @@ import { callWithNuxt, useNuxtApp, useRouter } from '#app'
 
 /** Slimmed down auth runtime config for `determineCallbackUrl` */
 interface AuthRuntimeConfigForCallbackUrl {
-  globalAppMiddleware: {
-    addDefaultCallbackUrl?: string | boolean
-  } | boolean
+  globalAppMiddleware:
+    | {
+        addDefaultCallbackUrl?: string | boolean
+      }
+    | boolean
 }
 
 // Overloads for better typing
 export async function determineCallbackUrl(
   authConfig: AuthRuntimeConfigForCallbackUrl,
   userCallbackUrl: string | undefined,
-  inferFromRequest: true
+  inferFromRequest: true,
 ): Promise<string>
 export async function determineCallbackUrl(
   authConfig: AuthRuntimeConfigForCallbackUrl,
   userCallbackUrl: string | undefined,
-  inferFromRequest?: false | undefined
+  inferFromRequest?: false | undefined,
 ): Promise<string | undefined>
 
 /**
@@ -38,7 +41,7 @@ export async function determineCallbackUrl(
 export async function determineCallbackUrl(
   authConfig: AuthRuntimeConfigForCallbackUrl,
   userCallbackUrl: string | undefined,
-  inferFromRequest?: boolean | undefined
+  inferFromRequest?: boolean | undefined,
 ): Promise<string | undefined> {
   // Priority 1: User setting
   if (userCallbackUrl) {
@@ -46,9 +49,10 @@ export async function determineCallbackUrl(
   }
 
   // Priority 2: `addDefaultCallbackUrl`
-  const authConfigCallbackUrl = typeof authConfig.globalAppMiddleware === 'object'
-    ? authConfig.globalAppMiddleware.addDefaultCallbackUrl
-    : undefined
+  const authConfigCallbackUrl =
+    typeof authConfig.globalAppMiddleware === 'object'
+      ? authConfig.globalAppMiddleware.addDefaultCallbackUrl
+      : undefined
 
   // If a string value was set, always callback to it
   if (typeof authConfigCallbackUrl === 'string') {
@@ -56,12 +60,12 @@ export async function determineCallbackUrl(
   }
 
   // Priority 3: Infer callback URL from the request
-  const shouldInferFromRequest = inferFromRequest !== false
-    && (
-      inferFromRequest === true
-      || authConfigCallbackUrl === true
-      || (authConfigCallbackUrl === undefined && authConfig.globalAppMiddleware === true)
-    )
+  const shouldInferFromRequest =
+    inferFromRequest !== false &&
+    (inferFromRequest === true ||
+      authConfigCallbackUrl === true ||
+      (authConfigCallbackUrl === undefined &&
+        authConfig.globalAppMiddleware === true))
 
   if (shouldInferFromRequest) {
     const nuxt = useNuxtApp()
@@ -82,11 +86,12 @@ type RouteLocationNormalized = Parameters<RouteMiddleware>[0]
  */
 export function determineCallbackUrlForRouteMiddleware(
   authConfig: AuthRuntimeConfigForCallbackUrl,
-  middlewareTo: RouteLocationNormalized
+  middlewareTo: RouteLocationNormalized,
 ): string | undefined {
-  const authConfigCallbackUrl = typeof authConfig.globalAppMiddleware === 'object'
-    ? authConfig.globalAppMiddleware.addDefaultCallbackUrl
-    : undefined
+  const authConfigCallbackUrl =
+    typeof authConfig.globalAppMiddleware === 'object'
+      ? authConfig.globalAppMiddleware.addDefaultCallbackUrl
+      : undefined
 
   // Priority 1: If a string value `addDefaultCallbackUrl` was set, always callback to it
   if (typeof authConfigCallbackUrl === 'string') {
@@ -95,8 +100,9 @@ export function determineCallbackUrlForRouteMiddleware(
 
   // Priority 2: `addDefaultCallbackUrl: true` or `globalAppMiddleware: true`
   if (
-    authConfigCallbackUrl === true
-    || (authConfigCallbackUrl === undefined && authConfig.globalAppMiddleware === true)
+    authConfigCallbackUrl === true ||
+    (authConfigCallbackUrl === undefined &&
+      authConfig.globalAppMiddleware === true)
   ) {
     return middlewareTo.fullPath
   }

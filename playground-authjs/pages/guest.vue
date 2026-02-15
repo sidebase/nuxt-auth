@@ -4,8 +4,8 @@ import { definePageMeta } from '#imports'
 definePageMeta({
   auth: {
     unauthenticatedOnly: true,
-    navigateAuthenticatedTo: '/protected/globally'
-  }
+    navigateAuthenticatedTo: '/protected/globally',
+  },
 })
 </script>
 

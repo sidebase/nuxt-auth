@@ -1,0 +1,36 @@
+name: Commits
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  lint-commits:
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-latest
+    name: Validate Commits
+
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+
+      - name: Inspect Commits
+        uses: mridang/action-commit-lint@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

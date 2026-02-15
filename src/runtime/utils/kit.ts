@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { withoutBase, withoutTrailingSlash } from 'ufo'
 import { createRouter, toRouteMatcher } from 'radix3'
 import type { RouteMatcher } from 'radix3'
@@ -19,25 +20,35 @@ let routeMatcher: RouteMatcher
  * In the returned function, enter a path to retrieve the routeRules that applies to that page.
  */
 export function getNitroRouteRules(path: string): Partial<RouteOptions> {
-  const runtimeConfig = useRuntimeConfig() as { nitro?: { routeRules?: Record<string, { auth?: RouteOptions }> }, app?: { baseURL?: string } }
+  const runtimeConfig = useRuntimeConfig() as {
+    nitro?: { routeRules?: Record<string, { auth?: RouteOptions }> }
+    app?: { baseURL?: string }
+  }
   const { nitro, app } = runtimeConfig
 
   if (!routeMatcher) {
     routeMatcher = toRouteMatcher(
       createRouter({
         routes: Object.fromEntries(
-          Object.entries(nitro?.routeRules || {})
-            .map(([path, rules]) => [withoutTrailingSlash(path), rules])
-        )
-      })
+          Object.entries(nitro?.routeRules || {}).map(([path, rules]) => [
+            withoutTrailingSlash(path),
+            rules,
+          ]),
+        ),
+      }),
     )
   }
 
   const options: Partial<RouteOptions> = {}
 
-  const matches = routeMatcher.matchAll(
-    withoutBase(withoutTrailingSlash(withoutQuery(path)), app?.baseURL || '/')
-  ).toReversed()
+  const matches = routeMatcher
+    .matchAll(
+      withoutBase(
+        withoutTrailingSlash(withoutQuery(path)),
+        app?.baseURL || '/',
+      ),
+    )
+    .toReversed()
 
   for (const match of matches) {
     options.disableServerSideAuth ??= match.auth?.disableServerSideAuth

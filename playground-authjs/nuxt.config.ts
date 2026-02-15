@@ -3,19 +3,19 @@ export default defineNuxtConfig({
   modules: ['../src/module.ts'],
   auth: {
     provider: {
-      type: 'authjs'
+      type: 'authjs',
     },
     globalAppMiddleware: {
-      isEnabled: true
+      isEnabled: true,
     },
-    baseURL: `http://localhost:${process.env.PORT || 3000}/api/auth`
+    baseURL: `http://localhost:${process.env.PORT || 3000}/api/auth`,
   },
   routeRules: {
     '/with-caching': {
       swr: 86400000,
       auth: {
-        disableServerSideAuth: true
-      }
-    }
-  }
+        disableServerSideAuth: true,
+      },
+    },
+  },
 })

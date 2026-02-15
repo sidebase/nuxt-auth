@@ -1,55 +1,75 @@
-# Dependencies
-node_modules
+# Dependency directories
+node_modules/
+jspm_packages/
 
-# Logs
-*.log*
+# TypeScript compiled output
+dist/
+build/
+out/
+*.tsbuildinfo
 
-# Temp directories
-.temp
-.tmp
+# Environment configuration files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Debug log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE and editor folders
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+
+# Operating System generated files
+.DS_Store
+Thumbs.db
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files
+.env*
+
+# parcel-bundler cache (https://parceljs.org/)
 .cache
+.parcel-cache
 
-# Yarn
-**/.yarn/cache
-**/.yarn/*state*
+# Next.js build output
+.next
 
-# Generated dirs
-dist
-
-# Nuxt
+# Nuxt.js build output
 .nuxt
 .output
-.vercel_build_output
-.build-*
-.env
-.netlify
 
-# Env
-.env
+# Gatsby files
+.cache/
+# Comment in the public line in if your project uses Gatsby and not Next.js
+# public
 
-# Testing
-reports
-coverage
-*.lcov
-.nyc_output
+# vuepress build output
+.vuepress/dist
 
-# VSCode
-.vscode
+# Serverless directories
+.serverless/
 
-# Intellij idea
-*.iml
-.idea
+# Jest coverage
+.out
 
-# OSX
-.DS_Store
-.AppleDouble
-.LSOverride
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
-
-## Vite Press related
-docs/.vitepress/cache
-docs/.vitepress/dist
+# Github Keys
+*.pem

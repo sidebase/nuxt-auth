@@ -4,7 +4,9 @@ import { makeCommonAuthState } from '../commonAuthState'
 
 export type SessionData = Session
 
-interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData> {}
+type UseAuthStateReturn = CommonUseAuthStateReturn<SessionData>
 
-export const useAuthState = (): UseAuthStateReturn => makeCommonAuthState<SessionData>()
+export function useAuthState(): UseAuthStateReturn {
+  return makeCommonAuthState<SessionData>()
+}
 export default useAuthState

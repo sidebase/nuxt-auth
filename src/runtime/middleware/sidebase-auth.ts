@@ -1,28 +1,35 @@
 import { isProduction } from '../helpers'
 import { ERROR_PREFIX } from '../utils/logger'
 import { determineCallbackUrlForRouteMiddleware } from '../utils/callbackUrl'
-import { defineNuxtRouteMiddleware, navigateTo, useAuth, useRuntimeConfig } from '#imports'
+import {
+  defineNuxtRouteMiddleware,
+  navigateTo,
+  useAuth,
+  useRuntimeConfig,
+} from '#imports'
 
-type MiddlewareMeta = boolean | {
-  /**
-   * Whether to allow only unauthenticated users to access this page.
-   *
-   * Authenticated users will be redirected to `/` or the route defined in `navigateAuthenticatedTo`
-   */
-  unauthenticatedOnly: boolean
-  /**
-   * Where to redirect authenticated users if `unauthenticatedOnly` is set to true
-   *
-   * @default undefined
-   */
-  navigateAuthenticatedTo?: string
-  /**
-   * Where to redirect unauthenticated users if this page is protected
-   *
-   * @default undefined
-   */
-  navigateUnauthenticatedTo?: string
-}
+type MiddlewareMeta =
+  | boolean
+  | {
+      /**
+       * Whether to allow only unauthenticated users to access this page.
+       *
+       * Authenticated users will be redirected to `/` or the route defined in `navigateAuthenticatedTo`
+       */
+      unauthenticatedOnly: boolean
+      /**
+       * Where to redirect authenticated users if `unauthenticatedOnly` is set to true
+       *
+       * @default undefined
+       */
+      navigateAuthenticatedTo?: string
+      /**
+       * Where to redirect unauthenticated users if this page is protected
+       *
+       * @default undefined
+       */
+      navigateUnauthenticatedTo?: string
+    }
 
 declare module '#app' {
   interface PageMeta {
@@ -52,12 +59,10 @@ export default defineNuxtRouteMiddleware((to) => {
   if (isGuestMode && status.value === 'unauthenticated') {
     // Guest Mode - unauthenticated users can stay on the page
     return
-  }
-  else if (isGuestMode && isAuthenticated) {
+  } else if (isGuestMode && isAuthenticated) {
     // Guest Mode - authenticated users should be redirected to another page
     return navigateTo(options.navigateAuthenticatedTo)
-  }
-  else if (isAuthenticated) {
+  } else if (isAuthenticated) {
     // Authenticated users don't need any further redirects
     return
   }
@@ -71,7 +76,11 @@ export default defineNuxtRouteMiddleware((to) => {
    *
    */
   const globalAppMiddleware = authConfig.globalAppMiddleware
-  if (globalAppMiddleware === true || (typeof globalAppMiddleware === 'object' && globalAppMiddleware.allow404WithoutAuth)) {
+  if (
+    globalAppMiddleware === true ||
+    (typeof globalAppMiddleware === 'object' &&
+      globalAppMiddleware.allow404WithoutAuth)
+  ) {
     const matchedRoute = to.matched.length > 0
     if (!matchedRoute) {
       // Hands control back to `vue-router`, which will direct to the `404` page
@@ -88,7 +97,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
   const signInOptions: Parameters<typeof signIn>[1] = {
     error: 'SessionRequired',
-    callbackUrl
+    callbackUrl,
   }
 
   return signIn(undefined, signInOptions).then((signInResult) => {
@@ -115,7 +124,9 @@ interface MiddlewareOptionsNormalized {
 /**
  * @returns `undefined` is returned when passed options are `false`
  */
-function normalizeUserOptions(userOptions: MiddlewareMeta | undefined): MiddlewareOptionsNormalized | undefined {
+function normalizeUserOptions(
+  userOptions: MiddlewareMeta | undefined,
+): MiddlewareOptionsNormalized | undefined {
   // false - do not use middleware
   // true - use defaults
   if (typeof userOptions === 'boolean' || userOptions === undefined) {
@@ -124,7 +135,7 @@ function normalizeUserOptions(userOptions: MiddlewareMeta | undefined): Middlewa
           // Guest Mode off if `auth: true`
           unauthenticatedOnly: false,
           navigateAuthenticatedTo: '/',
-          navigateUnauthenticatedTo: undefined
+          navigateUnauthenticatedTo: undefined,
         }
       : undefined
   }
@@ -135,8 +146,8 @@ function normalizeUserOptions(userOptions: MiddlewareMeta | undefined): Middlewa
     if (userOptions.unauthenticatedOnly === undefined) {
       if (!isProduction) {
         console.warn(
-          `${ERROR_PREFIX} \`unauthenticatedOnly\` was not provided to \`definePageMeta\` - defaulting to Guest Mode enabled. `
-          + 'Read more at https://auth.sidebase.io/guide/application-side/protecting-pages#middleware-options'
+          `${ERROR_PREFIX} \`unauthenticatedOnly\` was not provided to \`definePageMeta\` - defaulting to Guest Mode enabled. ` +
+            'Read more at https://auth.sidebase.io/guide/application-side/protecting-pages#middleware-options',
         )
       }
       userOptions.unauthenticatedOnly = true
@@ -145,7 +156,7 @@ function normalizeUserOptions(userOptions: MiddlewareMeta | undefined): Middlewa
     return {
       unauthenticatedOnly: userOptions.unauthenticatedOnly,
       navigateAuthenticatedTo: userOptions.navigateAuthenticatedTo ?? '/',
-      navigateUnauthenticatedTo: userOptions.navigateUnauthenticatedTo
+      navigateUnauthenticatedTo: userOptions.navigateUnauthenticatedTo,
     }
   }
 }

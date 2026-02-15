@@ -13,11 +13,9 @@ export type ProviderAuthjsResolvedConfig = DeepRequired<ProviderAuthjs>
  * Get the backend configuration from the runtime config in a typed manner.
  *
  * @param runtimeConfig The runtime config of the application
- * @param _type Backend type (only 'authjs' is supported)
  */
 export function useTypedBackendConfig(
   runtimeConfig: RuntimeConfig,
-  _type: 'authjs'
 ): ProviderAuthjsResolvedConfig {
   return runtimeConfig.public.auth.provider as ProviderAuthjsResolvedConfig
 }

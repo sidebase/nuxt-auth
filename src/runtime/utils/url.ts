@@ -14,7 +14,7 @@ export interface RuntimeConfig {
 /** https://auth.sidebase.io/guide/application-side/configuration#baseurl */
 export function resolveApiUrlPath(
   endpointPath: string,
-  runtimeConfig: RuntimeConfig
+  runtimeConfig: RuntimeConfig,
 ): string {
   // Fully-specified endpoint path - do not join with `baseURL`
   if (isExternalUrl(endpointPath)) {
@@ -25,7 +25,10 @@ export function resolveApiUrlPath(
   return joinURL(baseURL, endpointPath)
 }
 
-export function resolveApiBaseURL(runtimeConfig: RuntimeConfig, returnOnlyPathname?: boolean): string {
+export function resolveApiBaseURL(
+  runtimeConfig: RuntimeConfig,
+  returnOnlyPathname?: boolean,
+): string {
   const authRuntimeConfig = runtimeConfig.public.auth
 
   // If the user has not specified `returnOnlyPathname`, infer it automatically.

@@ -1,20 +1,27 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { computed } from 'vue'
 import type { SessionLastRefreshedAt, SessionStatus } from '../types'
 import { useState } from '#imports'
 
 export function makeCommonAuthState<SessionData>() {
-  const data = useState<SessionData | undefined | null>('auth:data', () => undefined)
+  const data = useState<SessionData | undefined | null>(
+    'auth:data',
+    () => undefined,
+  )
 
   const hasInitialSession = computed(() => !!data.value)
 
   // If session exists, initialize as already synced
-  const lastRefreshedAt = useState<SessionLastRefreshedAt>('auth:lastRefreshedAt', () => {
-    if (hasInitialSession.value) {
-      return new Date()
-    }
+  const lastRefreshedAt = useState<SessionLastRefreshedAt>(
+    'auth:lastRefreshedAt',
+    () => {
+      if (hasInitialSession.value) {
+        return new Date()
+      }
 
-    return undefined
-  })
+      return undefined
+    },
+  )
 
   // If session exists, initialize as not loading
   const loading = useState<boolean>('auth:loading', () => false)

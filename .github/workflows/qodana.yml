@@ -1,0 +1,59 @@
+name: Qodana
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      test_artifact_name:
+        required: false
+        type: string
+        default: test-results
+      coverage_artifact_name:
+        required: false
+        type: string
+        default: test-coverage
+    secrets:
+      QODANA_TOKEN:
+        required: true
+
+defaults:
+  run:
+    working-directory: ./
+
+jobs:
+  qodana-check:
+    runs-on: ubuntu-latest
+    name: Inspect Code
+
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Download Test Reports Artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: ${{ inputs.test_artifact_name }}
+          path: ./qodana-downloaded-reports/test-results
+
+      - name: Download Coverage Report Artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: ${{ inputs.coverage_artifact_name }}
+          path: ./.qodana/code-coverage
+
+      - name: Run Qodana
+        uses: JetBrains/qodana-action@201551778d1453e36c5c0aa26f89a94775cb1acc # v2025.1
+        with:
+          args: --baseline,.qodana/qodana.sarif.json
+          push-fixes: true
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}

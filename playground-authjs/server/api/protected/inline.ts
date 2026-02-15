@@ -6,5 +6,9 @@ export default eventHandler(async (event) => {
   if (!session) {
     return { status: 'unauthenticated!' }
   }
-  return { status: 'authenticated!', text: 'im protected by an in-endpoint check', session }
+  return {
+    status: 'authenticated!',
+    text: 'im protected by an in-endpoint check',
+    session,
+  }
 })

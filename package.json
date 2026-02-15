@@ -32,15 +32,15 @@
   "scripts": {
     "prepack": "nuxt-module-build build",
     "build": "nuxi build",
-    "lint": "oxlint --deny-warnings -D correctness -D suspicious -D perf -D no-unused-vars && eslint . --max-warnings=0",
+    "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "clean": "rm -rf playground-authjs/.nuxt dist .nuxt",
     "typecheck": "nuxi prepare playground-authjs && tsc --noEmit",
     "dev:prepare": "nuxt-module-build build --stub",
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs",
-    "test:unit": "vitest"
+    "docs:build": "typedoc",
+    "test:unit": "vitest",
+    "format": "prettier --write .",
+    "depcheck": "npx knip"
   },
   "dependencies": {
     "@nuxt/kit": "^4.0.0",
@@ -50,24 +50,31 @@
     "ufo": "^1.6.3"
   },
   "peerDependencies": {
-    "@auth/core": ">=0.40.0"
+    "@auth/core": ">=0.40.0",
+    "@nuxt/schema": "^4.0.0",
+    "vue": "^3.0.0",
+    "cookie-es": "^1.0.0",
+    "radix3": "^1.0.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^6.7.3",
+    "@mridang/eslint-defaults": "^1.0.0",
+    "@nuxt/eslint-plugin": "^1.0.0",
     "@nuxt/module-builder": "^1.0.2",
-    "@nuxt/schema": "^4.0.0",
-    "@nuxt/eslint": "^1.7.1",
     "@types/node": "^22.15.29",
     "eslint": "^9.39.2",
     "nuxt": "^4.0.0",
-    "ofetch": "^1.5.1",
-    "oxlint": "^1.39.0",
     "ts-essentials": "^10.1.1",
     "typescript": "^5.8.3",
-    "vitepress": "^1.6.4",
+    "typedoc": "^0.28.0",
     "vitest": "^3.2.4",
-    "vue-tsc": "^2.0.21",
-	"vite": "^7.0.0",
-	"nitropack": "^2.11.13"
+    "nitropack": "^2.11.13",
+    "prettier": "^3.5.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^12.0.0",
+    "@semantic-release/npm": "^13.1.1",
+    "@semantic-release/release-notes-generator": "^14.1.0",
+    "semantic-release": "^25.0.1",
+    "knip": "^5.66.4"
   }
 }

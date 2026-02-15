@@ -79,7 +79,7 @@ export interface RefreshHandler {
    * Handles cleanup of the refresh handler. Will be called on `unmount` app hook.
    */
   destroy: () => void
-};
+}
 
 export interface DefaultRefreshHandlerConfig {
   /**
@@ -100,7 +100,7 @@ export interface DefaultRefreshHandlerConfig {
    * @default true
    */
   enableOnWindowFocus?: boolean
-};
+}
 
 /**
  * Configuration for the application-side session.
@@ -113,7 +113,7 @@ export interface SessionRefreshConfig extends DefaultRefreshHandlerConfig {
    * @default undefined
    */
   handler?: string
-};
+}
 
 /**
  * Configuration for the whole module.

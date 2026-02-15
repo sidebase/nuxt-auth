@@ -1,0 +1,76 @@
+name: Pipeline
+
+on:
+  push:
+
+permissions:
+  contents: write
+  actions: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  lint-commits:
+    name: Run Commitlint Checks
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/commitlint.yml
+    with:
+      ref: ${{ github.event.pull_request.head.sha }}
+    secrets: inherit
+
+  code-style:
+    name: Run Linter Formatter
+    uses: ./.github/workflows/linting.yml
+    with:
+      ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref }}
+      commit_changes: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    secrets: inherit
+
+  type-check:
+    name: Run Type Checks
+    uses: ./.github/workflows/typecheck.yml
+    with:
+      ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref }}
+    secrets: inherit
+
+  run-tests:
+    name: Run Test Suite
+    uses: ./.github/workflows/test.yml
+    with:
+      ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref }}
+    secrets: inherit
+
+  code-inspection:
+    name: Run Qodana Inspections
+    needs: run-tests
+    if: ${{ always() }}
+    uses: ./.github/workflows/qodana.yml
+    with:
+      ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref }}
+    secrets: inherit
+
+  check-deps:
+    name: Run Dependency Checks
+    uses: ./.github/workflows/unused.yml
+    with:
+      ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref }}
+    secrets: inherit
+
+  all-passed:
+    name: Check Build Status
+    runs-on: ubuntu-latest
+    needs:
+      - lint-commits
+      - code-style
+      - type-check
+      - run-tests
+      - code-inspection
+      - check-deps
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
+
+      - name: Report Success
+        run: echo "All required checks passed successfully."

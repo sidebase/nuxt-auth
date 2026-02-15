@@ -18,14 +18,18 @@ function defineNitroPlugin(def: NitroAppPlugin): NitroAppPlugin {
 export default defineNitroPlugin(() => {
   try {
     const runtimeConfig = useRuntimeConfig()
-    const trustHostUserPreference = useTypedBackendConfig(runtimeConfig, 'authjs').trustHost
-    getServerBaseUrl(runtimeConfig, false, trustHostUserPreference, isProduction)
-  }
-  catch (error) {
+    const trustHostUserPreference =
+      useTypedBackendConfig(runtimeConfig).trustHost
+    getServerBaseUrl(
+      runtimeConfig,
+      false,
+      trustHostUserPreference,
+      isProduction,
+    )
+  } catch (error) {
     if (!isProduction) {
       console.info(ERROR_MESSAGES.NO_ORIGIN)
-    }
-    else {
+    } else {
       throw error
     }
   }

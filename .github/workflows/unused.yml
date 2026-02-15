@@ -1,0 +1,42 @@
+name: Dependencies
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  lint-dependencies:
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-latest
+    name: Lint Dependencies
+
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          cache: 'npm'
+          node-version-file: '.nvmrc'
+
+      - name: Install Dependencies
+        run: npm ci --no-progress
+
+      - name: Inspect Dependencies
+        uses: mridang/action-dependency-insight@v1

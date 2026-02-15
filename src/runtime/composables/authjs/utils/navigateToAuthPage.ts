@@ -1,8 +1,13 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { hasProtocol, isScriptProtocol } from 'ufo'
 import { callWithNuxt, useRouter } from '#app'
 import type { NuxtApp } from '#app'
 
-export function navigateToAuthPageWN(nuxt: NuxtApp, href: string, isInternalRouting?: boolean) {
+export function navigateToAuthPageWN(
+  nuxt: NuxtApp,
+  href: string,
+  isInternalRouting?: boolean,
+) {
   return callWithNuxt(nuxt, navigateToAuthPage, [nuxt, href, isInternalRouting])
 }
 
@@ -21,7 +26,11 @@ const URL_QUOTE_RE = /"/g
  * @param nuxtApp Nuxt app context
  * @param href HREF / URL to navigate to
  */
-function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = false) {
+function navigateToAuthPage(
+  nuxtApp: NuxtApp,
+  href: string,
+  isInternalRouting = false,
+) {
   const router = useRouter()
 
   // https://github.com/nuxt/nuxt/blob/dc69e26c5b9adebab3bf4e39417288718b8ddf07/packages/nuxt/src/app/composables/router.ts#L84-L93
@@ -33,13 +42,18 @@ function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = 
       if (isExternalHost) {
         const { protocol } = new URL(href, 'http://localhost')
         if (protocol && isScriptProtocol(protocol)) {
-          throw new Error(`Cannot navigate to a URL with '${protocol}' protocol.`)
+          throw new Error(
+            `Cannot navigate to a URL with '${protocol}' protocol.`,
+          )
         }
       }
 
       // This is a difference with `nuxt/nuxt` - we do not add `app.baseURL` here because all consumers are responsible for it
       // We also skip resolution for internal routing to avoid triggering `No match found` warning from Vue Router
-      const location = isExternalHost || isInternalRouting ? href : router.resolve(href).fullPath || '/'
+      const location =
+        isExternalHost || isInternalRouting
+          ? href
+          : router.resolve(href).fullPath || '/'
 
       async function redirect(response: false | undefined) {
         // TODO: consider deprecating in favour of `app:rendered` and removing
@@ -65,7 +79,9 @@ function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = 
         // return href
         return redirect(undefined)
       }
-      return redirect(!inMiddleware ? undefined : /* abort further route navigation */ false)
+      return redirect(
+        !inMiddleware ? undefined : /* abort further route navigation */ false,
+      )
     }
   }
 
@@ -76,8 +92,9 @@ function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = 
   }
 
   // Wait for the `window.location.href` navigation from above to complete to avoid showing content. If that doesn't work fast enough, delegate navigation back to the `vue-router` (risking a vue-router 404 warning in the console, but still avoiding content-flashes of the protected target page)
-  const waitForNavigationWithFallbackToRouter = new Promise(resolve => setTimeout(resolve, 60 * 1000))
-    .then(() => router.push(href))
+  const waitForNavigationWithFallbackToRouter = new Promise((resolve) =>
+    setTimeout(resolve, 60 * 1000),
+  ).then(() => router.push(href))
 
   return waitForNavigationWithFallbackToRouter as Promise<void | undefined>
 }
