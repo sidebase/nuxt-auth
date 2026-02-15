@@ -1,4 +1,3 @@
-import { isExternalUrl } from '../utils/url'
 import { isProduction } from '../helpers'
 import { ERROR_PREFIX } from '../utils/logger'
 import { determineCallbackUrlForRouteMiddleware } from '../utils/callbackUrl'
@@ -63,14 +62,6 @@ export default defineNuxtRouteMiddleware((to) => {
     return
   }
 
-  // We do not want to block the login page when the local provider is used
-  if (authConfig.provider.type === 'local') {
-    const loginRoute: string | undefined = authConfig.provider.pages.login
-    if (loginRoute && loginRoute === to.path) {
-      return
-    }
-  }
-
   /**
    * We do not want to enforce protection on `404` pages (unless the user opts out of it by setting `allow404WithoutAuth: false`).
    *
@@ -93,57 +84,26 @@ export default defineNuxtRouteMiddleware((to) => {
     return navigateTo(options.navigateUnauthenticatedTo)
   }
 
-  if (authConfig.provider.type === 'authjs') {
-    const callbackUrl = determineCallbackUrlForRouteMiddleware(authConfig, to)
+  const callbackUrl = determineCallbackUrlForRouteMiddleware(authConfig, to)
 
-    const signInOptions: Parameters<typeof signIn>[1] = {
-      error: 'SessionRequired',
-      callbackUrl
+  const signInOptions: Parameters<typeof signIn>[1] = {
+    error: 'SessionRequired',
+    callbackUrl
+  }
+
+  return signIn(undefined, signInOptions).then((signInResult) => {
+    // `signIn` function automatically navigates to the correct page,
+    // we need to tell `vue-router` what page we navigated to by returning the value.
+    if (signInResult) {
+      return signInResult.navigationResult
     }
 
-    return signIn(
-      // @ts-expect-error This is valid for a backend-type of `authjs`, where sign-in accepts a provider as a first argument
-      undefined,
-      signInOptions
-    ).then((signInResult) => {
-      // `signIn` function automatically navigates to the correct page,
-      // we need to tell `vue-router` what page we navigated to by returning the value.
-      if (signInResult) {
-        return signInResult.navigationResult
-      }
-
-      // When no result was provided, allow other middleware to run by default.
-      // When `false` is used, other middleware will be skipped.
-      // See: https://router.vuejs.org/guide/advanced/navigation-guards.html#Global-Before-Guards
-      // See: https://github.com/nuxt/nuxt/blob/dc69e26c5b9adebab3bf4e39417288718b8ddf07/packages/nuxt/src/pages/runtime/plugins/router.ts#L241-L250
-      return true
-    })
-  }
-
-  const loginPage = authConfig.provider.pages.login
-  if (typeof loginPage !== 'string') {
-    console.warn(`${ERROR_PREFIX} provider.pages.login is misconfigured`)
-    return
-  }
-
-  // Default callback URL was provided
-  const external = isExternalUrl(loginPage)
-  if (typeof globalAppMiddleware === 'object' && globalAppMiddleware.addDefaultCallbackUrl) {
-    let redirectUrl: string = to.fullPath
-    if (typeof globalAppMiddleware.addDefaultCallbackUrl === 'string') {
-      redirectUrl = globalAppMiddleware.addDefaultCallbackUrl
-    }
-
-    return navigateTo({
-      path: loginPage,
-      query: {
-        redirect: redirectUrl
-      }
-    }, { external })
-  }
-
-  // Fall back to login page
-  return navigateTo(loginPage, { external })
+    // When no result was provided, allow other middleware to run by default.
+    // When `false` is used, other middleware will be skipped.
+    // See: https://router.vuejs.org/guide/advanced/navigation-guards.html#Global-Before-Guards
+    // See: https://github.com/nuxt/nuxt/blob/dc69e26c5b9adebab3bf4e39417288718b8ddf07/packages/nuxt/src/pages/runtime/plugins/router.ts#L241-L250
+    return true
+  })
 })
 
 interface MiddlewareOptionsNormalized {

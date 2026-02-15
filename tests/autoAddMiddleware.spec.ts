@@ -96,8 +96,8 @@ describe('setMiddleware', () => {
 
     autoAddMiddleware(pages, MIDDLEWARE_NAME)
 
-    expect(pages[0].meta?.middleware).toEqual([MIDDLEWARE_NAME])
-    expect(pages[1].meta?.middleware).toEqual(['foo', MIDDLEWARE_NAME])
+    expect(pages[0]!.meta?.middleware).toEqual([MIDDLEWARE_NAME])
+    expect(pages[1]!.meta?.middleware).toEqual(['foo', MIDDLEWARE_NAME])
   })
 
   it('handles nested children', () => {
@@ -112,8 +112,8 @@ describe('setMiddleware', () => {
 
     autoAddMiddleware(pages, MIDDLEWARE_NAME)
 
-    expect(pages[0].meta?.middleware).toBeUndefined()
-    expect(pages[0].children?.[0].meta?.middleware).toEqual([MIDDLEWARE_NAME])
+    expect(pages[0]!.meta?.middleware).toBeUndefined()
+    expect(pages[0]!.children?.[0]?.meta?.middleware).toEqual([MIDDLEWARE_NAME])
   })
 })
 
@@ -123,5 +123,5 @@ describe('setMiddleware', () => {
 function testMiddleware(page: NuxtPage, expected: unknown) {
   const pages: NuxtPage[] = [page]
   autoAddMiddleware(pages, MIDDLEWARE_NAME)
-  expect(pages[0].meta?.middleware).toEqual(expected)
+  expect(pages[0]!.meta?.middleware).toEqual(expected)
 }

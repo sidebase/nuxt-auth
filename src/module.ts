@@ -18,8 +18,7 @@ import type {
   AuthProviders,
   ModuleOptions,
   ModuleOptionsNormalized,
-  RefreshHandler,
-  SupportedAuthProviders
+  RefreshHandler
 } from './runtime/types'
 import { autoAddMiddleware } from './build/autoAddMiddleware'
 
@@ -41,61 +40,11 @@ const topLevelDefaults = {
   }
 } satisfies ModuleOptions
 
-const defaultsByBackend: {
-  [key in SupportedAuthProviders]: DeepRequired<
-    Extract<AuthProviders, { type: key }>
-  >;
-} = {
-  local: {
-    type: 'local',
-    pages: {
-      login: '/login'
-    },
-    endpoints: {
-      signIn: { path: '/login', method: 'post' },
-      signOut: { path: '/logout', method: 'post' },
-      signUp: { path: '/register', method: 'post' },
-      getSession: { path: '/session', method: 'get' }
-    },
-    token: {
-      signInResponseTokenPointer: '/token',
-      type: 'Bearer',
-      cookieName: 'auth.token',
-      headerName: 'Authorization',
-      maxAgeInSeconds: 30 * 60, // 30 minutes
-      sameSiteAttribute: 'lax',
-      secureCookieAttribute: false,
-      cookieDomain: '',
-      httpOnlyCookieAttribute: false
-    },
-    session: {
-      dataType: { id: 'string | number' },
-      dataResponsePointer: '/'
-    },
-    refresh: {
-      isEnabled: false,
-      endpoint: { path: '/refresh', method: 'post' },
-      refreshOnlyToken: true,
-      token: {
-        signInResponseRefreshTokenPointer: '/refreshToken',
-        refreshResponseTokenPointer: '',
-        refreshRequestTokenPointer: '/refreshToken',
-        cookieName: 'auth.refresh-token',
-        maxAgeInSeconds: 60 * 60 * 24 * 7, // 7 days
-        sameSiteAttribute: 'lax',
-        secureCookieAttribute: false,
-        cookieDomain: '',
-        httpOnlyCookieAttribute: false
-      }
-    }
-  },
-
-  authjs: {
-    type: 'authjs',
-    trustHost: false,
-    defaultProvider: '', // this satisfies Required and also gets caught at `!provider` check
-    addDefaultCallbackUrl: true
-  }
+const authjsDefaults: DeepRequired<AuthProviders> = {
+  type: 'authjs',
+  trustHost: false,
+  defaultProvider: '', // this satisfies Required and also gets caught at `!provider` check
+  addDefaultCallbackUrl: true
 }
 
 const PACKAGE_NAME = 'sidebase-auth'
@@ -110,14 +59,11 @@ export default defineNuxtModule<ModuleOptions>({
     const logger = useLogger(PACKAGE_NAME)
 
     // 0. Assemble all options
-
-    const selectedProvider = userOptions.provider?.type ?? 'authjs'
-
     const options = defu({
       // We use `as` to infer backend types correctly for runtime-usage (everything is set, although for user everything was optional)
       provider: defu(
         userOptions.provider,
-        defaultsByBackend[selectedProvider]
+        authjsDefaults
       ) as DeepRequired<AuthProviders>
     }, userOptions, topLevelDefaults)
 
@@ -129,23 +75,12 @@ export default defineNuxtModule<ModuleOptions>({
 
     logger.info('`nuxt-auth` setup starting')
 
-    // 2.1. Disable internal routing for `local` provider when not specified otherwise
-    // https://github.com/sidebase/nuxt-auth/issues/797
-    if (userOptions.disableInternalRouting === undefined && selectedProvider === 'local') {
-      options.disableInternalRouting = true
-    }
-
-    // 2.2. Set up runtime configuration
+    // 2. Set up runtime configuration
     if (!isProduction) {
-      const loggerMessages = [
-        `Selected provider: ${selectedProvider}.`,
-        `Auth API location is \`${options.baseURL}\`, if you would like to change this, see https://auth.sidebase.io/guide/application-side/configuration#baseurl.`
-      ]
-      if (selectedProvider === 'authjs') {
-        loggerMessages.push('Ensure that the `NuxtAuthHandler({ ... })` is there, see https://auth.sidebase.io/guide/authjs/nuxt-auth-handler')
-      }
-
-      logger.info(loggerMessages.join(' '))
+      logger.info(
+        `Auth API location is \`${options.baseURL}\`, if you would like to change this, see https://auth.sidebase.io/guide/application-side/configuration#baseurl. `
+        + 'Ensure that the `NuxtAuthHandler({ ... })` is there, see https://auth.sidebase.io/guide/authjs/nuxt-auth-handler'
+      )
     }
 
     nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }
@@ -154,17 +89,15 @@ export default defineNuxtModule<ModuleOptions>({
     // 3. Locate runtime directory
     const { resolve } = createResolver(import.meta.url)
 
-    // 4. Add the correct nuxt-auth app composable, for the desired backend
+    // 4. Add nuxt-auth app composables
     addImports([
       {
         name: 'useAuth',
-        from: resolve(`./runtime/composables/${options.provider.type}/useAuth`)
+        from: resolve('./runtime/composables/authjs/useAuth')
       },
       {
         name: 'useAuthState',
-        from: resolve(
-          `./runtime/composables/${options.provider.type}/useAuthState`
-        )
+        from: resolve('./runtime/composables/authjs/useAuthState')
       }
     ])
 
@@ -189,16 +122,6 @@ export default defineNuxtModule<ModuleOptions>({
           '// AUTO-GENERATED BY @sidebase/nuxt-auth',
           'declare module \'#auth\' {',
           `  const { getServerSession, getToken, NuxtAuthHandler }: typeof import('${resolve('./runtime/server/services')}')`,
-          ...(options.provider.type === 'local'
-            ? [
-                'interface SessionData {',
-                ...Object.entries((options.provider as any).session.dataType).map(
-                  ([key, value]) => `  ${key}: ${value};`
-                ),
-                '}',
-              ]
-            : []
-          ),
           '}',
           ''
         ].join('\n')
@@ -257,14 +180,7 @@ export default defineNuxtModule<ModuleOptions>({
     addPlugin(resolve('./runtime/plugin'))
 
     // 8. Add a server-plugin to check the `origin` on production-startup
-    if (selectedProvider === 'authjs') {
-      addServerPlugin(resolve('./runtime/server/plugins/assertOrigin'))
-    }
-
-    // 9. Add a plugin to refresh the token on production-startup
-    if (options.provider.type === 'local' && options.provider.refresh.isEnabled && !options.disableServerSideAuth) {
-      addPlugin(resolve('./runtime/plugins/refresh-token.server'))
-    }
+    addServerPlugin(resolve('./runtime/server/plugins/assertOrigin'))
 
     logger.success('`nuxt-auth` setup done')
   }

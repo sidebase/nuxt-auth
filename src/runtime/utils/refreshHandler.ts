@@ -1,19 +1,12 @@
-import type { DefaultRefreshHandlerConfig, ModuleOptionsNormalized, RefreshHandler } from '../types'
-import { useAuth, useRuntimeConfig } from '#imports'
+import type { DefaultRefreshHandlerConfig, RefreshHandler } from '../types'
+import { useAuth } from '#imports'
 
 export class DefaultRefreshHandler implements RefreshHandler {
   /** Result of `useAuth` composable, mostly used for session data/refreshing */
   auth?: ReturnType<typeof useAuth>
 
-  /** Runtime config is mostly used for getting provider data */
-  runtimeConfig?: ModuleOptionsNormalized
-
   /** Refetch interval */
   refetchIntervalTimer?: ReturnType<typeof setInterval>
-
-  // TODO: find more Generic method to start a Timer for the Refresh Token
-  /** Refetch interval for local/refresh schema */
-  refreshTokenIntervalTimer?: ReturnType<typeof setInterval>
 
   /** Because passing `this.visibilityHandler` to `document.addEventHandler` loses `this` context */
   private boundVisibilityHandler: typeof this.visibilityHandler
@@ -25,7 +18,6 @@ export class DefaultRefreshHandler implements RefreshHandler {
   }
 
   init(): void {
-    this.runtimeConfig = useRuntimeConfig().public.auth
     this.auth = useAuth()
 
     document.addEventListener('visibilitychange', this.boundVisibilityHandler, false)
@@ -41,17 +33,6 @@ export class DefaultRefreshHandler implements RefreshHandler {
         }
       }, intervalTime)
     }
-
-    const provider = this.runtimeConfig.provider
-    if (provider.type === 'local' && provider.refresh.isEnabled && provider.refresh.token?.maxAgeInSeconds) {
-      const intervalTime = safeTimerDelay(provider.refresh.token.maxAgeInSeconds * 1000)
-
-      this.refreshTokenIntervalTimer = setInterval(() => {
-        if (this.auth?.refreshToken.value) {
-          this.auth.refresh()
-        }
-      }, intervalTime)
-    }
   }
 
   destroy(): void {
@@ -61,14 +42,8 @@ export class DefaultRefreshHandler implements RefreshHandler {
     // Clear refetch interval
     clearInterval(this.refetchIntervalTimer)
 
-    // Clear refetch interval
-    if (this.refreshTokenIntervalTimer) {
-      clearInterval(this.refreshTokenIntervalTimer)
-    }
-
     // Release state
     this.auth = undefined
-    this.runtimeConfig = undefined
   }
 
   visibilityHandler(): void {
