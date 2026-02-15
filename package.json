@@ -1,24 +1,16 @@
 {
-  "name": "@sidebase/nuxt-auth",
+  "name": "@zitadel/nuxt-auth",
+  "description": "A comprehensive Auth.js integration for Nuxt 4 applications with TypeScript support and OAuth providers",
   "version": "1.1.1",
-  "license": "MIT",
   "type": "module",
-  "description": "Authentication built for Nuxt 4! Easily add authentication via OAuth providers, credentials or Email Magic URLs!",
-  "homepage": "https://auth.sidebase.io",
-  "repository": "github:sidebase/nuxt-auth",
-  "engines": {
-    "node": ">=22"
-  },
-  "workspaces": [
-    "playground-authjs"
-  ],
+  "main": "./dist/module.mjs",
+  "types": "./dist/types.d.mts",
   "exports": {
     ".": {
       "types": "./dist/types.d.mts",
       "import": "./dist/module.mjs"
     }
   },
-  "main": "./dist/module.mjs",
   "typesVersions": {
     "*": {
       ".": [
@@ -29,18 +21,35 @@
   "files": [
     "dist"
   ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zitadel/nuxt-auth.git"
+  },
+  "author": {
+    "name": "Mridang Agarwalla",
+    "email": "mridang@zitadel.com",
+    "url": "https://github.com/zitadel"
+  },
+  "workspaces": [
+    "playground-authjs"
+  ],
   "scripts": {
     "prepack": "nuxt-module-build build",
     "build": "nuxi build",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --max-warnings=0 --fix",
     "clean": "rm -rf playground-authjs/.nuxt dist .nuxt",
-    "typecheck": "nuxi prepare playground-authjs && tsc --noEmit",
+    "depcheck": "npx knip",
     "dev:prepare": "nuxt-module-build build --stub",
     "docs:build": "typedoc",
-    "test:unit": "vitest",
     "format": "prettier --write .",
-    "depcheck": "npx knip"
+    "format:check": "prettier --check .",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --max-warnings=0 --fix",
+    "test:unit": "vitest",
+    "typecheck": "nuxi prepare playground-authjs && tsc --noEmit"
   },
   "dependencies": {
     "@nuxt/kit": "^4.0.0",
@@ -52,29 +61,48 @@
   "peerDependencies": {
     "@auth/core": ">=0.40.0",
     "@nuxt/schema": "^4.0.0",
-    "vue": "^3.0.0",
     "cookie-es": "^1.0.0",
-    "radix3": "^1.0.0"
+    "radix3": "^1.0.0",
+    "vue": "^3.0.0"
   },
   "devDependencies": {
     "@mridang/eslint-defaults": "^1.0.0",
     "@nuxt/eslint-plugin": "^1.0.0",
     "@nuxt/module-builder": "^1.0.2",
-    "@types/node": "^22.15.29",
-    "eslint": "^9.39.2",
-    "nuxt": "^4.0.0",
-    "ts-essentials": "^10.1.1",
-    "typescript": "^5.8.3",
-    "typedoc": "^0.28.0",
-    "vitest": "^3.2.4",
-    "nitropack": "^2.11.13",
-    "prettier": "^3.5.3",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^12.0.0",
     "@semantic-release/npm": "^13.1.1",
     "@semantic-release/release-notes-generator": "^14.1.0",
+    "@types/node": "^22.15.29",
+    "eslint": "^9.39.2",
+    "knip": "^5.66.4",
+    "nitropack": "^2.11.13",
+    "nuxt": "^4.0.0",
+    "prettier": "^3.5.3",
     "semantic-release": "^25.0.1",
-    "knip": "^5.66.4"
+    "ts-essentials": "^10.1.1",
+    "typedoc": "^0.28.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "keywords": [
+    "nuxt",
+    "nuxt-module",
+    "auth",
+    "authentication",
+    "@auth",
+    "@auth/core",
+    "authjs",
+    "jwt",
+    "oauth",
+    "nuxt-auth",
+    "vue"
+  ],
+  "private": false,
+  "homepage": "https://github.com/zitadel/nuxt-auth",
+  "bugs": "https://github.com/zitadel/nuxt-auth/issues",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }
