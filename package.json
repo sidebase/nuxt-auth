@@ -8,7 +8,7 @@
   "repository": "github:sidebase/nuxt-auth",
   "engines": {
     "pnpm": ">=9.4.0",
-    "node": ">=20"
+    "node": ">=22"
   },
   "exports": {
     ".": {
@@ -60,7 +60,7 @@
     "@nuxt/module-builder": "^1.0.2",
     "@nuxt/schema": "^4.0.0",
     "@nuxt/eslint": "^1.7.1",
-    "@types/node": "^20.19.29",
+    "@types/node": "^22.15.29",
     "eslint": "^9.39.2",
     "nuxt": "^4.0.0",
     "ofetch": "^1.5.1",
