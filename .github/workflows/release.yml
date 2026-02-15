@@ -26,16 +26,11 @@ jobs:
           ref: ${{ github.event.release.tag_name }}
           fetch-depth: 0
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-
-      - name: Setup Node.js and pnpm
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
-          cache: 'pnpm'
+          cache: 'npm'
           # This is required for `setup-node` to generate the registry URL into .npmrc
           # See https://github.com/actions/setup-node/blob/5e2628c959b9ade56971c0afcebbe5332d44b398/action.yml#L17-L18
           registry-url: 'https://registry.npmjs.org/'
@@ -51,9 +46,9 @@ jobs:
 
       - name: Install deps
         run: |
-          pnpm --version
-          pnpm install --frozen-lockfile
-          pnpm dev:prepare
+          npm --version
+          npm ci
+          npm run dev:prepare
 
       # Note: no build step because npm publish would run `prepack` script which builds the module
 
@@ -72,4 +67,3 @@ jobs:
           else
             echo "Not a valid release tag ($TAG), skipping publish."
           fi
-

@@ -33,25 +33,20 @@ jobs:
         with:
           fetch-depth: 0 # Required to calculate lastUpdated
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          run_install: false
-
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
-          cache: 'pnpm'
+          cache: 'npm'
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
       - name: Install dependencies
-        run: pnpm i
+        run: npm ci
 
       - name: Build with VitePress
-        run: pnpm docs:build
+        run: npm run docs:build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

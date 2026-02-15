@@ -43,10 +43,6 @@ npx nuxi@latest module add sidebase-auth
 
   ```sh
   npm i -D @sidebase/nuxt-auth
-
-  pnpm i -D @sidebase/nuxt-auth
-
-  yarn add --dev @sidebase/nuxt-auth
   ```
 
   #### 2. Add the modules to your `nuxt.config.ts`
@@ -62,11 +58,9 @@ Then visit the [Quick Start documentation](https://auth.sidebase.io/guide/gettin
 
 ## Features
 
-`@sidebase/nuxt-auth` is a library with the goal of supporting authentication for any universal Nuxt 4 application. At the moment three providers are supported:
-- [`authjs`](https://auth.sidebase.io/guide/authjs/quick-start): for non-static apps that want to use [Auth.js / NextAuth.js](https://github.com/nextauthjs/next-auth) to offer the reliability & convenience of a 23k star library to the Nuxt 4 ecosystem with a native developer experience (DX)
-- [`local`](https://auth.sidebase.io/guide/local/quick-start): for static pages that rely on an external backend with a credential flow for authentication. The Local Provider also supports refresh tokens since `v0.9.0`. Read more [here](https://auth.sidebase.io/upgrade/version-0.9.0).
+`@sidebase/nuxt-auth` is a library with the goal of supporting authentication for any universal Nuxt 4 application using [Auth.js](https://authjs.dev/) to offer the reliability & convenience of a 23k star library to the Nuxt 4 ecosystem with a native developer experience (DX).
 
-You can find a full list of our features, as well as which provider supports each feature [on our docs](https://auth.sidebase.io/guide/getting-started/choose-provider).
+You can find a full list of our features [on our docs](https://auth.sidebase.io/guide/getting-started/choose-provider).
 
 ### Authentication providers:
 - OAuth (e.g., Github, Google, Twitter, Azure, ...)
@@ -101,14 +95,14 @@ Want to get a preview of what `@sidebase/nuxt-auth` has to offer? Visit the [`nu
 
 ## Development
 
-This project uses `pnpm` for development.
+This project uses `npm` for development.
 
-- Run `pnpm dev:prepare` to generate type stubs.
-- Use `pnpm dev` inside a [module playground directory](#module-playground) to start a playground in development mode.
-- Run `pnpm lint` to run eslint
-- Run `pnpm typecheck` to run typescheck via tsc
-- Run `pnpm publish --access public` to publish
-- Run `pnpm publish --access public --tag next` to publish a pre-release
+- Run `npm run dev:prepare` to generate type stubs.
+- Use `npm run dev` inside a [module playground directory](#module-playground) to start a playground in development mode.
+- Run `npm run lint` to run eslint
+- Run `npm run typecheck` to run typescheck via tsc
+- Run `npm publish --access public` to publish
+- Run `npm publish --access public --tag next` to publish a pre-release
 
 ### Module Playground
 
@@ -119,51 +113,22 @@ This module also has it's own playground:
 
 > cd nuxt-auth
 
-> cd playground-[PROVIDER]
+> cd playground-authjs
 
-> pnpm i
+> npm install
 
-> pnpm dev:prepare
+> npm run dev:prepare
 
-> pnpm dev
+> npm run dev
 ```
 
 #### Additional playground commands
 
-- Run `pnpm dev:prepare` to generate type stubs.
-- Run `pnpm dev` to start the playground.
-- Run `pnpm test:e2e` to run the end-to-end tests.
-- Run `pnpm lint` to run eslint
-- Run `pnpm typecheck` to run typescheck via tsc
-
-#### Testing different Providers
-
-We have one playground per provider:
-- [`authjs`](./playground-authjs)
-- [`local`](./playground-local)
-
-##### How to test static Nuxt 4 apps?
-
-To test static Nuxt 4 apps we want to run a static frontend and a separate backend that will take over authentication:
-1. `playground-local/nuxt.config.ts`: Add `baseURL: 'http://localhost:3001'` to the `auth`-config
-2. Start the static frontend:
-    ```sh
-    cd playground-local
-
-    pnpm generate
-
-    pnpm start
-    ```
-3. Start the authentication backend (we use a second instance of the same Nuxt 4 app):
-    ```sh
-    cd playground-local
-
-    pnpm dev
-
-    # A second Nuxt app should now be running on http://localhost:3001.
-    # We use this purely for authentication
-    ```
-4.  Visit [http://localhost:3000](http://localhost:3000) -> this should open the static application. Performing any auth-related actions, the app should send requests to the backend running on port `3001`
+- Run `npm run dev:prepare` to generate type stubs.
+- Run `npm run dev` to start the playground.
+- Run `npm run test:e2e` to run the end-to-end tests.
+- Run `npm run lint` to run eslint
+- Run `npm run typecheck` to run typescheck via tsc
 
 ## Contributing
 

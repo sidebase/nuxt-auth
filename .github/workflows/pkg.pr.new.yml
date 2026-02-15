@@ -17,22 +17,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          run_install: false
-
       - name: Use Node.js ${{ env.NODE_VER }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VER }}
-          cache: 'pnpm'
+          cache: 'npm'
 
       - name: Install deps
-        run: pnpm i && pnpm dev:prepare
+        run: npm ci && npm run dev:prepare
 
       - name: Build and pack
-        run: pnpm prepack
+        run: npm run prepack
 
       - name: Publish package preview
-        run: pnpx pkg-pr-new publish --compact
+        run: npx pkg-pr-new publish --compact
