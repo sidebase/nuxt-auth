@@ -19,7 +19,8 @@ let routeMatcher: RouteMatcher
  * In the returned function, enter a path to retrieve the routeRules that applies to that page.
  */
 export function getNitroRouteRules(path: string): Partial<RouteOptions> {
-  const { nitro, app } = useRuntimeConfig()
+  const runtimeConfig = useRuntimeConfig() as { nitro?: { routeRules?: Record<string, { auth?: RouteOptions }> }, app?: { baseURL?: string } }
+  const { nitro, app } = runtimeConfig
 
   if (!routeMatcher) {
     routeMatcher = toRouteMatcher(
@@ -35,7 +36,7 @@ export function getNitroRouteRules(path: string): Partial<RouteOptions> {
   const options: Partial<RouteOptions> = {}
 
   const matches = routeMatcher.matchAll(
-    withoutBase(withoutTrailingSlash(withoutQuery(path)), app.baseURL)
+    withoutBase(withoutTrailingSlash(withoutQuery(path)), app?.baseURL || '/')
   ).toReversed()
 
   for (const match of matches) {

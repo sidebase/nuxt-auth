@@ -1,4 +1,3 @@
-import type { AppProvider, BuiltInProviderType } from 'next-auth/providers/index'
 import { defu } from 'defu'
 import { readonly } from 'vue'
 import type { Ref } from 'vue'
@@ -17,14 +16,9 @@ import { callWithNuxt } from '#app/nuxt'
 import { createError, useAuthState, useNuxtApp, useRequestHeaders, useRuntimeConfig } from '#imports'
 
 /**
- * Utility type that allows autocompletion for a mix of literal, primitiva and non-primitive values.
- * @source https://github.com/microsoft/TypeScript/issues/29729#issuecomment-832522611
+ * Provider ID type - accepts any string for flexibility with custom providers
  */
-
-type LiteralUnion<T extends U, U = string> = T | (U & Record<never, never>)
-
-// TODO: Stronger typing for `provider`, see https://github.com/nextauthjs/next-auth/blob/733fd5f2345cbf7c123ba8175ea23506bcb5c453/packages/next-auth/src/react/index.tsx#L199-L203
-export type SupportedProviders = LiteralUnion<BuiltInProviderType> | undefined
+export type SupportedProviders = string | undefined
 
 interface SignInResult {
   error: string | null
@@ -59,7 +53,18 @@ export interface GetCsrfTokenFunc {
   (): Promise<string>
 }
 
-export type GetProvidersResult = Record<Exclude<SupportedProviders, undefined>, Omit<AppProvider, 'options'> | undefined>
+/**
+ * Provider info returned from the /providers endpoint
+ */
+export interface ProviderInfo {
+  id: string
+  name: string
+  type: string
+  signinUrl?: string
+  callbackUrl?: string
+}
+
+export type GetProvidersResult = Record<string, ProviderInfo | undefined>
 export interface GetProvidersFunc {
   (): Promise<GetProvidersResult>
 }

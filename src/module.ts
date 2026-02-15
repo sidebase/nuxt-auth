@@ -102,7 +102,8 @@ export default defineNuxtModule<ModuleOptions>({
     ])
 
     // 5. Create virtual imports for server-side
-    nuxt.hook('nitro:config', (nitroConfig) => {
+    // @ts-expect-error nitro:config hook exists but type definition is missing in Nuxt 4
+    nuxt.hook('nitro:config', (nitroConfig: { alias?: Record<string, string>, externals?: { inline?: string[] } }) => {
       nitroConfig.alias = nitroConfig.alias || {}
 
       // Inline module runtime in Nitro bundle

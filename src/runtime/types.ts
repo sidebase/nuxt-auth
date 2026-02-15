@@ -1,5 +1,4 @@
 import type { ComputedRef, Ref } from 'vue'
-import type { SupportedProviders } from './composables/authjs/useAuth'
 
 /**
  * Configuration for the global application-side authentication-middleware.
@@ -60,7 +59,7 @@ export interface ProviderAuthjs {
    * @example "github"
    * @default undefined
    */
-  defaultProvider?: undefined | SupportedProviders
+  defaultProvider?: string
   /**
    * Whether to add a callbackUrl to sign in requests. Setting this to a string-value will result in that being used as the callbackUrl path. Setting this to `true` will result in the blocked original target path being chosen (if it can be determined).
    */

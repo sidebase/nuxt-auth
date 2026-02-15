@@ -1,4 +1,4 @@
-import type { Session } from 'next-auth'
+import type { Session } from '@auth/core/types'
 import type { CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
 

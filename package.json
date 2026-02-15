@@ -50,12 +50,7 @@
     "ufo": "^1.6.3"
   },
   "peerDependencies": {
-    "next-auth": "~4.21.1"
-  },
-  "peerDependenciesMeta": {
-    "next-auth": {
-      "optional": true
-    }
+    "@auth/core": ">=0.40.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.7.3",

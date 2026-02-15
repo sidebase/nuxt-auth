@@ -1,18 +1,16 @@
-import CredentialsProvider from 'next-auth/providers/credentials'
-import GithubProvider from 'next-auth/providers/github'
+import Credentials from '@auth/core/providers/credentials'
+import GitHub from '@auth/core/providers/github'
 import { NuxtAuthHandler } from '#auth'
 
 export default NuxtAuthHandler({
   // a) Never hardcode your secret in your code!! and b) use a secure secret, `test-123` is **not** secure!!
   secret: process.env.AUTH_SECRET ?? 'test-123',
   providers: [
-    // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
-    GithubProvider.default({
+    GitHub({
       clientId: process.env.GITHUB_CLIENT_ID ?? 'your-client-id',
       clientSecret: process.env.GITHUB_CLIENT_SECRET ?? 'your-client-secret'
     }),
-    // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
-    CredentialsProvider.default({
+    Credentials({
       // The name to display on the sign in form (e.g. 'Sign in with...')
       name: 'Credentials',
       // The credentials is used to generate a suitable form on the sign in page.
@@ -23,7 +21,7 @@ export default NuxtAuthHandler({
         username: { label: 'Username', type: 'text', placeholder: '(hint: jsmith)' },
         password: { label: 'Password', type: 'password', placeholder: '(hint: hunter2)' }
       },
-      authorize(credentials: any) {
+      authorize(credentials) {
         // You need to provide your own logic here that takes the credentials
         // submitted and returns either a object representing a user or value
         // that is false/null if the credentials are invalid.
