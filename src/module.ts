@@ -19,7 +19,6 @@ import type {
   AuthProviders,
   ModuleOptions,
   ModuleOptionsNormalized,
-  RefreshHandler,
 } from './runtime/types'
 import { autoAddMiddleware } from './build/autoAddMiddleware'
 
@@ -83,8 +82,8 @@ export default defineNuxtModule<ModuleOptions>({
     // 2. Set up runtime configuration
     if (!isProduction) {
       logger.info(
-        `Auth API location is \`${options.baseURL}\`, if you would like to change this, see https://auth.sidebase.io/guide/application-side/configuration#baseurl. ` +
-          'Ensure that the `NuxtAuthHandler({ ... })` is there, see https://auth.sidebase.io/guide/authjs/nuxt-auth-handler',
+        `Auth API location is \`${options.baseURL}\`. ` +
+          'Ensure that the `NuxtAuthHandler({ ... })` is configured.',
       )
     }
 
@@ -211,7 +210,14 @@ export default defineNuxtModule<ModuleOptions>({
 }) satisfies NuxtModule<ModuleOptions>
 
 // Used by nuxt/module-builder for `types.d.ts` generation
-export type { ModuleOptions, RefreshHandler }
+export type {
+  GlobalMiddlewareOptions,
+  ModuleOptions,
+  ModuleOptionsNormalized,
+  ProviderAuthjs,
+  RefreshHandler,
+  SessionRefreshConfig,
+} from './runtime/types'
 export interface ModulePublicRuntimeConfig {
   auth: ModuleOptionsNormalized
 }

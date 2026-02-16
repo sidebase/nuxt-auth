@@ -11,7 +11,7 @@ export interface RuntimeConfig {
   }
 }
 
-/** https://auth.sidebase.io/guide/application-side/configuration#baseurl */
+/** Determines the base URL for authentication endpoints. */
 export function resolveApiUrlPath(
   endpointPath: string,
   runtimeConfig: RuntimeConfig,

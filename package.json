@@ -4,7 +4,7 @@
   "license": "MIT",
   "type": "module",
   "description": "Authentication built for Nuxt 4! Easily add authentication via OAuth providers, credentials or Email Magic URLs!",
-  "homepage": "https://auth.sidebase.io",
+  "homepage": "https://github.com/zitadel/nuxt-auth",
   "repository": "github:sidebase/nuxt-auth",
   "engines": {
     "node": ">=22"

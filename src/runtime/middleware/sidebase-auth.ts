@@ -147,7 +147,7 @@ function normalizeUserOptions(
       if (!isProduction) {
         console.warn(
           `${ERROR_PREFIX} \`unauthenticatedOnly\` was not provided to \`definePageMeta\` - defaulting to Guest Mode enabled. ` +
-            'Read more at https://auth.sidebase.io/guide/application-side/protecting-pages#middleware-options',
+            'Check your page meta configuration for valid middleware options.',
         )
       }
       userOptions.unauthenticatedOnly = true
