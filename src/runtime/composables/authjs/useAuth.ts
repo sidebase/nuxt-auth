@@ -414,4 +414,3 @@ export function useAuth(): UseAuthReturn {
     refresh: getSession,
   }
 }
-export default useAuth

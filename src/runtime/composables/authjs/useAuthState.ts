@@ -9,4 +9,3 @@ type UseAuthStateReturn = CommonUseAuthStateReturn<SessionData>
 export function useAuthState(): UseAuthStateReturn {
   return makeCommonAuthState<SessionData>()
 }
-export default useAuthState
