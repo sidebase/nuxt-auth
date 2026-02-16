@@ -9,10 +9,18 @@ export default [
       '.out/**',
       'dist/**',
       'docs/**',
+      'build/**',
       'playground-authjs/**',
       '*.config.*',
+      '**/*.css',
     ],
   },
   ...mridangPlugin.configs.recommended,
   { plugins: { nuxt: nuxtPlugin } },
+  {
+    files: ['spec/**/*.ts'],
+    rules: {
+      'import/no-unresolved': 'off',
+    },
+  },
 ]
