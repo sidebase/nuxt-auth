@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { autoAddMiddleware } from '../src/build/autoAddMiddleware'
 import type { NuxtPage } from '../src/build/autoAddMiddleware'
 
-const MIDDLEWARE_NAME = 'sidebase-auth'
+const MIDDLEWARE_NAME = 'zitadel-auth'
 function middlewareFunction() {}
 
 describe('setMiddleware', () => {

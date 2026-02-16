@@ -47,7 +47,7 @@ const authjsDefaults: DeepRequired<AuthProviders> = {
   addDefaultCallbackUrl: true,
 }
 
-const PACKAGE_NAME = 'sidebase-auth'
+const PACKAGE_NAME = 'zitadel-auth'
 const MIDDLEWARE_NAME = PACKAGE_NAME
 
 export default defineNuxtModule<ModuleOptions>({
@@ -186,7 +186,7 @@ export default defineNuxtModule<ModuleOptions>({
     // 6. Register middleware for autocomplete in definePageMeta
     addRouteMiddleware({
       name: MIDDLEWARE_NAME,
-      path: resolve('./runtime/middleware/sidebase-auth'),
+      path: resolve('./runtime/middleware/zitadel-auth'),
     })
 
     // 6.5. Automatically add the middleware when `definePageMeta({ auth: true })` usage is detected
