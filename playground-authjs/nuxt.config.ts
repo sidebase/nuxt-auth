@@ -4,11 +4,12 @@ export default defineNuxtConfig({
   auth: {
     provider: {
       type: 'authjs',
+      trustHost: true,
     },
     globalAppMiddleware: {
       isEnabled: true,
     },
-    baseURL: `http://localhost:${process.env.PORT || 3000}/api/auth`,
+    baseURL: '/api/auth',
   },
   routeRules: {
     '/with-caching': {
