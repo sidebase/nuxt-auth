@@ -68,7 +68,7 @@ export class DefaultRefreshHandler implements RefreshHandler {
   }
 }
 
-// Fix for https://github.com/sidebase/nuxt-auth/issues/1014
+// Fix for https://github.com/zitadel/nuxt-auth/issues/1014
 // See https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval#return_value
 const MAX_SAFE_INTERVAL_MS = 2147483647
 function safeTimerDelay(milliseconds: number): number {

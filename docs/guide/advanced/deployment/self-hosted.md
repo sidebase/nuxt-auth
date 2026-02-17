@@ -1,3 +1,9 @@
+---
+title: Self Hosted
+group: Advanced
+category: Deployment
+---
+
 # Self Hosting
 
 This guide will explain how you can self-host a Nuxt 4 application running NuxtAuth.
@@ -18,7 +24,7 @@ The origin consists out of:
 An example of the `NUXT_AUTH_ORIGIN` would be: `https://my-awesome-app.com`
 
 :::info Origin Order
-When [attempting to determine the server origin](https://github.com/sidebase/nuxt-auth/blob/main/src/runtime/server/services/utils.ts#L11), NuxtAuth checks the available options in the following order:
+When [attempting to determine the server origin](https://github.com/zitadel/nuxt-auth/blob/main/src/runtime/server/services/utils.ts#L11), NuxtAuth checks the available options in the following order:
 - **Prio 1**: Using `NUXT_AUTH_ORIGIN`
 - **Prio 2**: Using `baseURL`-config key from inside the `nuxt.config.ts`
 - **Prio 3**: Infer the origin _(Only in development)_

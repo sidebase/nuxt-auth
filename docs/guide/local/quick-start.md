@@ -1,6 +1,6 @@
 # Local provider
 
-This guide is for setting up `@sidebase/nuxt-auth` with the Local Provider, which is best suited for when you already have a backend that accepts username + password as a login or want to build a static application. The Local Provider also supports refresh tokens since `v0.9.0`.
+This guide is for setting up `@zitadel/nuxt-auth` with the Local Provider, which is best suited for when you already have a backend that accepts username + password as a login or want to build a static application. The Local Provider also supports refresh tokens since `v0.9.0`.
 
 ## Configuration
 
@@ -8,7 +8,7 @@ The entire configuration for the `local` provider is contained inside the `nuxt.
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@sidebase/nuxt-auth'],
+  modules: ['@zitadel/nuxt-auth'],
   auth: {
     provider: {
       type: 'local'
@@ -114,7 +114,7 @@ export default defineNuxtConfig({
         headerName: 'Authorization',
         maxAgeInSeconds: 1800,
         sameSiteAttribute: 'lax',
-        cookieDomain: 'sidebase.io',
+        cookieDomain: 'example.com',
         secureCookieAttribute: false,
         httpOnlyCookieAttribute: false,
       }
@@ -215,7 +215,7 @@ export default defineNuxtConfig({
           maxAgeInSeconds: 1800,
           sameSiteAttribute: 'lax',
           secureCookieAttribute: false,
-          cookieDomain: 'sidebase.io',
+          cookieDomain: 'example.com',
           httpOnlyCookieAttribute: false,
         }
       },
@@ -295,7 +295,7 @@ This follows the JSON Pointer standard, see its RFC6901 here: https://www.rfc-ed
 - **Type:** `string`
 - **Default:** `'/refreshToken'`
 
-How to do a fetch for the refresh token. This is especially useful when you have an external backend signing tokens. Refer to this issue to get more information: https://github.com/sidebase/nuxt-auth/issues/635.
+How to do a fetch for the refresh token. This is especially useful when you have an external backend signing tokens. Refer to this issue to get more information: https://github.com/zitadel/nuxt-auth/issues/635.
 
 #### `cookieName`
 

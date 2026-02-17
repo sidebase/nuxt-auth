@@ -1,3 +1,13 @@
+---
+title: Caching
+group: Advanced
+children:
+  - ./url-resolutions.md
+  - ./deployment/self-hosted.md
+  - ./deployment/vercel.md
+  - ./deployment/netlify.md
+---
+
 # Caching content
 
 Often hosting providers offer caching on the edge. Most websites can experience incredible speeds (and cost savings) by taking advantage of caching. No cold start, no processing requests, no parsing Javascript... just HTML served immediately from a CDN.
@@ -11,7 +21,7 @@ If you find yourself needing to server-rendered auth methods like `getProviders(
 :::
 
 :::tip Acknowledgements
-A big thanks to [KyleSmith0905](https://github.com/KyleSmith0905) for implementing routes rules into NuxtAuth. View their PR [here](https://github.com/sidebase/nuxt-auth/pull/610).
+A big thanks to [KyleSmith0905](https://github.com/KyleSmith0905) for implementing routes rules into NuxtAuth. View their PR [here](https://github.com/zitadel/nuxt-auth/pull/610).
 :::
 
 ## Page specific cache rules
@@ -20,7 +30,7 @@ If only a few of your pages are cached. Head over to the [Nuxt config `routeRule
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@sidebase/nuxt-auth'],
+  modules: ['@zitadel/nuxt-auth'],
   auth: {
     // Optional - Needed for getProviders() method to work server-side
     baseURL: 'http://localhost:3000',
@@ -42,7 +52,7 @@ If all/most pages on your site are cached. Head over to the Nuxt config, add the
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@sidebase/nuxt-auth'],
+  modules: ['@zitadel/nuxt-auth'],
   auth: {
     disableServerSideAuth: true,
     // Optional - Needed for getProviders() method to work server-side
@@ -59,7 +69,7 @@ For example: It may be ideal to add caching to every page besides your profile p
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@sidebase/nuxt-auth'],
+  modules: ['@zitadel/nuxt-auth'],
   auth: {
     disableServerSideAuth: true,
   },

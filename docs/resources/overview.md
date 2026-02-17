@@ -1,6 +1,13 @@
+---
+title: Overview
+group: Resources
+children:
+  - ./error-reference.md
+---
+
 # Resources
 
-The following resources should help with using NuxtAuth and tackle some topics that are frequently encountered during app-development. We will continue to expand this with more guides, recipes and references based on the questions, feedback and problems we see and receive from our community: https://discord.gg/VzABbVsqAc
+The following resources should help with using NuxtAuth and tackle some topics that are frequently encountered during app-development.
 
 ## Glossary
 

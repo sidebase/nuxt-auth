@@ -66,6 +66,7 @@ export interface ProviderAuthjs {
   addDefaultCallbackUrl?: boolean | string
 }
 
+/** @internal */
 export type AuthProviders = ProviderAuthjs
 
 export interface RefreshHandler {
@@ -81,6 +82,7 @@ export interface RefreshHandler {
   destroy: () => void
 }
 
+/** @internal */
 export interface DefaultRefreshHandlerConfig {
   /**
    * Whether to refresh the session every `X` milliseconds. Set this to `false` to turn it off. The session will only be refreshed if a session already exists.
@@ -192,7 +194,7 @@ export interface ModuleOptions {
    * If you enable this, everything is going to be protected and you can selectively disable protection for some pages by specifying `definePageMeta({ auth: false })`
    * If you disable this, everything is going to be public and you can selectively enable protection for some pages by specifying `definePageMeta({ auth: true })`
    *
-   * Read more on this topic [in the page protection docs](https://sidebase.io/nuxt-auth/v0.6/application-side/protecting-pages#global-middleware).
+   * Read more on this topic in the page protection documentation.
    *
    * @example true
    * @example { allow404WithoutAuth: true }
@@ -212,14 +214,33 @@ export interface RouteOptions {
 
 // Common useAuthStatus & useAuth return-types
 
+/**
+ * Timestamp of the last session refresh, or undefined if never refreshed.
+ * @internal
+ */
 export type SessionLastRefreshedAt = Date | undefined
-export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
-type WrappedSessionData<SessionData> = Ref<SessionData | null | undefined>
 
+/** Current authentication status */
+export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
+
+/**
+ * Wrapped session data as a Vue ref.
+ * @internal
+ */
+export type WrappedSessionData<SessionData> = Ref<
+  SessionData | null | undefined
+>
+
+/** @internal */
 export interface GetSessionFunc<SessionData> {
-  (getSessionOptions?: GetSessionOptions): Promise<SessionData | null | void>
+  (getSessionOptions?: {
+    required?: boolean
+    callbackUrl?: string
+    onUnauthenticated?: () => void
+  }): Promise<SessionData | null | void>
 }
 
+/** @internal */
 export interface CommonUseAuthReturn<SignIn, SignOut, SessionData> {
   data: Readonly<WrappedSessionData<SessionData>>
   lastRefreshedAt: Readonly<Ref<SessionLastRefreshedAt>>
@@ -230,6 +251,7 @@ export interface CommonUseAuthReturn<SignIn, SignOut, SessionData> {
   refresh: () => Promise<unknown>
 }
 
+/** @internal */
 export interface CommonUseAuthStateReturn<SessionData> {
   data: WrappedSessionData<SessionData>
   loading: Ref<boolean>
@@ -237,54 +259,7 @@ export interface CommonUseAuthStateReturn<SessionData> {
   status: ComputedRef<SessionStatus>
 }
 
-// Common `useAuth` method-types
-export interface SecondarySignInOptions extends Record<string, unknown> {
-  /**
-   * Specify to which URL the user will be redirected after signing in. Defaults to the page URL the sign-in is initiated from.
-   *
-   * @default undefined Inferred from the current route
-   */
-  callbackUrl?: string
-  /**
-   * Whether to redirect users after the method succeeded.
-   * Note that redirect will always happen on a failure for `authjs` provider.
-   *
-   * @default true
-   */
-  redirect?: boolean
-  /**
-   * Is this callback URL an external one. Setting this to true, allows you to redirect to external urls, however a hard refresh will be done.
-   *
-   * @default false
-   */
-  external?: boolean
-  /**
-   * Whether `getSession` needs to be called after a successful sign-in. When set to false, you can manually call `getSession` to obtain the session data.
-   *
-   * @default true
-   */
-  callGetSession?: boolean
-}
-
-export interface SignOutOptions {
-  callbackUrl?: string
-  redirect?: boolean
-  external?: boolean
-}
-
-export interface GetSessionOptions {
-  required?: boolean
-  callbackUrl?: string
-  external?: boolean
-  onUnauthenticated?: () => void
-  /**
-   * Whether to refetch the session even if the token returned by useAuthState is null.
-   *
-   * @default false
-   */
-  force?: boolean
-}
-
+/** @internal */
 export interface ModuleOptionsNormalized extends ModuleOptions {
   isEnabled: boolean
   baseURL: string

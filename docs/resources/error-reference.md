@@ -1,3 +1,8 @@
+---
+title: Error Reference
+group: Resources
+---
+
 # Errors and warnings
 
 This is a list of errors & warnings that NuxtAuth throws, what each of them means and how you can resolve them.

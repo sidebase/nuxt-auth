@@ -1,1 +1,1 @@
-export const ERROR_PREFIX = '[@sidebase/nuxt-auth]'
+export const ERROR_PREFIX = '[@zitadel/nuxt-auth]'

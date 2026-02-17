@@ -1,14 +1,31 @@
+---
+title: Session Data
+group: Auth.js Provider
+---
+
 # Session data
 
-This guide explains how to add custom data to the user session. In many cases, you may wish to adapt which information is returned by the authentication flow. This can depend on your provider or any additional API calls you may make to enrich the session data.
+This guide explains how to add custom data to the user session. In many cases,
+you may wish to adapt which information is returned by the authentication flow.
+This can depend on your provider or any additional API calls you may make to
+enrich the session data.
 
 ## Modify the JWT Token
 
-In order to persist data between session requests, we need to inject certain information into the JWT token, which we can then access during subsequent session requests. However, avoid injecting too much data into the JWT token, as it is limited in size. We recommend only injecting an access or a session token, that can then be used to request further user information inside the session callback.
+In order to persist data between session requests, we need to inject certain
+information into the JWT token, which we can then access during subsequent
+session requests. However, avoid injecting too much data into the JWT token,
+as it is limited in size. We recommend only injecting an access or a session
+token, that can then be used to request further user information inside the
+session callback.
 
 The JWT callback provides:
+
 - `token`: The raw JWT token
-- `account`, `profile`, `isNewUser`: The data returned by the OAuth provider. This data varies by provider, we recommend logging each value to inspect what data is included. These values are only avalible on creation of the JWT token, in subsequent requests only the `token` will be accessible.
+- `account`, `profile`, `isNewUser`: The data returned by the OAuth provider.
+  This data varies by provider, we recommend logging each value to inspect what
+  data is included. These values are only available on creation of the JWT
+  token, in subsequent requests only the `token` will be accessible.
 
 ```ts
 import { NuxtAuthHandler } from '#auth'
@@ -22,17 +39,20 @@ export default NuxtAuthHandler({
       }
       return token
     },
-  }
+  },
 })
 ```
 
-:::info
-Any data injected into the JWT token, cannot be directly accessed from the frontend, however can be accessed on the server side using the `getToken` function.
-:::
+> **Note:** Any data injected into the JWT token, cannot be directly accessed
+> from the frontend, however can be accessed on the server side using the
+> `getToken` function.
 
 ## Inject data into the Session
 
-After enriching the JWT token with additional data, you can now access this data inside the `session` callback. The `session` callback is invoked every time the session data is requested. This can happen when using `useAuth`, `getServerSideSession` or when the session is refreshed.
+After enriching the JWT token with additional data, you can now access this
+data inside the `session` callback. The `session` callback is invoked every
+time the session data is requested. This can happen when using `useAuth`,
+`getServerSideSession` or when the session is refreshed.
 
 ```ts
 import { NuxtAuthHandler } from '#auth'
@@ -42,10 +62,10 @@ export default NuxtAuthHandler({
   callbacks: {
     async session({ session, token }) {
       // Token we injected into the JWT callback above.
-      const token = token.sessionToken
+      const sessionToken = token.sessionToken
 
       // Fetch data OR add previous data from the JWT callback.
-      const additionalUserData = await $fetch(`/api/session/${token}`)
+      const additionalUserData = await $fetch(`/api/session/${sessionToken}`)
 
       // Return the modified session
       return {
@@ -53,17 +73,16 @@ export default NuxtAuthHandler({
         user: {
           name: additionalUserData.name,
           avatar: additionalUserData.avatar,
-          role: additionalUserData.role
-        }
+          role: additionalUserData.role,
+        },
       }
     },
-  }
+  },
 })
 ```
 
-:::info
-Any errors thrown inside the `session` callback will result in the session being terminated and the user being logged out.
-:::
+> **Note:** Any errors thrown inside the `session` callback will result in the
+> session being terminated and the user being logged out.
 
 ---
 
@@ -84,9 +103,15 @@ const { data } = useAuth()
 
 ## Typescript
 
-When modifying the session or JWT objects, you may want to adjust the types accordingly, to ensure that you get proper intellisense and type support. [Module Augmentation](https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation) can be used to inject additional type declarations into installed modules to overwrite or add additional data.
+When modifying the session or JWT objects, you may want to adjust the types
+accordingly, to ensure that you get proper intellisense and type support.
+[Module Augmentation](https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation)
+can be used to inject additional type declarations into installed modules to
+overwrite or add additional data.
 
-Begin by creating a new typescript file in the root of your project named: `next-auth.d.ts`. Typescript will automatically recognize that this file is augmenting the module types of `next-auth` (running under the hood).
+Begin by creating a new typescript file in the root of your project named:
+`next-auth.d.ts`. Typescript will automatically recognize that this file is
+augmenting the module types of `next-auth` (running under the hood).
 
 ```ts
 // file: ~/next-auth.d.ts
@@ -104,7 +129,10 @@ declare module 'next-auth' {
 }
 ```
 
-In addition to modifying the `session` data types, you can also extend the types of the JWT token. This allows you to receive proper type support when accessing the JWT token inside the NuxtAuthHandler or when calling `getToken` on the server side.
+In addition to modifying the `session` data types, you can also extend the
+types of the JWT token. This allows you to receive proper type support when
+accessing the JWT token inside the NuxtAuthHandler or when calling `getToken`
+on the server side.
 
 ```ts
 // file: ~/next-auth.d.ts

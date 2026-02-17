@@ -1,3 +1,9 @@
+---
+title: Vercel
+group: Advanced
+category: Deployment
+---
+
 # Deploying on Vercel
 
 When deploying on Vercel ensure all required environment variables are set. Read more about general deployment [here](/guide/advanced/deployment/self-hosted).
@@ -10,7 +16,7 @@ This variable is avalible at both build and run-time. Therefore you can referenc
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@sidebase/nuxt-auth'],
+  modules: ['@zitadel/nuxt-auth'],
   auth: {
     baseURL: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/api/auth` : undefined
   }

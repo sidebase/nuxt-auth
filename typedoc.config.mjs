@@ -1,6 +1,21 @@
 // noinspection JSUnusedGlobalSymbols
 export default {
-  entryPoints: ['src/module.ts'],
+  readme: 'README.md',
+  entryPoints: [
+    'src/module.ts',
+    'src/runtime/types.ts',
+    'src/runtime/composables/authjs/useAuth.ts',
+    'src/runtime/composables/authjs/useAuthState.ts',
+    'src/runtime/server/services/index.ts',
+  ],
+  projectDocuments: [
+    'docs/guide/getting-started/introduction.md',
+    'docs/guide/authjs/quick-start.md',
+    'docs/guide/application-side/configuration.md',
+    'docs/guide/advanced/caching.md',
+    'docs/resources/overview.md',
+  ],
+  tsconfig: './tsconfig.typedoc.json',
   out: '.out/docs',
   highlightLanguages: [
     'typescript',
@@ -11,9 +26,13 @@ export default {
     'bash',
     'sh',
     'html',
+    'vue',
+    'diff',
+    'dotenv',
   ],
   cleanOutputDir: true,
   treatWarningsAsErrors: false,
+  excludeInternal: true,
   validation: {
     invalidLink: true,
     notExported: true,

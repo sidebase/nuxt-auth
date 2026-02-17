@@ -12,7 +12,7 @@ export async function _fetch<T>(
   fetchOptions: Parameters<typeof $fetch>[1] = {},
   proxyCookies = false,
 ): Promise<T> {
-  // This fixes https://github.com/sidebase/nuxt-auth/issues/927
+  // This fixes https://github.com/zitadel/nuxt-auth/issues/927
   const runtimeConfigOrPromise = callWithNuxt(nuxt, useRuntimeConfig)
   const runtimeConfig = (
     'public' in runtimeConfigOrPromise
@@ -34,7 +34,7 @@ export async function _fetch<T>(
   }
 
   // Always include cookies to the request on browser by default
-  // https://github.com/sidebase/nuxt-auth/issues/1063
+  // https://github.com/zitadel/nuxt-auth/issues/1063
   if (!fetchOptions.credentials) {
     fetchOptions.credentials = 'include'
   }
@@ -77,7 +77,7 @@ export async function _fetch<T>(
     console.error(error)
 
     throw new FetchConfigurationError(
-      'Runtime error, check the console logs to debug, open an issue at https://github.com/sidebase/nuxt-auth/issues/new/choose if you continue to have this problem',
+      'Runtime error, check the console logs to debug, open an issue at https://github.com/zitadel/nuxt-auth/issues/new/choose if you continue to have this problem',
     )
   }
 }

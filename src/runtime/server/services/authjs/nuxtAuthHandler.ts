@@ -28,7 +28,81 @@ type RuntimeConfig = ReturnType<typeof useRuntimeConfig>
 let authOptions: AuthConfig | undefined
 
 /**
- * Setup the Auth.js event handler based on the passed in options
+ * Creates the Auth.js event handler that powers all authentication endpoints.
+ * Call this once in your `server/api/auth/[...].ts` catch-all route to set up
+ * sign-in, sign-out, session, and callback endpoints.
+ *
+ * This handler creates the following endpoints under your configured base path
+ * (default `/api/auth`):
+ *
+ * - `GET/POST /signin` - Sign-in page and form submission
+ * - `GET/POST /signout` - Sign-out page and form submission
+ * - `GET /session` - Get current session
+ * - `GET /csrf` - Get CSRF token
+ * - `GET /providers` - List configured providers
+ * - `GET/POST /callback/:provider` - OAuth callback handlers
+ *
+ * @param nuxtAuthOptions - Auth.js configuration including providers, callbacks,
+ *                          and other options. See Auth.js docs for full options.
+ * @returns H3 event handler to be exported as the default route handler
+ *
+ * @example
+ * Basic setup with OAuth provider:
+ * ```typescript
+ * // server/api/auth/[...].ts
+ * import { NuxtAuthHandler } from '#auth'
+ * import GitHub from '@auth/core/providers/github'
+ *
+ * export default NuxtAuthHandler({
+ *   providers: [
+ *     GitHub({
+ *       clientId: process.env.GITHUB_CLIENT_ID,
+ *       clientSecret: process.env.GITHUB_CLIENT_SECRET,
+ *     }),
+ *   ],
+ *   secret: process.env.AUTH_SECRET,
+ * })
+ * ```
+ *
+ * @example
+ * With credentials provider for username/password auth:
+ * ```typescript
+ * import { NuxtAuthHandler } from '#auth'
+ * import Credentials from '@auth/core/providers/credentials'
+ *
+ * export default NuxtAuthHandler({
+ *   providers: [
+ *     Credentials({
+ *       credentials: {
+ *         email: { label: 'Email', type: 'email' },
+ *         password: { label: 'Password', type: 'password' },
+ *       },
+ *       async authorize(credentials) {
+ *         const user = await validateUser(credentials)
+ *         return user ?? null
+ *       },
+ *     }),
+ *   ],
+ *   secret: process.env.AUTH_SECRET,
+ * })
+ * ```
+ *
+ * @example
+ * With custom session callback to include user ID:
+ * ```typescript
+ * export default NuxtAuthHandler({
+ *   providers: [...],
+ *   callbacks: {
+ *     session: ({ session, token }) => {
+ *       session.user.id = token.sub
+ *       return session
+ *     },
+ *   },
+ * })
+ * ```
+ *
+ * @see {@link https://authjs.dev/getting-started/providers} for provider setup
+ * @see {@link https://authjs.dev/guides/callbacks} for callback configuration
  */
 export function NuxtAuthHandler(nuxtAuthOptions?: AuthConfig) {
   const isProduction = process.env.NODE_ENV === 'production'
@@ -78,7 +152,75 @@ export function NuxtAuthHandler(nuxtAuthOptions?: AuthConfig) {
 }
 
 /**
- * Gets session on server-side
+ * Retrieves the current user's session on the server side. Use this in API
+ * routes, server middleware, or any server-side code to check if a user is
+ * authenticated and access their session data.
+ *
+ * Returns `null` if the user is not authenticated or if the session has
+ * expired. The session object contains user information and any custom data
+ * you've added via Auth.js session callbacks.
+ *
+ * @param event - The H3 event from the current request
+ * @returns The session object if authenticated, or `null` if not
+ *
+ * @example
+ * Protecting an API route:
+ * ```typescript
+ * // server/api/user/profile.ts
+ * import { getServerSession } from '#auth'
+ *
+ * export default defineEventHandler(async (event) => {
+ *   const session = await getServerSession(event)
+ *
+ *   if (!session) {
+ *     throw createError({
+ *       statusCode: 401,
+ *       message: 'You must be logged in to access this resource',
+ *     })
+ *   }
+ *
+ *   // User is authenticated, return their data
+ *   return {
+ *     email: session.user?.email,
+ *     name: session.user?.name,
+ *   }
+ * })
+ * ```
+ *
+ * @example
+ * Server middleware to protect all /api/admin routes:
+ * ```typescript
+ * // server/middleware/admin-auth.ts
+ * import { getServerSession } from '#auth'
+ *
+ * export default defineEventHandler(async (event) => {
+ *   if (!event.path.startsWith('/api/admin')) return
+ *
+ *   const session = await getServerSession(event)
+ *   if (!session || session.user?.role !== 'admin') {
+ *     throw createError({ statusCode: 403, message: 'Forbidden' })
+ *   }
+ * })
+ * ```
+ *
+ * @example
+ * Fetching user-specific data:
+ * ```typescript
+ * // server/api/orders.ts
+ * import { getServerSession } from '#auth'
+ *
+ * export default defineEventHandler(async (event) => {
+ *   const session = await getServerSession(event)
+ *   if (!session) {
+ *     throw createError({ statusCode: 401 })
+ *   }
+ *
+ *   const orders = await db.orders.findMany({
+ *     where: { userId: session.user.id },
+ *   })
+ *   return orders
+ * })
+ * ```
  */
 export async function getServerSession(
   event: H3Event,
@@ -101,7 +243,7 @@ export async function getServerSession(
       throw createError({
         statusCode: 500,
         message:
-          'Tried to get server session without setting up an endpoint to handle authentication (see https://github.com/sidebase/nuxt-auth#quick-start)',
+          'Tried to get server session without setting up an endpoint to handle authentication (see https://github.com/zitadel/nuxt-auth#quick-start)',
       })
     }
   }
@@ -144,12 +286,38 @@ export async function getServerSession(
 }
 
 /**
- * Get the decoded JWT token either from cookies or header (both are attempted).
+ * Retrieves the raw session/token data on the server side. This is similar to
+ * `getServerSession` but intended for cases where you need access to the
+ * underlying token data rather than the parsed session.
  *
- * @param eventAndOptions The event and options used to alter the token behaviour.
- * @param eventAndOptions.event The event to get the cookie or authorization header from that contains the JWT Token
- * @param eventAndOptions.secureCookie boolean to determine if the protocol is secured with https
- * @param eventAndOptions.secret A secret string used for encryption
+ * Currently returns the same data as `getServerSession`. In JWT-based sessions,
+ * this would contain the decoded JWT payload including any custom claims.
+ *
+ * @param options - Configuration object
+ * @param options.event - The H3 event from the current request
+ * @param options.secureCookie - Whether to use secure cookie settings (HTTPS)
+ * @param options.secret - Custom secret for token decryption (uses AUTH_SECRET
+ *                         by default)
+ * @returns The token/session data if authenticated, or `null` if not
+ *
+ * @example
+ * Accessing token data in an API route:
+ * ```typescript
+ * // server/api/token-info.ts
+ * import { getToken } from '#auth'
+ *
+ * export default defineEventHandler(async (event) => {
+ *   const token = await getToken({ event })
+ *
+ *   if (!token) {
+ *     throw createError({ statusCode: 401 })
+ *   }
+ *
+ *   return { token }
+ * })
+ * ```
+ *
+ * @see {@link getServerSession} for the recommended way to access session data
  */
 export async function getToken({
   event,
@@ -344,7 +512,7 @@ function parseCookieString(
   return { name, value, options }
 }
 
-/** Adapted from `h3` to fix https://github.com/sidebase/nuxt-auth/issues/523 */
+/** Adapted from `h3` to fix https://github.com/zitadel/nuxt-auth/issues/523 */
 function appendHeaderDeduped(event: H3Event, name: string, value: string) {
   let current = getResponseHeader(event, name)
   if (!current) {
@@ -367,7 +535,7 @@ function appendHeaderDeduped(event: H3Event, name: string, value: string) {
 
 /**
  * Adds a cookie, overriding its previous value.
- * Related to https://github.com/sidebase/nuxt-auth/issues/523
+ * Related to https://github.com/zitadel/nuxt-auth/issues/523
  */
 function setCookieDeduped(
   event: H3Event,

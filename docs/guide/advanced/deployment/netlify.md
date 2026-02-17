@@ -1,3 +1,9 @@
+---
+title: Netlify
+group: Advanced
+category: Deployment
+---
+
 # Deploying on Netlify
 
 When deploying on Netlify ensure all required environment variables are set. Read more about general deployment [here](/guide/advanced/deployment/self-hosted).
@@ -15,7 +21,7 @@ These variables are avalible at build-time. Therefore you can references this va
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@sidebase/nuxt-auth'],
+  modules: ['@zitadel/nuxt-auth'],
   auth: {
     baseURL: process.env.DEPLOY_URL ? `${DEPLOY_URL}/api/auth` : undefined
   }

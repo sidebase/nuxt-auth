@@ -13,7 +13,7 @@ hero:
       link: /guide/getting-started/introduction
     - theme: alt
       text: GitHub
-      link: https://github.com/sidebase/nuxt-auth
+      link: https://github.com/zitadel/nuxt-auth
   image:
     src: /lock-and-key.png
     alt: NuxtAuth

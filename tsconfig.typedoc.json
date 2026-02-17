@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./playground-authjs/.nuxt/tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true,
+    "paths": {
+      "#imports": ["./playground-authjs/.nuxt/imports.d.ts"],
+      "#app": ["./node_modules/nuxt/dist/app"],
+      "#app/*": ["./node_modules/nuxt/dist/app/*"],
+      "#app/nuxt": ["./node_modules/nuxt/dist/app/nuxt"],
+      "#auth": ["./src/runtime/server/services"]
+    }
+  },
+  "include": [
+    "src/module.ts",
+    "src/runtime/types.ts",
+    "src/runtime/composables/**/*.ts",
+    "src/runtime/server/services/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "playground-authjs",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
+}
