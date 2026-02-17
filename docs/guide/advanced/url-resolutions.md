@@ -6,7 +6,7 @@ group: Advanced
 # Pathing logic in NuxtAuth
 
 This page is here to clarify how the pathing logic works in `@zitadel/nuxt-auth`.
-You can find a full overview of how URLs are handled [in the issue comment](https://github.com/zitadel/nuxt-auth/pull/913#issuecomment-2359137989) and in spec files for [`authjs` provider](https://github.com/zitadel/nuxt-auth/blob/main/tests/authjs.url.spec.ts) and [`local` provider](https://github.com/zitadel/nuxt-auth/blob/main/tests/local.url.spec.ts).
+You can find a full overview of how URLs are handled [in the issue comment](https://github.com/zitadel/nuxt-auth/pull/913#issuecomment-2359137989) and in spec files for the [`authjs` provider](https://github.com/zitadel/nuxt-auth/blob/main/tests/authjs.url.spec.ts).
 
 ## `baseURL` is a prefix
 
@@ -16,37 +16,6 @@ It will be prepended to a path before making a call. For example,
 export default defineNuxtConfig({
   auth: {
     baseURL: 'https://example.com/api/auth',
-
-    provider: {
-      type: 'local',
-      endpoints: {
-        // The call would be made to `https://example.com/api/auth/login`
-        signIn: { path: '/login', method: 'post' },
-      }
-    }
-  }
-})
-```
-
-## Use URL provided in `endpoints` if it is fully specified
-
-If you provide a full URL to `endpoints`, it will be used when making calls to an endpoint:
-
-```ts {9}
-export default defineNuxtConfig({
-  auth: {
-    baseURL: 'https://your.website/api',
-
-    provider: {
-      type: 'local',
-      endpoints: {
-        // This will call `https://example.com/user`
-        getSession: { path: 'https://example.com/user' },
-
-        // This will call `https://your.website/api/login`
-        signIn: { path: '/login', method: 'post' },
-      },
-    }
   }
 })
 ```
@@ -83,7 +52,7 @@ Note that this variable is always **static**, will only be set during build and 
 
 Not setting `baseURL` will default to `/api/auth`.
 
-### 3. `authjs` only: determine origin automatically from the incoming `HTTP` request
+### 3. Determine origin automatically from the incoming `HTTP` request
 
 When the server is running in **development mode**, NuxtAuth can automatically infer `baseURL` from the incoming request.
 

@@ -25,8 +25,8 @@ features:
     details: Effortlessly connect your Nuxt 4 application with Google, Github, Azure and countless others.
   - icon:
         src: /icons/Database.png
-    title: Use your own backend
-    details: Use the local and refresh providers, to define your endpoints and watch the magic happen.
+    title: Database Adapters
+    details: Persist user sessions and accounts with official AuthJS database adapters.
   - icon:
         src: /icons/Layers.png
     title: Middleware

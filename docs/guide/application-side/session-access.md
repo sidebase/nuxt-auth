@@ -5,7 +5,7 @@ group: Application Side
 
 # Session Access and Management
 
-After setting up your provider of choice, you can begin integrating NuxtAuth
+After setting up your provider, you can begin integrating NuxtAuth
 into your frontend. For this NuxtAuth provides two application-side
 composables that can be used to interact with the authentication session.
 
@@ -13,8 +13,6 @@ composables that can be used to interact with the authentication session.
 
 The `useAuth` composable is your main gateway to accessing and manipulating
 session-state and data. Here are the main methods you can use:
-
-**Auth.js provider:**
 
 ```ts
 const {
@@ -26,23 +24,6 @@ const {
   getSession,
   signIn,
   signOut,
-} = useAuth()
-```
-
-**Local provider:**
-
-```ts
-const {
-  status,
-  data,
-  lastRefreshedAt,
-  token,
-  refreshToken,
-  getSession,
-  signUp,
-  signIn,
-  signOut,
-  refresh,
 } = useAuth()
 ```
 
@@ -79,32 +60,12 @@ const { data } = useAuth()
 </template>
 ```
 
-### `token` (local only)
-
-The fetched token that can be used to authenticate further requests. This
-could be e.g. a JWT-Bearer token.
-
-```ts
-function useAPI() {
-  const { token } = useAuth()
-
-  return $fetch.create({
-    baseURL: '/api',
-    headers: {
-      Authorization: `Bearer ${token.value}`,
-    },
-  })
-}
-```
-
-> **Note:** `token` is only available for the local provider!
-
 ### `lastRefreshedAt`
 
 Time at which the session was last refreshed, either `undefined` if no refresh
 was attempted or a `Date` of the time the refresh happened.
 
-### `getCsrfToken` (authjs only)
+### `getCsrfToken`
 
 Returns the current Cross Site Request Forgery Token (CSRF Token) required to
 make POST requests (e.g. for signing in and signing out).
@@ -113,9 +74,7 @@ You likely only need to use this if you are not using the built-in `signIn()`
 and `signOut()` methods. Read more:
 https://next-auth.js.org/getting-started/client#getcsrftoken
 
-> **Note:** `getCsrfToken` is only available for the authjs provider!
-
-### `getProviders` (authjs only)
+### `getProviders`
 
 Get a list of all the configured OAuth providers. Useful for creating a custom
 login page. Returns an array of `Provider`.
@@ -129,8 +88,6 @@ export interface Provider {
   callbackUrl: string
 }
 ```
-
-> **Note:** `getProviders` is only available for the authjs provider!
 
 ### `getSession`
 
@@ -150,48 +107,7 @@ const { getSession } = useAuth()
 </template>
 ```
 
-### `signUp` (local only)
-
-```ts
-// `credentials` are the credentials your sign-up endpoint expects,
-const credentials = { username: 'jsmith', password: 'hunter2' }
-
-// Trigger a sign-up
-await signUp(credentials)
-
-// Trigger a sign-up with auto sign-in and redirect to the profile page
-await signUp(credentials, { callbackUrl: '/profile', redirect: true })
-
-// Trigger a sign-up with auto sign-in and redirect to an external website
-await signUp(credentials, {
-  callbackUrl: 'https://external.example.com',
-  redirect: true,
-  external: true,
-})
-
-// Trigger a sign-up without auto sign-in and redirect to the home page
-await signUp(credentials, {
-  callbackUrl: '/',
-  redirect: true,
-  preventLoginFlow: true,
-})
-
-// Trigger a sign-up without auto sign-in and doesn't redirect anywhere
-await signUp(credentials, { preventLoginFlow: true })
-```
-
-> **Note:** You can also pass the `callbackUrl` option to redirect a user to
-> a certain page, after they completed the action. This can be useful when a
-> user attempts to open a page (`/protected`) but has to go through external
-> authentication (e.g., via their google account) first.
-
-> **Note:** `signUp` is only available for the local provider!
-
 ### `signIn`
-
-`signIn` uses a different syntax depending on your provider.
-
-**Auth.js provider:**
 
 ```ts
 // Trigger a signIn on the signIn page
@@ -208,28 +124,6 @@ await signIn(undefined, { callbackUrl: '/protected' })
 
 // Trigger a signIn with a redirect to an external page afterwards
 await signIn(undefined, { callbackUrl: 'https://nuxt.org', external: true })
-```
-
-**Local / refresh provider:**
-
-```ts
-// `credentials` are the credentials your sign-in endpoint expects,
-const credentials = { username: 'jsmith', password: 'hunter2' }
-
-// Trigger a signIn
-await signIn(credentials)
-
-// Trigger a signIn with a redirect afterwards
-await signIn(credentials, { callbackUrl: '/protected' })
-
-// Trigger a signIn with a redirect to an external page afterwards
-await signIn(credentials, { callbackUrl: 'https://nuxt.org', external: true })
-
-// Trigger a signIn without calling getSession directly
-await signIn(credentials, { callGetSession: false })
-
-// Trigger a signIn and use the data sent by the provider
-const res = await signIn(credentials)
 ```
 
 > **Note:** You can also pass the `callbackUrl` option to redirect a user to
@@ -267,14 +161,6 @@ const { signOut } = useAuth()
 > user attempts to open a page (`/protected`) but has to go through external
 > authentication (e.g., via their google account) first.
 
-### `refreshToken` (local only)
-
-The fetched refreshToken that can be used to obtain a new access token. E.g.
-a refreshToken looks like this:
-`eyDFSJKLDAJ0-3249PPRFK3P5234SDFL;AFKJlkjdsjd.dsjlajhasdji89034`
-
-> **Note:** `refreshToken` is only available for the local provider!
-
 ### `refresh`
 
 Trigger a refresh, this will do a provider-specific session refresh.
@@ -283,8 +169,6 @@ Trigger a refresh, this will do a provider-specific session refresh.
 
 The `useAuthState` composable is the underlying storage layer to access the
 session-state and data. Here are the main methods and properties you can use:
-
-**Auth.js provider:**
 
 ```ts
 const { status, loading, data, lastRefreshedAt } = useAuthState()
@@ -301,58 +185,4 @@ data.value
 
 // Time at which the session was last refreshed
 lastRefreshedAt.value
-```
-
-**Local provider:**
-
-```ts
-const {
-  status,
-  loading,
-  data,
-  lastRefreshedAt,
-  token,
-  rawToken,
-  setToken,
-  clearToken,
-  rawRefreshToken,
-  refreshToken,
-} = useAuthState()
-
-// Session status, either `unauthenticated`, `loading`, `authenticated`
-status.value
-
-// Whether any http request is still pending
-loading.value
-
-// Session data, either `undefined` (= authentication not attempted),
-// `null` (= user unauthenticated), or session / user data
-data.value
-
-// Time at which the session was last refreshed
-lastRefreshedAt.value
-
-// The fetched token that can be used to authenticate future requests
-token.value
-
-// Cookie that contains the raw fetched token string
-rawToken.value
-
-// Helper method to quickly set a new token
-setToken('new token')
-
-// Helper method to quickly delete the token cookie
-clearToken()
-```
-
-> **Warning (Local provider):** Note that you will have to manually call
-> getSession from useAuth composable in order to refresh the new user state
-> when using setToken, clearToken or manually updating rawToken.value:
-
-```ts
-const { getSession } = useAuth()
-
-const { setToken } = useAuthState()
-// ...setToken('...')
-await getSession()
 ```

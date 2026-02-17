@@ -97,14 +97,11 @@ the error reference.
 
 ## `provider`
 
-- **Type**: `ProviderAuthjs | ProviderLocal`
+- **Type**: `ProviderAuthjs`
 - **Default**: `undefined`
 
-Configuration of the authentication provider. Different providers are
-supported:
-
-- AuthJS: See configuration options in the Auth.js quick start guide
-- Local: See configuration options in the local quick start guide
+Configuration of the authentication provider. See the Auth.js quick start
+guide for configuration options.
 
 ## `sessionRefresh`
 

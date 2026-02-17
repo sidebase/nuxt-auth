@@ -3,7 +3,6 @@ title: Introduction
 group: Getting Started
 children:
   - ./installation.md
-  - ./choose-provider.md
 ---
 
 # Introduction
