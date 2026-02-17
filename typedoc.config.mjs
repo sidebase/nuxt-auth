@@ -13,7 +13,6 @@ export default {
     'docs/guide/authjs/quick-start.md',
     'docs/guide/application-side/configuration.md',
     'docs/guide/advanced/caching.md',
-    'docs/resources/overview.md',
   ],
   tsconfig: './tsconfig.typedoc.json',
   out: '.out/docs',
