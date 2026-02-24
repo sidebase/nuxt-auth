@@ -1,24 +1,42 @@
 {
   "name": "@zitadel/nuxt-auth",
-  "version": "1.1.1",
-  "license": "MIT",
+  "version": "0.0.1",
   "type": "module",
-  "description": "Authentication built for Nuxt 4! Easily add authentication via OAuth providers, credentials or Email Magic URLs!",
-  "homepage": "https://github.com/zitadel/nuxt-auth",
-  "repository": "github:zitadel/nuxt-auth",
-  "engines": {
-    "node": ">=22"
+  "description": "A comprehensive Auth.js integration for Nuxt 4 applications with TypeScript support and session management",
+  "author": {
+    "name": "Mridang Agarwalla",
+    "email": "mridang@zitadel.com",
+    "url": "https://github.com/zitadel"
   },
-  "workspaces": [
-    "playground-authjs"
+  "license": "Apache-2.0",
+  "scripts": {
+    "prepack": "nuxt-module-build build",
+    "prepare": "npm run build",
+    "build": "nuxi build",
+    "lint": "npx eslint .",
+    "lint:fix": "npx eslint . --fix",
+    "clean": "rm -rf playground-authjs/.nuxt dist .nuxt",
+    "typecheck": "nuxi prepare playground-authjs && tsc --noEmit",
+    "dev:prepare": "nuxt-module-build build --stub",
+    "docs:build": "typedoc",
+    "test": "vitest run",
+    "test:watch": "npm run test -- --watch",
+    "test:debug": "vitest --inspect-brk --no-file-parallelism",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "depcheck": "npx knip"
+  },
+  "files": [
+    "dist"
   ],
+  "main": "./dist/module.mjs",
+  "types": "./dist/types.d.mts",
   "exports": {
     ".": {
       "types": "./dist/types.d.mts",
       "import": "./dist/module.mjs"
     }
   },
-  "main": "./dist/module.mjs",
   "typesVersions": {
     "*": {
       ".": [
@@ -26,29 +44,27 @@
       ]
     }
   },
-  "files": [
-    "dist"
+  "keywords": [
+    "nuxt",
+    "nuxt4",
+    "authjs",
+    "authentication",
+    "authorization",
+    "oauth",
+    "session",
+    "jwt",
+    "typescript",
+    "middleware",
+    "google",
+    "github",
+    "social-login",
+    "security",
+    "zitadel"
   ],
-  "scripts": {
-    "prepack": "nuxt-module-build build",
-    "build": "nuxi build",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --max-warnings=0 --fix",
-    "clean": "rm -rf playground-authjs/.nuxt dist .nuxt",
-    "typecheck": "nuxi prepare playground-authjs && tsc --noEmit",
-    "dev:prepare": "nuxt-module-build build --stub",
-    "docs:build": "typedoc",
-    "test:unit": "vitest",
-    "format": "prettier --write .",
-    "depcheck": "npx knip"
-  },
-  "dependencies": {
-    "@nuxt/kit": "^4.0.0",
-    "defu": "^6.1.4",
-    "h3": "^1.15.5",
-    "requrl": "^3.0.2",
-    "ufo": "^1.6.3"
-  },
+  "workspaces": [
+    "playground-authjs",
+    "examples/sample-app"
+  ],
   "peerDependencies": {
     "@auth/core": ">=0.40.0",
     "@nuxt/schema": "^4.0.0",
@@ -76,7 +92,29 @@
     "semantic-release": "^25.0.1",
     "ts-essentials": "^10.1.1",
     "typedoc": "^0.28.0",
+    "playwright-core": "^1.52.0",
+    "testcontainers": "^10.18.0",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zitadel/nuxt-auth.git"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^4.0.0",
+    "defu": "^6.1.4",
+    "h3": "^1.15.5",
+    "requrl": "^3.0.2",
+    "ufo": "^1.6.3"
+  },
+  "private": false,
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "homepage": "https://github.com/zitadel/nuxt-auth",
+  "bugs": "https://github.com/zitadel/nuxt-auth/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }

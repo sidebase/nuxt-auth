@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "name": "nuxt-auth-sample-app",
+  "scripts": {
+    "dev": "nuxi prepare && nuxi dev",
+    "build": "nuxi build",
+    "start": "nuxi preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@auth/core": ">=0.40.0",
+    "nuxt": "^4.0.0",
+    "typescript": "^5.8.3"
+  }
+}
