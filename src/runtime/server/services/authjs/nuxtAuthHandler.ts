@@ -17,7 +17,6 @@ import { Auth, createActionURL, setEnvDefaults } from '@auth/core'
 import type { AuthConfig, Session } from '@auth/core/types'
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
-import { ERROR_MESSAGES } from '../errors'
 import { isNonEmptyObject } from '../../../utils/checkSessionResult'
 import { useTypedBackendConfig } from '../../../helpers'
 import { resolveApiBaseURL } from '../../../utils/url'
@@ -112,9 +111,13 @@ export function NuxtAuthHandler(nuxtAuthOptions?: AuthConfig) {
   const secret = nuxtAuthOptions?.secret || process.env.AUTH_SECRET
   if (!secret) {
     if (isProduction) {
-      throw new Error(ERROR_MESSAGES.NO_SECRET)
+      throw new Error(
+        'AUTH_NO_SECRET: No `secret` - this is an error in production. You can ignore this during development',
+      )
     } else {
-      console.info(ERROR_MESSAGES.NO_SECRET)
+      console.info(
+        'AUTH_NO_SECRET: No `secret` - this is an error in production. You can ignore this during development',
+      )
     }
   }
 
