@@ -115,5 +115,8 @@
   "bugs": "https://github.com/zitadel/nuxt-auth/issues",
   "publishConfig": {
     "access": "public"
+  },
+  "overrides": {
+    "commander": "^11.1.0"
   }
 }
