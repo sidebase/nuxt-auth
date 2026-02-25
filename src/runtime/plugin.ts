@@ -20,7 +20,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // use runtimeConfig
   const wholeRuntimeConfig = useRuntimeConfig()
   const runtimeConfig = wholeRuntimeConfig.public.auth
-  const globalAppMiddleware = runtimeConfig.globalAppMiddleware
 
   const routeRules = import.meta.server
     ? getNitroRouteRules(nuxtApp._route.path)
@@ -48,17 +47,15 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     loading.value = true
   }
 
-  // Only fetch session if it was not yet initialized server-side
+  // Only fetch session if it was not yet initialized server-side.
+  // Skip the session fetch on error pages (e.g. 404) to avoid unnecessary
+  // work and the ERR_HTTP_HEADERS_SENT issue (nuxt/framework#9438).
   const isErrorUrl = nuxtApp.ssrContext?.error === true
-  const requireAuthOnErrorPage =
-    globalAppMiddleware === true ||
-    (typeof globalAppMiddleware === 'object' &&
-      globalAppMiddleware.allow404WithoutAuth)
   const shouldFetchSession =
     typeof data.value === 'undefined' &&
     !nitroPrerender &&
     !disableServerSideAuth &&
-    !(isErrorUrl && requireAuthOnErrorPage)
+    !isErrorUrl
 
   if (shouldFetchSession) {
     try {
@@ -91,13 +88,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     _unmount()
   }
 
-  // 3. Enable the middleware, either globally or as a named `auth` option
-  if (
-    globalAppMiddleware === true ||
-    (typeof globalAppMiddleware === 'object' && globalAppMiddleware.isEnabled)
-  ) {
-    addRouteMiddleware('auth', authMiddleware, {
-      global: true,
-    })
-  }
+  // 3. Register the global authentication middleware
+  addRouteMiddleware('auth', authMiddleware, {
+    global: true,
+  })
 })

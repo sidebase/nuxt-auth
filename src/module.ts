@@ -20,7 +20,6 @@ import type {
   ModuleOptions,
   ModuleOptionsNormalized,
 } from './runtime/types'
-import { autoAddMiddleware } from './build/autoAddMiddleware'
 
 const topLevelDefaults = {
   isEnabled: true,
@@ -34,8 +33,6 @@ const topLevelDefaults = {
     handler: undefined,
   },
   globalAppMiddleware: {
-    isEnabled: false,
-    allow404WithoutAuth: true,
     addDefaultCallbackUrl: true,
   },
 } satisfies ModuleOptions
@@ -188,16 +185,6 @@ export default defineNuxtModule<ModuleOptions>({
       name: MIDDLEWARE_NAME,
       path: resolve('./runtime/middleware/zitadel-auth'),
     })
-
-    // 6.5. Automatically add the middleware when `definePageMeta({ auth: true })` usage is detected
-    if (
-      !options.globalAppMiddleware ||
-      !options.globalAppMiddleware.isEnabled
-    ) {
-      nuxt.hook('pages:extend', (pages) =>
-        autoAddMiddleware(pages, MIDDLEWARE_NAME),
-      )
-    }
 
     // 7. Add plugin for initial load
     addPlugin(resolve('./runtime/plugin'))

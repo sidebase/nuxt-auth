@@ -2,27 +2,11 @@ import type { ComputedRef, Ref } from 'vue'
 
 /**
  * Configuration for the global application-side authentication-middleware.
+ *
+ * The global middleware is always enabled and protects all pages by default.
+ * Individual pages can opt out by setting `definePageMeta({ auth: false })`.
  */
 export interface GlobalMiddlewareOptions {
-  /**
-   * Whether to add a global authentication middleware that protects all pages.
-   *
-   * @example true
-   * @default false
-   */
-  isEnabled: boolean
-  /**
-   * Whether to enforce authentication if the target-route does not exist. Per default the middleware redirects
-   * to Nuxts' default 404 page instead of forcing a sign-in if the target does not exist. This is to avoid a
-   * user-experience and developer-experience of having to sign-in only to see a 404 page afterwards.
-   *
-   * Note: Setting this to `false` this may lead to `vue-router` + node related warnings like: "Error [ERR_HTTP_HEADERS_SENT] ...",
-   * this may be related to https://github.com/nuxt/framework/issues/9438.
-   *
-   * @example false
-   * @default true
-   */
-  allow404WithoutAuth?: boolean
   /**
    * Whether to automatically set the callback url to the page the user tried to visit when the middleware stopped them. This is useful to disable this when using the credentials provider, as it does not allow a `callbackUrl`. Setting this
    * to a string-value will result in that being used as the callbackUrl path. Note: You also need to set the global `addDefaultCallbackUrl` setting to `false` if you want to fully disable this.
@@ -188,19 +172,14 @@ export interface ModuleOptions {
    */
   sessionRefresh?: SessionRefreshConfig
   /**
-   * Whether to add a global authentication middleware that protects all pages. Can be either `false` to disable, `true` to enabled
-   * or an object to enable and apply extended configuration.
+   * Configuration for the global authentication middleware that protects all pages.
    *
-   * If you enable this, everything is going to be protected and you can selectively disable protection for some pages by specifying `definePageMeta({ auth: false })`
-   * If you disable this, everything is going to be public and you can selectively enable protection for some pages by specifying `definePageMeta({ auth: true })`
+   * The global middleware is always enabled. All pages are protected by default
+   * and individual pages can opt out by specifying `definePageMeta({ auth: false })`.
    *
-   * Read more on this topic in the page protection documentation.
-   *
-   * @example true
-   * @example { allow404WithoutAuth: true }
-   * @default false
+   * @example { addDefaultCallbackUrl: true }
    */
-  globalAppMiddleware?: GlobalMiddlewareOptions | boolean
+  globalAppMiddleware?: GlobalMiddlewareOptions
 }
 
 export interface RouteOptions {
@@ -267,6 +246,6 @@ export interface ModuleOptionsNormalized extends ModuleOptions {
   // Cannot use `DeepRequired` here because it leads to build issues
   provider: Required<NonNullable<ModuleOptions['provider']>>
   sessionRefresh: NonNullable<ModuleOptions['sessionRefresh']>
-  globalAppMiddleware: NonNullable<ModuleOptions['globalAppMiddleware']>
+  globalAppMiddleware: Required<GlobalMiddlewareOptions>
   originEnvKey: string
 }

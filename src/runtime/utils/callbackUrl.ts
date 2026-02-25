@@ -6,11 +6,9 @@ import { useRequestURL } from '#imports'
 
 /** Slimmed down auth runtime config for `determineCallbackUrl` */
 interface AuthRuntimeConfigForCallbackUrl {
-  globalAppMiddleware:
-    | {
-        addDefaultCallbackUrl?: string | boolean
-      }
-    | boolean
+  globalAppMiddleware: {
+    addDefaultCallbackUrl?: string | boolean
+  }
 }
 
 // Overloads for better typing
@@ -50,9 +48,7 @@ export async function determineCallbackUrl(
 
   // Priority 2: `addDefaultCallbackUrl`
   const authConfigCallbackUrl =
-    typeof authConfig.globalAppMiddleware === 'object'
-      ? authConfig.globalAppMiddleware.addDefaultCallbackUrl
-      : undefined
+    authConfig.globalAppMiddleware.addDefaultCallbackUrl
 
   // If a string value was set, always callback to it
   if (typeof authConfigCallbackUrl === 'string') {
@@ -62,10 +58,7 @@ export async function determineCallbackUrl(
   // Priority 3: Infer callback URL from the request
   const shouldInferFromRequest =
     inferFromRequest !== false &&
-    (inferFromRequest === true ||
-      authConfigCallbackUrl === true ||
-      (authConfigCallbackUrl === undefined &&
-        authConfig.globalAppMiddleware === true))
+    (inferFromRequest === true || authConfigCallbackUrl === true)
 
   if (shouldInferFromRequest) {
     const nuxt = useNuxtApp()
@@ -89,21 +82,15 @@ export function determineCallbackUrlForRouteMiddleware(
   middlewareTo: RouteLocationNormalized,
 ): string | undefined {
   const authConfigCallbackUrl =
-    typeof authConfig.globalAppMiddleware === 'object'
-      ? authConfig.globalAppMiddleware.addDefaultCallbackUrl
-      : undefined
+    authConfig.globalAppMiddleware.addDefaultCallbackUrl
 
   // Priority 1: If a string value `addDefaultCallbackUrl` was set, always callback to it
   if (typeof authConfigCallbackUrl === 'string') {
     return authConfigCallbackUrl
   }
 
-  // Priority 2: `addDefaultCallbackUrl: true` or `globalAppMiddleware: true`
-  if (
-    authConfigCallbackUrl === true ||
-    (authConfigCallbackUrl === undefined &&
-      authConfig.globalAppMiddleware === true)
-  ) {
+  // Priority 2: `addDefaultCallbackUrl: true`
+  if (authConfigCallbackUrl === true) {
     return middlewareTo.fullPath
   }
 }

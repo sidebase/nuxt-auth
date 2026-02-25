@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { definePageMeta } from '#imports'
 
-// Note: This is only for testing, it does not make sense to do this with `globalAppMiddleware` turned on
+// Note: This is only for testing. The global middleware already protects all pages,
+// so explicitly adding the named middleware here is redundant.
 definePageMeta({
   middleware: 'zitadel-auth',
 })
