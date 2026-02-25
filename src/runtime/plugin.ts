@@ -1,11 +1,9 @@
 import { getHeader } from 'h3'
-import authMiddleware from './middleware/zitadel-auth'
 import { getNitroRouteRules } from './utils/kit'
 import { FetchConfigurationError } from './utils/fetch'
 import { resolveApiBaseURL } from './utils/url'
 import {
   _refreshHandler,
-  addRouteMiddleware,
   defineNuxtPlugin,
   useAuth,
   useAuthState,
@@ -87,9 +85,4 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     // Call original unmount
     _unmount()
   }
-
-  // 3. Register the global authentication middleware
-  addRouteMiddleware('auth', authMiddleware, {
-    global: true,
-  })
 })

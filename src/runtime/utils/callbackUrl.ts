@@ -6,7 +6,7 @@ import { useRequestURL } from '#imports'
 
 /** Slimmed down auth runtime config for `determineCallbackUrl` */
 interface AuthRuntimeConfigForCallbackUrl {
-  globalAppMiddleware: {
+  globalAppMiddleware?: {
     addDefaultCallbackUrl?: string | boolean
   }
 }
@@ -48,7 +48,7 @@ export async function determineCallbackUrl(
 
   // Priority 2: `addDefaultCallbackUrl`
   const authConfigCallbackUrl =
-    authConfig.globalAppMiddleware.addDefaultCallbackUrl
+    authConfig.globalAppMiddleware?.addDefaultCallbackUrl
 
   // If a string value was set, always callback to it
   if (typeof authConfigCallbackUrl === 'string') {
@@ -82,7 +82,7 @@ export function determineCallbackUrlForRouteMiddleware(
   middlewareTo: RouteLocationNormalized,
 ): string | undefined {
   const authConfigCallbackUrl =
-    authConfig.globalAppMiddleware.addDefaultCallbackUrl
+    authConfig.globalAppMiddleware?.addDefaultCallbackUrl
 
   // Priority 1: If a string value `addDefaultCallbackUrl` was set, always callback to it
   if (typeof authConfigCallbackUrl === 'string') {

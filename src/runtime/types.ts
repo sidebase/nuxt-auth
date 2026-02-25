@@ -171,16 +171,17 @@ export interface ModuleOptions {
    * Configuration of the application-side session.
    */
   sessionRefresh?: SessionRefreshConfig
-  /**
-   * Configuration for the global authentication middleware that protects all pages.
-   *
-   * The global middleware is always enabled. All pages are protected by default
-   * and individual pages can opt out by specifying `definePageMeta({ auth: false })`.
-   *
-   * @example { addDefaultCallbackUrl: true }
-   */
-  globalAppMiddleware?: GlobalMiddlewareOptions
 }
+
+export type AuthMeta =
+  | boolean
+  | { mode: 'protected'; redirectTo?: string }
+  | { mode: 'guest'; redirectTo?: string }
+  | {
+      unauthenticatedOnly: boolean
+      navigateAuthenticatedTo?: string
+      navigateUnauthenticatedTo?: string
+    }
 
 export interface RouteOptions {
   /**
@@ -246,6 +247,6 @@ export interface ModuleOptionsNormalized extends ModuleOptions {
   // Cannot use `DeepRequired` here because it leads to build issues
   provider: Required<NonNullable<ModuleOptions['provider']>>
   sessionRefresh: NonNullable<ModuleOptions['sessionRefresh']>
-  globalAppMiddleware: Required<GlobalMiddlewareOptions>
+  globalAppMiddleware?: Required<GlobalMiddlewareOptions>
   originEnvKey: string
 }
