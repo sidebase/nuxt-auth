@@ -9,7 +9,11 @@ export default defineConfig({
       junit: './build/reports/junit.xml',
     },
     coverage: {
+      enabled: true,
       reportsDirectory: './build/coverage',
+      reporter: ['clover', 'cobertura', 'lcov'],
+      include: ['src/**/*.{ts,tsx,js,jsx}'],
+      exclude: ['src/**/*.d.ts'],
     },
   },
 })
