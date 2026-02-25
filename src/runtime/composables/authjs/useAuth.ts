@@ -8,7 +8,6 @@ import { _fetch } from '../../utils/fetch'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
 import type { SessionLastRefreshedAt, SessionStatus } from '../../types'
 import { useTypedBackendConfig } from '../../helpers'
-import { getRequestURLWN } from '../common/getRequestURL'
 import { determineCallbackUrl } from '../../utils/callbackUrl'
 import type { SessionData } from './useAuthState'
 import { navigateToAuthPageWN } from './utils/navigateToAuthPage'
@@ -19,6 +18,7 @@ import {
   useAuthState,
   useNuxtApp,
   useRequestHeaders,
+  useRequestURL,
   useRuntimeConfig,
 } from '#imports'
 
@@ -616,7 +616,7 @@ export function useAuth(): UseAuthReturn {
   async function getSession(
     getSessionOptions?: GetSessionOptions,
   ): Promise<SessionData | null> {
-    const callbackUrlFallback = await getRequestURLWN(nuxt)
+    const callbackUrlFallback = useRequestURL().href
     const { required, callbackUrl, onUnauthenticated } = defu(
       getSessionOptions || {},
       {

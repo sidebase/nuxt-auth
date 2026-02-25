@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/rules-of-hooks, no-redeclare */
-import { getRequestURLWN } from '../composables/common/getRequestURL'
 import { isExternalUrl } from './url'
 import type { RouteMiddleware } from '#app'
 import { callWithNuxt, useNuxtApp, useRouter } from '#app'
+import { useRequestURL } from '#imports'
 
 /** Slimmed down auth runtime config for `determineCallbackUrl` */
 interface AuthRuntimeConfigForCallbackUrl {
@@ -69,7 +69,7 @@ export async function determineCallbackUrl(
 
   if (shouldInferFromRequest) {
     const nuxt = useNuxtApp()
-    return getRequestURLWN(nuxt)
+    return callWithNuxt(nuxt, () => useRequestURL().href)
   }
 }
 
