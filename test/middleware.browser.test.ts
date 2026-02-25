@@ -1,6 +1,8 @@
 /**
- * End-to-end browser tests for the route middleware across all five
- * `definePageMeta({ auth })` permutations.
+ * End-to-end browser tests for the route middleware and the
+ * {@link DefaultRefreshHandler}.
+ *
+ * ## Middleware tests
  *
  * The playground-authjs application defines five pages under
  * `/middleware-test/`, each with a different `auth` meta value:
@@ -17,6 +19,14 @@
  * page as either an unauthenticated or authenticated user and asserts
  * that the middleware either grants access (the page heading is visible)
  * or redirects away (the URL no longer matches the target path).
+ *
+ * ## Refresh handler tests
+ *
+ * The playground is configured with `sessionRefresh.enablePeriodically: 3000`
+ * and `sessionRefresh.enableOnWindowFocus: true`. A dedicated page at
+ * `/refresh-test` exposes `lastRefreshedAt` and a `refreshCount` counter.
+ * Tests verify that the session is refreshed both periodically and on
+ * simulated tab-focus events.
  *
  * @module
  */
@@ -171,6 +181,82 @@ describe('global auth middleware', async () => {
       const page = await createPage()
       await signIn(page)
       await expectRedirected(page, pages[4].path)
+      await page.close()
+    })
+  })
+
+  describe('DefaultRefreshHandler', () => {
+    it('refreshes the session periodically', async () => {
+      const page = await createPage()
+      await signIn(page)
+      await page.goto(url('/refresh-test'), { waitUntil: 'networkidle' })
+
+      await page.waitForSelector('[data-testid="status"]')
+      const initialCount = parseInt(
+        (
+          (await page.textContent('[data-testid="refresh-count"]')) ?? '0'
+        ).trim(),
+        10,
+      )
+
+      // Wait longer than one periodic interval (3 s)
+      await page.waitForTimeout(5000)
+
+      const updatedCount = parseInt(
+        (
+          (await page.textContent('[data-testid="refresh-count"]')) ?? '0'
+        ).trim(),
+        10,
+      )
+      expect(
+        updatedCount,
+        `Expected refresh count to increase from ${initialCount} after 5 s`,
+      ).toBeGreaterThan(initialCount)
+
+      await page.close()
+    })
+
+    it('refreshes the session on tab focus', async () => {
+      const page = await createPage()
+      await signIn(page)
+      await page.goto(url('/refresh-test'), { waitUntil: 'networkidle' })
+
+      await page.waitForSelector('[data-testid="status"]')
+      const before = (
+        (await page.textContent('[data-testid="last-refreshed-at"]')) ?? ''
+      ).trim()
+
+      // Ensure a detectable timestamp difference
+      await page.waitForTimeout(1100)
+
+      // Simulate tab blur then tab focus
+      await page.evaluate(() => {
+        Object.defineProperty(document, 'visibilityState', {
+          value: 'hidden',
+          configurable: true,
+        })
+        document.dispatchEvent(new Event('visibilitychange'))
+      })
+      await page.waitForTimeout(200)
+      await page.evaluate(() => {
+        Object.defineProperty(document, 'visibilityState', {
+          value: 'visible',
+          configurable: true,
+        })
+        document.dispatchEvent(new Event('visibilitychange'))
+      })
+
+      // Wait for the refresh fetch to complete
+      await page.waitForTimeout(2000)
+
+      const after = (
+        (await page.textContent('[data-testid="last-refreshed-at"]')) ?? ''
+      ).trim()
+      expect(
+        after,
+        'Expected lastRefreshedAt to change after simulated tab focus',
+      ).not.toBe(before)
+
       await page.close()
     })
   })

@@ -7,6 +7,10 @@ export default defineNuxtConfig({
       trustHost: true,
     },
     baseURL: '/api/auth',
+    sessionRefresh: {
+      enablePeriodically: 3000,
+      enableOnWindowFocus: true,
+    },
   },
   routeRules: {
     '/with-caching': {
