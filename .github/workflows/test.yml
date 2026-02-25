@@ -36,6 +36,9 @@ jobs:
       - name: Install Dependencies
         run: npm ci --no-progress
 
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
       - name: Run Tests
         run: npm run test
 
