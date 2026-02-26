@@ -93,7 +93,7 @@
     "ts-essentials": "^10.1.1",
     "typedoc": "^0.28.0",
     "playwright-core": "^1.52.0",
-    "testcontainers": "^10.18.0",
+    "testcontainers": "^11.12.0",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   },
