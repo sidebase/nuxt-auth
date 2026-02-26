@@ -46,7 +46,7 @@ let authOptions: AuthConfig | undefined
  *
  * @example
  * Basic setup with OAuth provider:
- * ```typescript
+ * ```ts
  * // server/api/auth/[...].ts
  * import { NuxtAuthHandler } from '#auth'
  * import GitHub from '@auth/core/providers/github'
@@ -64,7 +64,7 @@ let authOptions: AuthConfig | undefined
  *
  * @example
  * With credentials provider for username/password auth:
- * ```typescript
+ * ```ts
  * import { NuxtAuthHandler } from '#auth'
  * import Credentials from '@auth/core/providers/credentials'
  *
@@ -87,7 +87,7 @@ let authOptions: AuthConfig | undefined
  *
  * @example
  * With custom session callback to include user ID:
- * ```typescript
+ * ```ts
  * export default NuxtAuthHandler({
  *   providers: [...],
  *   callbacks: {
@@ -167,7 +167,7 @@ export function NuxtAuthHandler(nuxtAuthOptions?: AuthConfig) {
  *
  * @example
  * Protecting an API route:
- * ```typescript
+ * ```ts
  * // server/api/user/profile.ts
  * import { getServerSession } from '#auth'
  *
@@ -191,7 +191,7 @@ export function NuxtAuthHandler(nuxtAuthOptions?: AuthConfig) {
  *
  * @example
  * Server middleware to protect all /api/admin routes:
- * ```typescript
+ * ```ts
  * // server/middleware/admin-auth.ts
  * import { getServerSession } from '#auth'
  *
@@ -207,7 +207,7 @@ export function NuxtAuthHandler(nuxtAuthOptions?: AuthConfig) {
  *
  * @example
  * Fetching user-specific data:
- * ```typescript
+ * ```ts
  * // server/api/orders.ts
  * import { getServerSession } from '#auth'
  *
@@ -304,7 +304,7 @@ export async function getServerSession(
  *
  * @example
  * Accessing token data in an API route:
- * ```typescript
+ * ```ts
  * // server/api/token-info.ts
  * import { getToken } from '#auth'
  *

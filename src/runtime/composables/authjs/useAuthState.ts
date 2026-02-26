@@ -14,7 +14,7 @@ import { makeCommonAuthState } from '../commonAuthState'
  *
  * @example
  * A typical session object structure:
- * ```typescript
+ * ```ts
  * {
  *   user: {
  *     name: "John Doe",
@@ -83,7 +83,7 @@ export type UseAuthStateReturn = CommonUseAuthStateReturn<SessionData>
  *
  * @example
  * Watching for authentication changes:
- * ```typescript
+ * ```ts
  * const { status } = useAuthState()
  *
  * watch(status, (newStatus, oldStatus) => {
@@ -96,7 +96,7 @@ export type UseAuthStateReturn = CommonUseAuthStateReturn<SessionData>
  *
  * @example
  * Accessing the raw loading state for custom loading indicators:
- * ```typescript
+ * ```ts
  * const { loading, lastRefreshedAt } = useAuthState()
  *
  * // Show a loading spinner while fetching session

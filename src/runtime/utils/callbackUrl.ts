@@ -67,7 +67,7 @@ export async function determineCallbackUrl(
 /**
  * Normalizes the path by taking `app.baseURL` into account
  *
- * @see https://github.com/zitadel/nuxt-auth/issues/990#issuecomment-2630143443
+ * @see https://github.com/sidebase/nuxt-auth/issues/990#issuecomment-2630143443
  */
 async function normalizeCallbackUrl(rawCallbackUrl: string) {
   if (isExternalUrl(rawCallbackUrl)) {

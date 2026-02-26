@@ -64,7 +64,7 @@ interface GetSessionOptions {
  * authentication, the result indicates whether the credentials were valid.
  *
  * @example
- * ```typescript
+ * ```ts
  * const result = await signIn('credentials', {
  *   username: 'user@example.com',
  *   password: 'secret'
@@ -125,7 +125,7 @@ export interface SignInResult {
  * sign-in interfaces that display all available authentication options.
  *
  * @example
- * ```typescript
+ * ```ts
  * const providers = await getProviders()
  * for (const [id, provider] of Object.entries(providers)) {
  *   console.log(`${provider.name} (${provider.type}): ${provider.signinUrl}`)
@@ -279,7 +279,7 @@ export interface UseAuthReturn {
  *
  * @example
  * Using credentials authentication with error handling:
- * ```typescript
+ * ```ts
  * const { signIn, status } = useAuth()
  *
  * async function handleLogin(email: string, password: string) {
@@ -300,7 +300,7 @@ export interface UseAuthReturn {
  *
  * @example
  * Protecting a page with required authentication:
- * ```typescript
+ * ```ts
  * const { getSession } = useAuth()
  *
  * // This will redirect to sign-in if not authenticated
@@ -309,7 +309,7 @@ export interface UseAuthReturn {
  *
  * @example
  * Building a custom provider selection page:
- * ```typescript
+ * ```ts
  * const { getProviders, signIn } = useAuth()
  *
  * const providers = await getProviders()
@@ -366,13 +366,13 @@ export function useAuth(): UseAuthReturn {
    *
    * @example
    * Sign in with an OAuth provider:
-   * ```typescript
+   * ```ts
    * await signIn('github')
    * ```
    *
    * @example
    * Sign in with credentials and handle the result:
-   * ```typescript
+   * ```ts
    * const result = await signIn('credentials', {
    *   email: 'user@example.com',
    *   password: 'secretpassword',
@@ -385,7 +385,7 @@ export function useAuth(): UseAuthReturn {
    *
    * @example
    * Sign in with custom OAuth scopes:
-   * ```typescript
+   * ```ts
    * await signIn('github', {}, { scope: 'read:user read:org' })
    * ```
    */
@@ -532,7 +532,7 @@ export function useAuth(): UseAuthReturn {
    *
    * @example
    * Building a custom provider selection UI:
-   * ```typescript
+   * ```ts
    * const providers = await getProviders()
    *
    * for (const [id, provider] of Object.entries(providers)) {
@@ -586,14 +586,14 @@ export function useAuth(): UseAuthReturn {
    *
    * @example
    * Refreshing the session data:
-   * ```typescript
+   * ```ts
    * const session = await getSession()
    * console.log('Current user:', session?.user?.name)
    * ```
    *
    * @example
    * Requiring authentication on a page:
-   * ```typescript
+   * ```ts
    * // Redirects to sign-in if not authenticated
    * await getSession({ required: true })
    * // This code only runs if authenticated
@@ -601,7 +601,7 @@ export function useAuth(): UseAuthReturn {
    *
    * @example
    * Custom handling for unauthenticated users:
-   * ```typescript
+   * ```ts
    * await getSession({
    *   required: true,
    *   onUnauthenticated: () => {
@@ -712,14 +712,14 @@ export function useAuth(): UseAuthReturn {
    *
    * @example
    * Basic sign-out with default redirect:
-   * ```typescript
+   * ```ts
    * await signOut()
    * // User is redirected to the home page
    * ```
    *
    * @example
    * Sign-out without redirect for custom handling:
-   * ```typescript
+   * ```ts
    * await signOut({ redirect: false })
    * // Handle post-sign-out logic manually
    * showGoodbyeMessage()
@@ -728,7 +728,7 @@ export function useAuth(): UseAuthReturn {
    *
    * @example
    * Sign-out with custom redirect URL:
-   * ```typescript
+   * ```ts
    * await signOut({ callbackUrl: '/login?message=logged-out' })
    * ```
    */
@@ -745,7 +745,7 @@ export function useAuth(): UseAuthReturn {
 
     if (!csrfToken) {
       throw createError({
-        statusCode: 400,
+        status: 400,
         message: 'Could not fetch CSRF Token for signing out',
       })
     }
@@ -812,7 +812,7 @@ export function useAuth(): UseAuthReturn {
    *
    * @example
    * Using the CSRF token in a custom authentication request:
-   * ```typescript
+   * ```ts
    * const csrfToken = await getCsrfToken()
    *
    * await fetch('/api/auth/custom-action', {
