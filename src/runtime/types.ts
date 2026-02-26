@@ -19,14 +19,19 @@ export interface GlobalMiddlewareOptions {
 }
 
 /**
- * Configuration for the `authjs`-provider.
+ * Configuration for the `authjs`-provider when the default provider is
+ * `'credentials'`. The credentials provider in Auth.js silently ignores
+ * `callbackUrl`, so `addDefaultCallbackUrl` is intentionally absent.
  */
-export interface ProviderAuthjs {
+interface ProviderAuthjsCredentials {
   /**
    * Uses the `authjs` provider to facilitate authentication.
-   * Uses the Auth.js provider for authentication.
    */
   type: 'authjs'
+  /**
+   * Selects the credentials provider as the default sign-in method.
+   */
+  defaultProvider: 'credentials'
   /**
    * If set to `true`, `authjs` will use either the `x-forwarded-host` or `host` headers instead of `auth.baseURL`.
    *
@@ -38,17 +43,48 @@ export interface ProviderAuthjs {
    */
   trustHost?: boolean
   /**
+   * Not available for the credentials provider — Auth.js silently ignores
+   * `callbackUrl` for credentials sign-in.
+   */
+  addDefaultCallbackUrl?: never
+}
+
+/**
+ * Configuration for the `authjs`-provider when using any provider other
+ * than `'credentials'`.
+ */
+interface ProviderAuthjsOther {
+  /**
+   * Uses the `authjs` provider to facilitate authentication.
+   */
+  type: 'authjs'
+  /**
    * Select the default-provider to use when `signIn` is called. Setting this here will also effect the global middleware behavior: E.g., when you set it to `github` and the user is unauthorized, they will be directly forwarded to the Github OAuth page instead of seeing the app-login page.
    *
    * @example "github"
    * @default undefined
    */
-  defaultProvider?: string
+  defaultProvider?: Exclude<string, 'credentials'>
+  /**
+   * If set to `true`, `authjs` will use either the `x-forwarded-host` or `host` headers instead of `auth.baseURL`.
+   *
+   * Make sure that reading `x-forwarded-host` on your hosting platform can be trusted.
+   * - ⚠ **This is an advanced option.** Advanced options are passed the same way as basic options,
+   * but **may have complex implications** or side effects.
+   * You should **try to avoid using advanced options** unless you are very comfortable using them.
+   * @default false
+   */
+  trustHost?: boolean
   /**
    * Whether to add a callbackUrl to sign in requests. Setting this to a string-value will result in that being used as the callbackUrl path. Setting this to `true` will result in the blocked original target path being chosen (if it can be determined).
    */
   addDefaultCallbackUrl?: boolean | string
 }
+
+/**
+ * Configuration for the `authjs`-provider.
+ */
+export type ProviderAuthjs = ProviderAuthjsCredentials | ProviderAuthjsOther
 
 /** @internal */
 export type AuthProviders = ProviderAuthjs

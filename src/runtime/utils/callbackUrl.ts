@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks, no-redeclare */
 import { isExternalUrl } from './url'
-import type { RouteMiddleware } from '#app'
 import { callWithNuxt, useNuxtApp, useRouter } from '#app'
 import { useRequestURL } from '#imports'
 
@@ -62,34 +61,6 @@ export async function determineCallbackUrl(
   if (shouldInferFromRequest) {
     const nuxt = useNuxtApp()
     return callWithNuxt(nuxt, () => useRequestURL().href)
-  }
-}
-
-// Avoid importing from `vue-router` directly
-type RouteLocationNormalized = Parameters<RouteMiddleware>[0]
-
-/**
- * Determines the correct callback URL for usage with Nuxt Route Middleware.
- * The difference with a plain `determineCallbackUrl` is that this function produces
- * non-normalized URLs. It is done because the result is being passed to `signIn` which does normalization.
- *
- * @param authConfig NuxtAuth module config (`runtimeConfig.public.auth`)
- * @param middlewareTo The `to` parameter of NuxtRouteMiddleware
- */
-export function determineCallbackUrlForRouteMiddleware(
-  authConfig: AuthRuntimeConfigForCallbackUrl,
-  middlewareTo: RouteLocationNormalized,
-): string | undefined {
-  const authConfigCallbackUrl = authConfig.provider?.addDefaultCallbackUrl
-
-  // Priority 1: If a string value `addDefaultCallbackUrl` was set, always callback to it
-  if (typeof authConfigCallbackUrl === 'string') {
-    return authConfigCallbackUrl
-  }
-
-  // Priority 2: `addDefaultCallbackUrl: true`
-  if (authConfigCallbackUrl === true) {
-    return middlewareTo.fullPath
   }
 }
 

@@ -1,5 +1,4 @@
 import type { AuthMeta } from './types'
-import { determineCallbackUrlForRouteMiddleware } from './utils/callbackUrl'
 import {
   defineNuxtRouteMiddleware,
   navigateTo,
@@ -65,29 +64,24 @@ export default defineNuxtRouteMiddleware((to) => {
   const { status, signIn } = useAuth()
   const authConfig = useRuntimeConfig().public.auth
 
-  // Determine mode and redirectTo from all supported auth meta formats
-  let mode: 'protected' | 'guest' | undefined
-  let redirectTo: string | undefined
-
   if (raw === false) {
-    // Explicitly public — skip middleware
     return
-  } else if (!raw || raw === true) {
-    // No auth meta or `auth: true` — protected by default
-    mode = 'protected'
-  } else if ('mode' in raw) {
-    // New format: `{ mode: 'protected' | 'guest', redirectTo? }`
-    mode = raw.mode
-    redirectTo = raw.redirectTo
-  } else if (raw.unauthenticatedOnly) {
-    // Legacy `{ unauthenticatedOnly: true }` — treat as guest
-    mode = 'guest'
-    redirectTo = raw.navigateAuthenticatedTo ?? '/'
-  } else {
-    // Legacy `{ unauthenticatedOnly: false }` — treat as protected
-    mode = 'protected'
-    redirectTo = raw.navigateUnauthenticatedTo
   }
+
+  const { mode, redirectTo } =
+    !raw || raw === true
+      ? { mode: 'protected' as const, redirectTo: undefined }
+      : 'mode' in raw
+        ? { mode: raw.mode, redirectTo: raw.redirectTo }
+        : raw.unauthenticatedOnly
+          ? {
+              mode: 'guest' as const,
+              redirectTo: raw.navigateAuthenticatedTo ?? '/',
+            }
+          : {
+              mode: 'protected' as const,
+              redirectTo: raw.navigateUnauthenticatedTo,
+            }
 
   if (mode === 'guest') {
     if (status.value === 'authenticated') {
@@ -99,13 +93,16 @@ export default defineNuxtRouteMiddleware((to) => {
     if (status.value === 'authenticated') {
       return
     } else if (to.matched.length === 0) {
-      // No matching page in vue-router — let it fall through to the
-      // 404 error page (or app.vue for apps without a pages/ directory)
       return
     } else if (redirectTo) {
       return navigateTo(redirectTo)
     } else {
-      const callbackUrl = determineCallbackUrlForRouteMiddleware(authConfig, to)
+      const callbackUrl =
+        typeof authConfig.provider.addDefaultCallbackUrl === 'string'
+          ? authConfig.provider.addDefaultCallbackUrl
+          : authConfig.provider.addDefaultCallbackUrl === true
+            ? to.fullPath
+            : undefined
 
       return signIn(undefined, { error: 'SessionRequired', callbackUrl }).then(
         (result) => {
