@@ -129,73 +129,10 @@ Setting this to `false` will turn the session refresh off.
 
 Whether to refresh the session every time the browser window is refocused.
 
-### `refreshHandler`
+## Global authentication middleware
 
-- **Type**: `string`
-- **Default:** `undefined`
-
-To customize the session refreshing you can provide the path to your refresh
-handler. When setting this option, `enablePeriodically` and
-`enableOnWindowFocus` are ignored.
-
-A custom `RefreshHandler` requires `init` and `destroy` functions:
-
-- `init` will be called when the nuxt application is mounted. Here you may add
-  event listeners and initialize custom refresh behavior.
-- `destroy` will be called when your app is unmounted. Here you may run your
-  clean up routine e.g. to remove your event listeners.
-
-```ts
-// nuxt.config.ts
-export default defineNuxtConfig({
-  auth: {
-    sessionRefresh: {
-      // You can place it anywhere and name as you wish
-      handler: './config/AuthRefreshHandler',
-    },
-  },
-})
-```
-
-```ts
-// ~/config/AuthRefreshHandler.ts
-import type { RefreshHandler } from '@zitadel/nuxt-auth'
-
-// You may also use a plain object with `satisfies RefreshHandler`
-class CustomRefreshHandler implements RefreshHandler {
-  init(): void {
-    console.info('Use the full power of the refreshHandler!')
-  }
-
-  destroy(): void {
-    console.info(
-      'Hover above class properties or go to their definition ' +
-        'to learn more about how to craft a refreshHandler'
-    )
-  }
-}
-
-export default new CustomRefreshHandler()
-```
-
-If no custom RefreshHandler is defined, the
-[built-in-handler](https://github.com/zitadel/nuxt-auth/blob/main/src/runtime/utils/refreshHandler.ts)
-will be used to handle refreshes.
-
-## `globalAppMiddleware`
-
-- **Type:** `GlobalMiddlewareOptions | boolean`
-- **Default**: `false`
-
-Whether to add a global authentication middleware that protects all pages. Can
-be either `false` to disable, `true` to enable with defaults or an object to
-enable with provided options.
-
-- If you **enable** this, everything is going to be protected and you can
-  selectively disable protection for some pages by specifying
-  `definePageMeta({ auth: false })`
-- If you **disable** this, everything is going to be public and you can
-  selectively enable protection for some pages by specifying
-  `definePageMeta({ auth: true })`
+The module registers a global route middleware that protects all pages by
+default. Individual pages can opt out by specifying
+`definePageMeta({ auth: false })`.
 
 Read more about protecting pages in the protecting pages guide.

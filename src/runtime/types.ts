@@ -91,15 +91,7 @@ export interface DefaultRefreshHandlerConfig {
 /**
  * Configuration for the application-side session.
  */
-export interface SessionRefreshConfig extends DefaultRefreshHandlerConfig {
-  /**
-   * A custom refresh handler to use. This can be used to implement custom session refresh logic. If not set, the default refresh handler will be used.
-   *
-   * @example './config/MyCustomRefreshHandler'
-   * @default undefined
-   */
-  handler?: string
-}
+export type SessionRefreshConfig = DefaultRefreshHandlerConfig
 
 /**
  * Configuration for the whole module.

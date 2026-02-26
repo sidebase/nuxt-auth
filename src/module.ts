@@ -4,11 +4,9 @@ import {
   addPlugin,
   addRouteMiddleware,
   addServerPlugin,
-  addTemplate,
   addTypeTemplate,
   createResolver,
   defineNuxtModule,
-  resolvePath,
   useLogger,
 } from '@nuxt/kit'
 import { defu } from 'defu'
@@ -30,7 +28,6 @@ const topLevelDefaults = {
   sessionRefresh: {
     enablePeriodically: false,
     enableOnWindowFocus: true,
-    handler: undefined,
   },
 } satisfies ModuleOptions
 
@@ -162,31 +159,6 @@ export default defineNuxtModule<ModuleOptions>({
         ].join('\n'),
     })
 
-    // 5.2. Create refresh handler
-    const generatedRefreshHandlerPath = addTemplate({
-      filename: './refreshHandler.ts',
-      async getContents() {
-        if (options.sessionRefresh.handler) {
-          const path = (
-            await resolvePath(options.sessionRefresh.handler)
-          ).replace(/\.ts$/, '')
-          return `export { default as _refreshHandler } from '${path}'`
-        }
-
-        return [
-          `import { DefaultRefreshHandler } from '${resolve('./runtime/utils/refreshHandler')}'`,
-          `export const _refreshHandler = new DefaultRefreshHandler(${JSON.stringify(options.sessionRefresh)})`,
-        ].join('\n')
-      },
-      write: true,
-    }).dst
-    addImports([
-      {
-        name: '_refreshHandler',
-        from: generatedRefreshHandlerPath,
-      },
-    ])
-
     // 6. Register the global authentication middleware
     addRouteMiddleware({
       name: MIDDLEWARE_NAME,
@@ -194,8 +166,9 @@ export default defineNuxtModule<ModuleOptions>({
       global: true,
     })
 
-    // 7. Add plugin for initial load
+    // 7. Add plugins for initial load and session refresh
     addPlugin(resolve('./runtime/plugin'))
+    addPlugin(resolve('./runtime/plugins/session-refresh'))
 
     // 8. Add a server-plugin to check the `origin` on production-startup
     addServerPlugin(resolve('./runtime/server/plugins/assertOrigin'))
@@ -210,7 +183,6 @@ export type {
   ModuleOptions,
   ModuleOptionsNormalized,
   ProviderAuthjs,
-  RefreshHandler,
   SessionRefreshConfig,
 } from './runtime/types'
 export interface ModulePublicRuntimeConfig {

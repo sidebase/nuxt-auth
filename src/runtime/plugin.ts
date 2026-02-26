@@ -3,7 +3,6 @@ import { getNitroRouteRules } from './utils/kit'
 import { FetchConfigurationError } from './utils/fetch'
 import { resolveApiBaseURL } from './utils/url'
 import {
-  _refreshHandler,
   defineNuxtPlugin,
   useAuth,
   useAuthState,
@@ -12,7 +11,7 @@ import {
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
-  const { data, lastRefreshedAt, loading } = useAuthState()
+  const { data, loading } = useAuthState()
   const { getSession } = useAuth()
 
   // use runtimeConfig
@@ -66,23 +65,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
   }
 
-  // 2. Setup session maintanence, e.g., auto refreshing or refreshing on foux
   nuxtApp.hook('app:mounted', () => {
-    _refreshHandler.init()
     if (disableServerSideAuth) {
       void getSession()
     }
   })
-
-  const _unmount = nuxtApp.vueApp.unmount
-  nuxtApp.vueApp.unmount = function () {
-    _refreshHandler.destroy()
-
-    // Clear session
-    lastRefreshedAt.value = undefined
-    data.value = undefined
-
-    // Call original unmount
-    _unmount()
-  }
 })
