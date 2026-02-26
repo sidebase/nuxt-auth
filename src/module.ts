@@ -12,7 +12,6 @@ import {
 import { defu } from 'defu'
 import type { DeepRequired } from 'ts-essentials'
 import type { NuxtModule } from 'nuxt/schema'
-import { isProduction } from './runtime/helpers'
 import type {
   AuthProviders,
   ModuleOptions,
@@ -71,7 +70,7 @@ export default defineNuxtModule<ModuleOptions>({
     logger.info('`nuxt-auth` setup starting')
 
     // 2. Set up runtime configuration
-    if (!isProduction) {
+    if (process.env.NODE_ENV !== 'production') {
       logger.info(
         `Auth API location is \`${options.baseURL}\`. ` +
           'Ensure that the `NuxtAuthHandler({ ... })` is configured.',

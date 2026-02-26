@@ -7,7 +7,6 @@ import { resolveApiUrlPath } from '../../utils/url'
 import { _fetch } from '../../utils/fetch'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
 import type { SessionLastRefreshedAt, SessionStatus } from '../../types'
-import { useTypedBackendConfig } from '../../helpers'
 import { determineCallbackUrl } from '../../utils/callbackUrl'
 import type { SessionData } from './useAuthState'
 import { navigateToAuthPageWN } from './utils/navigateToAuthPage'
@@ -327,8 +326,6 @@ export interface UseAuthReturn {
 export function useAuth(): UseAuthReturn {
   const nuxt = useNuxtApp()
   const runtimeConfig = useRuntimeConfig()
-  const backendConfig = useTypedBackendConfig(runtimeConfig)
-
   const { data, loading, status, lastRefreshedAt } = useAuthState()
 
   /**
@@ -417,7 +414,7 @@ export function useAuth(): UseAuthReturn {
     // 2. If no `provider` was given, either use the configured `defaultProvider` or `undefined` (leading to a forward to the `/login` page with all providers)
     if (typeof provider === 'undefined') {
       // NOTE: `provider` might be an empty string
-      provider = backendConfig.defaultProvider
+      provider = runtimeConfig.public.auth.provider.defaultProvider
     }
 
     // 3. Redirect to the general sign-in page with all providers in case either no provider or no valid provider was selected

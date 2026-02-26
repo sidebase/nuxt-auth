@@ -18,7 +18,6 @@ import type { AuthConfig, Session } from '@auth/core/types'
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
 import { isNonEmptyObject } from '../../../utils/checkSessionResult'
-import { useTypedBackendConfig } from '../../../helpers'
 import { resolveApiBaseURL } from '../../../utils/url'
 import { useRuntimeConfig } from '#imports'
 
@@ -106,7 +105,7 @@ let authOptions: AuthConfig | undefined
 export function NuxtAuthHandler(nuxtAuthOptions?: AuthConfig) {
   const isProduction = process.env.NODE_ENV === 'production'
   const runtimeConfig = useRuntimeConfig()
-  const trustHostUserPreference = useTypedBackendConfig(runtimeConfig).trustHost
+  const trustHostUserPreference = runtimeConfig.public.auth.provider.trustHost
 
   const secret = nuxtAuthOptions?.secret || process.env.AUTH_SECRET
   if (!secret) {
@@ -230,7 +229,7 @@ export async function getServerSession(
 ): Promise<Session | null> {
   const runtimeConfig = useRuntimeConfig()
   const authBasePathname = resolveApiBaseURL(runtimeConfig, true)
-  const trustHostUserPreference = useTypedBackendConfig(runtimeConfig).trustHost
+  const trustHostUserPreference = runtimeConfig.public.auth.provider.trustHost
 
   // Avoid running auth middleware on auth middleware (see #186)
   if (event.path && event.path.startsWith(authBasePathname)) {

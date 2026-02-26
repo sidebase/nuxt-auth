@@ -1,5 +1,4 @@
 import { parseURL } from 'ufo'
-import { isProduction } from '../../helpers'
 import { resolveApiBaseURL } from '../../utils/url'
 import { defineNitroPlugin } from 'nitropack/runtime/plugin'
 import { useRuntimeConfig } from '#imports'
@@ -53,7 +52,7 @@ export default defineNitroPlugin(() => {
       )
     }
   } catch (error) {
-    if (!isProduction) {
+    if (process.env.NODE_ENV !== 'production') {
       console.info(
         'AUTH_NO_ORIGIN: No `origin` - this is an error in production. You can ignore this during development',
       )
