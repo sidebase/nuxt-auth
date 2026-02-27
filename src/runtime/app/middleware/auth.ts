@@ -6,6 +6,7 @@ import {
   useRuntimeConfig,
 } from '#imports'
 
+// noinspection JSUnusedGlobalSymbols
 /**
  * Global authentication route middleware for the `zitadel-auth` module.
  *
@@ -14,7 +15,7 @@ import {
  * object (set via `definePageMeta`) to decide whether to allow or deny
  * access to the page.
  *
- * ## Supported `auth` meta formats
+ * ## Supported `auth` meta-formats
  *
  * Both the legacy format and the new mode-based format are supported.
  * Legacy values are normalized into mode-based equivalents before the
@@ -57,7 +58,7 @@ import {
  * `app.vue` without a `pages/` directory. Enforcing sign-in on
  * non-existent routes would produce confusing UX.
  *
- * @see {@link AuthMeta} for the type definition of the `auth` meta field.
+ * @see {@link AuthMeta} for the type definition of the `auth` meta-field.
  */
 export default defineNuxtRouteMiddleware((to) => {
   const raw = to.meta.auth as AuthMeta | undefined
@@ -100,7 +101,7 @@ export default defineNuxtRouteMiddleware((to) => {
       const callbackUrl =
         typeof authConfig.provider.addDefaultCallbackUrl === 'string'
           ? authConfig.provider.addDefaultCallbackUrl
-          : authConfig.provider.addDefaultCallbackUrl === true
+          : authConfig.provider.addDefaultCallbackUrl
             ? to.fullPath
             : undefined
 
