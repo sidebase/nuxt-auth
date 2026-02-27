@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import { resolveApiUrlPath } from './url'
-import { ERROR_PREFIX } from './logger'
+import { ERROR_PREFIX } from '../logger'
 import { useRequestEvent, useRuntimeConfig } from '#imports'
 import type { useNuxtApp } from '#imports'
 import { callWithNuxt } from '#app/nuxt'
