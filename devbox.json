@@ -2,6 +2,6 @@
   "$schema": "https://raw.githubusercontent.com/jetpack-io/devbox/0.10.3/.schema/devbox.schema.json",
   "packages": ["nodejs@22"],
   "env": {
-    "npm_config_cache": ".npm"
+    "NPM_CONFIG_CACHE": "$DEVBOX_PROJECT_ROOT/.npm"
   }
 }
