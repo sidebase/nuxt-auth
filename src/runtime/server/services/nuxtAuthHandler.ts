@@ -17,8 +17,8 @@ import { Auth, createActionURL, setEnvDefaults } from '@auth/core'
 import type { AuthConfig, Session } from '@auth/core/types'
 import { defu } from 'defu'
 import { joinURL } from 'ufo'
-import { isNonEmptyObject } from '../../../utils/checkSessionResult'
-import { resolveApiBaseURL } from '../../../utils/url'
+import { isNonEmptyObject } from '../../shared/utils/checkSessionResult'
+import { resolveApiBaseURL } from '../../shared/utils/url'
 import { useRuntimeConfig } from '#imports'
 
 type RuntimeConfig = ReturnType<typeof useRuntimeConfig>

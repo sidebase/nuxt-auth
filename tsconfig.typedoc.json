@@ -14,8 +14,8 @@
   },
   "include": [
     "src/module.ts",
-    "src/runtime/types.ts",
-    "src/runtime/composables/**/*.ts",
+    "src/runtime/shared/types.ts",
+    "src/runtime/app/composables/**/*.ts",
     "src/runtime/server/services/**/*.ts"
   ],
   "exclude": [

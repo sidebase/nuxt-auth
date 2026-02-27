@@ -1,5 +1,8 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import type { DefaultRefreshHandlerConfig, RefreshHandler } from '../types'
+import type {
+  DefaultRefreshHandlerConfig,
+  RefreshHandler,
+} from '../../shared/types'
 import { useAuth } from '#imports'
 
 export class DefaultRefreshHandler implements RefreshHandler {

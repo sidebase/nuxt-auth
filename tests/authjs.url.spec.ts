@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { resolveApiBaseURL, resolveApiUrlPath } from '../src/runtime/utils/url'
+import {
+  resolveApiBaseURL,
+  resolveApiUrlPath,
+} from '../src/runtime/shared/utils/url'
 
 /*
  * This spec file covers usecases of the `authjs` provider.

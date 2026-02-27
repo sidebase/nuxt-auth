@@ -3,9 +3,9 @@ export default {
   readme: 'README.md',
   entryPoints: [
     'src/module.ts',
-    'src/runtime/types.ts',
-    'src/runtime/composables/authjs/useAuth.ts',
-    'src/runtime/composables/authjs/useAuthState.ts',
+    'src/runtime/shared/types.ts',
+    'src/runtime/app/composables/useAuth.ts',
+    'src/runtime/app/composables/useAuthState.ts',
     'src/runtime/server/services/index.ts',
   ],
   projectDocuments: [

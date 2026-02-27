@@ -1,5 +1,5 @@
 import { parseURL } from 'ufo'
-import { resolveApiBaseURL } from '../../utils/url'
+import { resolveApiBaseURL } from '../../shared/utils/url'
 import { defineNitroPlugin } from 'nitropack/runtime/plugin'
 import { useRuntimeConfig } from '#imports'
 

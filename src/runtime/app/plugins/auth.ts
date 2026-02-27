@@ -2,9 +2,9 @@ import { getHeader } from 'h3'
 import { withoutBase, withoutTrailingSlash } from 'ufo'
 import { createRouter, toRouteMatcher } from 'radix3'
 import type { RouteMatcher } from 'radix3'
-import type { RouteOptions } from './types'
-import { FetchConfigurationError } from './utils/fetch'
-import { resolveApiBaseURL } from './utils/url'
+import type { RouteOptions } from '../../shared/types'
+import { FetchConfigurationError } from '../utils/fetch'
+import { resolveApiBaseURL } from '../../shared/utils/url'
 import {
   defineNuxtPlugin,
   useAuth,

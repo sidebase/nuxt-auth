@@ -29,7 +29,7 @@ const runtimeConfig = useRuntimeConfig()
 const baseURL = runtimeConfig.public.auth.baseURL
 ```
 
-This value is generally the [source of truth](https://github.com/zitadel/nuxt-auth/blob/b5af548c1fc390ae00496e19ad7a91d308af9b12/src/runtime/utils/url.ts#L37-L38). It is being [set in the plugin](https://github.com/zitadel/nuxt-auth/blob/b5af548c1fc390ae00496e19ad7a91d308af9b12/src/runtime/plugin.ts#L20-L24) to also be available on the client.
+This value is generally the [source of truth](https://github.com/zitadel/nuxt-auth/blob/main/src/runtime/shared/utils/url.ts). It is being [set in the plugin](https://github.com/zitadel/nuxt-auth/blob/main/src/runtime/app/plugins/auth.ts) to also be available on the client.
 
 ## Changing `baseURL`
 

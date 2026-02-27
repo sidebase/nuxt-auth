@@ -1,4 +1,4 @@
-import type { AuthMeta } from './types'
+import type { AuthMeta } from '../../shared/types'
 import {
   defineNuxtRouteMiddleware,
   navigateTo,

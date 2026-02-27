@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks, no-redeclare */
-import { isExternalUrl } from './url'
+import { isExternalUrl } from '../../shared/utils/url'
 import { callWithNuxt, useNuxtApp, useRouter } from '#app'
 import { useRequestURL } from '#imports'
 

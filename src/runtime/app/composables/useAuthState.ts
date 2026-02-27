@@ -1,6 +1,6 @@
 import type { Session } from '@auth/core/types'
-import type { CommonUseAuthStateReturn } from '../../types'
-import { makeCommonAuthState } from '../commonAuthState'
+import type { CommonUseAuthStateReturn } from '../../shared/types'
+import { makeCommonAuthState } from './commonAuthState'
 
 /**
  * The session data structure returned by Auth.js. This type is imported

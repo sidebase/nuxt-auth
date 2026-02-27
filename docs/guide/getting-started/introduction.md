@@ -102,7 +102,7 @@ layouts of protected pages.
 #### Why does it not affect NuxtAuth?
 
 As the affected middleware is written for Next.js, we wrote our own
-[custom middleware](https://github.com/zitadel/nuxt-auth/blob/main/src/runtime/middleware/auth.ts)
+[custom middleware](https://github.com/zitadel/nuxt-auth/blob/main/src/runtime/app/middleware/auth.ts)
 for NuxtAuth that is not affected by the vulnerability.
 
 </details>
