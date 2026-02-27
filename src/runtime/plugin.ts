@@ -1,5 +1,8 @@
 import { getHeader } from 'h3'
-import { getNitroRouteRules } from './utils/kit'
+import { withoutBase, withoutTrailingSlash } from 'ufo'
+import { createRouter, toRouteMatcher } from 'radix3'
+import type { RouteMatcher } from 'radix3'
+import type { RouteOptions } from './types'
 import { FetchConfigurationError } from './utils/fetch'
 import { resolveApiBaseURL } from './utils/url'
 import {
@@ -8,6 +11,47 @@ import {
   useAuthState,
   useRuntimeConfig,
 } from '#imports'
+
+let routeMatcher: RouteMatcher
+
+function getNitroRouteRules(path: string): Partial<RouteOptions> {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const runtimeConfig = useRuntimeConfig() as {
+    nitro?: { routeRules?: Record<string, { auth?: RouteOptions }> }
+    app?: { baseURL?: string }
+  }
+  const { nitro, app } = runtimeConfig
+
+  if (!routeMatcher) {
+    routeMatcher = toRouteMatcher(
+      createRouter({
+        routes: Object.fromEntries(
+          Object.entries(nitro?.routeRules || {}).map(([path, rules]) => [
+            withoutTrailingSlash(path),
+            rules,
+          ]),
+        ),
+      }),
+    )
+  }
+
+  const options: Partial<RouteOptions> = {}
+
+  const matches = routeMatcher
+    .matchAll(
+      withoutBase(
+        withoutTrailingSlash(path.split('?')[0]),
+        app?.baseURL || '/',
+      ),
+    )
+    .toReversed()
+
+  for (const match of matches) {
+    options.disableServerSideAuth ??= match.auth?.disableServerSideAuth
+  }
+
+  return options
+}
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
