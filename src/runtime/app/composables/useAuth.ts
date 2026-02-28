@@ -1,11 +1,10 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { defu } from 'defu'
 import { readonly } from 'vue'
 import type { Ref, ComputedRef } from 'vue'
 import { appendHeader } from 'h3'
-import { resolveApiUrlPath } from '../../shared/utils/url'
+import { resolveApiUrlPath, encodeURL } from '../../shared/utils/url'
 import { _fetch } from '../utils/fetch'
-import { isNonEmptyObject } from '../../shared/utils/checkSessionResult'
+
 import type { SessionLastRefreshedAt, SessionStatus } from '../../shared/types'
 import { hasProtocol, isScriptProtocol } from 'ufo'
 import { determineCallbackUrl } from '../utils/callbackUrl'
@@ -656,7 +655,15 @@ export function useAuth(): UseAuthReturn {
             }
           }
 
-          data.value = isNonEmptyObject(sessionData) ? sessionData : null
+          if (
+            typeof sessionData === 'object' &&
+            sessionData !== null &&
+            Object.keys(sessionData).length > 0
+          ) {
+            data.value = sessionData
+          } else {
+            data.value = null
+          }
           loading.value = false
 
           if (required && status.value === 'unauthenticated') {
@@ -925,11 +932,9 @@ function navigateToAuthPage(
       // We wait to perform the redirect last in case any other middleware will intercept the redirect
       // and redirect somewhere else instead.
       if (!isExternalHost && inMiddleware) {
-        // For an unknown reason, `final.fullPath` received here is not percent-encoded, leading to the check always failing.
-        // To preserve compatibility with NuxtAuth < 1.0, we simply return `undefined`.
-        // TODO: Find the reason or report the issue to Nuxt if `navigateTo` has the same problem (`router.resolve` handles the `%2F` in callback URL correctly)
-        // router.afterEach(final => final.fullPath === location ? redirect(false) : undefined)
-        // return href
+        // `final.fullPath` is not percent-encoded, so comparing it to `location` always fails.
+        // Return `undefined` instead of aborting to preserve compatibility.
+        // See: https://github.com/nuxt/nuxt/issues/33273
         return redirect(undefined)
       }
       return redirect(
@@ -949,19 +954,4 @@ function navigateToAuthPage(
   // Auth.js routes are not registered with vue-router, which would trigger a
   // "No match found" warning and potentially render the wrong page.
   return new Promise<void>(() => {})
-}
-
-/**
- * Adapted from https://github.com/nuxt/nuxt/blob/16d213bbdcc69c0cc72afb355755ff877654a374/packages/nuxt/src/app/composables/router.ts#L270C1-L282C2
- * @internal
- */
-function encodeURL(location: string, isExternalHost = false) {
-  const url = new URL(location, 'http://localhost')
-  if (!isExternalHost) {
-    return url.pathname + url.search + url.hash
-  }
-  if (location.startsWith('//')) {
-    return url.toString().replace(url.protocol, '')
-  }
-  return url.toString()
 }

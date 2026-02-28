@@ -1,5 +1,6 @@
 module.exports = {
-  ignoreDependencies: ['@semantic-release/.*?'],
+  ignoreDependencies: ['@semantic-release/.*?', 'vitest-environment-nuxt'],
+  ignoreBinaries: ['playwright'],
   entry: ['src/module.ts', 'src/runtime/**/*.ts'],
-  ignore: ['typedoc.config.mjs', 'playground-authjs/**', 'examples/**'],
+  ignore: ['playground-authjs/**', 'examples/**'],
 }

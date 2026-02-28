@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { computed } from 'vue'
 import type { SessionLastRefreshedAt, SessionStatus } from '../../shared/types'
 import { useState } from '#imports'

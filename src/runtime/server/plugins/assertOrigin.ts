@@ -23,7 +23,7 @@ import { useRuntimeConfig } from '#imports'
  * plugins. This was tracked in
  * {@link https://github.com/nuxt/nuxt/issues/18556 | nuxt#18556} and resolved
  * by {@link https://github.com/nuxt/nuxt/pull/21680 | nuxt#21680}. The stub
- * is no longer necessary and `defineNitroPlugin` is now imported directly
+ * is no longer necessary, and `defineNitroPlugin` is now imported directly
  * from `nitropack/runtime/plugin`.
  *
  * ### Origin validation logic
@@ -34,7 +34,7 @@ import { useRuntimeConfig } from '#imports'
  *    `originEnvKey` (defaulting to `AUTH_ORIGIN`) first, then falls back to
  *    the static `baseURL` from runtime config.
  * 2. The result is parsed with `parseURL` from `ufo`. If both `protocol` and
- *    `host` are present the origin is considered valid and the plugin succeeds
+ *    `host` are present, the origin is considered valid and the plugin succeeds
  *    silently.
  * 3. If the origin cannot be determined, an error is thrown in production or
  *    logged as an informational message in development.

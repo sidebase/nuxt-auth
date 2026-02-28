@@ -15,7 +15,6 @@ import {
 let routeMatcher: RouteMatcher
 
 function getNitroRouteRules(path: string): Partial<RouteOptions> {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const runtimeConfig = useRuntimeConfig() as {
     nitro?: { routeRules?: Record<string, { auth?: RouteOptions }> }
     app?: { baseURL?: string }

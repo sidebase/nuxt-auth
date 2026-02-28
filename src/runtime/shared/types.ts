@@ -86,9 +86,6 @@ interface ProviderAuthjsOther {
  */
 export type ProviderAuthjs = ProviderAuthjsCredentials | ProviderAuthjsOther
 
-/** @internal */
-export type AuthProviders = ProviderAuthjs
-
 export interface RefreshHandler {
   /**
    * Initializes the refresh handler.
@@ -194,7 +191,7 @@ export interface ModuleOptions {
   /**
    * Configuration of the authentication provider using Auth.js (OAuth focused provider for Nuxt 4 applications).
    */
-  provider?: AuthProviders
+  provider?: ProviderAuthjs
   /**
    * Configuration of the application-side session.
    */
@@ -238,26 +235,6 @@ export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading'
 export type WrappedSessionData<SessionData> = Ref<
   SessionData | null | undefined
 >
-
-/** @internal */
-export interface GetSessionFunc<SessionData> {
-  (getSessionOptions?: {
-    required?: boolean
-    callbackUrl?: string
-    onUnauthenticated?: () => void
-  }): Promise<SessionData | null | void>
-}
-
-/** @internal */
-export interface CommonUseAuthReturn<SignIn, SignOut, SessionData> {
-  data: Readonly<WrappedSessionData<SessionData>>
-  lastRefreshedAt: Readonly<Ref<SessionLastRefreshedAt>>
-  status: ComputedRef<SessionStatus>
-  signIn: SignIn
-  signOut: SignOut
-  getSession: GetSessionFunc<SessionData>
-  refresh: () => Promise<unknown>
-}
 
 /** @internal */
 export interface CommonUseAuthStateReturn<SessionData> {

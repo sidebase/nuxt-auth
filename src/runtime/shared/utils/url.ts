@@ -66,3 +66,23 @@ export function resolveApiBaseURL(
 export function isExternalUrl(url: string): boolean {
   return url.startsWith('http://') || url.startsWith('https://')
 }
+
+/**
+ * Encodes a URL for safe use in HTTP Location headers and HTML meta refresh tags.
+ *
+ * For internal (same-host) URLs, returns only the path + search + hash,
+ * stripping the origin. For external URLs, returns the full URL string.
+ * Protocol-relative URLs (starting with `//`) are preserved without a protocol.
+ *
+ * Adapted from https://github.com/nuxt/nuxt/blob/16d213bbdcc69c0cc72afb355755ff877654a374/packages/nuxt/src/app/composables/router.ts#L270-L282
+ */
+export function encodeURL(location: string, isExternalHost = false) {
+  const url = new URL(location, 'http://localhost')
+  if (!isExternalHost) {
+    return url.pathname + url.search + url.hash
+  }
+  if (location.startsWith('//')) {
+    return url.toString().replace(url.protocol, '')
+  }
+  return url.toString()
+}
