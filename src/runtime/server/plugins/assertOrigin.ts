@@ -1,5 +1,4 @@
 import { parseURL } from 'ufo'
-import { resolveApiBaseURL } from '../../shared/utils/url'
 import { defineNitroPlugin } from 'nitropack/runtime/plugin'
 import { useRuntimeConfig } from '#imports'
 
@@ -16,33 +15,31 @@ import { useRuntimeConfig } from '#imports'
  * logged as an informational message since the origin can often be inferred
  * from incoming requests at runtime.
  *
- * ### History
+ * ### Origin resolution logic
  *
- * Earlier versions of this file contained a manual stub for
- * `defineNitroPlugin` because Nuxt did not support auto-imports inside Nitro
- * plugins. This was tracked in
- * {@link https://github.com/nuxt/nuxt/issues/18556 | nuxt#18556} and resolved
- * by {@link https://github.com/nuxt/nuxt/pull/21680 | nuxt#21680}. The stub
- * is no longer necessary, and `defineNitroPlugin` is now imported directly
- * from `nitropack/runtime/plugin`.
- *
- * ### Origin validation logic
- *
- * 1. {@link resolveApiBaseURL} is called with `returnOnlyPathname` set to
- *    `false` so that the full URL (including protocol and host) is returned
- *    when available. It checks the environment variable specified by
- *    `originEnvKey` (defaulting to `AUTH_ORIGIN`) first, then falls back to
- *    the static `baseURL` from runtime config.
- * 2. The result is parsed with `parseURL` from `ufo`. If both `protocol` and
+ * 1. Reads `runtimeConfig.public.auth.baseURL` as the starting value.
+ * 2. On the server, checks the environment variable named by `originEnvKey`
+ *    (defaulting to `AUTH_ORIGIN`) and uses its value if set.
+ * 3. The result is parsed with `parseURL` from `ufo`. If both `protocol` and
  *    `host` are present, the origin is considered valid and the plugin succeeds
  *    silently.
- * 3. If the origin cannot be determined, an error is thrown in production or
+ * 4. If the origin cannot be determined, an error is thrown in production or
  *    logged as an informational message in development.
  */
 export default defineNitroPlugin(() => {
   try {
     const runtimeConfig = useRuntimeConfig()
-    const baseURL = resolveApiBaseURL(runtimeConfig, false)
+
+    // Resolve the base URL, checking the configured env var for an override
+    let baseURL = runtimeConfig.public.auth.baseURL
+    const originEnvKey = runtimeConfig.public.auth.originEnvKey
+    if (originEnvKey) {
+      const envBaseURL = process.env[originEnvKey]
+      if (envBaseURL) {
+        baseURL = envBaseURL
+      }
+    }
+
     const parsed = parseURL(baseURL)
 
     if (!parsed.protocol || !parsed.host) {

@@ -1,10 +1,7 @@
 import { defu } from 'defu'
 import { readonly } from 'vue'
 import type { Ref, ComputedRef } from 'vue'
-import { appendHeader } from 'h3'
-import { resolveApiUrlPath, encodeURL } from '../../shared/utils/url'
-import { _fetch } from '../utils/fetch'
-
+import type { AuthJsClient, ProviderInfo } from '../../shared/authJsClient'
 import type { SessionLastRefreshedAt, SessionStatus } from '../../shared/types'
 import { hasProtocol, isScriptProtocol } from 'ufo'
 import { determineCallbackUrl } from '../utils/callbackUrl'
@@ -15,7 +12,6 @@ import {
   createError,
   useAuthState,
   useNuxtApp,
-  useRequestHeaders,
   useRequestURL,
   useRouter,
   useRuntimeConfig,
@@ -119,39 +115,7 @@ export interface SignInResult {
   navigationResult: boolean | string | void | undefined
 }
 
-/**
- * Information about a configured authentication provider. This data is
- * returned by the getProviders method and can be used to build custom
- * sign-in interfaces that display all available authentication options.
- *
- * @example
- * ```ts
- * const providers = await getProviders()
- * for (const [id, provider] of Object.entries(providers)) {
- *   console.log(`${provider.name} (${provider.type}): ${provider.signinUrl}`)
- * }
- * ```
- */
-export interface ProviderInfo {
-  /** The unique identifier for this provider, e.g., "github" or "google" */
-  id: string
-
-  /** The human-readable display name, e.g., "GitHub" or "Google" */
-  name: string
-
-  /**
-   * The provider type indicating the authentication mechanism. Common values
-   * are "oauth" for OAuth/OIDC providers, "credentials" for username/password
-   * authentication, and "email" for magic link authentication.
-   */
-  type: string
-
-  /** The URL to initiate sign-in with this provider */
-  signinUrl?: string
-
-  /** The OAuth callback URL configured for this provider */
-  callbackUrl?: string
-}
+export type { ProviderInfo }
 
 /**
  * The return type of the `useAuth` composable.
@@ -325,6 +289,7 @@ export interface UseAuthReturn {
  */
 export function useAuth(): UseAuthReturn {
   const nuxt = useNuxtApp()
+  const client = nuxt.$authClient as AuthJsClient
   const runtimeConfig = useRuntimeConfig()
   const { data, loading, status, lastRefreshedAt } = useAuthState()
 
@@ -395,14 +360,14 @@ export function useAuth(): UseAuthReturn {
     authorizationParams?: Record<string, string>,
   ): Promise<SignInResult> {
     // 1. Lead to error page if no providers are available
-    const configuredProviders = await getProviders()
+    const configuredProviders = await callWithNuxt(nuxt, () =>
+      client.getProviders(),
+    )
     if (!configuredProviders) {
-      const errorUrl = resolveApiUrlPath('error', runtimeConfig)
+      const errorUrl = client.getErrorPageUrl()
       const navigationResult = await navigateToAuthPageWN(nuxt, errorUrl, true)
 
       return {
-        // Future AuthJS compat here and in other places
-        // https://authjs.dev/reference/core/errors#invalidprovider
         error: 'InvalidProvider',
         ok: false,
         status: 500,
@@ -413,7 +378,6 @@ export function useAuth(): UseAuthReturn {
 
     // 2. If no `provider` was given, either use the configured `defaultProvider` or `undefined` (leading to a forward to the `/login` page with all providers)
     if (typeof provider === 'undefined') {
-      // NOTE: `provider` might be an empty string
       provider = runtimeConfig.public.auth.provider.defaultProvider
     }
 
@@ -424,15 +388,9 @@ export function useAuth(): UseAuthReturn {
       determineCallbackUrl(runtimeConfig.public.auth, options?.callbackUrl),
     )
 
-    const signinUrl = resolveApiUrlPath('signin', runtimeConfig)
-
-    const queryParams = callbackUrl
-      ? `?${new URLSearchParams({ callbackUrl })}`
-      : ''
-    const hrefSignInAllProviderPage = `${signinUrl}${queryParams}`
-
     const selectedProvider = provider && configuredProviders[provider]
     if (!selectedProvider) {
+      const hrefSignInAllProviderPage = client.getSignInPageUrl(callbackUrl)
       const navigationResult = await navigateToAuthPageWN(
         nuxt,
         hrefSignInAllProviderPage,
@@ -440,7 +398,6 @@ export function useAuth(): UseAuthReturn {
       )
 
       return {
-        // https://authjs.dev/reference/core/errors#invalidprovider
         error: 'InvalidProvider',
         ok: false,
         status: 400,
@@ -454,15 +411,7 @@ export function useAuth(): UseAuthReturn {
     const isEmail = selectedProvider.type === 'email'
     const isSupportingReturn = isCredentials || isEmail
 
-    const action: 'callback' | 'signin' = isCredentials ? 'callback' : 'signin'
-
-    const csrfToken = await getCsrfTokenWithNuxt(nuxt)
-
-    const headers: { 'Content-Type': string; cookie?: string; host?: string } =
-      {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        ...(await getRequestHeaders(nuxt)),
-      }
+    const csrfToken = await callWithNuxt(nuxt, () => client.getCsrfToken())
 
     // @ts-expect-error `options` is typed as any, but is a valid parameter for URLSearchParams
     const body = new URLSearchParams({
@@ -473,23 +422,12 @@ export function useAuth(): UseAuthReturn {
     })
 
     const fetchSignIn = () =>
-      _fetch<{ url: string }>(
-        nuxt,
-        `/${action}/${provider}`,
-        {
-          method: 'post',
-          params: authorizationParams,
-          headers,
-          body,
-        },
-        /* proxyCookies = */ true,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ).catch<Record<string, any>>((error: { data: any }) => error.data)
+      client.signIn(provider!, selectedProvider.type, body, authorizationParams)
 
-    const data = await callWithNuxt(nuxt, fetchSignIn)
+    const signInData = await callWithNuxt(nuxt, fetchSignIn)
 
     if (redirect || !isSupportingReturn) {
-      const href = data.url ?? callbackUrl
+      const href = signInData.url ?? callbackUrl
       const navigationResult = await navigateToAuthPageWN(nuxt, href)
 
       // We use `http://_` as a base to allow relative URLs in `callbackUrl`. We only need the `error` query param
@@ -505,14 +443,14 @@ export function useAuth(): UseAuthReturn {
     }
 
     // At this point the request succeeded (i.e., it went through)
-    const error = new URL(data.url).searchParams.get('error')
+    const error = new URL(signInData.url).searchParams.get('error')
     await getSessionWithNuxt(nuxt)
 
     return {
       error,
       status: 200,
       ok: true,
-      url: error ? null : data.url,
+      url: error ? null : signInData.url,
       navigationResult: undefined,
     }
   }
@@ -541,14 +479,7 @@ export function useAuth(): UseAuthReturn {
    * ```
    */
   async function getProviders() {
-    // Pass the `Host` header when making internal requests
-    const headers = await getRequestHeaders(nuxt, false)
-
-    return _fetch<Record<string, ProviderInfo | undefined>>(
-      nuxt,
-      '/providers',
-      { headers },
-    )
+    return callWithNuxt(nuxt, () => client.getProviders())
   }
 
   /**
@@ -626,66 +557,34 @@ export function useAuth(): UseAuthReturn {
       },
     )
 
-    function onError() {
+    lastRefreshedAt.value = new Date()
+
+    try {
+      const sessionData = await callWithNuxt(nuxt, () =>
+        client.getSession(callbackUrl || callbackUrlFallback),
+      )
+
+      if (
+        typeof sessionData === 'object' &&
+        sessionData !== null &&
+        Object.keys(sessionData).length > 0
+      ) {
+        data.value = sessionData
+      } else {
+        data.value = null
+      }
       loading.value = false
+
+      if (required && status.value === 'unauthenticated') {
+        await onUnauthenticated()
+        return data.value ?? null
+      }
+
+      return data.value ?? null
+    } catch (error) {
+      loading.value = false
+      throw error
     }
-
-    const headers = await getRequestHeaders(nuxt)
-
-    return _fetch<SessionData>(
-      nuxt,
-      '/session',
-      {
-        onResponse: ({ response }) => {
-          const sessionData = response._data
-
-          // Add any new cookie to the server-side event for it to be present on the app-side after
-          // initial load, see zitadel/nuxt-auth/issues/200 for more information.
-          if (import.meta.server) {
-            const setCookieValues = response.headers.getSetCookie
-              ? response.headers.getSetCookie()
-              : [response.headers.get('set-cookie')]
-            if (setCookieValues && nuxt.ssrContext) {
-              for (const value of setCookieValues) {
-                if (!value) {
-                  continue
-                }
-                appendHeader(nuxt.ssrContext.event, 'set-cookie', value)
-              }
-            }
-          }
-
-          if (
-            typeof sessionData === 'object' &&
-            sessionData !== null &&
-            Object.keys(sessionData).length > 0
-          ) {
-            data.value = sessionData
-          } else {
-            data.value = null
-          }
-          loading.value = false
-
-          if (required && status.value === 'unauthenticated') {
-            return onUnauthenticated()
-          }
-
-          return sessionData
-        },
-        onRequest: ({ options }) => {
-          lastRefreshedAt.value = new Date()
-
-          options.params = {
-            ...options.params,
-            callbackUrl: callbackUrl || callbackUrlFallback,
-          }
-        },
-        onRequestError: onError,
-        onResponseError: onError,
-        headers,
-      },
-      /* proxyCookies = */ true,
-    )
   }
   function getSessionWithNuxt(nuxt: NuxtApp) {
     return callWithNuxt(nuxt, getSession)
@@ -742,7 +641,8 @@ export function useAuth(): UseAuthReturn {
    */
   async function signOut(options?: SignOutOptions) {
     const { callbackUrl: userCallbackUrl, redirect = true } = options ?? {}
-    const csrfToken = await getCsrfTokenWithNuxt(nuxt)
+
+    const csrfToken = await callWithNuxt(nuxt, () => client.getCsrfToken())
 
     // Determine the correct callback URL
     const callbackUrl = await determineCallbackUrl(
@@ -758,20 +658,9 @@ export function useAuth(): UseAuthReturn {
       })
     }
 
-    const signoutData = await _fetch<{ url: string }>(nuxt, '/signout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        ...(await getRequestHeaders(nuxt)),
-      },
-      onRequest: ({ options }) => {
-        options.body = new URLSearchParams({
-          csrfToken: csrfToken as string,
-          callbackUrl,
-          json: 'true',
-        })
-      },
-    }).catch((error) => error.data)
+    const signoutData = await callWithNuxt(nuxt, () =>
+      client.signOut(csrfToken, callbackUrl),
+    )
 
     if (redirect) {
       const url = signoutData.url ?? callbackUrl
@@ -780,25 +669,6 @@ export function useAuth(): UseAuthReturn {
 
     await getSessionWithNuxt(nuxt)
     return signoutData
-  }
-
-  /**
-   * Utilities to make nested async composable calls play nicely with nuxt.
-   *
-   * Calling nested async composable can lead to "nuxt instance unavailable" errors. See more details here: https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529. To resolve this we can manually ensure that the nuxt-context is set. This module contains `callWithNuxt` helpers for some of the methods that are frequently called in nested `useAuth` composable calls.
-   */
-  async function getRequestHeaders(
-    nuxt: NuxtApp,
-    includeCookie = true,
-  ): Promise<{ cookie?: string; host?: string }> {
-    // `useRequestHeaders` is sync, so we narrow it to the awaited return type here
-    const headers = await callWithNuxt(nuxt, () =>
-      useRequestHeaders(['cookie', 'host']),
-    )
-    if (includeCookie && headers.cookie) {
-      return headers
-    }
-    return { host: headers.host }
   }
 
   /**
@@ -831,13 +701,7 @@ export function useAuth(): UseAuthReturn {
    * ```
    */
   async function getCsrfToken() {
-    const headers = await getRequestHeaders(nuxt)
-    return _fetch<{ csrfToken: string }>(nuxt, '/csrf', { headers }).then(
-      (response) => response.csrfToken,
-    )
-  }
-  function getCsrfTokenWithNuxt(nuxt: NuxtApp) {
-    return callWithNuxt(nuxt, getCsrfToken)
+    return callWithNuxt(nuxt, () => client.getCsrfToken())
   }
 
   return {
@@ -861,6 +725,26 @@ function navigateToAuthPageWN(
   isInternalRouting?: boolean,
 ) {
   return callWithNuxt(nuxt, navigateToAuthPage, [nuxt, href, isInternalRouting])
+}
+
+/**
+ * Encodes a URL for safe use in HTTP Location headers and HTML meta refresh tags.
+ *
+ * For internal (same-host) URLs, returns only the path + search + hash,
+ * stripping the origin. For external URLs, returns the full URL string.
+ * Protocol-relative URLs (starting with `//`) are preserved without a protocol.
+ *
+ * Adapted from https://github.com/nuxt/nuxt/blob/16d213bbdcc69c0cc72afb355755ff877654a374/packages/nuxt/src/app/composables/router.ts#L270-L282
+ */
+function encodeURL(location: string, isExternalHost = false) {
+  const url = new URL(location, 'http://localhost')
+  if (!isExternalHost) {
+    return url.pathname + url.search + url.hash
+  }
+  if (location.startsWith('//')) {
+    return url.toString().replace(url.protocol, '')
+  }
+  return url.toString()
 }
 
 /**

@@ -13,7 +13,7 @@ import {
 import { Auth, createActionURL, setEnvDefaults } from '@auth/core'
 import type { AuthConfig, Session } from '@auth/core/types'
 import { defu } from 'defu'
-import { resolveApiBaseURL } from '../../shared/utils/url'
+import { parseURL, withLeadingSlash } from 'ufo'
 import { useRuntimeConfig } from '#imports'
 
 let authOptions: AuthConfig | undefined
@@ -87,7 +87,7 @@ function patchCookieHeader(request: Request, event: H3Event): void {
  *         email: { label: 'Email', type: 'email' },
  *         password: { label: 'Password', type: 'password' },
  *       },
- *       async authorize(credentials) {
+ *       async authorise(credentials) {
  *         const user = await validateUser(credentials)
  *         return user ?? null
  *       },
@@ -275,7 +275,9 @@ export async function getServerSession(
   event: H3Event,
 ): Promise<Session | null> {
   const runtimeConfig = useRuntimeConfig()
-  const authBasePathname = resolveApiBaseURL(runtimeConfig, true)
+  const authBasePathname = withLeadingSlash(
+    parseURL(runtimeConfig.public.auth.baseURL).pathname,
+  )
   const trustHostUserPreference = runtimeConfig.public.auth.provider.trustHost
 
   // Avoid running auth middleware on auth middleware (see #186)
@@ -285,7 +287,7 @@ export async function getServerSession(
 
   // Nitro lazily loads route modules, so if getServerSession is called from
   // server middleware before any request has hit /api/auth/*, the catch-all
-  // route module hasn't been imported yet and authOptions is still undefined.
+  // route module hasn't been imported yet, and authOptions is still undefined.
   // Force-load it by fetching the session endpoint, which triggers module
   // import and NuxtAuthHandler() execution as a side effect.
   if (!authOptions) {

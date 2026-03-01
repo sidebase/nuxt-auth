@@ -1,13 +1,13 @@
+import { joinURL } from 'ufo'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import {
-  resolveApiBaseURL,
-  resolveApiUrlPath,
-} from '../src/runtime/shared/utils/url'
+import { resolveBaseURL } from '../src/runtime/shared/authJsClient'
 
 /*
- * This spec file covers usecases of the `authjs` provider.
- * The main difference from `local.url.spec` is the `disableInternalRouting` flag being set to
- * `false` in order to prioritize internal routing to the external one.
+ * This spec file covers URL resolution for the `authjs` provider.
+ * The `resolveBaseURL` function is called once during plugin setup to
+ * determine the base URL passed to AuthJsClient. The `joinURL` call
+ * replicates what AuthJsClient.url() does internally (without the
+ * native URL wrapper).
  */
 
 describe('endpoint path construction', () => {
@@ -127,46 +127,6 @@ describe('endpoint path construction', () => {
     })
   })
 
-  // External endpoint paths should take priority over everything else
-  describe('external endpoint path', () => {
-    it('http and https', () => {
-      expect(testResolve('/api/auth', 'http://example.com/signin')).toBe(
-        'http://example.com/signin',
-      )
-      expect(testResolve('/api/auth', 'https://example.com/signin')).toBe(
-        'https://example.com/signin',
-      )
-    })
-
-    it('disregards any values', () => {
-      const target = 'https://example.com/signin'
-
-      expect(testResolve('', target)).toBe(target)
-      expect(testResolve('.', target)).toBe(target)
-      expect(testResolve('*', target)).toBe(target)
-      expect(testResolve('/', target)).toBe(target)
-      expect(testResolve('/api/auth', target)).toBe(target)
-      expect(testResolve('/api/auth/', target)).toBe(target)
-      expect(testResolve('http://localhost:8080', target)).toBe(target)
-      expect(testResolve('http://localhost:8080/', target)).toBe(target)
-      expect(testResolve('http://localhost:8080/auth', target)).toBe(target)
-      expect(testResolve('http://localhost:8080/auth/', target)).toBe(target)
-      expect(testResolve('https://example.com', target)).toBe(target)
-      expect(testResolve('https://example.com/', target)).toBe(target)
-      expect(testResolve('https://example.com/auth', target)).toBe(target)
-      expect(testResolve('https://example.com/auth/', target)).toBe(target)
-    })
-
-    it('does not consider malformed', () => {
-      expect(testResolve('/api/auth', 'example.com')).toBe(
-        '/api/auth/example.com',
-      )
-      expect(testResolve('/api/auth', 'example.com/signin')).toBe(
-        '/api/auth/example.com/signin',
-      )
-    })
-  })
-
   // Environment variables should take priority over `baseURL`
   describe('env variables', () => {
     afterEach(() => {
@@ -208,8 +168,9 @@ describe('endpoint path construction', () => {
     })
 
     it('works with double assignment', () => {
-      // This test case is made specifically to check how `resolveApiUrlPath` would behave
-      // when a default `baseURL` value is being overwritten by `runtime/plugin` with a value provided by `resolveApiBaseURL`.
+      // This test case is made specifically to check how the URL resolution
+      // behaves when a default `baseURL` value is being overwritten by the
+      // auth plugin with a value provided by `resolveBaseURL`.
 
       // 1. `baseURL` is set to a user-provided value `https://default.example.com/api/auth`;
       const initialBaseURL = 'https://example.com/api/auth'
@@ -222,21 +183,21 @@ describe('endpoint path construction', () => {
 
       const runtimeConfig = mockRuntimeConfig(initialBaseURL, envName)
 
-      // 3. `runtime/plugin` tries to resolve the base and gets `https://changed.example.com/auth/v2` as a result;
-      const resolvedNewBaseURL = resolveApiBaseURL(runtimeConfig)
+      // 3. The plugin tries to resolve the base and gets `/auth/v2` as a result;
+      const resolvedNewBaseURL = resolveBaseURL(runtimeConfig)
       expect(resolvedNewBaseURL).toBe(expectedNewBaseURL)
 
       // Unstub the env to emulate the client and verify that the call produces a different result
       vi.unstubAllEnvs()
-      expect(resolveApiBaseURL(runtimeConfig)).not.toBe(expectedNewBaseURL)
+      expect(resolveBaseURL(runtimeConfig)).not.toBe(expectedNewBaseURL)
 
-      // 4. `runtime/plugin` overwrites the `baseURL`;
+      // 4. The plugin overwrites the `baseURL`;
       runtimeConfig.public.auth.baseURL = resolvedNewBaseURL
 
-      // 5. Another code calls `resolveApiUrlPath` / `resolveApiBaseURL` and should get the changed value exactly.
-      const resolvedBaseURL = resolveApiBaseURL(runtimeConfig)
+      // 5. Another code calls `resolveBaseURL` and should get the changed value exactly.
+      const resolvedBaseURL = resolveBaseURL(runtimeConfig)
       expect(resolvedBaseURL).toBe(expectedNewBaseURL)
-      const resolvedApiUrlPath = resolveApiUrlPath('/', runtimeConfig)
+      const resolvedApiUrlPath = joinURL(resolvedBaseURL, '/')
       expect(resolvedApiUrlPath).toBe(expectedNewBaseURL)
     })
   })
@@ -248,7 +209,8 @@ function testResolve(
   envVariableName = 'AUTH_ORIGIN',
 ): string {
   const runtimeConfig = mockRuntimeConfig(desiredBaseURL, envVariableName)
-  return resolveApiUrlPath(endpointPath, runtimeConfig)
+  const baseURL = resolveBaseURL(runtimeConfig)
+  return joinURL(baseURL, endpointPath)
 }
 
 function mockRuntimeConfig(desiredBaseURL: string, envVariableName: string) {

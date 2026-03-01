@@ -1,4 +1,3 @@
-import { isExternalUrl } from '../../shared/utils/url'
 import { callWithNuxt, useNuxtApp, useRouter } from '#app'
 import { useRequestURL } from '#imports'
 
@@ -69,7 +68,10 @@ export async function determineCallbackUrl(
  * @see https://github.com/zitadel/nuxt-auth/issues/990#issuecomment-2630143443
  */
 async function normalizeCallbackUrl(rawCallbackUrl: string) {
-  if (isExternalUrl(rawCallbackUrl)) {
+  if (
+    rawCallbackUrl.startsWith('http://') ||
+    rawCallbackUrl.startsWith('https://')
+  ) {
     return rawCallbackUrl
   }
 

@@ -3,14 +3,19 @@ import { withoutBase, withoutTrailingSlash } from 'ufo'
 import { createRouter, toRouteMatcher } from 'radix3'
 import type { RouteMatcher } from 'radix3'
 import type { RouteOptions } from '../../shared/types'
-import { FetchConfigurationError } from '../utils/fetch'
-import { resolveApiBaseURL } from '../../shared/utils/url'
+import {
+  AuthJsClient,
+  FetchConfigurationError,
+  resolveBaseURL,
+} from '../../shared/authJsClient'
 import {
   defineNuxtPlugin,
   useAuth,
   useAuthState,
+  useRequestEvent,
   useRuntimeConfig,
 } from '#imports'
+import { callWithNuxt } from '#app/nuxt'
 
 let routeMatcher: RouteMatcher
 
@@ -55,7 +60,6 @@ function getNitroRouteRules(path: string): Partial<RouteOptions> {
 export default defineNuxtPlugin(async (nuxtApp) => {
   // 1. Initialize authentication state, potentially fetch current session
   const { data, loading } = useAuthState()
-  const { getSession } = useAuth()
 
   // use runtimeConfig
   const wholeRuntimeConfig = useRuntimeConfig()
@@ -68,8 +72,28 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // Set the correct `baseURL` on the server,
   // because the client would not have access to environment variables
   if (import.meta.server) {
-    runtimeConfig.baseURL = resolveApiBaseURL(wholeRuntimeConfig)
+    runtimeConfig.baseURL = resolveBaseURL(wholeRuntimeConfig)
   }
+
+  // 2. Construct and provide the AuthJsClient
+  const client = new AuthJsClient(runtimeConfig.baseURL, {
+    nuxt: nuxtApp,
+    getRequestCookies: async () => {
+      const event = await callWithNuxt(nuxtApp, useRequestEvent)
+      return event?.node.req.headers.cookie
+    },
+    appendResponseCookies: (cookies: string[]) => {
+      if (nuxtApp.ssrContext?.event) {
+        const event = nuxtApp.ssrContext.event
+        for (const cookie of cookies) {
+          event.node.res.appendHeader('set-cookie', cookie)
+        }
+      }
+    },
+  })
+  nuxtApp.provide('authClient', client)
+
+  // 3. Fetch the initial session
 
   // Skip auth if we're prerendering
   let nitroPrerender = false
@@ -96,6 +120,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     !nitroPrerender &&
     !disableServerSideAuth &&
     !isErrorUrl
+
+  const { getSession } = useAuth()
 
   if (shouldFetchSession) {
     try {
