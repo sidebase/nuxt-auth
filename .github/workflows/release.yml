@@ -38,10 +38,9 @@ jobs:
           node-version: 'lts/*'
 
       - name: Run semantic-release
-        uses: mridang/action-semantic-release@v1
+        uses: mridang/action-semantic-release@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          allow-force-install: 'true'
         env:
           DOCKER_REGISTRY_USER: ${{ github.actor }}
           DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
