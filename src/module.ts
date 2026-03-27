@@ -102,6 +102,8 @@ const defaultsByBackend: {
 const PACKAGE_NAME = 'sidebase-auth'
 const MIDDLEWARE_NAME = PACKAGE_NAME
 
+const TS_ENDS_RE = /\.ts$/
+
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: PACKAGE_NAME,
@@ -224,7 +226,7 @@ export default defineNuxtModule<ModuleOptions>({
       filename: './refreshHandler.ts',
       async getContents() {
         if (options.sessionRefresh.handler) {
-          const path = (await resolvePath(options.sessionRefresh.handler)).replace(/\.ts$/, '')
+          const path = (await resolvePath(options.sessionRefresh.handler)).replace(TS_ENDS_RE, '')
           return `export { default as _refreshHandler } from '${path}'`
         }
 

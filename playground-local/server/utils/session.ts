@@ -33,7 +33,7 @@ interface TokensByUser {
  * Tokens storage.
  * You will need to implement your own, connect with DB/etc.
  */
-const tokensByUser: Map<string, TokensByUser> = new Map()
+const tokensByUserMap: Map<string, TokensByUser> = new Map()
 
 /**
  * We use a fixed password for demo purposes.
@@ -72,13 +72,13 @@ export async function createUserTokens(user: User): Promise<UserTokens> {
   const refreshToken = await createSignedJwt(tokenData, /* 1 day */ 60 * 60 * 24)
 
   // Naive implementation - please implement properly yourself!
-  const userTokens: TokensByUser = tokensByUser.get(user.username) ?? {
+  const userTokens: TokensByUser = tokensByUserMap.get(user.username) ?? {
     access: new Map(),
     refresh: new Map()
   }
   userTokens.access.set(accessToken, refreshToken)
   userTokens.refresh.set(refreshToken, accessToken)
-  tokensByUser.set(user.username, userTokens)
+  tokensByUserMap.set(user.username, userTokens)
 
   return {
     accessToken,
@@ -99,7 +99,7 @@ export async function decodeToken(token: string): Promise<JWTPayload> {
  * Your implementation will likely never need this and will rely on User ID and DB.
  */
 export function getTokensByUser(username: string): TokensByUser | undefined {
-  return tokensByUser.get(username)
+  return tokensByUserMap.get(username)
 }
 
 type CheckUserTokensResult = { valid: true, knownAccessToken: string } | { valid: false, knownAccessToken: undefined }

@@ -26,7 +26,7 @@ export function getNitroRouteRules(path: string): Partial<RouteOptions> {
       createRouter({
         routes: Object.fromEntries(
           Object.entries(nitro?.routeRules || {})
-            .map(([path, rules]) => [withoutTrailingSlash(path), rules])
+            .map(([routePath, rules]) => [withoutTrailingSlash(routePath), rules])
         )
       })
     )
