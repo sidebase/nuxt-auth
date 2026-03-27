@@ -126,13 +126,11 @@ jobs:
       - name: Install deps
         run: pnpm i
 
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+
       # Check building
       - run: pnpm build
-        env:
-          PORT: 3001
 
-      # start prod-app and curl from it
-      - run: "timeout 60 pnpm start & (sleep 45 && curl --fail localhost:$PORT)"
-        env:
-          AUTH_ORIGIN: "http://localhost:3001/api/auth"
-          PORT: 3001
+      - name: Run Playwright tests
+        run: pnpm test:e2e
