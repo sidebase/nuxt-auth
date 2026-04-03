@@ -4,7 +4,7 @@ import type { CommonUseAuthReturn, GetSessionOptions, SecondarySignInOptions, Si
 import { jsonPointerGet, objectFromJsonPointer, useTypedBackendConfig } from '../../helpers'
 import { _fetch } from '../../utils/fetch'
 import { getRequestURLWN } from '../common/getRequestURL'
-import { ERROR_PREFIX } from '../../utils/logger'
+import { createAuthError, toAuthError } from '../../utils/authError'
 import { determineCallbackUrl } from '../../utils/callbackUrl'
 import { formatToken } from './utils/token'
 import { useAuthState } from './useAuthState'
@@ -61,6 +61,9 @@ export function useAuth(): UseAuthReturn {
     refreshToken,
     rawToken,
     rawRefreshToken,
+    error,
+    setError,
+    clearError,
     _internal
   } = useAuthState()
 
@@ -70,26 +73,45 @@ export function useAuth(): UseAuthReturn {
     signInParams?: Record<string, string>,
     signInHeaders?: Record<string, string>
   ): Promise<T | undefined> {
+    // Clear previous error
+    clearError()
+
     const { path, method } = config.endpoints.signIn
-    const response = await _fetch<T>(nuxt, path, {
-      method,
-      body: credentials,
-      params: signInParams ?? {},
-      headers: signInHeaders ?? {}
-    }, /* proxyCookies = */ true)
+
+    let response: T
+    try {
+      response = await _fetch<T>(nuxt, path, {
+        method,
+        body: credentials,
+        params: signInParams ?? {},
+        headers: signInHeaders ?? {}
+      }, /* proxyCookies = */ true)
+    }
+    catch (err) {
+      const authError = toAuthError(err)
+      // If it's a 401, likely invalid credentials
+      if (authError.statusCode === 401) {
+        setError(createAuthError.invalidCredentials())
+      }
+      else {
+        setError(authError)
+      }
+      return
+    }
 
     if (typeof response !== 'object' || response === null) {
-      console.error(`${ERROR_PREFIX} signIn returned non-object value`)
+      const authError = createAuthError.unknown('Sign-in returned non-object value')
+      setError(authError)
       return
     }
 
     // Extract the access token
     const extractedToken = jsonPointerGet(response, config.token.signInResponseTokenPointer)
     if (typeof extractedToken !== 'string') {
-      console.error(
-        `${ERROR_PREFIX} string token expected, received instead: ${JSON.stringify(extractedToken)}. `
-        + `Tried to find token at ${config.token.signInResponseTokenPointer} in ${JSON.stringify(response)}`
+      const authError = createAuthError.tokenParseError(
+        `Failed to extract token at ${config.token.signInResponseTokenPointer}`
       )
+      setError(authError)
       return
     }
     rawToken.value = extractedToken
@@ -100,10 +122,10 @@ export function useAuth(): UseAuthReturn {
 
       const extractedRefreshToken = jsonPointerGet(response, refreshTokenPointer)
       if (typeof extractedRefreshToken !== 'string') {
-        console.error(
-          `${ERROR_PREFIX} string token expected, received instead: ${JSON.stringify(extractedRefreshToken)}. `
-          + `Tried to find refresh token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
+        const authError = createAuthError.tokenParseError(
+          `Failed to extract refresh token at ${refreshTokenPointer}`
         )
+        setError(authError)
         return
       }
       rawRefreshToken.value = extractedRefreshToken
@@ -130,6 +152,9 @@ export function useAuth(): UseAuthReturn {
   }
 
   async function signOut<T = unknown>(signOutOptions?: SignOutOptions): Promise<T | undefined> {
+    // Clear previous error
+    clearError()
+
     const signOutConfig = config.endpoints.signOut
 
     let headers
@@ -151,7 +176,14 @@ export function useAuth(): UseAuthReturn {
     let res: T | undefined
     if (signOutConfig) {
       const { path, method } = signOutConfig
-      res = await _fetch(nuxt, path, { method, headers, body })
+      try {
+        res = await _fetch(nuxt, path, { method, headers, body })
+      }
+      catch (err) {
+        // Sign-out errors are usually not critical, just log
+        const authError = toAuthError(err)
+        setError(authError)
+      }
     }
 
     const { redirect = true, external } = signOutOptions ?? {}
@@ -190,10 +222,18 @@ export function useAuth(): UseAuthReturn {
       const result = await _fetch<any>(nuxt, path, { method, headers }, /* proxyCookies = */ true)
       const { dataResponsePointer: sessionDataResponsePointer } = config.session
       data.value = jsonPointerGet<SessionData>(result, sessionDataResponsePointer)
+      // Clear error on successful session fetch
+      clearError()
     }
     catch (err) {
-      if (!data.value && err instanceof Error) {
-        console.error(`Session: unable to extract session, ${err.message}`)
+      const authError = toAuthError(err)
+
+      // Check if it's an authentication error
+      if (authError.statusCode === 401) {
+        setError(createAuthError.sessionExpired())
+      }
+      else {
+        setError(createAuthError.sessionFetchError(authError.message, err))
       }
 
       // Clear all data: Request failed so we must not be authenticated
@@ -215,20 +255,31 @@ export function useAuth(): UseAuthReturn {
   }
 
   async function signUp<T>(credentials: Credentials, signUpOptions?: SignUpOptions): Promise<T | undefined> {
+    // Clear previous error
+    clearError()
+
     const signUpEndpoint = config.endpoints.signUp
 
     if (!signUpEndpoint) {
-      console.warn(`${ERROR_PREFIX} provider.endpoints.signUp is disabled.`)
+      const authError = createAuthError.endpointDisabled('signUp')
+      setError(authError)
       return
     }
 
     const { path, method } = signUpEndpoint
 
-    // Holds result from fetch to be returned if signUpOptions?.preventLoginFlow is true
-    const result = await _fetch<T>(nuxt, path, {
-      method,
-      body: credentials
-    })
+    let result: T
+    try {
+      result = await _fetch<T>(nuxt, path, {
+        method,
+        body: credentials
+      })
+    }
+    catch (err) {
+      const authError = toAuthError(err)
+      setError(authError)
+      return
+    }
 
     if (signUpOptions?.preventLoginFlow) {
       return result
@@ -243,6 +294,9 @@ export function useAuth(): UseAuthReturn {
       return getSession(getSessionOptions)
     }
 
+    // Clear previous error
+    clearError()
+
     const { path, method } = config.refresh.endpoint
     const refreshRequestTokenPointer = config.refresh.token.refreshRequestTokenPointer
 
@@ -250,20 +304,33 @@ export function useAuth(): UseAuthReturn {
       [config.token.headerName]: token.value
     } as HeadersInit)
 
-    const response = await _fetch<Record<string, any>>(nuxt, path, {
-      method,
-      headers,
-      body: objectFromJsonPointer(refreshRequestTokenPointer, refreshToken.value)
-    })
+    let response: Record<string, any>
+    try {
+      response = await _fetch<Record<string, any>>(nuxt, path, {
+        method,
+        headers,
+        body: objectFromJsonPointer(refreshRequestTokenPointer, refreshToken.value)
+      })
+    }
+    catch (err) {
+      const authError = toAuthError(err)
+      if (authError.statusCode === 401) {
+        setError(createAuthError.tokenExpired('Refresh token has expired'))
+      }
+      else {
+        setError(authError)
+      }
+      return
+    }
 
     // Extract the new token from the refresh response
     const tokenPointer = config.refresh.token.refreshResponseTokenPointer || config.token.signInResponseTokenPointer
     const extractedToken = jsonPointerGet(response, tokenPointer)
     if (typeof extractedToken !== 'string') {
-      console.error(
-        `Auth: string token expected, received instead: ${JSON.stringify(extractedToken)}. `
-        + `Tried to find token at ${tokenPointer} in ${JSON.stringify(response)}`
+      const authError = createAuthError.tokenParseError(
+        `Failed to extract token at ${tokenPointer}`
       )
+      setError(authError)
       return
     }
 
@@ -271,10 +338,10 @@ export function useAuth(): UseAuthReturn {
       const refreshTokenPointer = config.refresh.token.signInResponseRefreshTokenPointer
       const extractedRefreshToken = jsonPointerGet(response, refreshTokenPointer)
       if (typeof extractedRefreshToken !== 'string') {
-        console.error(
-          `Auth: string token expected, received instead: ${JSON.stringify(extractedRefreshToken)}. `
-          + `Tried to find refresh token at ${refreshTokenPointer} in ${JSON.stringify(response)}`
+        const authError = createAuthError.tokenParseError(
+          `Failed to extract refresh token at ${refreshTokenPointer}`
         )
+        setError(authError)
         return
       }
 
@@ -294,6 +361,8 @@ export function useAuth(): UseAuthReturn {
     lastRefreshedAt: readonly(lastRefreshedAt),
     token: readonly(token),
     refreshToken: readonly(refreshToken),
+    error: readonly(error),
+    clearError,
     getSession,
     signIn,
     signOut,
