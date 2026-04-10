@@ -15,7 +15,7 @@ In `v0.9.0` the `refresh` provider was integrated into the `local` provider. Rea
 
 If you are still unsure, below are some tables to help you pick:
 
-### Authentication Methods
+## Authentication Methods
 
 |                                                               |                      authjs provider   | local provider
 |-----------------------------------------------------------    |-------------------------------------:  |---------------:
@@ -24,7 +24,7 @@ If you are still unsure, below are some tables to help you pick:
 | Credentials / Username + Password flow                        | 🚧 (if possible: use `local` instead)  |     ✅
 | Refresh tokens                                                |                                    ✅  |     ✅
 
-### Features
+## Features
 
 |                                                               |                       authjs provider  | local provider
 |-----------------------------------------------------------    |-------------------------------------:  |------:

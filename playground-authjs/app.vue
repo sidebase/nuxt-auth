@@ -28,7 +28,7 @@ const route = useRoute()
     <p>
       See all available authentication & session information below. Navigate to different sub-pages to test out the app.
     </p>
-    <pre>Status: {{ status }}</pre>
+    <pre>Status: <span data-testid="status">{{ status }}</span></pre>
     <pre>Data: {{ data || 'no session data present, are you logged in?' }}</pre>
     <pre>Last refreshed at: {{ lastRefreshedAt || 'no refresh happened' }}</pre>
     <pre>Decoded JWT token: {{ token?.token || 'no token present, are you logged in?' }}</pre>
@@ -50,7 +50,7 @@ const route = useRoute()
     <h2>Actions</h2>
     <p>Take different actions:</p>
     <div>
-      <button @click="signIn(undefined, { callbackUrl: '/' })">
+      <button data-testid="signin" @click="signIn(undefined, { callbackUrl: '/' })">
         sign in
       </button>
       <br>
@@ -66,12 +66,16 @@ const route = useRoute()
         sign in (with redirect to protected page)
       </button>
       <br>
-      <button @click="signOut({ callbackUrl: '/signout' })">
+      <button data-testid="signout" @click="signOut({ callbackUrl: '/signout' })">
         sign out
       </button>
       <br>
-      <button @click="getSession({ required: false })">
-        refresh session
+      <button data-testid="refresh-required-false" @click="getSession({ required: false })">
+        refresh session (required: false)
+      </button>
+      <br>
+      <button data-testid="refresh-required-true" @click="getSession({ required: true, callbackUrl: '/' })">
+        refresh session (required: true)
       </button>
     </div>
     <hr>
