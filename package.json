@@ -67,7 +67,7 @@
     "eslint": "^9.39.4",
     "nuxt": "^3.21.2",
     "ofetch": "^1.5.1",
-    "oxlint": "^1.60.0",
+    "oxlint": "~1.39.0",
     "ts-essentials": "^9.4.2",
     "typescript": "^5.9.3",
     "vitepress": "^1.6.4",
