@@ -13,7 +13,7 @@ import {
 import { defu } from 'defu'
 import { genInterface } from 'knitwork'
 import type { DeepRequired } from 'ts-essentials'
-import type { NuxtModule } from '@nuxt/schema'
+import type { NuxtModule } from 'nuxt/schema'
 import { isProduction } from './runtime/helpers'
 import type {
   AuthProviders,
