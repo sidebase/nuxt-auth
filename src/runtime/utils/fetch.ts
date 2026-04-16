@@ -1,6 +1,6 @@
 import { resolveApiUrlPath } from './url'
 import { ERROR_PREFIX } from './logger'
-import { useRequestEvent, useRuntimeConfig } from '#imports'
+import { useRequestEvent } from '#imports'
 import type { useNuxtApp } from '#imports'
 import { callWithNuxt } from '#app/nuxt'
 import type { H3Event } from 'h3'
@@ -11,11 +11,7 @@ export async function _fetch<T>(
   fetchOptions: Parameters<typeof $fetch>[1] = {},
   proxyCookies = false
 ): Promise<T> {
-  // This fixes https://github.com/sidebase/nuxt-auth/issues/927
-  const runtimeConfigOrPromise = callWithNuxt(nuxt, useRuntimeConfig)
-  const runtimeConfig = 'public' in runtimeConfigOrPromise
-    ? runtimeConfigOrPromise
-    : await runtimeConfigOrPromise
+  const runtimeConfig = nuxt.$config
 
   const joinedPath = resolveApiUrlPath(path, runtimeConfig)
 

@@ -170,6 +170,8 @@ export default defineNuxtModule<ModuleOptions>({
     ])
 
     // 5. Create virtual imports for server-side
+    // @ts-expect-error The augments are not working properly after https://github.com/nuxt/nuxt/pull/34039
+    // @see https://github.com/nuxt/nuxt/pull/34039#issuecomment-3878908844
     nuxt.hook('nitro:config', (nitroConfig) => {
       nitroConfig.alias = nitroConfig.alias || {}
 
