@@ -26,12 +26,12 @@ It is safe to ignore the development warning - it is only meant as a heads-up fo
 
 For a detailed guide on pathing logic, refer to its [dedicated page](../guide/advanced/url-resolutions.md).
 
-The simplest way to fix this error is by providing `auth.baseUrl` in your `nuxt.config.ts`:
+The simplest way to fix this error is by providing `auth.baseURL` in your `nuxt.config.ts`:
 
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
   auth: {
-    baseUrl: 'https://example.com/api/auth', // [!code ++]
+    baseURL: 'https://example.com/api/auth', // [!code ++]
   },
   // ... other configuration
 })
