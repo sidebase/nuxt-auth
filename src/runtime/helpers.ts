@@ -5,6 +5,11 @@ import type { useRuntimeConfig } from '#imports'
 
 export const isProduction = process.env.NODE_ENV === 'production'
 
+const DIGIT_OR_DASH_RE = /^\d+|-$/
+const SLASH_RE = /\//
+const TILDE_1_RE = /~1/g
+const TILDE_0_RE = /~0/g
+
 // We use `DeepRequired` here because options are actually enriched using `defu`
 // but due to a build error we can't use `DeepRequired` inside runtime config definition.
 type RuntimeConfig = ReturnType<typeof useRuntimeConfig>
@@ -90,7 +95,7 @@ export function jsonPointerSet(
     nextTok = refTokens[i + 1]
 
     if (!(tok in obj)) {
-      if (nextTok.match(/^(\d+|-)$/)) {
+      if (DIGIT_OR_DASH_RE.test(nextTok)) {
         obj[tok] = []
       }
       else {
@@ -129,5 +134,5 @@ function jsonPointerParse(pointer: string): string[] {
   if (pointer.charAt(0) !== '/') {
     throw new Error(`Invalid JSON pointer: ${pointer}`)
   }
-  return pointer.substring(1).split(/\//).map(s => s.replace(/~1/g, '/').replace(/~0/g, '~'))
+  return pointer.substring(1).split(SLASH_RE).map(s => s.replace(TILDE_1_RE, '/').replace(TILDE_0_RE, '~'))
 }

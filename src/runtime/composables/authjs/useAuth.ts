@@ -8,7 +8,7 @@ import { _fetch } from '../../utils/fetch'
 import { isNonEmptyObject } from '../../utils/checkSessionResult'
 import type { CommonUseAuthReturn, GetSessionOptions, SecondarySignInOptions, SignOutOptions } from '../../types'
 import { useTypedBackendConfig } from '../../helpers'
-import { getRequestURLWN } from '../common/getRequestURL'
+import { getRequestURL } from '../common/getRequestURL'
 import { determineCallbackUrl } from '../../utils/callbackUrl'
 import type { SessionData } from './useAuthState'
 import { navigateToAuthPageWN } from './utils/navigateToAuthPage'
@@ -147,7 +147,7 @@ export function useAuth(): UseAuthReturn {
 
     const action: 'callback' | 'signin' = isCredentials ? 'callback' : 'signin'
 
-    const csrfToken = await getCsrfTokenWithNuxt(nuxt)
+    const csrfToken = await getCsrfToken()
 
     const headers: { 'Content-Type': string, 'cookie'?: string, 'host'?: string } = {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -175,10 +175,10 @@ export function useAuth(): UseAuthReturn {
     )
       .catch<Record<string, any>>((error: { data: any }) => error.data)
 
-    const data = await callWithNuxt(nuxt, fetchSignIn)
+    const signInData = await callWithNuxt(nuxt, fetchSignIn)
 
     if (redirect || !isSupportingReturn) {
-      const href = data.url ?? callbackUrl
+      const href = signInData.url ?? callbackUrl
       const navigationResult = await navigateToAuthPageWN(nuxt, href)
 
       // We use `http://_` as a base to allow relative URLs in `callbackUrl`. We only need the `error` query param
@@ -194,14 +194,14 @@ export function useAuth(): UseAuthReturn {
     }
 
     // At this point the request succeeded (i.e., it went through)
-    const error = new URL(data.url).searchParams.get('error')
-    await getSessionWithNuxt(nuxt)
+    const error = new URL(signInData.url).searchParams.get('error')
+    await getSession()
 
     return {
       error,
       status: 200,
       ok: true,
-      url: error ? null : data.url,
+      url: error ? null : signInData.url,
       navigationResult: undefined,
     }
   }
@@ -226,73 +226,72 @@ export function useAuth(): UseAuthReturn {
    * @param getSessionOptions - Options for getting the session, e.g., set `required: true` to enforce that a session _must_ exist, the user will be directed to a login page otherwise.
    */
   async function getSession(getSessionOptions?: GetSessionOptions): Promise<SessionData | null> {
-    const callbackUrlFallback = await getRequestURLWN(nuxt)
-    const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions || {}, {
-      required: false,
-      callbackUrl: undefined,
-      onUnauthenticated: () => signIn(undefined, {
-        callbackUrl: getSessionOptions?.callbackUrl || callbackUrlFallback
+    return callWithNuxt(nuxt, async () => {
+      const callbackUrlFallback = getRequestURL()
+      const { required, callbackUrl, onUnauthenticated } = defu(getSessionOptions || {}, {
+        required: false,
+        callbackUrl: undefined,
+        onUnauthenticated: () => signIn(undefined, {
+          callbackUrl: getSessionOptions?.callbackUrl || callbackUrlFallback
+        })
       })
-    })
 
-    function onError() {
-      loading.value = false
-    }
+      function onError() {
+        loading.value = false
+      }
 
-    const headers = await getRequestHeaders(nuxt)
+      const headers = await getRequestHeaders(nuxt)
 
-    return _fetch<SessionData>(nuxt, '/session', {
-      onResponse: ({ response }) => {
-        const sessionData = response._data
+      return _fetch<SessionData>(nuxt, '/session', {
+        onResponse: ({ response }) => {
+          const sessionData = response._data
 
-        // Add any new cookie to the server-side event for it to be present on the app-side after
-        // initial load, see sidebase/nuxt-auth/issues/200 for more information.
-        if (import.meta.server) {
-          const setCookieValues = response.headers.getSetCookie ? response.headers.getSetCookie() : [response.headers.get('set-cookie')]
-          if (setCookieValues && nuxt.ssrContext) {
-            for (const value of setCookieValues) {
-              if (!value) {
-                continue
+          // Add any new cookie to the server-side event for it to be present on the app-side after
+          // initial load, see sidebase/nuxt-auth/issues/200 for more information.
+          if (import.meta.server) {
+            const setCookieValues = response.headers.getSetCookie ? response.headers.getSetCookie() : [response.headers.get('set-cookie')]
+            if (setCookieValues && nuxt.ssrContext) {
+              for (const value of setCookieValues) {
+                if (!value) {
+                  continue
+                }
+                appendHeader(nuxt.ssrContext.event, 'set-cookie', value)
               }
-              appendHeader(nuxt.ssrContext.event, 'set-cookie', value)
             }
           }
-        }
 
-        data.value = isNonEmptyObject(sessionData) ? sessionData : null
-        loading.value = false
+          data.value = isNonEmptyObject(sessionData) ? sessionData : null
+          loading.value = false
 
-        if (required && status.value === 'unauthenticated') {
-          return onUnauthenticated()
-        }
+          if (required && status.value === 'unauthenticated') {
+            return onUnauthenticated()
+          }
 
-        return sessionData
-      },
-      onRequest: ({ options }) => {
-        lastRefreshedAt.value = new Date()
+          return sessionData
+        },
+        onRequest: ({ options }) => {
+          lastRefreshedAt.value = new Date()
 
-        options.params = {
-          ...options.params,
-          callbackUrl: callbackUrl || callbackUrlFallback
-        }
-      },
-      onRequestError: onError,
-      onResponseError: onError,
-      headers
-    }, /* proxyCookies = */ true)
-  }
-  function getSessionWithNuxt(nuxt: NuxtApp) {
-    return callWithNuxt(nuxt, getSession)
+          options.params = {
+            ...options.params,
+            callbackUrl: callbackUrl || callbackUrlFallback
+          }
+        },
+        onRequestError: onError,
+        onResponseError: onError,
+        headers
+      }, /* proxyCookies = */ true)
+    })
   }
 
   /**
    * Sign out the current user.
    *
-   * @param options - Options for sign out, e.g., to `redirect` the user to a specific page after sign out has completed
+   * @param signOutOptions - Options for sign out, e.g., to `redirect` the user to a specific page after sign out has completed
    */
-  async function signOut(options?: SignOutOptions) {
-    const { callbackUrl: userCallbackUrl, redirect = true } = options ?? {}
-    const csrfToken = await getCsrfTokenWithNuxt(nuxt)
+  async function signOut(signOutOptions?: SignOutOptions) {
+    const { callbackUrl: userCallbackUrl, redirect = true } = signOutOptions ?? {}
+    const csrfToken = await getCsrfToken()
 
     // Determine the correct callback URL
     const callbackUrl = await determineCallbackUrl(
@@ -325,22 +324,8 @@ export function useAuth(): UseAuthReturn {
       return navigateToAuthPageWN(nuxt, url)
     }
 
-    await getSessionWithNuxt(nuxt)
+    await getSession()
     return signoutData
-  }
-
-  /**
-   * Utilities to make nested async composable calls play nicely with nuxt.
-   *
-   * Calling nested async composable can lead to "nuxt instance unavailable" errors. See more details here: https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529. To resolve this we can manually ensure that the nuxt-context is set. This module contains `callWithNuxt` helpers for some of the methods that are frequently called in nested `useAuth` composable calls.
-   */
-  async function getRequestHeaders(nuxt: NuxtApp, includeCookie = true): Promise<{ cookie?: string, host?: string }> {
-  // `useRequestHeaders` is sync, so we narrow it to the awaited return type here
-    const headers = await callWithNuxt(nuxt, () => useRequestHeaders(['cookie', 'host']))
-    if (includeCookie && headers.cookie) {
-      return headers
-    }
-    return { host: headers.host }
   }
 
   /**
@@ -349,11 +334,10 @@ export function useAuth(): UseAuthReturn {
    * You can use this to pass along for certain requests, most of the time you will not need it.
    */
   async function getCsrfToken() {
-    const headers = await getRequestHeaders(nuxt)
-    return _fetch<{ csrfToken: string }>(nuxt, '/csrf', { headers }).then(response => response.csrfToken)
-  }
-  function getCsrfTokenWithNuxt(nuxt: NuxtApp) {
-    return callWithNuxt(nuxt, getCsrfToken)
+    return callWithNuxt(nuxt, async () => {
+      const headers = await getRequestHeaders(nuxt)
+      return _fetch<{ csrfToken: string }>(nuxt, '/csrf', { headers }).then(response => response.csrfToken)
+    })
   }
 
   return {
@@ -369,3 +353,17 @@ export function useAuth(): UseAuthReturn {
   }
 }
 export default useAuth
+
+/**
+ * Utilities to make nested async composable calls play nicely with nuxt.
+ *
+ * Calling nested async composable can lead to "nuxt instance unavailable" errors. See more details here: https://github.com/nuxt/framework/issues/5740#issuecomment-1229197529. To resolve this we can manually ensure that the nuxt-context is set. This module contains `callWithNuxt` helpers for some of the methods that are frequently called in nested `useAuth` composable calls.
+ */
+async function getRequestHeaders(nuxt: NuxtApp, includeCookie = true): Promise<{ cookie?: string, host?: string }> {
+  // `useRequestHeaders` is sync, so we narrow it to the awaited return type here
+  const headers = await callWithNuxt(nuxt, () => useRequestHeaders(['cookie', 'host']))
+  if (includeCookie && headers.cookie) {
+    return headers
+  }
+  return { host: headers.host }
+}

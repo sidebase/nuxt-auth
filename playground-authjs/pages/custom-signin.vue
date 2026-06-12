@@ -9,8 +9,13 @@ const password = ref('')
 
 const { signIn } = useAuth()
 
-async function mySignInHandler({ username, password, callbackUrl }: { username: string, password: string, callbackUrl: string }) {
-  const { error, url } = await signIn('credentials', { username, password, callbackUrl, redirect: false })
+async function mySignInHandler(callbackUrl: string) {
+  const { error, url } = await signIn('credentials', {
+    username: username.value,
+    password: password.value,
+    callbackUrl,
+    redirect: false
+  })
 
   if (error) {
     // Do your custom error handling here
@@ -39,7 +44,7 @@ async function mySignInHandler({ username, password, callbackUrl }: { username: 
       Sign in with username and password
     </button>
     <br>
-    <button @click="mySignInHandler({ username, password, callbackUrl: '/protected/globally' })">
+    <button @click="mySignInHandler('/protected/globally')">
       Sign in with username and password using a custom sign in handler
     </button>
   </div>

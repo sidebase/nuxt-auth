@@ -25,7 +25,6 @@ let usedSecret: string | undefined
 
 /** Setup the nuxt (next) auth event handler, based on the passed in options */
 export function NuxtAuthHandler(nuxtAuthOptions?: AuthOptions) {
-  const isProduction = process.env.NODE_ENV === 'production'
   const runtimeConfig = useRuntimeConfig()
   const trustHostUserPreference = useTypedBackendConfig(runtimeConfig, 'authjs').trustHost
 
@@ -238,15 +237,19 @@ function parseActionAndProvider({ context }: H3Event): { action: AuthAction, pro
     throw createError({ statusCode: 400, message: `Invalid path used for auth-endpoint. Supply either one path parameter (e.g., \`/api/auth/session\`) or two (e.g., \`/api/auth/signin/github\` after the base path (in previous examples base path was: \`/api/auth/\`. Received \`${params}\`` })
   }
 
-  const [unvalidatedAction, providerId] = params
-
-  // Get TS to correctly infer the type of `unvalidatedAction`
-  const action = SUPPORTED_ACTIONS.find(action => action === unvalidatedAction)
-  if (!action) {
-    throw createError({ statusCode: 400, message: `Called endpoint with unsupported action ${unvalidatedAction}. Only the following actions are supported: ${SUPPORTED_ACTIONS.join(', ')}` })
-  }
+  const [action, providerId] = params
+  checkSupportedAction(action)
 
   return { action, providerId }
+}
+
+/** Get TS to correctly infer the type of action */
+function checkSupportedAction(action: string): asserts action is AuthAction {
+  if ((SUPPORTED_ACTIONS as string[]).includes(action)) {
+    return
+  }
+
+  throw createError({ statusCode: 400, message: `Called endpoint with unsupported action ${action}. Only the following actions are supported: ${SUPPORTED_ACTIONS.join(', ')}` })
 }
 
 /** Adapted from `h3` to fix https://github.com/sidebase/nuxt-auth/issues/523 */

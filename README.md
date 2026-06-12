@@ -39,7 +39,7 @@ npx nuxi@latest module add sidebase-auth
 <details>
   <summary>Or install manually</summary>
 
-  #### 1. Install the package as a dev dependency
+  ### 1. Install the package as a dev dependency
 
   ```sh
   npm i -D @sidebase/nuxt-auth
@@ -49,7 +49,7 @@ npx nuxi@latest module add sidebase-auth
   yarn add --dev @sidebase/nuxt-auth
   ```
 
-  #### 2. Add the modules to your `nuxt.config.ts`
+  ### 2. Add the modules to your `nuxt.config.ts`
 
   ```ts
   export default defineNuxtConfig({
@@ -174,5 +174,5 @@ Thank you to everyone who has contributed to this project by writing issues or o
 `@sidebase/nuxt-auth` is supported by all of our amazing contributors and the [Nuxt 3+ team](https://nuxters.nuxt.com/)!
 
 <a href="https://github.com/sidebase/nuxt-auth/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=sidebase/nuxt-auth" />
+  <img src="https://contrib.rocks/image?repo=sidebase/nuxt-auth" alt="Contributors" />
 </a>

@@ -46,11 +46,11 @@ NextAuth versions under `4.22` are impacted by vulnerability [GHSA-v64w-49xw-qq8
 
 ::: details Further details
 ---
-#### Description of the vulnerability
+### Description of the vulnerability
 The vulnerability [GHSA-v64w-49xw-qq89](https://github.com/advisories/GHSA-v64w-49xw-qq89) only affects applications that rely on the default [Middleware authorization](https://next-auth.js.org/configuration/nextjs#middleware) provided by NextAuth.
 
 The vulnerability allows attackers to create/mock a user, by accessing the JWT from an interrupted OAuth sign-in flow. They can then manually override the session cookie and simulate a login. However, doing this does **not** give access to the users data or permissions, but can allow attackers to view the layouts of protected pages.
 
-#### Why does it not effect NuxtAuth?
+### Why does it not affect NuxtAuth?
 As the affected middleware is written for Next.js, we wrote our own [custom middleware](https://github.com/sidebase/nuxt-auth/blob/main/src/runtime/middleware/auth.ts) for NuxtAuth that is not affected by the vulnerability.
 :::
