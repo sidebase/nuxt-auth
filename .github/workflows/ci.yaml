@@ -132,5 +132,5 @@ jobs:
       # Check building
       - run: pnpm build
 
-      - name: Run Playwright tests
-        run: pnpm test:e2e
+      - name: Run tests
+        run: pnpm test

@@ -1,22 +1,23 @@
 {
   "private": true,
   "name": "nuxt-auth-playground-authjs",
+  "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "dev": "nuxi prepare && nuxi dev",
     "build": "nuxi build",
     "start": "nuxi preview",
     "postinstall": "nuxt prepare",
-    "test:e2e": "vitest"
+    "test": "vitest"
   },
   "devDependencies": {
-    "@nuxt/test-utils": "^4.0.0",
-    "@playwright/test": "^1.58.2",
-    "@types/node": "^24.10.11",
-    "@vue/test-utils": "^2.4.6",
+    "@nuxt/test-utils": "^4.0.3",
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^24.13.2",
+    "@vue/test-utils": "^2.4.11",
     "nuxt": "^3.20.2",
-    "typescript": "^5.8.3",
-    "vitest": "^4.1.2",
-    "vue-tsc": "^3.2.6"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.8",
+    "vue-tsc": "^3.3.4"
   }
 }
