@@ -2,13 +2,13 @@ import { defu } from 'defu'
 import type { H3Event } from 'h3'
 
 // Adapted from https://22.frenchintelligence.org/2025/07/03/a-developers-guide-to-unit-testing-nuxt-3-server-routes/
-export const createMockH3Event = (
+export function createMockH3Event(
   partialEvent: Partial<H3Event> & {
     body?: Record<string, any>
     params?: Record<string, any>
     query?: Record<string, any>
   }
-): H3Event => {
+): H3Event {
   const event = {
     node: {
       req: {

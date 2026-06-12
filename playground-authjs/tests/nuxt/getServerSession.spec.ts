@@ -108,8 +108,8 @@ describe('return correct data', () => {
 })
 
 /**
-  * Helper for importing the module with a clean state and setting up NuxtAuthHandler
-  */
+ * Helper for importing the module with a clean state and setting up NuxtAuthHandler
+ */
 async function setupGetServerSession(authOptions?: AuthOptions) {
   const { getServerSession, NuxtAuthHandler } = await import('../../../src/runtime/server/services')
   NuxtAuthHandler(authOptions)
