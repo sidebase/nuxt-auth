@@ -9,7 +9,7 @@ import { ERROR_PREFIX } from '../../utils/logger'
 import { determineCallbackUrl } from '../../utils/callbackUrl'
 import { useAuthState } from './useAuthState'
 import { navigateTo, nextTick, useNuxtApp, useRoute, useRuntimeConfig } from '#imports'
-import type { Credentials, HooksAdapter, ResponseAccept } from './types'
+import type { Credentials, GetSessionExtraContext, HooksAdapter, RefreshExtraContext, ResponseAccept, SignInExtraContext, SignOutExtraContext, SignUpExtraContext } from './types'
 
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
@@ -75,23 +75,26 @@ export function useAuth(): UseAuthReturn {
       return
     }
 
+    const extraCtx: SignInExtraContext = {
+      request: createRequestResult,
+      credentials,
+      options,
+    }
+
     let response: FetchResponse<T>
     try {
       response = await _fetchRaw<T>(nuxt, createRequestResult.path, createRequestResult.request)
     }
     catch (e) {
-      if (hooks.onError) {
-        await hooks.onError({
-          error: transformToError(e),
-          requestData: createRequestResult,
-        }, authState, nuxt)
+      if (hooks.onRequestError) {
+        await hooks.onRequestError(transformToError(e), authState, nuxt, extraCtx)
       }
 
       // Do not proceed when error occurred
       return
     }
 
-    const signInResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt))
+    const signInResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt, extraCtx))
     if (signInResponseAccept === false) {
       return
     }
@@ -162,6 +165,11 @@ export function useAuth(): UseAuthReturn {
         return
       }
 
+      const extraCtx: SignOutExtraContext = {
+        request: createRequestResult,
+        options: signOutOptions,
+      }
+
       // Fetch
       let response: FetchResponse<T>
       try {
@@ -170,11 +178,8 @@ export function useAuth(): UseAuthReturn {
       }
       catch (e) {
         // If user hook is present, call it and return
-        if (hooks.onError) {
-          await hooks.onError({
-            error: transformToError(e),
-            requestData: createRequestResult,
-          }, authState, nuxt)
+        if (hooks.onRequestError) {
+          await hooks.onRequestError(transformToError(e), authState, nuxt, extraCtx)
         }
         return
       }
@@ -186,7 +191,7 @@ export function useAuth(): UseAuthReturn {
        *   - object - response will be accepted normally, data will not be reset;
        *   - `undefined`, data will be reset.
        */
-      const signInResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt))
+      const signInResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt, extraCtx))
       if (signInResponseAccept === false) {
         return
       }
@@ -234,6 +239,11 @@ export function useAuth(): UseAuthReturn {
       return
     }
 
+    const extraCtx: GetSessionExtraContext = {
+      request: createRequestResult,
+      options: getSessionOptions,
+    }
+
     // Fetch
     let response: FetchResponse<SessionData> | undefined
     loading.value = true
@@ -241,12 +251,9 @@ export function useAuth(): UseAuthReturn {
       response = await _fetchRaw<SessionData>(nuxt, createRequestResult.path, createRequestResult.request)
     }
     catch (e) {
-      if (hooks.onError) {
+      if (hooks.onRequestError) {
         // Prefer user hook if it exists
-        await hooks.onError({
-          error: transformToError(e),
-          requestData: createRequestResult
-        }, authState, nuxt)
+        await hooks.onRequestError(transformToError(e), authState, nuxt, extraCtx)
       }
       else {
         // Clear authentication data by default
@@ -263,7 +270,7 @@ export function useAuth(): UseAuthReturn {
 
     // Use response if call succeeded
     if (response !== undefined) {
-      const getSessionResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt))
+      const getSessionResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt, extraCtx))
       if (getSessionResponseAccept === false) {
         return
       }
@@ -294,17 +301,20 @@ export function useAuth(): UseAuthReturn {
       return
     }
 
+    const extraCtx: SignUpExtraContext = {
+      request: createRequestResult,
+      credentials,
+      options,
+    }
+
     let response: FetchResponse<T>
     try {
       response = await _fetchRaw<T>(nuxt, createRequestResult.path, createRequestResult.request)
     }
     catch (e) {
-      if (hooks.onError) {
+      if (hooks.onRequestError) {
         // If user hook is present, call it and return
-        await hooks.onError({
-          error: transformToError(e),
-          requestData: createRequestResult,
-        }, authState, nuxt)
+        await hooks.onRequestError(transformToError(e), authState, nuxt, extraCtx)
         return
       }
       else {
@@ -312,7 +322,7 @@ export function useAuth(): UseAuthReturn {
       }
     }
 
-    const signUpResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt))
+    const signUpResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt, extraCtx))
     if (signUpResponseAccept === false) {
       return
     }
@@ -345,18 +355,20 @@ export function useAuth(): UseAuthReturn {
       return
     }
 
+    const extraCtx: RefreshExtraContext = {
+      request: createRequestResult,
+      options,
+    }
+
     // Fetch
     let response: FetchResponse<unknown>
     try {
       response = await _fetchRaw(nuxt, createRequestResult.path, createRequestResult.request)
     }
     catch (e) {
-      if (hooks.onError) {
+      if (hooks.onRequestError) {
         // If user hook is present, call it and return
-        await hooks.onError({
-          error: transformToError(e),
-          requestData: createRequestResult,
-        }, authState, nuxt)
+        await hooks.onRequestError(transformToError(e), authState, nuxt, extraCtx)
         return
       }
       else {
@@ -365,7 +377,7 @@ export function useAuth(): UseAuthReturn {
     }
 
     // Use response
-    const getSessionResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt))
+    const getSessionResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt, extraCtx))
     if (getSessionResponseAccept === false) {
       return
     }

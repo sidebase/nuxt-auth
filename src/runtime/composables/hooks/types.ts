@@ -30,23 +30,25 @@ export interface UseAuthStateReturn<SessionData> extends CommonUseAuthStateRetur
 /**
  * The main interface defining hooks for an endpoint
  */
-export interface EndpointHooks<SessionDataType, CreateRequestData, ResponseAcceptType> {
+export interface EndpointHooks<SessionDataType, CreateRequestData, ResponseAcceptType, ExtraContextType extends BaseExtraContext> {
   createRequest: (
     data: CreateRequestData,
     authState: UseAuthStateReturn<SessionDataType>,
-    nuxt: NuxtApp,
+    nuxtApp: NuxtApp,
   ) => Awaitable<CreateRequestResult | false>
 
   onResponse: (
     response: FetchResponse<unknown>,
     authState: UseAuthStateReturn<SessionDataType>,
-    nuxt: NuxtApp,
+    nuxtApp: NuxtApp,
+    extraCtx: ExtraContextType,
   ) => Awaitable<ResponseAcceptType | false>
 
-  onError?: (
-    errorCtx: ErrorContext,
+  onRequestError?: (
+    error: Error,
     authState: UseAuthStateReturn<SessionDataType>,
-    nuxt: NuxtApp,
+    nuxtApp: NuxtApp,
+    extraCtx: ExtraContextType,
   ) => Awaitable<void>
 }
 
@@ -69,12 +71,6 @@ export interface Credentials extends Record<string, any> {
   username?: string
   email?: string
   password?: string
-}
-
-/** Data provided to `signIn.createRequest` */
-export interface SignInCreateRequestData {
-  credentials: Credentials
-  options?: SecondarySignInOptions
 }
 
 /**
@@ -100,25 +96,51 @@ export interface ResponseAccept<SessionDataType> {
   session?: SessionDataType
 }
 
+/** Base extra context for response and error only requires request */
+export interface BaseExtraContext {
+  request: CreateRequestResult
+}
+
+/** Data provided to `signIn.createRequest` */
+export interface SignInCreateRequestData {
+  credentials: Credentials
+  options: SecondarySignInOptions | undefined
+}
+
+/** Extra context for `signIn.onResponse` and `signIn.onRequestError` */
+export interface SignInExtraContext extends BaseExtraContext, SignInCreateRequestData {}
+
+/** Extra context for `getSession.onResponse` and `getSession.onRequestError` */
+export interface GetSessionExtraContext extends BaseExtraContext {
+  options: GetSessionOptions | undefined
+}
+
+/** Extra context for `signOut.onResponse` and `signOut.onRequestError` */
+export interface SignOutExtraContext extends BaseExtraContext {
+  options: SignOutOptions | undefined
+}
+
 /** Data provided to `signIn.createRequest` */
 export interface SignUpCreateRequestData {
   credentials: Credentials
-  options?: SignUpOptions
+  options: SignUpOptions | undefined
 }
 
-/** Context provided to onError hook */
-export interface ErrorContext {
-  error: Error
-  requestData: CreateRequestResult
+/** Extra context for `signUp.onResponse` and `signUp.onRequestError` */
+export interface SignUpExtraContext extends BaseExtraContext, SignUpCreateRequestData {}
+
+/** Extra context for `refresh.onResponse` and `refresh.onRequestError` */
+export interface RefreshExtraContext extends BaseExtraContext {
+  options: GetSessionOptions | undefined
 }
 
 export interface HooksAdapter<SessionDataType> {
   // Required endpoints
-  signIn: EndpointHooks<SessionDataType, SignInCreateRequestData, ResponseAccept<SessionDataType>>
-  getSession: EndpointHooks<SessionDataType, GetSessionOptions | undefined, ResponseAccept<SessionDataType>>
+  signIn: EndpointHooks<SessionDataType, SignInCreateRequestData, ResponseAccept<SessionDataType>, SignInExtraContext>
+  getSession: EndpointHooks<SessionDataType, GetSessionOptions | undefined, ResponseAccept<SessionDataType>, GetSessionExtraContext>
 
   // Optional endpoints
-  signOut?: EndpointHooks<SessionDataType, SignOutOptions | undefined, ResponseAccept<SessionDataType> | undefined>
-  signUp?: EndpointHooks<SessionDataType, SignUpCreateRequestData, ResponseAccept<SessionDataType> | undefined>
-  refresh?: EndpointHooks<SessionDataType, GetSessionOptions | undefined, ResponseAccept<SessionDataType>>
+  signOut?: EndpointHooks<SessionDataType, SignOutOptions | undefined, ResponseAccept<SessionDataType> | undefined, SignOutExtraContext>
+  signUp?: EndpointHooks<SessionDataType, SignUpCreateRequestData, ResponseAccept<SessionDataType> | undefined, SignUpExtraContext>
+  refresh?: EndpointHooks<SessionDataType, GetSessionOptions | undefined, ResponseAccept<SessionDataType>, RefreshExtraContext>
 }
