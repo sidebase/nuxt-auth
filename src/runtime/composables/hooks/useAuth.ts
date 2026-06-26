@@ -118,38 +118,69 @@ export function useAuth(): UseAuthReturn {
   }
 
   /**
-   * Helper function for handling user-returned data from `onResponse`.
-   * This applies when `onResponse` returned an object.
+   * Gets the session using the configured `getSession` hook.
    *
-   * Here is how object values will be processed:
-   *   - `null` will reset the corresponding state;
-   *   - `undefined` or omitted - the corresponding state will remain untouched;
-   *   - other value - corresponding state will be set to it (string for tokens, `any` for session);
+   * The function normally expects that, given the valid tokens (`token`, `refreshToken`) inside `authState`,
+   * your backend will provide user data, so that `getSession` hook returns `session` from it
+   * which in turn sets authentication state (`data` and `status = authenticated`).
+   * This state then controls how different middleware and plugins behave.
    */
-  async function acceptResponse<SessionDataType>(
-    responseAccept: ResponseAccept<SessionDataType>,
-    callGetSession: boolean,
-    getSessionOptions?: GetSessionOptions,
-  ) {
-    if (responseAccept.token !== undefined) {
-      // Token was returned, save it
-      rawToken.value = responseAccept.token
+  async function getSession(getSessionOptions?: GetSessionOptions): Promise<SessionData | null | void> {
+    // Create request
+    const hooks = userHooks.getSession
+    const createRequestResult = await Promise.resolve(hooks.createRequest(getSessionOptions, authState, nuxt))
+    if (createRequestResult === false) {
+      return
     }
 
-    if (config.refresh.isEnabled && responseAccept.refreshToken !== undefined) {
-      // Refresh token was returned, save it
-      rawRefreshToken.value = responseAccept.refreshToken
+    const extraCtx: GetSessionExtraContext = {
+      request: createRequestResult,
+      options: getSessionOptions,
     }
 
-    if (responseAccept.session !== undefined) {
-      // Session was returned, use it and avoid calling getSession
-      data.value = responseAccept.session
-      lastRefreshedAt.value = new Date()
+    // Fetch
+    let response: FetchResponse<SessionData> | undefined
+    loading.value = true
+    try {
+      response = await _fetchRaw<SessionData>(nuxt, createRequestResult.path, createRequestResult.request)
     }
-    else if (callGetSession) {
-      await nextTick()
-      return await getSession(getSessionOptions)
+    catch (e) {
+      if (hooks.onRequestError) {
+        // Prefer user hook if it exists
+        await hooks.onRequestError(transformToError(e), authState, nuxt, extraCtx)
+      }
+      else {
+        // Clear authentication data by default
+        data.value = null
+        rawToken.value = null
+        rawRefreshToken.value = null
+      }
     }
+    finally {
+      loading.value = false
+    }
+
+    lastRefreshedAt.value = new Date()
+
+    // Use response if call succeeded
+    if (response !== undefined) {
+      const getSessionResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt, extraCtx))
+      if (getSessionResponseAccept === false) {
+        return
+      }
+
+      await acceptResponse(getSessionResponseAccept, false)
+    }
+
+    const { required = false, callbackUrl, onUnauthenticated, external } = getSessionOptions ?? {}
+    if (required && data.value === null) {
+      if (onUnauthenticated) {
+        return onUnauthenticated()
+      }
+      await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external })
+    }
+
+    return data.value
   }
 
   async function signOut<T = unknown>(signOutOptions?: SignOutOptions): Promise<T | undefined> {
@@ -221,72 +252,6 @@ export function useAuth(): UseAuthReturn {
     }
 
     return res
-  }
-
-  /**
-   * Gets the session using the configured `getSession` hook.
-   *
-   * The function normally expects that, given the valid tokens (`token`, `refreshToken`) inside `authState`,
-   * your backend will provide user data, so that `getSession` hook returns `session` from it
-   * which in turn sets authentication state (`data` and `status = authenticated`).
-   * This state then controls how different middleware and plugins behave.
-   */
-  async function getSession(getSessionOptions?: GetSessionOptions): Promise<SessionData | null | void> {
-    // Create request
-    const hooks = userHooks.getSession
-    const createRequestResult = await Promise.resolve(hooks.createRequest(getSessionOptions, authState, nuxt))
-    if (createRequestResult === false) {
-      return
-    }
-
-    const extraCtx: GetSessionExtraContext = {
-      request: createRequestResult,
-      options: getSessionOptions,
-    }
-
-    // Fetch
-    let response: FetchResponse<SessionData> | undefined
-    loading.value = true
-    try {
-      response = await _fetchRaw<SessionData>(nuxt, createRequestResult.path, createRequestResult.request)
-    }
-    catch (e) {
-      if (hooks.onRequestError) {
-        // Prefer user hook if it exists
-        await hooks.onRequestError(transformToError(e), authState, nuxt, extraCtx)
-      }
-      else {
-        // Clear authentication data by default
-        data.value = null
-        rawToken.value = null
-        rawRefreshToken.value = null
-      }
-    }
-    finally {
-      loading.value = false
-    }
-
-    lastRefreshedAt.value = new Date()
-
-    // Use response if call succeeded
-    if (response !== undefined) {
-      const getSessionResponseAccept = await Promise.resolve(hooks.onResponse(response, authState, nuxt, extraCtx))
-      if (getSessionResponseAccept === false) {
-        return
-      }
-
-      await acceptResponse(getSessionResponseAccept, false)
-    }
-
-    const { required = false, callbackUrl, onUnauthenticated, external } = getSessionOptions ?? {}
-    if (required && data.value === null) {
-      if (onUnauthenticated) {
-        return onUnauthenticated()
-      }
-      await navigateTo(callbackUrl ?? await getRequestURLWN(nuxt), { external })
-    }
-
-    return data.value
   }
 
   async function signUp<T>(credentials: Credentials, options?: SignUpOptions): Promise<T | undefined> {
@@ -389,6 +354,41 @@ export function useAuth(): UseAuthReturn {
 
     await nextTick()
     return await getSession(options)
+  }
+
+  /**
+   * Helper function for handling user-returned data from `onResponse`.
+   * This applies when `onResponse` returned an object.
+   *
+   * Here is how object values will be processed:
+   *   - `null` will reset the corresponding state;
+   *   - `undefined` or omitted - the corresponding state will remain untouched;
+   *   - other value - corresponding state will be set to it (string for tokens, `any` for session);
+   */
+  async function acceptResponse<SessionDataType>(
+    responseAccept: ResponseAccept<SessionDataType>,
+    callGetSession: boolean,
+    getSessionOptions?: GetSessionOptions,
+  ) {
+    if (responseAccept.token !== undefined) {
+      // Token was returned, save it
+      rawToken.value = responseAccept.token
+    }
+
+    if (config.refresh.isEnabled && responseAccept.refreshToken !== undefined) {
+      // Refresh token was returned, save it
+      rawRefreshToken.value = responseAccept.refreshToken
+    }
+
+    if (responseAccept.session !== undefined) {
+      // Session was returned, use it and avoid calling getSession
+      data.value = responseAccept.session
+      lastRefreshedAt.value = new Date()
+    }
+    else if (callGetSession) {
+      await nextTick()
+      return await getSession(getSessionOptions)
+    }
   }
 
   return {
