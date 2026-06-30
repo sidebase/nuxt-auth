@@ -239,7 +239,10 @@ export default defineNuxtModule<ModuleOptions>({
     }).dst
     addImports([{
       name: '_refreshHandler',
-      from: generatedRefreshHandlerPath
+      // Drop the `.ts` so every Nuxt command writes the same import path. Otherwise
+      // `dev`/`prepare` keep it and `typecheck` drops it, which rewrites imports.d.ts
+      // and invalidates the vue-tsc cache on each switch.
+      from: generatedRefreshHandlerPath.replace(TS_ENDS_RE, '')
     }])
 
     // 6. Register middleware for autocomplete in definePageMeta
