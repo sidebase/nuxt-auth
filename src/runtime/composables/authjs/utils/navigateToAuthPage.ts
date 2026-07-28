@@ -1,3 +1,4 @@
+import type { NavigationFailure } from 'vue-router'
 import { decodePath, encodePath, hasProtocol, isScriptProtocol, parseURL } from 'ufo'
 import { callWithNuxt, useRouter } from '#app'
 import type { NuxtApp } from '#app'
@@ -15,7 +16,7 @@ const HTML_ATTR_ENCODE_MAP: Record<string, string> = {
   '<': '&lt;',
   '>': '&gt;',
 }
-function encodeForHtmlAttr (value: string): string {
+function encodeForHtmlAttr(value: string): string {
   return value.replace(HTML_ATTR_UNSAFE_RE, c => HTML_ATTR_ENCODE_MAP[c]!)
 }
 
@@ -32,7 +33,7 @@ function encodeForHtmlAttr (value: string): string {
  * @param nuxtApp Nuxt app context
  * @param href HREF / URL to navigate to
  */
-function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = false) {
+function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = false): string | boolean | Promise<string | boolean | undefined | void | NavigationFailure> {
   // This is a slight difference with `nuxt/nuxt` - we treat `isInternalRouting` as `!options.external`
   const isExternalHost = hasProtocol(href, { acceptRelative: true })
   const isExternal = isExternalHost || !isInternalRouting
@@ -138,7 +139,7 @@ export function encodeURL(location: string, isExternalHost = false) {
  * Already-encoded paths are not double-encoded.
  * @internal
  */
-function encodeRoutePath (url: string): string {
+function encodeRoutePath(url: string): string {
   const parsed = parseURL(url)
   return encodePath(decodePath(parsed.pathname)) + parsed.search + parsed.hash
 }

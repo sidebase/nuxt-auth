@@ -18,8 +18,8 @@ export default defineNuxtPlugin({
       // include header in case of auth is required to avoid 403 rejection
       const headers = token.value
         ? new Headers({
-            [provider.token.headerName]: token.value
-          } as HeadersInit)
+          [provider.token.headerName]: token.value
+        } as HeadersInit)
         : undefined
 
       try {
