@@ -1,4 +1,4 @@
-import { hasProtocol, isScriptProtocol } from 'ufo'
+import { decodePath, encodePath, hasProtocol, isScriptProtocol, parseURL } from 'ufo'
 import { callWithNuxt, useRouter } from '#app'
 import type { NuxtApp } from '#app'
 
@@ -6,7 +6,18 @@ export function navigateToAuthPageWN(nuxt: NuxtApp, href: string, isInternalRout
   return callWithNuxt(nuxt, navigateToAuthPage, [nuxt, href, isInternalRouting])
 }
 
-const URL_QUOTE_RE = /"/g
+// Adapted from https://github.com/nuxt/nuxt/blob/df18c4a8f1fa9b8577d3cc29a8965f6449adf698/packages/nuxt/src/app/composables/router.ts#L150-L160
+const HTML_ATTR_UNSAFE_RE = /[&"'<>]/g
+const HTML_ATTR_ENCODE_MAP: Record<string, string> = {
+  '&': '&amp;',
+  '"': '&quot;',
+  '\'': '&#x27;',
+  '<': '&lt;',
+  '>': '&gt;',
+}
+function encodeForHtmlAttr (value: string): string {
+  return value.replace(HTML_ATTR_UNSAFE_RE, c => HTML_ATTR_ENCODE_MAP[c]!)
+}
 
 /**
  * Function to correctly navigate to auth-routes, necessary as the auth-routes are not part of the nuxt-app itself, so unknown to nuxt / vue-router.
@@ -16,27 +27,34 @@ const URL_QUOTE_RE = /"/g
  *    manually set `window.location.href` on the client **and then fake return a Promise that does not immediately resolve to block navigation (although it will not actually be fully awaited, but just be awaited long enough for the naviation to complete)**.
  * 2. Additionally on the server-side, we cannot use `navigateTo(signInUrl)` as this uses `vue-router` internally which does not know the "external" sign-in page of next-auth and thus will log a warning which we want to avoid.
  *
- * Adapted from https://github.com/nuxt/nuxt/blob/dc69e26c5b9adebab3bf4e39417288718b8ddf07/packages/nuxt/src/app/composables/router.ts#L130-L247
+ * Adapted from https://github.com/nuxt/nuxt/blob/df18c4a8f1fa9b8577d3cc29a8965f6449adf698/packages/nuxt/src/app/composables/router.ts#L162-L289
  *
  * @param nuxtApp Nuxt app context
  * @param href HREF / URL to navigate to
  */
 function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = false) {
-  const router = useRouter()
+  // This is a slight difference with `nuxt/nuxt` - we treat `isInternalRouting` as `!options.external`
+  const isExternalHost = hasProtocol(href, { acceptRelative: true })
+  const isExternal = isExternalHost || !isInternalRouting
+  if (isExternal) {
+    const { protocol } = new URL(href, 'http://localhost')
+    if (protocol && isScriptProtocol(protocol)) {
+      throw new Error(`Cannot navigate to a URL with '${protocol}' protocol.`)
+    }
+  }
 
   // https://github.com/nuxt/nuxt/blob/dc69e26c5b9adebab3bf4e39417288718b8ddf07/packages/nuxt/src/app/composables/router.ts#L84-L93
   const inMiddleware = Boolean(nuxtApp._processingMiddleware)
 
+  // Early redirect on client-side
+  if (import.meta.client && !isExternal && inMiddleware) {
+    return href || '/'
+  }
+
+  const router = useRouter()
+
   if (import.meta.server) {
     if (nuxtApp.ssrContext) {
-      const isExternalHost = hasProtocol(href, { acceptRelative: true })
-      if (isExternalHost) {
-        const { protocol } = new URL(href, 'http://localhost')
-        if (protocol && isScriptProtocol(protocol)) {
-          throw new Error(`Cannot navigate to a URL with '${protocol}' protocol.`)
-        }
-      }
-
       // This is a difference with `nuxt/nuxt` - we do not add `app.baseURL` here because all consumers are responsible for it
       // We also skip resolution for internal routing to avoid triggering `No match found` warning from Vue Router
       const location = isExternalHost || isInternalRouting ? href : router.resolve(href).fullPath || '/'
@@ -44,8 +62,8 @@ function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = 
       async function redirect(response: false | undefined) {
         // TODO: consider deprecating in favour of `app:rendered` and removing
         await nuxtApp.callHook('app:redirected')
-        const encodedLoc = location.replace(URL_QUOTE_RE, '%22')
         const encodedHeader = encodeURL(location, isExternalHost)
+        const encodedLoc = encodeForHtmlAttr(encodedHeader)
 
         nuxtApp.ssrContext!._renderResponse = {
           statusCode: 302,
@@ -57,7 +75,7 @@ function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = 
 
       // We wait to perform the redirect last in case any other middleware will intercept the redirect
       // and redirect somewhere else instead.
-      if (!isExternalHost && inMiddleware) {
+      if (!isExternal && inMiddleware) {
         // For an unknown reason, `final.fullPath` received here is not percent-encoded, leading to the check always failing.
         // To preserve compatibility with NuxtAuth < 1.0, we simply return `undefined`.
         // TODO: Find the reason or report the issue to Nuxt if `navigateTo` has the same problem (`router.resolve` handles the `%2F` in callback URL correctly)
@@ -69,17 +87,34 @@ function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = 
     }
   }
 
-  window.location.href = href
-  // If href contains a hash, the browser does not reload the page. We reload manually.
-  if (href.includes('#')) {
-    window.location.reload()
+  // Client-side redirection using vue-router
+  if (isExternal) {
+    // Run any cleanup steps for the current scope, like ending BroadcastChannel
+    nuxtApp._scope.stop()
+
+    location.href = href
+    // If href contains a hash, the browser may not reload the page. We force reload manually.
+    if (href.includes('#')) {
+      location.reload()
+    }
+
+    // Within a Nuxt route middleware handler
+    if (inMiddleware) {
+      // Abort navigation when app is hydrated
+      if (!nuxtApp.isHydrating) {
+        return false
+      }
+      // When app is hydrating (i.e. on page load), we don't want to abort navigation as
+      // it would lead to a 404 error / page that's blinking before location changes.
+      return new Promise(() => {})
+    }
+    return Promise.resolve()
   }
 
-  // Wait for the `window.location.href` navigation from above to complete to avoid showing content. If that doesn't work fast enough, delegate navigation back to the `vue-router` (risking a vue-router 404 warning in the console, but still avoiding content-flashes of the protected target page)
-  const waitForNavigationWithFallbackToRouter = new Promise(resolve => setTimeout(resolve, 60 * 1000))
-    .then(() => router.push(href))
-
-  return waitForNavigationWithFallbackToRouter as Promise<void | undefined>
+  // Encode the path portion of string locations to match vue-router's
+  // percent-encoded route records.
+  const encodedTo = encodeRoutePath(href)
+  return router.push(encodedTo)
 }
 
 /**
@@ -95,4 +130,15 @@ export function encodeURL(location: string, isExternalHost = false) {
     return url.toString().replace(url.protocol, '')
   }
   return url.toString()
+}
+
+/**
+ * Encode the pathname of a route location string. Ensures decoded paths like
+ * `/café` are percent-encoded to match vue-router's encoded route records.
+ * Already-encoded paths are not double-encoded.
+ * @internal
+ */
+function encodeRoutePath (url: string): string {
+  const parsed = parseURL(url)
+  return encodePath(decodePath(parsed.pathname)) + parsed.search + parsed.hash
 }
