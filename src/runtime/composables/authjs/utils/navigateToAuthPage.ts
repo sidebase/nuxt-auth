@@ -34,9 +34,10 @@ function encodeForHtmlAttr(value: string): string {
  * @param href HREF / URL to navigate to
  */
 function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = false): string | boolean | Promise<string | boolean | undefined | void | NavigationFailure> {
-  // This is a slight difference with `nuxt/nuxt` - we treat `isInternalRouting` as `!options.external`
+  // This is a slight difference with `nuxt/nuxt` - we treat `isInternalRouting` as `options.external`
+  // due to the routes being server-only, i.e. not resolvable app-side
   const isExternalHost = hasProtocol(href, { acceptRelative: true })
-  const isExternal = isExternalHost || !isInternalRouting
+  const isExternal = isExternalHost || isInternalRouting
   if (isExternal) {
     const { protocol } = new URL(href, 'http://localhost')
     if (protocol && isScriptProtocol(protocol)) {
@@ -58,7 +59,7 @@ function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = 
     if (nuxtApp.ssrContext) {
       // This is a difference with `nuxt/nuxt` - we do not add `app.baseURL` here because all consumers are responsible for it
       // We also skip resolution for internal routing to avoid triggering `No match found` warning from Vue Router
-      const location = isExternalHost || isInternalRouting ? href : router.resolve(href).fullPath || '/'
+      const location = isExternal ? href : router.resolve(href).fullPath || '/'
 
       async function redirect(response: false | undefined) {
         // TODO: consider deprecating in favour of `app:rendered` and removing
@@ -88,34 +89,28 @@ function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = 
     }
   }
 
-  // Client-side redirection using vue-router
-  if (isExternal) {
-    // Run any cleanup steps for the current scope, like ending BroadcastChannel
-    nuxtApp._scope.stop()
+  // Client-side redirection using vue-router.
+  // The internal routes like `/api/auth/signin` are server-only so trying to `router.resolve` or `router.push` would 404
+  // Run any cleanup steps for the current scope, like ending BroadcastChannel
+  nuxtApp._scope.stop()
 
-    location.href = href
-    // If href contains a hash, the browser may not reload the page. We force reload manually.
-    if (href.includes('#')) {
-      location.reload()
-    }
-
-    // Within a Nuxt route middleware handler
-    if (inMiddleware) {
-      // Abort navigation when app is hydrated
-      if (!nuxtApp.isHydrating) {
-        return false
-      }
-      // When app is hydrating (i.e. on page load), we don't want to abort navigation as
-      // it would lead to a 404 error / page that's blinking before location changes.
-      return new Promise(() => {})
-    }
-    return Promise.resolve()
+  location.href = href
+  // If href contains a hash, the browser may not reload the page. We force reload manually.
+  if (href.includes('#')) {
+    location.reload()
   }
 
-  // Encode the path portion of string locations to match vue-router's
-  // percent-encoded route records.
-  const encodedTo = encodeRoutePath(href)
-  return router.push(encodedTo)
+  // Within a Nuxt route middleware handler
+  if (inMiddleware) {
+    // Abort navigation when app is hydrated
+    if (!nuxtApp.isHydrating) {
+      return false
+    }
+    // When app is hydrating (i.e. on page load), we don't want to abort navigation as
+    // it would lead to a 404 error / page that's blinking before location changes.
+    return new Promise(() => {})
+  }
+  return Promise.resolve()
 }
 
 /**
