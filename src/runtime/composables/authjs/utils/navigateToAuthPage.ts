@@ -110,7 +110,10 @@ function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = 
     // it would lead to a 404 error / page that's blinking before location changes.
     return new Promise(() => {})
   }
-  return Promise.resolve()
+  // Note: We return a non-resolved promise here in contrast to Nuxt's `navigateTo` to keep the same behaviour
+  // of the middleware as was before with 60s timeout, see
+  // https://github.com/sidebase/nuxt-auth/blob/6daf2ad0290d338f152d192a1398923f61c3afdf/src/runtime/composables/authjs/utils/navigateToAuthPage.ts#L78-L82
+  return new Promise(() => {})
 }
 
 /**
