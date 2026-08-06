@@ -2,7 +2,6 @@ import type { AppProvider, BuiltInProviderType } from 'next-auth/providers/index
 import { defu } from 'defu'
 import { readonly } from 'vue'
 import type { Ref } from 'vue'
-import type { NavigationFailure } from 'vue-router'
 import { appendHeader } from 'h3'
 import { resolveApiUrlPath } from '../../utils/url'
 import { _fetch } from '../../utils/fetch'
@@ -36,7 +35,7 @@ interface SignInResult {
    * Result returned by `navigateToAuthPage`, which needs to be passed back to vue-router by the middleware.
    * @see https://github.com/sidebase/nuxt-auth/pull/1057
    */
-  navigationResult: boolean | string | void | undefined | NavigationFailure
+  navigationResult: string | false | void
 }
 
 export interface SignInFunc {

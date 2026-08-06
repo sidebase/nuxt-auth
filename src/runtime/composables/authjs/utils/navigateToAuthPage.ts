@@ -1,4 +1,3 @@
-import type { NavigationFailure } from 'vue-router'
 import { hasProtocol, isScriptProtocol } from 'ufo'
 import { callWithNuxt, useRouter } from '#app'
 import type { NuxtApp } from '#app'
@@ -33,16 +32,15 @@ function encodeForHtmlAttr(value: string): string {
  * @param nuxtApp Nuxt app context
  * @param href HREF / URL to navigate to
  */
-function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = false): string | boolean | Promise<string | boolean | undefined | void | NavigationFailure> {
+function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = false): string | false | Promise<false | void> {
   // This is a slight difference with `nuxt/nuxt` - we treat `isInternalRouting` as `options.external`
   // due to the routes being server-only, i.e. not resolvable app-side
   const isExternalHost = hasProtocol(href, { acceptRelative: true })
   const isExternal = isExternalHost || isInternalRouting
-  if (isExternal) {
-    const { protocol } = new URL(href, 'http://localhost')
-    if (protocol && isScriptProtocol(protocol)) {
-      throw new Error(`Cannot navigate to a URL with '${protocol}' protocol.`)
-    }
+  // Here we always check the protocol instead of only for external routes
+  const { protocol } = new URL(href, 'http://localhost')
+  if (protocol && isScriptProtocol(protocol)) {
+    throw new Error(`Cannot navigate to a URL with '${protocol}' protocol.`)
   }
 
   // https://github.com/nuxt/nuxt/blob/dc69e26c5b9adebab3bf4e39417288718b8ddf07/packages/nuxt/src/app/composables/router.ts#L84-L93
@@ -85,6 +83,9 @@ function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = 
         // return href
         return redirect(undefined)
       }
+      // For relative server-only auth routes, this deviates from @sidebase/nuxt-auth <= 1.3.1, which
+      // returned `undefined`. Returning `false` matches Nuxt and aborts remaining middleware after the
+      // redirect response has already been set.
       return redirect(!inMiddleware ? undefined : /* abort further route navigation */ false)
     }
   }
@@ -110,10 +111,7 @@ function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = 
     // it would lead to a 404 error / page that's blinking before location changes.
     return new Promise(() => {})
   }
-  // Note: We return a non-resolved promise here in contrast to Nuxt's `navigateTo` to keep the same behaviour
-  // of the middleware as was before with 60s timeout, see
-  // https://github.com/sidebase/nuxt-auth/blob/6daf2ad0290d338f152d192a1398923f61c3afdf/src/runtime/composables/authjs/utils/navigateToAuthPage.ts#L78-L82
-  return new Promise(() => {})
+  return Promise.resolve()
 }
 
 /**
