@@ -27,7 +27,7 @@ function encodeForHtmlAttr(value: string): string {
  *    manually set `window.location.href` on the client **and then fake return a Promise that does not immediately resolve to block navigation (although it will not actually be fully awaited, but just be awaited long enough for the naviation to complete)**.
  * 2. Additionally on the server-side, we cannot use `navigateTo(signInUrl)` as this uses `vue-router` internally which does not know the "external" sign-in page of next-auth and thus will log a warning which we want to avoid.
  *
- * Adapted from https://github.com/nuxt/nuxt/blob/df18c4a8f1fa9b8577d3cc29a8965f6449adf698/packages/nuxt/src/app/composables/router.ts#L162-L289
+ * Adapted from https://github.com/nuxt/nuxt/blob/0644379fa71a9aac427b1483cfc8b4bf9e9441fe/packages/nuxt/src/app/composables/router.ts#L171-L304
  *
  * @param nuxtApp Nuxt app context
  * @param href HREF / URL to navigate to
@@ -76,12 +76,14 @@ function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = 
       // We wait to perform the redirect last in case any other middleware will intercept the redirect
       // and redirect somewhere else instead.
       if (!isExternal && inMiddleware) {
-        // For an unknown reason, `final.fullPath` received here is not percent-encoded, leading to the check always failing.
-        // To preserve compatibility with NuxtAuth < 1.0, we simply return `undefined`.
-        // TODO: Find the reason or report the issue to Nuxt if `navigateTo` has the same problem (`router.resolve` handles the `%2F` in callback URL correctly)
-        // router.afterEach(final => final.fullPath === location ? redirect(false) : undefined)
-        // return href
-        return redirect(undefined)
+        // vue-router normalises queries so in this case we need to resolve instead of directly comparing
+        let expectedPath = location
+        if (href.includes('?')) {
+          const target = router.resolve(href)
+          expectedPath = router.resolve({ path: target.path, query: target.query, hash: target.hash }).fullPath || '/'
+        }
+        router.afterEach(final => final.fullPath === expectedPath ? redirect(false) : undefined)
+        return href
       }
       // For relative server-only auth routes, this deviates from @sidebase/nuxt-auth <= 1.3.1, which
       // returned `undefined`. Returning `false` matches Nuxt and aborts remaining middleware after the
