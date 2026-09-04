@@ -24,7 +24,7 @@ function encodeForHtmlAttr(value: string): string {
  *
  * More specifically, we need this function to correctly handle the following cases:
  * 1. On the client-side, returning `navigateTo(signInUrl)` leads to a `404` error as the next-auth-signin-page was not registered with the vue-router that is used for routing under the hood. For this reason we need to
- *    manually set `window.location.href` on the client **and then fake return a Promise that does not immediately resolve to block navigation (although it will not actually be fully awaited, but just be awaited long enough for the naviation to complete)**.
+ *    manually set `window.location.href`. During hydration in route middleware, we return a pending Promise to prevent Nuxt from rendering its 404 page before the browser navigation completes.
  * 2. Additionally on the server-side, we cannot use `navigateTo(signInUrl)` as this uses `vue-router` internally which does not know the "external" sign-in page of next-auth and thus will log a warning which we want to avoid.
  *
  * Adapted from https://github.com/nuxt/nuxt/blob/0644379fa71a9aac427b1483cfc8b4bf9e9441fe/packages/nuxt/src/app/composables/router.ts#L171-L304
@@ -92,7 +92,7 @@ function navigateToAuthPage(nuxtApp: NuxtApp, href: string, isInternalRouting = 
     }
   }
 
-  // Client-side redirection using vue-router.
+  // Client-side full-page redirection.
   // The internal routes like `/api/auth/signin` are server-only so trying to `router.resolve` or `router.push` would 404
   // Run any cleanup steps for the current scope, like ending BroadcastChannel
   nuxtApp._scope.stop()
