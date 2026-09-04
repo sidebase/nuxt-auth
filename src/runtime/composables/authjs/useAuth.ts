@@ -35,7 +35,7 @@ interface SignInResult {
    * Result returned by `navigateToAuthPage`, which needs to be passed back to vue-router by the middleware.
    * @see https://github.com/sidebase/nuxt-auth/pull/1057
    */
-  navigationResult: boolean | string | void | undefined
+  navigationResult: string | false | void
 }
 
 export interface SignInFunc {
