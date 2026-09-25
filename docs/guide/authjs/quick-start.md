@@ -47,6 +47,8 @@ You can also configure AuthJS specific options inside the `nuxt.config.ts`, in a
 
 If set to `true`, `authjs` will use either the `x-forwarded-host` or `host` headers instead of `auth.baseURL`. Make sure that reading `x-forwarded-host` on your hosting platform can be trusted.
 
+When `trustHost` is enabled and `baseURL` is relative, the origin is derived from each incoming request. You therefore are not required to set `AUTH_ORIGIN` or absolute `baseURL` in production.
+
 :::warning
 **This is an advanced option.** Advanced options are passed the same way as basic options, but **may have complex implications** or side effects. You should try to avoid using advanced options unless you are very comfortable using them.
 :::
