@@ -11,13 +11,13 @@
     "test": "vitest"
   },
   "devDependencies": {
-    "@nuxt/test-utils": "^4.1.0",
-    "@playwright/test": "^1.62.0",
-    "@types/node": "^24.13.3",
-    "@vue/test-utils": "^2.4.11",
-    "nuxt": "^3.20.2",
+    "@nuxt/test-utils": "^4.3.2",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.2",
+    "@vue/test-utils": "^2.5.1",
+    "nuxt": "^4.5.2",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.10",
-    "vue-tsc": "^3.3.8"
+    "vitest": "^4.1.11",
+    "vue-tsc": "^3.3.11"
   }
 }

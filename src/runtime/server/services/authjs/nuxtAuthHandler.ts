@@ -223,7 +223,7 @@ async function createRequestForAuthjs(
 }
 
 /** Actions supported by auth handler */
-const SUPPORTED_ACTIONS: AuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
+const SUPPORTED_ACTIONS: readonly AuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
 
 /**
  * Get action and optional provider from a request.
@@ -244,8 +244,8 @@ function parseActionAndProvider({ context }: H3Event): { action: AuthAction, pro
 }
 
 /** Get TS to correctly infer the type of action */
-function checkSupportedAction(action: string): asserts action is AuthAction {
-  if ((SUPPORTED_ACTIONS as string[]).includes(action)) {
+function checkSupportedAction(action: string | undefined): asserts action is AuthAction {
+  if (action && (SUPPORTED_ACTIONS as string[]).includes(action)) {
     return
   }
 

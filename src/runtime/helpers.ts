@@ -75,14 +75,18 @@ export function jsonPointerSet(
   value: any
 ) {
   const refTokens = Array.isArray(pointer) ? pointer : jsonPointerParse(pointer)
-  let nextTok: string | number = refTokens[0]
 
-  if (refTokens.length === 0) {
+  let nextTok: string | number | undefined = refTokens[0]
+  if (nextTok === undefined) {
     throw new Error('Can not set the root object')
   }
 
   for (let i = 0; i < refTokens.length - 1; ++i) {
-    let tok: string | number = refTokens[i]
+    let tok: string | number | undefined = refTokens[i]
+    if (tok === undefined) {
+      continue
+    }
+
     if (typeof tok !== 'string' && typeof tok !== 'number') {
       tok = String(tok)
     }
@@ -93,6 +97,10 @@ export function jsonPointerSet(
       tok = obj.length
     }
     nextTok = refTokens[i + 1]
+
+    if (nextTok === undefined) {
+      continue
+    }
 
     if (!(tok in obj)) {
       if (DIGIT_OR_DASH_RE.test(nextTok)) {
@@ -107,7 +115,9 @@ export function jsonPointerSet(
   if (nextTok === '-' && Array.isArray(obj)) {
     nextTok = obj.length
   }
-  obj[nextTok] = value
+  if (nextTok !== undefined) {
+    obj[nextTok] = value
+  }
 }
 
 /**
