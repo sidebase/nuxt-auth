@@ -1,7 +1,6 @@
 import type { IncomingHttpHeaders } from 'node:http'
 import { createError, eventHandler, getHeaders, getQuery, getResponseHeader, isMethod, parseCookies, readBody, sendRedirect, setCookie, setResponseHeader } from 'h3'
 import type { H3Event } from 'h3'
-import type { CookieSerializeOptions } from 'cookie-es'
 
 import { AuthHandler } from 'next-auth/core'
 import { getToken as authjsGetToken } from 'next-auth/jwt'
@@ -18,6 +17,7 @@ import { resolveApiBaseURL } from '../../../utils/url'
 import { getHostValueForAuthjs, getServerBaseUrl } from './utils'
 import { useRuntimeConfig } from '#imports'
 
+type CookieSerializeOptions = Parameters<typeof setCookie>[3]
 type RuntimeConfig = ReturnType<typeof useRuntimeConfig>
 
 let preparedAuthjsHandler: ((req: RequestInternal) => Promise<ResponseInternal>) | undefined
@@ -223,7 +223,7 @@ async function createRequestForAuthjs(
 }
 
 /** Actions supported by auth handler */
-const SUPPORTED_ACTIONS: AuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
+const SUPPORTED_ACTIONS: readonly AuthAction[] = ['providers', 'session', 'csrf', 'signin', 'signout', 'callback', 'verify-request', 'error', '_log']
 
 /**
  * Get action and optional provider from a request.
@@ -244,8 +244,8 @@ function parseActionAndProvider({ context }: H3Event): { action: AuthAction, pro
 }
 
 /** Get TS to correctly infer the type of action */
-function checkSupportedAction(action: string): asserts action is AuthAction {
-  if ((SUPPORTED_ACTIONS as string[]).includes(action)) {
+function checkSupportedAction(action: string | undefined): asserts action is AuthAction {
+  if (action && (SUPPORTED_ACTIONS as string[]).includes(action)) {
     return
   }
 

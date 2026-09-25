@@ -13,9 +13,9 @@ export async function _fetch<T>(
 ): Promise<T> {
   // This fixes https://github.com/sidebase/nuxt-auth/issues/927
   const runtimeConfigOrPromise = callWithNuxt(nuxt, useRuntimeConfig)
-  const runtimeConfig = 'public' in runtimeConfigOrPromise
-    ? runtimeConfigOrPromise
-    : await runtimeConfigOrPromise
+  const runtimeConfig = runtimeConfigOrPromise instanceof Promise
+    ? await runtimeConfigOrPromise
+    : runtimeConfigOrPromise
 
   const joinedPath = resolveApiUrlPath(path, runtimeConfig)
 
