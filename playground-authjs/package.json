@@ -16,7 +16,7 @@
     "@types/node": "^26.6.2",
     "@vue/test-utils": "^2.5.1",
     "nuxt": "^4.5.2",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.11",
     "vue-tsc": "^3.3.11"
   }
