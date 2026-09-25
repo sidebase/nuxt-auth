@@ -220,6 +220,10 @@ export function useAuth(): UseAuthReturn {
     )
   }
 
+  function onError() {
+    loading.value = false
+  }
+
   /**
    * Refresh and get the current session data.
    *
@@ -235,10 +239,6 @@ export function useAuth(): UseAuthReturn {
           callbackUrl: getSessionOptions?.callbackUrl || callbackUrlFallback
         })
       })
-
-      function onError() {
-        loading.value = false
-      }
 
       const headers = await getRequestHeaders(nuxt)
 
