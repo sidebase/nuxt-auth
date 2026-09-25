@@ -1,7 +1,6 @@
 import type { IncomingHttpHeaders } from 'node:http'
 import { createError, eventHandler, getHeaders, getQuery, getResponseHeader, isMethod, parseCookies, readBody, sendRedirect, setCookie, setResponseHeader } from 'h3'
 import type { H3Event } from 'h3'
-import type { CookieSerializeOptions } from 'cookie-es'
 
 import { AuthHandler } from 'next-auth/core'
 import { getToken as authjsGetToken } from 'next-auth/jwt'
@@ -18,6 +17,7 @@ import { resolveApiBaseURL } from '../../../utils/url'
 import { getHostValueForAuthjs, getServerBaseUrl } from './utils'
 import { useRuntimeConfig } from '#imports'
 
+type CookieSerializeOptions = Parameters<typeof setCookie>[3]
 type RuntimeConfig = ReturnType<typeof useRuntimeConfig>
 
 let preparedAuthjsHandler: ((req: RequestInternal) => Promise<ResponseInternal>) | undefined
