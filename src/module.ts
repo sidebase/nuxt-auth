@@ -260,7 +260,7 @@ export default defineNuxtModule<ModuleOptions>({
     addPlugin(resolve('./runtime/plugin'))
 
     // 8. Add a server-plugin to check the `origin` on production-startup
-    if (selectedProvider === 'authjs') {
+    if (options.provider.type === 'authjs' && !options.provider.trustHost) {
       addServerPlugin(resolve('./runtime/server/plugins/assertOrigin'))
     }
 
