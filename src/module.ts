@@ -70,7 +70,7 @@ const defaultsByBackend: {
       httpOnlyCookieAttribute: false
     },
     session: {
-      dataType: { id: 'string | number' },
+      dataType: {},
       dataResponsePointer: '/'
     },
     refresh: {
