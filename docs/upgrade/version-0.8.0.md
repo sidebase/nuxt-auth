@@ -42,6 +42,27 @@ export default defineNuxtConfig({
 })
 ```
 
+### Local and refresh session data types
+
+For the `local` and `refresh` providers, `auth.provider.sessionDataType` moved to `auth.provider.session.dataType`.
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  auth: {
+    provider: {
+      type: 'local',
+      sessionDataType: { id: 'string', name: 'string' }, // [!code --]
+      session: { // [!code ++]
+        dataType: { id: 'string', name: 'string' } // [!code ++]
+      } // [!code ++]
+    }
+  }
+})
+```
+
+The old key is ignored when generating session types. Move your existing fields to the new location so `useAuth().data`, `useAuthState().data`, and `getSession()` keep their configured types.
+
 ## RefreshHandler
 
 In [#715](https://github.com/sidebase/nuxt-auth/pull/715), we took the first step to improve the behavior and possibilities to customize the Refresh behaviour of your application. In [#766](https://github.com/sidebase/nuxt-auth/pull/766) we finalized these changes and improved the previous configuration options. You can define the location of a custom RefreshHandler inside your Nuxt config under `auth.sessionRefresh.refreshHandler`.
