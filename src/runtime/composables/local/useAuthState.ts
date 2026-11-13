@@ -4,6 +4,7 @@ import type { CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
 import { useTypedBackendConfig } from '../../helpers'
 import { formatToken } from './utils/token'
+import { syncTokenFromCookie } from './utils/syncTokenFromCookie'
 import type { CookieRef } from '#app'
 import { onMounted, refreshCookie, useCookie, useRuntimeConfig, useState } from '#imports'
 // @ts-expect-error - #auth not defined
@@ -104,8 +105,12 @@ export function useAuthState(): UseAuthStateReturn {
     }
 
     syncRefreshTokenFromCookie = () => {
-      refreshCookie(config.refresh.token.cookieName)
-      rawRefreshToken.value = _rawRefreshTokenCookie.value
+      syncTokenFromCookie(
+        refreshCookie,
+        config.refresh.token.cookieName,
+        _rawRefreshTokenCookie,
+        rawRefreshToken
+      )
     }
   }
 
@@ -116,8 +121,7 @@ export function useAuthState(): UseAuthStateReturn {
   })
 
   function syncTokensFromCookies() {
-    refreshCookie(config.token.cookieName)
-    rawToken.value = _rawTokenCookie.value
+    syncTokenFromCookie(refreshCookie, config.token.cookieName, _rawTokenCookie, rawToken)
     syncRefreshTokenFromCookie?.()
   }
 
