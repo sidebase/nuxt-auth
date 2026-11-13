@@ -243,6 +243,8 @@ export function useAuth(): UseAuthReturn {
       return getSession(getSessionOptions)
     }
 
+    _internal.syncTokensFromCookies()
+
     const { path, method } = config.refresh.endpoint
     const refreshRequestTokenPointer = config.refresh.token.refreshRequestTokenPointer
 

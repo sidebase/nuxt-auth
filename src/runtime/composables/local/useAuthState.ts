@@ -5,7 +5,7 @@ import { makeCommonAuthState } from '../commonAuthState'
 import { useTypedBackendConfig } from '../../helpers'
 import { formatToken } from './utils/token'
 import type { CookieRef } from '#app'
-import { onMounted, useCookie, useRuntimeConfig, useState } from '#imports'
+import { onMounted, refreshCookie, useCookie, useRuntimeConfig, useState } from '#imports'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
 
@@ -24,6 +24,7 @@ export interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData
   clearToken: () => void
   _internal: {
     rawTokenCookie: CookieRef<string | null>
+    syncTokensFromCookies: () => void
   }
 }
 
@@ -66,6 +67,7 @@ export function useAuthState(): UseAuthStateReturn {
 
   // Handle refresh token, for when refresh logic is enabled
   const rawRefreshToken = useState<string | null>('auth:raw-refresh-token', () => null)
+  let syncRefreshTokenFromCookie: (() => void) | undefined
   if (config.refresh.isEnabled) {
     const _rawRefreshTokenCookie = useCookie<string | null>(config.refresh.token.cookieName, {
       default: () => null,
@@ -86,6 +88,12 @@ export function useAuthState(): UseAuthStateReturn {
       _rawRefreshTokenCookie.value = rawRefreshToken.value
     })
 
+    watch(_rawRefreshTokenCookie, (cookieValue) => {
+      if (rawRefreshToken.value !== cookieValue) {
+        rawRefreshToken.value = cookieValue
+      }
+    })
+
     // When the page is cached on a server, set the refresh token on the client
     if (instance) {
       onMounted(() => {
@@ -94,6 +102,23 @@ export function useAuthState(): UseAuthStateReturn {
         }
       })
     }
+
+    syncRefreshTokenFromCookie = () => {
+      refreshCookie(config.refresh.token.cookieName)
+      rawRefreshToken.value = _rawRefreshTokenCookie.value
+    }
+  }
+
+  watch(_rawTokenCookie, (cookieValue) => {
+    if (rawToken.value !== cookieValue) {
+      rawToken.value = cookieValue
+    }
+  })
+
+  function syncTokensFromCookies() {
+    refreshCookie(config.token.cookieName)
+    rawToken.value = _rawTokenCookie.value
+    syncRefreshTokenFromCookie?.()
   }
 
   const refreshToken = computed(() => rawRefreshToken.value)
@@ -107,7 +132,8 @@ export function useAuthState(): UseAuthStateReturn {
     setToken,
     clearToken,
     _internal: {
-      rawTokenCookie: _rawTokenCookie
+      rawTokenCookie: _rawTokenCookie,
+      syncTokensFromCookies
     }
   }
 }
