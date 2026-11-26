@@ -9,7 +9,8 @@
     "start": "nuxi preview",
     "generate": "nuxi generate",
     "postinstall": "nuxt prepare",
-    "test:e2e": "vitest"
+    "test:e2e": "vitest",
+    "test:types": "nuxi prepare && vitest run --config vitest.types.config.ts"
   },
   "dependencies": {
     "jose": "^6.2.12",

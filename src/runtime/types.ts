@@ -196,7 +196,7 @@ export interface ProviderLocal {
     /*
      * Define an interface for the session data object that `nuxt-auth` expects to receive from the `getSession` endpoint.
      *
-     * @default { id: 'string | number' }
+     * @default {}
      * @example { id: 'string', name: 'string', email: 'string' }
      * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: "'admin' | 'guest' | 'account'", subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
      */

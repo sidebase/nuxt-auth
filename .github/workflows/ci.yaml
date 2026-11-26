@@ -41,6 +41,9 @@ jobs:
       # Run unit tests
       - run: pnpm test:unit
 
+      - name: Check provider type augmentations
+        run: pnpm test:types
+
       # Check building
       - run: pnpm build
 

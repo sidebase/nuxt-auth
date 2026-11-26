@@ -17,7 +17,7 @@ export default NuxtAuthHandler({
   // your authentication configuration here!
   callbacks: {
     jwt({ token, account, profile }) {
-      if (account) {
+      if (account && typeof account.session_token === 'string') {
         token.sessionToken = account.session_token
       }
       return token
@@ -42,10 +42,14 @@ export default NuxtAuthHandler({
   callbacks: {
     async session({ session, token }) {
       // Token we injected into the JWT callback above.
-      const token = token.sessionToken
+      const sessionToken = token.sessionToken
 
       // Fetch data OR add previous data from the JWT callback.
-      const additionalUserData = await $fetch(`/api/session/${token}`)
+      const additionalUserData = await $fetch<{
+        name: string
+        avatar: string
+        role: 'admin' | 'manager' | 'user'
+      }>(`/api/session/${sessionToken}`)
 
       // Return the modified session
       return {
@@ -75,43 +79,121 @@ const { data } = useAuth()
 </script>
 
 <template>
-  <div v-if="data">
+  <div v-if="data?.user">
     <!-- You can access the session data you injected above! -->
     Hello, {{ data.user.name }}. You have the role: {{ data.user.role }}!
   </div>
 </template>
 ```
 
-## Typescript
+## Augmenting TypeScript types
 
-When modifying the session or JWT objects, you may want to adjust the types accordingly, to ensure that you get proper intellisense and type support. [Module Augmentation](https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation) can be used to inject additional type declarations into installed modules to overwrite or add additional data.
+When modifying the session, user, account or JWT objects, you may want to adjust the types accordingly, to ensure that you get proper intellisense and type support. [Module Augmentation](https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation) can be used to inject additional type declarations into the `next-auth` module used by the authjs provider.
 
-Begin by creating a new typescript file in the root of your project named: `next-auth.d.ts`. Typescript will automatically recognize that this file is augmenting the module types of `next-auth` (running under the hood).
+Begin by creating a TypeScript declaration file (e.g. `shared/types/next-auth.d.ts`). In Nuxt 4, this location includes the declarations in both the app and server TypeScript projects. TypeScript will automatically recognize that this file is augmenting the module types of `next-auth`.
 
 ```ts
-// file: ~/next-auth.d.ts
-import type { DefaultSession } from 'next-auth'
+// file: shared/types/next-auth.d.ts
+import type { DefaultSession, DefaultUser } from 'next-auth'
 
 declare module 'next-auth' {
   /* Returned by `useAuth`, `getSession` and `getServerSession` */
-  interface Session extends DefaultSession {
-    user: {
-      name: string
-      avatar: string
-      role: 'admin' | 'manager' | 'user'
+  interface Session {
+    user?: DefaultSession['user'] & {
+      username?: string
+      tenantId?: string
+      role?: 'admin' | 'manager' | 'user'
     }
+
+    accountTenantId?: string
+  }
+
+  /* Returned by the `authorize` callback and available in callbacks as `user` */
+  interface User extends DefaultUser {
+    username?: string
+    tenantId?: string
+    role?: 'admin' | 'manager' | 'user'
+  }
+
+  /* Available in callbacks as `account` */
+  interface Account {
+    providerTenantId?: string
   }
 }
+
+export {}
 ```
 
-In addition to modifying the `session` data types, you can also extend the types of the JWT token. This allows you to receive proper type support when accessing the JWT token inside the NuxtAuthHandler or when calling `getToken` on the server side.
+Extending `User` is important when you return custom fields from a provider or credentials `authorize` callback and then read them in callbacks. For example, `jwt` receives `user` as `User | AdapterUser`; adding fields to `User` makes these fields available.
 
 ```ts
-// file: ~/next-auth.d.ts
+// file: ~/server/api/auth/[...].ts
+import CredentialsProvider from 'next-auth/providers/credentials'
+import { NuxtAuthHandler } from '#auth'
+
+export default NuxtAuthHandler({
+  providers: [
+    // @ts-expect-error Use .default here for it to work during SSR.
+    CredentialsProvider.default({
+      name: 'Credentials',
+      credentials: {
+        username: { label: 'Username', type: 'text' },
+        password: { label: 'Password', type: 'password' }
+      },
+      async authorize(credentials) {
+        return {
+          id: '1',
+          name: credentials?.username,
+          username: credentials?.username,
+          tenantId: 'tenant_1',
+          role: 'admin'
+        }
+      }
+    })
+  ],
+  callbacks: {
+    jwt({ token, user, account }) {
+      // You can use the augmented `User` type in the callbacks
+      if (user) {
+        token.username = user.username
+        token.tenantId = user.tenantId
+      }
+
+      if (account) {
+        token.providerTenantId = account.providerTenantId
+      }
+
+      return token
+    },
+    session({ session, token }) {
+      if (session.user) {
+        session.user.username = token.username
+        session.user.tenantId = token.tenantId
+      }
+
+      session.accountTenantId = token.providerTenantId
+
+      return session
+    }
+  }
+})
+```
+
+In addition to modifying the `session`, `user` and `account` data types, you can also extend the types of the JWT token. This gives you control over the JWT token types inside the `NuxtAuthHandler` or when calling `getToken` on the server side.
+
+```ts
+// file: shared/types/next-auth.d.ts
 declare module 'next-auth/jwt' {
   /** Returned by the `jwt` callback and `getToken` */
   interface JWT {
     sessionToken?: string
+    username?: string
+    tenantId?: string
+    providerTenantId?: string
   }
 }
 ```
+
+:::tip
+For the authjs provider, augment `next-auth` and `next-auth/jwt`. The `#auth` import used by NuxtAuth follows those upstream AuthJS types, so you usually do not need to augment `#auth` directly.
+:::
