@@ -8,7 +8,8 @@
     "build": "nuxi build",
     "start": "nuxi preview",
     "postinstall": "nuxt prepare",
-    "test": "vitest"
+    "test": "vitest",
+    "test:types": "nuxi prepare && vitest run --config vitest.types.config.ts"
   },
   "devDependencies": {
     "@nuxt/test-utils": "^4.3.2",

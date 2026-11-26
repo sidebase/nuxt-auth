@@ -38,7 +38,8 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "test:unit": "vitest"
+    "test:unit": "vitest",
+    "test:types": "pnpm --dir playground-local test:types && pnpm --dir playground-authjs test:types"
   },
   "dependencies": {
     "@nuxt/kit": "^4.5.2",
