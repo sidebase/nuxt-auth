@@ -11,6 +11,7 @@ import { useTypedBackendConfig } from '../../helpers'
 import { getRequestURL } from '../common/getRequestURL'
 import { determineCallbackUrl } from '../../utils/callbackUrl'
 import type { SessionData } from './useAuthState'
+import { extractRedirectUrl } from './utils/extractRedirectUrl'
 import { navigateToAuthPageWN } from './utils/navigateToAuthPage'
 import type { NuxtApp } from '#app/nuxt'
 import { callWithNuxt } from '#app/nuxt'
@@ -162,6 +163,10 @@ export function useAuth(): UseAuthReturn {
       json: true
     })
 
+    // Errors are not rethrown: authjs responds with a non-2xx status and a JSON body containing
+    // the redirect `url` (e.g. `?error=CredentialsSignin`) on failed sign-in attempts.
+    // The swallowed error may carry no `data` at all (e.g. on network errors), see #823
+    let fetchError: { status?: number, statusCode?: number } | undefined
     const fetchSignIn = () => _fetch<{ url: string }>(
       nuxt,
       `/${action}/${provider}`,
@@ -173,12 +178,16 @@ export function useAuth(): UseAuthReturn {
       },
       /* proxyCookies = */ true
     )
-      .catch<Record<string, any>>((error: { data: any }) => error.data)
+      .catch<unknown>((error) => {
+        fetchError = error
+        return error?.data
+      })
 
     const signInData = await callWithNuxt(nuxt, fetchSignIn)
+    const signInUrl = extractRedirectUrl(signInData)
 
     if (redirect || !isSupportingReturn) {
-      const href = signInData.url ?? callbackUrl
+      const href = signInUrl ?? callbackUrl ?? hrefSignInAllProviderPage
       const navigationResult = await navigateToAuthPageWN(nuxt, href)
 
       // We use `http://_` as a base to allow relative URLs in `callbackUrl`. We only need the `error` query param
@@ -193,15 +202,26 @@ export function useAuth(): UseAuthReturn {
       }
     }
 
+    // The request did not reach the authjs handler or returned an unexpected response
+    if (!signInUrl) {
+      return {
+        error: 'SignInError',
+        ok: false,
+        status: fetchError?.statusCode ?? fetchError?.status ?? 500,
+        url: null,
+        navigationResult: undefined,
+      }
+    }
+
     // At this point the request succeeded (i.e., it went through)
-    const error = new URL(signInData.url).searchParams.get('error')
+    const error = new URL(signInUrl).searchParams.get('error')
     await getSession()
 
     return {
       error,
       status: 200,
       ok: true,
-      url: error ? null : signInData.url,
+      url: error ? null : signInUrl,
       navigationResult: undefined,
     }
   }
@@ -317,10 +337,11 @@ export function useAuth(): UseAuthReturn {
           json: 'true'
         })
       }
-    }).catch(error => error.data)
+    }).catch(error => error?.data)
 
     if (redirect) {
-      const url = signoutData.url ?? callbackUrl
+      // `signoutData` may be `undefined` when the request failed, see #823
+      const url = extractRedirectUrl(signoutData) ?? callbackUrl
       return navigateToAuthPageWN(nuxt, url)
     }
 
