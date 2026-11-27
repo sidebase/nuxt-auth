@@ -88,6 +88,12 @@ export default NuxtAuthHandler({
 })
 ```
 
+::: warning Reserved routes
+All routes next to your NuxtAuthHandler (`/api/auth/*` by default) are reserved for NuxtAuth. The handler serves the `providers`, `session`, `csrf`, `signin`, `signout`, `callback`, `verify-request`, `error` and `_log` endpoints under this path.
+
+Do not create your own server routes in the same directory, e.g. `~/server/api/auth/signin.post.ts`. Nitro gives more specific routes priority over the catch-all `[...].ts`, so such a route replaces the internal endpoint without any warning and breaks authentication, for example with an `Invalid path used for auth-endpoint` error. Place your own routes in a different directory instead, e.g. `~/server/api/account/sign-in.post.ts`.
+:::
+
 ### Adding a provider
 
 After creating your NuxtAuthHandler, you can begin by adding a provider. You can find an overview of all the avalible providers [here](https://next-auth.js.org/providers/). For this example we will add the GitHub provider.
