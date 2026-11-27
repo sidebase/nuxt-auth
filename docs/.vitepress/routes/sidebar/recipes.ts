@@ -40,6 +40,10 @@ export const routes: DefaultTheme.SidebarItem[] = [
       {
         text: 'Laravel Passport',
         link: '/laravel-passport'
+      },
+      {
+        text: 'Mockatoo (OAuth testing)',
+        link: '/mockatoo'
       }
     ],
   },
