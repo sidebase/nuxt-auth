@@ -148,6 +148,11 @@ Refers to the name of the property when it is stored in a cookie.
 - **Type:** `string`
 - **Default:** `'auth.token'`
 
+::: tip Long tokens
+Browsers drop cookies larger than 4KB. When a token does not fit into a single cookie, NuxtAuth splits it across several cookies named `<cookieName>.0`, `<cookieName>.1`, and so on, like Auth.js does. The chunks contain the URI-encoded token.
+If you read the token cookie yourself (e.g. in a server route), join the chunks in order and decode the result with `decodeURIComponent`.
+:::
+
 ### `headerName`
 
 Header name to be used in requests that need to be authenticated, e.g., to be used in the `getSession` request.
@@ -302,7 +307,7 @@ How to do a fetch for the refresh token. This is especially useful when you have
 - **Type:** `string`
 - **Default:** `'auth.refresh-token'`
 
-It refers to the name of the property when it is stored in a cookie.
+It refers to the name of the property when it is stored in a cookie. Long refresh tokens are split across several cookies, see [`token.cookieName`](#cookiename).
 
 #### `maxAgeInSeconds`
 

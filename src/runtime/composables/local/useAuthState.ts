@@ -4,8 +4,9 @@ import type { CommonUseAuthStateReturn } from '../../types'
 import { makeCommonAuthState } from '../commonAuthState'
 import { useTypedBackendConfig } from '../../helpers'
 import { formatToken } from './utils/token'
-import type { CookieRef } from '#app'
-import { onMounted, useCookie, useRuntimeConfig, useState } from '#imports'
+import { createChunkedCookie, RAW_COOKIE_CODEC } from './utils/chunkedCookie'
+import type { CookieRef, CookieOptions as NuxtCookieOptions } from '#app'
+import { onMounted, tryUseNuxtApp, useCookie, useNuxtApp, useRuntimeConfig, useState } from '#imports'
 // @ts-expect-error - #auth not defined
 import type { SessionData } from '#auth'
 
@@ -27,15 +28,36 @@ export interface UseAuthStateReturn extends CommonUseAuthStateReturn<SessionData
   }
 }
 
+type CookieOptions = Pick<NuxtCookieOptions, 'domain' | 'maxAge' | 'sameSite' | 'secure' | 'httpOnly'>
+
 export function useAuthState(): UseAuthStateReturn {
   const config = useTypedBackendConfig(useRuntimeConfig(), 'local')
   const commonAuthState = makeCommonAuthState<SessionData>()
 
   const instance = getCurrentInstance()
+  const nuxtApp = useNuxtApp()
+
+  /**
+   * Long tokens do not fit into a single cookie (browsers silently drop cookies above ~4KB),
+   * so they get split across several cookies.
+   */
+  function useTokenCookie(name: string, options: CookieOptions) {
+    return createChunkedCookie(name, (cookieName, isChunk) => {
+      const createCookie = () => useCookie<string | null>(cookieName, {
+        default: () => null,
+        ...options,
+        ...(isChunk ? RAW_COOKIE_CODEC : {})
+      })
+
+      // Additional chunks may be needed when a token gets written, which can happen outside of the Nuxt context.
+      // Only restore the context when it is missing: nesting `runWithContext` would drop the outer context on the server.
+      // `runWithContext` returns synchronously for synchronous functions
+      return tryUseNuxtApp() ? createCookie() : nuxtApp.runWithContext(createCookie) as CookieRef<string | null>
+    })
+  }
 
   // Re-construct state from cookie, also setup a cross-component sync via a useState hack, see https://github.com/nuxt/nuxt/issues/13020#issuecomment-1397282717
-  const _rawTokenCookie = useCookie<string | null>(config.token.cookieName, {
-    default: () => null,
+  const _rawTokenCookie = useTokenCookie(config.token.cookieName, {
     domain: config.token.cookieDomain,
     maxAge: config.token.maxAgeInSeconds,
     sameSite: config.token.sameSiteAttribute,
@@ -67,8 +89,7 @@ export function useAuthState(): UseAuthStateReturn {
   // Handle refresh token, for when refresh logic is enabled
   const rawRefreshToken = useState<string | null>('auth:raw-refresh-token', () => null)
   if (config.refresh.isEnabled) {
-    const _rawRefreshTokenCookie = useCookie<string | null>(config.refresh.token.cookieName, {
-      default: () => null,
+    const _rawRefreshTokenCookie = useTokenCookie(config.refresh.token.cookieName, {
       domain: config.refresh.token.cookieDomain,
       maxAge: config.refresh.token.maxAgeInSeconds,
       sameSite: config.refresh.token.sameSiteAttribute,
