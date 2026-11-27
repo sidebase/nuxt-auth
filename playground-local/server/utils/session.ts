@@ -16,6 +16,12 @@ const SECRET = new TextEncoder().encode('dummy')
 /** 30 seconds */
 const ACCESS_TOKEN_TTL = 30
 
+/**
+ * Users whose username starts with this prefix receive access tokens larger than a single cookie can hold.
+ * Used for E2E testing of chunked token cookies.
+ */
+const LONG_TOKEN_USERNAME_PREFIX = 'long-token'
+
 export const userSchema = z.object({
   username: z.string().min(1),
   name: z.string(),
@@ -68,7 +74,11 @@ interface UserTokens {
  */
 export async function createUserTokens(user: User): Promise<UserTokens> {
   const tokenData: JWTPayload = { ...user, scope: ['test', 'user'] }
-  const accessToken = await createSignedJwt(tokenData, ACCESS_TOKEN_TTL)
+  const accessTokenData: JWTPayload = user.username.startsWith(LONG_TOKEN_USERNAME_PREFIX)
+    // Emulate a JWT with a lot of claims (e.g. permissions), producing a token above 4KB
+    ? { ...tokenData, permissions: Array.from({ length: 200 }, (_, i) => `permission:${i}`) }
+    : tokenData
+  const accessToken = await createSignedJwt(accessTokenData, ACCESS_TOKEN_TTL)
   const refreshToken = await createSignedJwt(tokenData, /* 1 day */ 60 * 60 * 24)
 
   // Naive implementation - please implement properly yourself!

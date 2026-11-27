@@ -1,9 +1,17 @@
 import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { expect as playwrightExpect } from '@nuxt/test-utils/playwright'
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 const STATUS_AUTHENTICATED = 'authenticated'
 const STATUS_UNAUTHENTICATED = 'unauthenticated'
+
+/** Returns the access token cookie, or its chunks, sorted by name */
+async function getTokenCookies(page: Awaited<ReturnType<typeof createPage>>) {
+  const cookies = await page.context().cookies()
+  return cookies
+    .filter(cookie => cookie.name === 'auth.token' || cookie.name.startsWith('auth.token.'))
+    .toSorted((a, b) => a.name.localeCompare(b.name))
+}
 
 describe('local Provider', async () => {
   await setup({
@@ -58,6 +66,57 @@ describe('local Provider', async () => {
     // Sign out, status should change
     await signoutButton.click()
     await playwrightExpect(status).toHaveText(STATUS_UNAUTHENTICATED)
+  })
+
+  it('stores long tokens across chunked cookies', async () => {
+    const page = await createPage('/')
+    const [
+      usernameInput,
+      passwordInput,
+      submitButton,
+      status,
+      signoutButton,
+      refreshRequiredTrueButton
+    ] = await Promise.all([
+      page.getByTestId('username'),
+      page.getByTestId('password'),
+      page.getByTestId('submit'),
+      page.getByTestId('status'),
+      page.getByTestId('signout'),
+      page.getByTestId('refresh-required-true')
+    ])
+
+    await playwrightExpect(status).toHaveText(STATUS_UNAUTHENTICATED)
+
+    // This user receives a token which does not fit into a single cookie
+    await usernameInput.fill('long-token-user')
+    await passwordInput.fill('hunter2')
+
+    const responsePromise = page.waitForResponse(/\/api\/auth\/login/)
+    await submitButton.click()
+    const response = await responsePromise
+    const { token: { accessToken } } = await response.json()
+    expect(accessToken.length).toBeGreaterThan(4096)
+
+    await playwrightExpect(status).toHaveText(STATUS_AUTHENTICATED)
+
+    // The token is split across chunk cookies instead of being silently dropped
+    const tokenCookies = await getTokenCookies(page)
+    expect(tokenCookies.map(cookie => cookie.name)).toEqual(['auth.token.0', 'auth.token.1'])
+    expect(tokenCookies.every(cookie => cookie.value.length < 4096)).toBe(true)
+    expect(decodeURIComponent(tokenCookies.map(cookie => cookie.value).join(''))).toBe(accessToken)
+
+    // Ensure that the token is restored from the chunks after page refresh
+    await page.reload()
+    await playwrightExpect(status).toHaveText(STATUS_AUTHENTICATED)
+
+    await refreshRequiredTrueButton.click()
+    await playwrightExpect(status).toHaveText(STATUS_AUTHENTICATED)
+
+    // Sign out, all token cookies should be removed
+    await signoutButton.click()
+    await playwrightExpect(status).toHaveText(STATUS_UNAUTHENTICATED)
+    await playwrightExpect.poll(() => getTokenCookies(page)).toEqual([])
   })
 
   it('should sign up and return signup data when preventLoginFlow: true', async () => {
